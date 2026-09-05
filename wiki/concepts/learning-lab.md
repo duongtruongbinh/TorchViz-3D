@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-31
+updated: 2026-09-05
 ---
 
 # Learning Lab
@@ -19,13 +19,13 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 14 domains, 93 tracks, and 704 lesson nodes. Two hundred
-seventy-five Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 15 domains, 98 tracks, and 755 lesson nodes. Two hundred
+ninety Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-one in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
-chapters), nineteen in `research-papers`, and four tagged exercise lessons in `cv`.
-The other 429 nodes are navigable placeholders and render one shared localized
+chapters), nineteen in `research-papers`, fifteen in `evolutionary-algorithms`,
+and four tagged exercise lessons in `cv`. The other 465 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
@@ -585,7 +585,7 @@ To maintain architectural clarity and prevent component sprawl, Learning Lab def
 | :--- | :--- | :--- | :--- |
 | **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `shell/InteractiveStepper.tsx`, `code/CodeLabStep.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
 | **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
-| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
 | **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
 
 #### Component Reuse Guidelines for Coding Agents

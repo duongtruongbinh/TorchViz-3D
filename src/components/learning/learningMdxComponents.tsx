@@ -1,4 +1,15 @@
-import { Check, Code2, DatabaseBackup, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import {
+  Check,
+  Code2,
+  DatabaseBackup,
+  Dna,
+  GitFork,
+  ListFilter,
+  Monitor,
+  Terminal,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import {
   createContext,
@@ -209,7 +220,7 @@ function CourseCardVisual({ visual, isLight }: {
   return (
     <div className={cx('grid h-20 place-items-center border-b', palette)} aria-hidden="true">
       {visual === 'gradient-update' ? (
-        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none">
+        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none" aria-hidden="true">
           <circle cx="38" cy="42" r="3.5" fill="currentColor" />
           <path d="M38 42 75 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.38" />
           <path d="m69 13 7-1-2 7" fill="currentColor" opacity="0.38" />
@@ -219,7 +230,7 @@ function CourseCardVisual({ visual, isLight }: {
           <path d="M69 36v6h6" stroke="currentColor" strokeWidth="1.4" opacity="0.65" />
         </svg>
       ) : (
-        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none">
+        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none" aria-hidden="true">
           <ellipse cx="34" cy="28" rx="22" ry="18" stroke="currentColor" strokeWidth="1.4" opacity="0.22" />
           <ellipse cx="79" cy="28" rx="21" ry="18" stroke="currentColor" strokeWidth="1.4" opacity="0.22" />
           <g fill="currentColor">
@@ -238,10 +249,10 @@ function CourseCardVisual({ visual, isLight }: {
   );
 }
 
-export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false, threeColumns = false, featureFirst = false, numbered = true }: {
+export function CourseCards({ ariaLabel, exampleLabel = '', takeawayLabel = '', items, spotlight = false, singleColumn = false, threeColumns = false, featureFirst = false, numbered = true }: {
   ariaLabel: string;
-  exampleLabel: string;
-  takeawayLabel: string;
+  exampleLabel?: string;
+  takeawayLabel?: string;
   items: CourseCardItem[];
   spotlight?: boolean;
   singleColumn?: boolean;
@@ -287,14 +298,18 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
             </div>
             {item.visual ? <CourseCardVisual visual={item.visual} isLight={themeClasses.isLight} /> : null}
             <dl className="grid content-start gap-4 p-4 text-sm leading-6">
-              <div>
-                <dt className={cx('font-black', themeClasses.titleText)}>{exampleLabel}</dt>
-                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
-              </div>
-              <div>
-                <dt className={cx('font-black', themeClasses.titleText)}>{takeawayLabel}</dt>
-                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
-              </div>
+              {item.example ? (
+                <div>
+                  {exampleLabel ? <dt className={cx('font-black', themeClasses.titleText)}>{exampleLabel}</dt> : null}
+                  <dd className={cx(exampleLabel && 'mt-1', themeClasses.bodyText)}>{item.example}</dd>
+                </div>
+              ) : null}
+              {item.takeaway ? (
+                <div>
+                  {takeawayLabel ? <dt className={cx('font-black', themeClasses.titleText)}>{takeawayLabel}</dt> : null}
+                  <dd className={cx(takeawayLabel && 'mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
+                </div>
+              ) : null}
             </dl>
           </li>
         );
@@ -359,20 +374,32 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
   );
 }
 
-export function LessonNote({ children, tone = 'default' }: { children?: ReactNode; tone?: 'default' | 'warning' }) {
+export function LessonNote({
+  children,
+  tone = 'default',
+}: {
+  children?: ReactNode;
+  tone?: 'default' | 'warning' | 'tip' | 'info' | 'success';
+}) {
   const themeClasses = useLearningMdxTheme();
   const isWarning = tone === 'warning';
+  const isSuccess = tone === 'success';
+
+  const toneClasses = isWarning
+    ? cx(themeClasses.semantic.warning.border, themeClasses.semantic.warning.surface)
+    : isSuccess
+      ? cx(themeClasses.semantic.success.border, themeClasses.semantic.success.surface)
+      : cx(
+        themeClasses.isLight ? 'border-[#2F6B55]/18 bg-[#F1F8F4]' : 'border-[#A8D4FF]/25 bg-[#A8D4FF]/10',
+      );
+
   return (
     <div
       className={cx(
-        'mt-5 grid rounded-lg border px-4 py-3 text-sm leading-6 [&_p]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
-        isWarning
-          ? cx(themeClasses.semantic.warning.border, themeClasses.semantic.warning.surface, 'font-normal', themeClasses.semantic.warning.text)
-          : cx(
-            'gap-2 font-semibold',
-            themeClasses.isLight ? 'border-[#2F6B55]/18' : 'border-[#A8D4FF]/25',
-            themeClasses.sectionAccent.note,
-          ),
+        'mt-5 grid rounded-lg border px-4 py-3 text-sm leading-6 font-normal',
+        themeClasses.bodyText,
+        '[&_p]:!text-inherit [&_li]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+        toneClasses,
       )}
     >
       {children}
@@ -431,6 +458,7 @@ export function LessonImage({
   if (!currentState || currentState.status === 'loading') {
     return (
       <div
+        role="status"
         aria-busy="true"
         aria-label={alt}
         className={cx(
@@ -484,43 +512,89 @@ export function LessonImage({
   );
 }
 
-type ConceptFlowItem = { title: string; detail?: string };
+type ConceptVisual =
+    | 'database'
+    | 'two-term-loss'
+    | 'neural-network'
+    | 'solution'
+    | 'space'
+    | 'objective'
+    | 'constraints'
+    | 'first-order'
+    | 'second-order'
+    | 'zero-order'
+    | 'evaluation'
+    | 'selection'
+    | 'crossover'
+    | 'mutation'
+    | 'dna'
+    | 'binary-vector'
+    | 'feasible-decode'
+    | 'decode'
+    | 'real-vector'
+    | 'permutation'
+    | 'tree-graph';
+
+type ConceptFlowItem = {
+  title: string;
+  detail?: string;
+  formula?: string;
+  math?: string;
+  visual?: ConceptVisual;
+  tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
+};
 
 export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: ConceptFlowItem[] }) {
   const themeClasses = useLearningMdxTheme();
   return (
-    <figure className="my-6" aria-label={ariaLabel}>
-      <ol className="grid gap-0 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+    <figure className="my-6 min-w-0 max-w-full" aria-label={ariaLabel}>
+      <ol className="flex w-full list-none items-stretch gap-3 overflow-x-auto !pl-0 pb-1 sm:gap-4">
         {items.map((item, index) => {
-          const isLast = index === items.length - 1;
+          const cleanTitle = item.title.replace(/^\d+[.:-]\s*/, '');
+          const formula = item.formula ?? item.math;
           return (
-            <li key={`${item.title}-${index}`} className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] gap-3 sm:block">
-              <div className="flex h-full flex-col items-center sm:h-auto sm:flex-row">
-                <span
-                  className={cx(
-                    'grid size-8 shrink-0 place-items-center rounded-full text-sm font-black tabular-nums',
-                    themeClasses.isLight
-                      ? 'bg-[#205089] text-white shadow-[0_0_0_4px_rgba(32,80,137,0.10)]'
-                      : 'bg-[#A8D4FF] text-[#0B1726] shadow-[0_0_0_4px_rgba(168,212,255,0.10)]',
-                  )}
-                  aria-hidden="true"
-                >
+            <li
+              key={`${item.title}-${index}`}
+              className={cx(
+                'flex min-w-[10.5rem] flex-1 basis-0 flex-col rounded-lg border p-4 shadow-xs transition-colors',
+                themeClasses.isLight
+                  ? 'border-[#B8C8DA]/85 bg-white hover:border-[#205089]/60'
+                  : 'border-white/15 bg-white/5 hover:border-[#A8D4FF]/55',
+              )}
+            >
+              <div className="mb-2.5 flex items-center justify-between">
+                <span className={cx(
+                  'inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-xs',
+                  themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8D4FF] text-[#0B1726]',
+                )}>
                   {index + 1}
                 </span>
-                {!isLast ? (
-                  <span
-                    className={cx(
-                      'w-0.5 flex-1 sm:h-0.5 sm:w-auto',
-                      themeClasses.isLight ? 'bg-[#205089]/22' : 'bg-[#A8D4FF]/24',
-                    )}
-                    aria-hidden="true"
+              </div>
+              {item.visual ? (
+                <div className="mb-2 flex items-center justify-center">
+                  <ConceptHierarchyVisual
+                    visual={item.visual}
+                    tone={item.tone ?? 'blue'}
+                    isLight={themeClasses.isLight}
                   />
-                ) : null}
-              </div>
-              <div className={cx('min-w-0 pb-6 pt-1 sm:pb-0 sm:pt-4', !isLast && 'sm:pr-6')}>
-                <strong className={cx('block text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</strong>
-                {item.detail ? <span className={cx('mt-1 block text-sm leading-6 text-pretty', themeClasses.mutedText)}>{item.detail}</span> : null}
-              </div>
+                </div>
+              ) : null}
+              <strong className={cx('block text-sm font-bold leading-snug sm:text-base', themeClasses.titleText)}>
+                {renderContentWithMath(cleanTitle)}
+              </strong>
+              {item.detail ? (
+                <p className={cx('mt-2.5 whitespace-pre-line text-xs leading-relaxed sm:text-sm', themeClasses.bodyText)}>
+                  {renderContentWithMath(item.detail)}
+                </p>
+              ) : null}
+              {formula ? (
+                <div className={cx(
+                  'mt-auto border-t pt-4 text-center text-base font-semibold sm:text-lg',
+                  themeClasses.isLight ? 'border-[#B8C8DA]/40 text-[#0F172A]' : 'border-white/15 text-white',
+                )}>
+                  <InlineMath formula={formula.replace(/^\$+|\$+$/g, '')} />
+                </div>
+              ) : null}
             </li>
           );
         })}
@@ -538,8 +612,10 @@ type ConceptHierarchyNode = {
   title: ReactNode;
   detail?: ReactNode;
   problem?: ReactNode;
+  example?: ReactNode;
+  examplePrefix?: string;
   tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
-  visual?: 'database' | 'two-term-loss' | 'neural-network';
+  visual?: ConceptVisual;
   muted?: boolean;
   align?: 'left' | 'center';
   children?: ConceptHierarchyNode[];
@@ -566,6 +642,29 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
     neutral: 'text-[#B8C8DA]',
   };
   const termSurface = isLight ? 'border-current/22 bg-white/70' : 'border-current/25 bg-white/5';
+  const formulas: Partial<Record<NonNullable<ConceptHierarchyNode['visual']>, string>> = {
+    solution: '\\boldsymbol{\\theta}',
+    space: '\\Omega = \\{\\theta\\}',
+    objective: 'f(\\theta)',
+    constraints: 'g_i(\\theta) \\le 0',
+    'first-order': '\\nabla f(\\theta)',
+    'second-order': '\\mathbf H = \\begin{bmatrix} f_{11} & f_{12} \\\\ f_{21} & f_{22} \\end{bmatrix}',
+    'zero-order': '\\theta \\mapsto f(\\theta)',
+    evaluation: 'x_i \\mapsto f(x_i)',
+    crossover: '10|11 + 01|00 \\rightarrow 10|00',
+    mutation: '1010 \\rightarrow 1110',
+    'binary-vector': '\\mathbf g \\in \\{0,1\\}^{D}',
+    'feasible-decode': '\\operatorname{decode}(g) \\in \\Omega',
+    decode: 'g \\xrightarrow{\\text{decode}} x',
+    'real-vector': '\\mathbf{x} \\in \\mathbb{R}^{D}',
+    permutation: '\\pi = [3,1,4,2]',
+  };
+  const icons: Partial<Record<NonNullable<ConceptHierarchyNode['visual']>, LucideIcon>> = {
+    dna: Dna,
+    'tree-graph': GitFork,
+  };
+  const formula = formulas[visual];
+  const Icon = icons[visual];
 
   return (
     <div className={cx('grid min-h-16 place-items-center', visualTones[tone])} aria-hidden="true">
@@ -578,7 +677,7 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
         </div>
       ) : null}
       {visual === 'neural-network' ? (
-        <svg viewBox="0 0 104 56" className="h-14 w-24" fill="none">
+        <svg viewBox="0 0 104 56" className="h-14 w-24" fill="none" aria-hidden="true">
           <g stroke="currentColor" strokeWidth="1.4" opacity="0.35">
             {[14, 42].flatMap((inputY) => [8, 28, 48].map((hiddenY) => (
               <line key={`in-${inputY}-${hiddenY}`} x1="12" y1={inputY} x2="52" y2={hiddenY} />
@@ -598,6 +697,23 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
           </g>
         </svg>
       ) : null}
+      {visual === 'selection' ? (
+        <div className="flex items-center gap-1.5">
+          <span className={cx('rounded-md border px-2 py-1 text-xs font-bold opacity-45', termSurface)}>0.31</span>
+          <span className={cx('rounded-md border px-2 py-1 text-xs font-bold', termSurface)}>0.92</span>
+          <ListFilter className="ml-0.5 size-5" strokeWidth={1.8} />
+        </div>
+      ) : null}
+      {formula ? (
+        <div className={cx(
+          'max-w-full px-2 text-center text-lg font-semibold [&_.katex]:max-w-full',
+          visual === 'second-order' && 'text-sm sm:text-base',
+          visual === 'crossover' && 'text-sm',
+        )}>
+          <InlineMath formula={formula} />
+        </div>
+      ) : null}
+      {Icon ? <Icon className="size-10" strokeWidth={1.65} /> : null}
     </div>
   );
 }
@@ -618,8 +734,8 @@ function conceptHierarchyRailStyle(count: number) {
 
 function renderContentWithMath(content: ReactNode): ReactNode {
   if (typeof content !== 'string') return content;
-  const regex = /(\$([^\$]+)\$|\\\((.+?)\\\))/g;
-  if (!regex.test(content)) return content;
+  if (!/\$([^$]+)\$|\\\((.+?)\\\)/.test(content)) return content;
+  const regex = /(\$([^$]+)\$|\\\((.+?)\\\))/g;
 
   const parts: ReactNode[] = [];
   let lastIndex = 0;
@@ -672,16 +788,13 @@ function ConceptHierarchyNodeCard({
         ? 'min-h-9 rounded-lg px-2 py-1 sm:min-h-9.5 sm:px-2.5 sm:py-1.5'
         : 'min-h-8.5 rounded-lg px-1.5 py-1'
     : level === 'primary'
-      ? 'min-h-[4.25rem] rounded-xl px-3 py-3'
-      : 'min-h-14 rounded-xl px-3 py-2 sm:px-4 sm:py-3';
+      ? 'min-h-[3.25rem] rounded-xl px-3 py-2.5'
+      : 'min-h-12 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5';
   const titleClass = compact
     ? 'text-xs font-bold leading-tight'
     : level === 'primary'
       ? 'text-sm font-black leading-snug sm:text-base'
       : 'text-sm font-black leading-5';
-  const descriptionClass = compact
-    ? 'mt-1 px-0.5 text-xs leading-relaxed'
-    : cx(node.visual ? 'mt-1' : 'mt-2.5', 'px-1 text-sm leading-relaxed');
 
   return (
     <div className={cx('flex flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
@@ -691,12 +804,17 @@ function ConceptHierarchyNodeCard({
       {node.visual ? <ConceptHierarchyVisual visual={node.visual} tone={tone} isLight={isLight} /> : null}
       {description ? (
         <p className={cx(
-          descriptionClass,
+          compact ? 'mt-1 px-0.5 text-xs leading-relaxed' : cx(node.visual ? 'mt-1' : 'mt-2.5', 'px-1 text-sm leading-relaxed'),
           'text-pretty',
           node.align === 'center' ? 'text-center' : 'text-left',
           bodyText,
         )}>
           {renderContentWithMath(description)}
+          {node.example ? (
+            <span className="mt-2 block">
+              <strong>{node.examplePrefix ?? 'Ví dụ'}:</strong> {renderContentWithMath(node.example)}
+            </span>
+          ) : null}
         </p>
       ) : null}
     </div>

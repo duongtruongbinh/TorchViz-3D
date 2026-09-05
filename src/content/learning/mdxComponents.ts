@@ -100,11 +100,20 @@ export const LLM_MDX_COMPONENT_NAMES = [
   'LlmPopularity',
 ] as const;
 
+export const EVOLUTIONARY_ALGORITHMS_MDX_COMPONENT_NAMES = [
+  'LocalMinimaTrapExplorer',
+  'GradientFailureModesVisualizer',
+  'ZeroOrderSamplingVisualizer',
+  'BlackBoxFunctionVisualizer',
+  'LossToFitnessVisualizer',
+] as const;
+
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,
   'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,
   'linear-algebra': LINEAR_ALGEBRA_MDX_COMPONENT_NAMES,
+  'evolutionary-algorithms': EVOLUTIONARY_ALGORITHMS_MDX_COMPONENT_NAMES,
 } as const;
 
 export function getLearningDomainMdxComponentNames(domainId: string): readonly string[] {

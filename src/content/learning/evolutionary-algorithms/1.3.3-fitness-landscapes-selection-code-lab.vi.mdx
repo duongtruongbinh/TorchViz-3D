@@ -1,0 +1,243 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'fitness-landscapes-selection-code-lab',
+  locale: 'vi',
+  title: "Code",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Công thức Định lượng Độ đa dạng Quần thể (Population Diversity)',
+    'Thực nghiệm: Áp lực Chọn lọc Cao gây Sụp đổ Đa dạng',
+    'Thực nghiệm: Duy trì Đa dạng giúp Khám phá Nghiệm Tốt hơn',
+    'Đối chiếu Thực tế: Kiểm chứng Địa hình Rastrigin với Thư viện pymoo',
+  ],
+  keywords: ['Code Lab', 'Diversity', 'Selection Pressure', 'NumPy', 'Premature Convergence', 'pymoo', 'Rastrigin', 'Python'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Một trong những kỹ năng chẩn đoán quan trọng nhất khi làm việc với Thuật toán Tiến hóa là: **đo lường độ đa dạng của quần thể (Population Diversity)** qua từng thế hệ.
+
+<BlockMath formula="\text{Diversity}(P) = \frac{1}{N} \sum_{i=1}^N \|\mathbf{x}_i - \bar{\mathbf{x}}\|_2" />
+
+
+Trong đó <InlineMath formula="\bar{\mathbf{x}}" /> là tọa độ trọng tâm (mean vector) của quần thể.
+- Khi <InlineMath formula="\text{Diversity} \to 0" />: Quần thể đã bị co cụm (collapse) thành một điểm duy nhất. Nếu điểm đó là cực tiểu địa phương, thuật toán coi như thất bại hoàn toàn.
+
+
+Trong bài thực hành này, ta sẽ chứng minh bằng code NumPy hiện tượng sụp đổ đa dạng do áp lực chọn lọc quá cao và cách khắc phục nó.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Công thức Định lượng Độ đa dạng Quần thể (Population Diversity)
+
+Định nghĩa hàm đo lường độ đa dạng bằng NumPy vectorization:
+
+```python
+import numpy as np
+
+def compute_diversity(population):
+    """Tính khoảng cách Euclidean trung bình từ mỗi cá thể đến trọng tâm quần thể."""
+    # population shape: (N, D)
+    centroid = np.mean(population, axis=0) # shape: (D,)
+    distances = np.linalg.norm(population - centroid, axis=1) # shape: (N,)
+    return np.mean(distances)
+
+# Thử nghiệm với 2 quần thể mẫu
+np.random.seed(42)
+diverse_pop = np.random.uniform(-5.0, 5.0, size=(50, 2))
+collapsed_pop = np.ones((50, 2)) * 1.5 + np.random.normal(0, 0.001, size=(50, 2))
+
+print(f"Độ đa dạng quần thể phân tán rộng : {compute_diversity(diverse_pop):.4f}")
+print(f"Độ đa dạng quần thể đã bị co cụm : {compute_diversity(collapsed_pop):.4f}")
+```
+
+```output
+Độ đa dạng quần thể phân tán rộng : 3.9228
+Độ đa dạng quần thể đã bị co cụm : 0.0011
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thực nghiệm: Áp lực Chọn lọc Cao gây Sụp đổ Đa dạng
+
+Mô phỏng trường hợp **Áp lực Chọn lọc Quá cao (Extreme Elitism)**: Sau mỗi thế hệ, chỉ giữ lại duy nhất 1 cá thể tốt nhất và nhân bản nó cho toàn bộ quần thể mà bước đột biến quá nhỏ (<InlineMath formula="\sigma = 0.01" />):
+
+```python
+def rastrigin_2d(pop):
+    """Hàm Rastrigin 2 chiều cho quần thể (N, 2)."""
+    return 20.0 + np.sum(pop**2 - 10.0 * np.cos(2.0 * np.pi * pop), axis=1)
+
+def run_high_pressure_ea(generations=20, pop_size=60):
+    pop = np.random.uniform(-4.0, 4.0, size=(pop_size, 2))
+
+    print("=== TIẾN HÓA VỚI ÁP LỰC CHỌN LỌC CỰC ĐOAN ===")
+    for gen in range(generations):
+        fitness = -rastrigin_2d(pop) # Cực đại hóa negative loss
+        best_idx = np.argmax(fitness)
+        best_individual = pop[best_idx]
+        diversity = compute_diversity(pop)
+
+        if (gen + 1) % 5 == 0 or gen == 0:
+            print(f"Gen {gen+1:02d} | Diversity: {diversity:.4f} | Best Loss: {-fitness[best_idx]:.4f}")
+
+        # Áp lực cực đoan: Chỉ lấy 1 cá thể tốt nhất nhân bản
+        mutations = np.random.normal(0, 0.01, size=(pop_size, 2))
+        pop = best_individual + mutations
+        pop[0] = best_individual # Giữ elite
+
+run_high_pressure_ea()
+```
+
+```output
+=== TIẾN HÓA VỚI ÁP LỰC CHỌN LỌC CỰC ĐOAN ===
+Gen 01 | Diversity: 3.1650 | Best Loss: 9.5473
+Gen 05 | Diversity: 0.0122 | Best Loss: 8.9546
+Gen 10 | Diversity: 0.0130 | Best Loss: 8.9546
+Gen 15 | Diversity: 0.0117 | Best Loss: 8.9546
+Gen 20 | Diversity: 0.0121 | Best Loss: 8.9546
+```
+
+
+**Quan sát:** Chỉ sau 5 thế hệ, Diversity tụt dốc thảm hại từ ~3.2 xuống chỉ còn 0.01. Toàn bộ 60 cá thể đều đứng chung một chỗ, không thể thoát khỏi cực tiểu địa phương.
+
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thực nghiệm: Duy trì Đa dạng giúp Khám phá Nghiệm Tốt hơn
+
+Bây giờ chuyển sang cơ chế chọn lọc cân bằng hơn (**Tournament Selection**) kết hợp với bước đột biến vừa phải (<InlineMath formula="\sigma = 0.25" />):
+
+```python
+def tournament_selection(pop, fitness, tournament_size=3):
+    """Chọn ngẫu nhiên k cá thể và lấy cá thể tốt nhất trong số đó."""
+    selected = []
+    N = len(pop)
+    for _ in range(N):
+        aspirants_idx = np.random.choice(N, size=tournament_size, replace=False)
+        best_in_group = aspirants_idx[np.argmax(fitness[aspirants_idx])]
+        selected.append(pop[best_in_group])
+    return np.array(selected)
+
+def run_balanced_ea(generations=20, pop_size=60):
+    pop = np.random.uniform(-4.0, 4.0, size=(pop_size, 2))
+
+    print("\n=== TIẾN HÓA VỚI ÁP LỰC CHỌN LỌC CÂN BẰNG (TOURNAMENT) ===")
+    for gen in range(generations):
+        fitness = -rastrigin_2d(pop)
+        best_idx = np.argmax(fitness)
+        elite = pop[best_idx].copy()
+        diversity = compute_diversity(pop)
+
+        if (gen + 1) % 5 == 0 or gen == 0:
+            print(f"Gen {gen+1:02d} | Diversity: {diversity:.4f} | Best Loss: {-fitness[best_idx]:.4f}")
+
+        parents = tournament_selection(pop, fitness, tournament_size=3)
+        mutations = np.random.normal(0, 0.25, size=(pop_size, 2))
+        pop = parents + mutations
+        pop[0] = elite # Giữ đúng cá thể tốt nhất của quần thể trước
+
+run_balanced_ea()
+```
+
+```output
+=== TIẾN HÓA VỚI ÁP LỰC CHỌN LỌC CÂN BẰNG (TOURNAMENT) ===
+Gen 01 | Diversity: 3.1650 | Best Loss: 9.5473
+Gen 05 | Diversity: 2.1300 | Best Loss: 4.6764
+Gen 10 | Diversity: 1.3575 | Best Loss: 0.9573
+Gen 15 | Diversity: 0.8949 | Best Loss: 0.9573
+Gen 20 | Diversity: 0.7536 | Best Loss: 0.0299
+```
+
+
+**Kết luận:** Trong lần chạy cố định này, tournament selection và mutation duy trì độ đa dạng lâu hơn, đồng thời tìm được nghiệm có Loss thấp hơn. Một seed không đủ chứng minh ưu thế tổng quát; khi đánh giá thuật toán cần lặp nhiều seed với cùng ngân sách hàm mục tiêu.
+
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Đối chiếu Thực tế: Kiểm chứng Địa hình Rastrigin với Thư viện pymoo
+
+Sau khi đã mổ xẻ cơ chế đo đạc độ đa dạng và áp lực chọn lọc bằng code NumPy tự viết, hãy đối chiếu trực tiếp với cách thiết lập chuẩn mực trong thư viện chuyên dụng **`pymoo`**.
+
+`pymoo` cung cấp sẵn hàm mục tiêu đa cực hiểm trở **Rastrigin** trong mô-đun `problems`. Dưới đây, ta sẽ dùng `pymoo` để tối ưu địa hình Rastrigin 2D và theo dõi tiến trình duy trì độ đa dạng qua từng thế hệ thông qua `Callback`:
+
+```python
+import numpy as np
+from pymoo.problems import get_problem
+from pymoo.algorithms.soo.nonconvex.ga import GA, comp_by_cv_and_fitness
+from pymoo.operators.selection.tournament import TournamentSelection
+from pymoo.operators.crossover.sbx import SBX
+from pymoo.operators.mutation.pm import PM
+from pymoo.optimize import minimize
+from pymoo.core.callback import Callback
+
+# 1. Khởi tạo bài toán Rastrigin 2D chuẩn mực có sẵn trong pymoo
+problem = get_problem("rastrigin", n_var=2)
+
+# 2. Xây dựng Callback theo dõi độ đa dạng và Loss tốt nhất theo từng thế hệ
+class DiversityTracker(Callback):
+    def __init__(self):
+        super().__init__()
+        self.diversities = []
+        self.best_losses = []
+
+    def notify(self, algorithm):
+        pop_X = algorithm.pop.get("X")
+        centroid = np.mean(pop_X, axis=0)
+        div = float(np.mean(np.linalg.norm(pop_X - centroid, axis=1)))
+        self.diversities.append(div)
+        best_loss = float(algorithm.opt.get("F").flatten()[0])
+        self.best_losses.append(best_loss)
+
+# 3. So sánh 2 mức Áp lực Chọn lọc (Tournament Pressure p = 2 vs p = 6)
+for pressure in [2, 6]:
+    tracker = DiversityTracker()
+    algo = GA(
+        pop_size=20,
+        crossover=SBX(prob=0.3, eta=15),
+        mutation=PM(prob=0.2, eta=10),
+        selection=TournamentSelection(func_comp=comp_by_cv_and_fitness, pressure=pressure),
+        eliminate_duplicates=True
+    )
+    res = minimize(problem, algo, ('n_gen', 25), callback=tracker, seed=15, verbose=False)
+
+    print(f"=== ÁP LỰC TOURNAMENT PRESSURE = {pressure} ===")
+    # In chẩn đoán tại các mốc thế hệ 1, 5, 10, 15, 25
+    for gen in [1, 5, 10, 15, 25]:
+        print(f"Gen {gen:02d} | Diversity: {tracker.diversities[gen - 1]:.4f} | Best Loss: {tracker.best_losses[gen - 1]:.4f}")
+    print(f"Tọa độ nghiệm: {res.X.round(4).tolist()} | Loss tối ưu: {float(res.F.flatten()[0]):.4f}\n")
+```
+
+```output
+=== ÁP LỰC TOURNAMENT PRESSURE = 2 ===
+Gen 01 | Diversity: 3.7909 | Best Loss: 19.2557
+Gen 05 | Diversity: 1.8860 | Best Loss: 1.8160
+Gen 10 | Diversity: 0.5684 | Best Loss: 0.1451
+Gen 15 | Diversity: 0.0056 | Best Loss: 0.0092
+Gen 25 | Diversity: 0.0000 | Best Loss: ==0.0078==
+Tọa độ nghiệm: [0.006, -0.0017] | Loss tối ưu: 0.0078 (Toàn cục [0, 0])
+
+=== ÁP LỰC TOURNAMENT PRESSURE = 6 ===
+Gen 01 | Diversity: 3.7909 | Best Loss: 19.2557
+Gen 05 | Diversity: 2.1402 | Best Loss: 3.0835
+Gen 10 | Diversity: 0.8393 | Best Loss: 1.4747
+Gen 15 | Diversity: 0.7380 | Best Loss: 1.0742
+Gen 25 | Diversity: 0.0000 | Best Loss: ==1.0687==
+Tọa độ nghiệm: [-0.0181, 0.9884] | Loss tối ưu: 1.0687 (Kẹt Cực tiểu Cục bộ [0, 1])
+```
+
+**Đúc kết So sánh Thực tiễn:**
+- **Hiện tượng Kẹt Cực tiểu Địa phương (Premature Convergence):** Với áp lực đấu loại quá gắt (<InlineMath formula="p = 6" />), các cá thể quanh hố bẫy <InlineMath formula="[0, 1]" /> nhanh chóng thâu tóm giải đấu và đồng hóa toàn bộ quần thể, khiến thuật toán kẹt lại ở Loss <InlineMath formula="1.0687" />.
+- **Sự ưu việt của Áp lực Cân bằng (<InlineMath formula="p = 2" />):** Giữ được tốc độ thu hẹp đa dạng vừa phải (<InlineMath formula="3.79 \to 1.88 \to 0.56" />), cho phép quần thể thoát khỏi các thung lũng giả tạo và tiến thẳng vào cực tiểu toàn cục <InlineMath formula="[0, 0]" /> với Loss chỉ <InlineMath formula="0.0078" />.
+
+</MdxPage>

@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'ml-to-ea-concept-mapping-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Quy đổi Loss sang Fitness',
+    'Vai trò của Môi trường trong Bài toán Giá nhà',
+    'Vai trò của Toán tử Đột biến (Mutation)',
+    'Khái niệm Thế hệ (Generation) so với Epoch',
+  ],
+  keywords: ['Quiz', 'ML to EA', 'House Price Prediction', 'Fitness', 'Mutation', 'Environment'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="ml-to-ea-concept-mapping-quiz" questions={[
+  {
+    id: 'loss-to-fitness-conversion',
+    title: 'Quy đổi Loss sang Fitness',
+    prompt: 'Nếu hệ thống chọn lọc cần cực đại hóa Fitness trong khi bài toán đang cực tiểu hóa Loss không âm, phép đổi nào giữ đúng thứ hạng nghiệm?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: '$\\text{Fitness}(\\theta) = [\\text{Loss}(\\theta)]^2$ để khuếch đại sai số.' },
+      { id: 'opt1', label: '$-\\text{Loss}(\\theta)$ hoặc $1/(1+\\text{Loss}(\\theta))$.', isCorrect: true },
+      { id: 'opt3', label: '$\\text{Fitness}(\\theta)$ luôn luôn phải bằng 0.' },
+      { id: 'opt4', label: '$\\text{Fitness}(\\theta) = \\exp(\\text{Loss}(\\theta))$ để giá trị càng lớn khi loss càng cao.' },
+    ],
+    success: 'Chính xác! Khi cực tiểu hóa $\\text{Loss}(\\theta)$, giá trị $-\\text{Loss}(\\theta)$ sẽ được cực đại hóa. Ngoài ra, dạng $\\frac{1}{1 + \\text{Loss}(\\theta)}$ luôn dương và thuận tiện cho cơ chế chọn lọc xác suất.',
+    error: 'Chưa chính xác. Lưu ý rằng khi $\\text{Loss}(\\theta)$ giảm thì $\\text{Fitness}(\\theta)$ cần phải tăng lên (nghịch biến).',
+  },
+  {
+    id: 'environment-mapping-house-price',
+    title: 'Vai trò của Môi trường trong Bài toán Giá nhà',
+    prompt: 'Trong bài toán Dự đoán Giá nhà áp dụng Thuật toán Tiến hóa, thành phần nào đóng vai trò là Môi trường (Environment) để thử thách và đo lường độ thích nghi của các bộ trọng số ứng viên?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Cấu hình CPU, RAM và hệ điều hành dùng để chạy từng cá thể, bất kể dữ liệu huấn luyện hay hàm đánh giá.', isCorrect: false },
+      { id: 'opt3', label: 'Số lượng dòng code trong tệp script Python.', isCorrect: false },
+      { id: 'opt4', label: 'Tốc độ học (learning rate) của bộ tối ưu SGD.', isCorrect: false },
+      { id: 'opt1', label: 'Tập train để fit mô hình và tập validation hoặc cross-validation để tính fitness.', isCorrect: true },
+    ],
+    success: 'Đúng. Fitness phải được đo ngoài dữ liệu vừa dùng để fit mô hình; test set cuối cùng vẫn được giữ kín để báo cáo kết quả không thiên lệch.',
+    error: 'Trong wrapper feature selection hoặc model selection, dùng validation/CV để chấm fitness và giữ test set cho đánh giá cuối.',
+  },
+  {
+    id: 'mutation-role-concept',
+    title: 'Vai trò của Toán tử Đột biến (Mutation)',
+    prompt: 'Vai trò trực tiếp của Mutation trong vòng lặp tiến hóa là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tạo biến thể ngẫu nhiên để duy trì khả năng khám phá.', isCorrect: true },
+      { id: 'opt2', label: 'Tăng batch size để giảm phương sai của gradient trong mỗi bước cập nhật.' },
+      { id: 'opt3', label: 'Chuyển đổi kiểu dữ liệu từ float32 sang int8.' },
+      { id: 'opt4', label: 'Xóa bỏ toàn bộ dữ liệu kiểm thử.' },
+    ],
+    success: 'Đúng. Mutation tạo biến thể; selection sau đó quyết định biến thể nào được giữ. Nó giảm rủi ro mất đa dạng nhưng không tự bảo đảm thoát cực trị.',
+    error: 'Chưa đúng. Đột biến mang tính chất ngẫu nhiên nhằm tạo ra sự đa dạng và giúp thuật toán thăm dò vùng giải pháp mới.',
+  },
+  {
+    id: 'generation-vs-epoch-quiz',
+    title: 'Khái niệm Thế hệ (Generation) so với Epoch',
+    prompt: 'Phân biệt chính xác một Generation trong EA và một Epoch trong supervised learning là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Epoch là một lần đánh giá và thay thế toàn bộ quần thể, còn Generation là một lượt duyệt từng mini-batch của tập train.' },
+      { id: 'opt3', label: 'Generation chỉ chạy được trong 1 giây, còn Epoch phải chạy ít nhất 1 giờ.' },
+      { id: 'opt1', label: 'Epoch là một lượt đi qua tập train; Generation là một vòng đánh giá, chọn và tạo quần thể kế tiếp.', isCorrect: true },
+      { id: 'opt4', label: 'Không có điểm tương đồng nào.' },
+    ],
+    success: 'Đúng. Đây đều là đơn vị lặp, nhưng định nghĩa khác nhau: epoch gắn với một lượt qua dữ liệu, còn generation gắn với chuyển trạng thái của quần thể.',
+    error: 'Epoch được định nghĩa bởi lượt duyệt dữ liệu; generation được định nghĩa bởi một chu kỳ tạo quần thể mới.',
+  },
+]} />

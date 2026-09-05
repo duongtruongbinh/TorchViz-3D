@@ -146,7 +146,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       ? '[--learning-lab-section-accent-bg:rgba(255,255,255,0.88)] [--learning-lab-section-accent-text:#172A43] shadow-none'
       : '[--learning-lab-section-accent-bg:#17304A] [--learning-lab-section-accent-text:#F2F6FA] shadow-none',
     heading: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
-    note: isLight ? 'bg-[#F1F8F4] text-[#263B5B]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
+    note: isLight ? 'bg-[#F1F8F4] text-[#334155]' : 'bg-[#A8D4FF]/10 text-[#F2F6FA]/78',
   };
 
   const semantic = {
@@ -167,7 +167,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     warning: {
       surface: isLight ? 'bg-[#FFF8D8]' : 'bg-[#F4C84A]/10',
       border: isLight ? 'border-[#D5B43A]/35' : 'border-[#F4C84A]/24',
-      text: isLight ? 'text-[#263B5B]' : 'text-[#F2F6FA]',
+      text: isLight ? 'text-[#334155]' : 'text-[#F2F6FA]/78',
       strongText: isLight ? 'text-[#80520D]' : 'text-[#F0BE62]',
       indicator: isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
     },

@@ -1,0 +1,167 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'crossover-mutation-operators',
+  locale: 'vi',
+  title: "Toán tử Di truyền: Crossover & Mutation",
+  headings: [
+    'Nhu cầu Biến dị: Tại sao Sao chép là Chưa đủ?',
+    'Lai ghép (Crossover)',
+    'Đột biến (Mutation)',
+    'Phối hợp Lai ghép & Đột biến trong Thực tế',
+  ],
+  keywords: ['Crossover', 'Mutation', 'Genetic Operators', 'K-Point Crossover', 'Uniform Crossover', 'Bit-flip Mutation', 'Feature Selection'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Nhu cầu Biến dị: Tại sao Sao chép là Chưa đủ?
+
+Ở bài học trước, chúng ta đã đưa bài toán nghiệp vụ về không gian chuỗi bit chuẩn hóa **Genotype**. Tuy nhiên, nếu một thuật toán tiến hóa chỉ đơn thuần:
+1. Đánh giá điểm thích nghi (Fitness) của các chuỗi bit.
+2. Sao chép nguyên vẹn các cá thể có điểm cao nhất sang thế hệ sau.
+
+Thì độ đa dạng thường giảm nhanh và quần thể có thể chỉ lặp lại những nghiệm đã biết. Elitism không tự động làm mọi cá thể giống hệt nhau, nhưng sao chép mà không có variation sẽ không tạo thông tin di truyền mới.
+
+Để tiến hóa thực sự diễn ra, tự nhiên trang bị cho hệ thống hai cơ chế biến dị di truyền bổ trợ lẫn nhau:
+
+<ConceptHierarchy
+  ariaLabel="Hai trụ cột biến dị di truyền: Crossover và Mutation"
+  root={{
+    title: 'Hai Trụ cột Biến dị Di truyền',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Lai ghép (Crossover) — Khai thác (Exploitation)',
+      align: 'left',
+      detail: 'Tái tổ hợp vật liệu di truyền từ cha mẹ. Crossover có thể giữ hoặc phá vỡ các khối gen; chất lượng con chỉ được xác định sau khi đánh giá.',
+      tone: 'amber',
+      visual: 'crossover',
+    },
+    {
+      title: '2. Đột biến (Mutation) — Thám hiểm (Exploration)',
+      align: 'left',
+      detail: 'Tạo biến thể ngẫu nhiên chưa có trong cha mẹ để duy trì khả năng khám phá. Mutation không biết gen nào là rác; selection mới quyết định biến thể nào được giữ.',
+      tone: 'teal',
+      visual: 'mutation',
+    },
+  ]}
+/>
+
+Hãy cùng phân tích chi tiết từng toán tử, bắt đầu với Lai ghép (Crossover) ở trang tiếp theo!
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Lai ghép (Crossover)
+
+Lai ghép mô phỏng trao đổi vật liệu di truyền giữa hai cá thể cha mẹ. Nó tạo con mang allele từ cả hai phía, nhưng không bảo đảm các allele đó tốt khi kết hợp:
+
+---
+
+**1. Lai ghép theo Điểm cắt (K-Point Crossover)**
+
+Chọn 1 hoặc nhiều điểm cắt cố định dọc theo chuỗi gen rồi hoán đổi các đoạn bit giữa cha và mẹ:
+
+<BlockMath formula="\begin{array}{ccc}
+\textbf{Cha \& Mẹ} & & \textbf{Con lai (Offspring)} \\[6pt]
+\begin{array}{rc}
+\text{Parent 1:} & [\, \color{#205089}{\mathbf{0 \quad 1 \quad 0}} \;\big|\; \color{#205089}{\mathbf{1 \quad 0 \quad 0 \quad 0 \quad 0}} \,] \\
+\text{Parent 2:} & [\, \color{#d97706}{\mathbf{1 \quad 0 \quad 1}} \;\big|\; \color{#d97706}{\mathbf{0 \quad 1 \quad 1 \quad 1 \quad 1}} \,]
+\end{array}
+& \;\xrightarrow{\text{1-Point}\;(k=3)}\; &
+\begin{array}{cl}
+[\, \color{#205089}{\mathbf{0 \quad 1 \quad 0}} \;\big|\; \color{#d97706}{\mathbf{0 \quad 1 \quad 1 \quad 1 \quad 1}} \,] & \text{:Child 1} \\
+[\, \color{#d97706}{\mathbf{1 \quad 0 \quad 1}} \;\big|\; \color{#205089}{\mathbf{1 \quad 0 \quad 0 \quad 0 \quad 0}} \,] & \text{:Child 2}
+\end{array}
+\end{array}" />
+
+Ta có thể lựa chọn nhiều điểm cắt hơn ví dụ như:
+
+<BlockMath formula="\begin{array}{ccc}
+\textbf{Cha \& Mẹ} & & \textbf{Con lai (Offspring)} \\[6pt]
+\begin{array}{rc}
+\text{Parent 1:} & [\, \color{#205089}{\mathbf{0 \quad 1}} \;\big|\; \color{#205089}{\mathbf{0 \quad 1 \quad 0}} \;\big|\; \color{#205089}{\mathbf{0 \quad 0 \quad 0}} \,] \\
+\text{Parent 2:} & [\, \color{#d97706}{\mathbf{1 \quad 0}} \;\big|\; \color{#d97706}{\mathbf{1 \quad 0 \quad 1}} \;\big|\; \color{#d97706}{\mathbf{1 \quad 1 \quad 1}} \,]
+\end{array}
+& \;\xrightarrow{\text{2-Point}\;(k_1=2,\;k_2=5)}\; &
+\begin{array}{cl}
+[\, \color{#205089}{\mathbf{0 \quad 1}} \;\big|\; \color{#d97706}{\mathbf{1 \quad 0 \quad 1}} \;\big|\; \color{#205089}{\mathbf{0 \quad 0 \quad 0}} \,] & \text{:Child 1} \\[6pt]
+[\, \color{#d97706}{\mathbf{1 \quad 0}} \;\big|\; \color{#205089}{\mathbf{0 \quad 1 \quad 0}} \;\big|\; \color{#d97706}{\mathbf{1 \quad 1 \quad 1}} \,] & \text{:Child 2}
+\end{array}
+\end{array}" />
+
+Dĩ nhiên ưu điểm là đơn giản, giữ nguyên được các cụm gen liên tục có lợi.
+
+Hạn chế là thiên vị vị trí **(Positional Bias)**: các gen nằm sát nhau thường được thừa hưởng theo cùng một đoạn, còn các locus ở xa nhau có xác suất bị tách cao hơn. Tác động cụ thể phụ thuộc số điểm cắt và cách sắp xếp gene.
+
+---
+
+**2. Lai ghép Đồng nhất (Uniform Crossover)**
+
+Giảm thiên vị vị trí bằng cách chọn nguồn cha hoặc mẹ độc lập cho từng bit, thường với xác suất <InlineMath formula="p = 0.5" /> (sinh ngẫu nhiên qua vector <InlineMath formula="\mathbf{r} \in [0, 1]^D" />):
+
+<BlockMath formula="\begin{array}{ccc}
+\textbf{Cha \& Mẹ} & & \textbf{Con lai (Offspring)} \\[6pt]
+\begin{array}{rccccc}
+\text{Parent 1:} & [\, \color{#205089}{\mathbf{0}} & \color{#205089}{\mathbf{1}} & \color{#205089}{\mathbf{0}} & \color{#205089}{\mathbf{1}} & \color{#205089}{\mathbf{0}} \,] \\[2pt]
+\text{Vector } \mathbf{r}: & [\, \color{#ef4444}{\mathbf{0.2}} & 0.8 & 0.9 & \color{#ef4444}{\mathbf{0.1}} & \color{#ef4444}{\mathbf{0.4}} \,] \\[2pt]
+\text{Parent 2:} & [\, \color{#d97706}{\mathbf{1}} & \color{#d97706}{\mathbf{0}} & \color{#d97706}{\mathbf{1}} & \color{#d97706}{\mathbf{0}} & \color{#d97706}{\mathbf{1}} \,]
+\end{array}
+& \;\xrightarrow{\color{#ef4444}{r_i \le 0.5}}\; &
+\begin{array}{rccccc}
+\text{Child 1:} & [\, \color{#d97706}{\mathbf{1}} & \color{#205089}{\mathbf{1}} & \color{#205089}{\mathbf{0}} & \color{#d97706}{\mathbf{0}} & \color{#d97706}{\mathbf{1}} \,] \\[12pt]
+\text{Child 2:} & [\, \color{#205089}{\mathbf{0}} & \color{#d97706}{\mathbf{0}} & \color{#d97706}{\mathbf{1}} & \color{#205089}{\mathbf{1}} & \color{#205089}{\mathbf{0}} \,]
+\end{array}
+\end{array}" />
+
+Tại các vị trí có <InlineMath formula="r_i \le 0.5" /> (tô đỏ), Child 1 lấy allele từ Parent 2 và Child 2 lấy allele còn lại. Mỗi vị trí được lấy mẫu theo cùng quy tắc, không phụ thuộc khoảng cách trong chuỗi.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đột biến (Mutation)
+
+Lai ghép (Crossover) chỉ tái tổ hợp allele đã có ở cha mẹ. Nếu cả hai đều mang bit `1` tại cùng locus thì crossover nhị phân chuẩn không thể tạo bit `0` tại đó:
+
+<BlockMath formula="\begin{array}{rcccl}
+\text{Parent 1:} & [\, 1, & \color{#ef4444}{\mathbf{1}}, & 1, \; 0, \; 1, \; 0 \,] & (\text{Cột 2: } \text{noisy\_beds} = \mathbf{1}) \\
+\text{Parent 2:} & [\, 0, & \color{#ef4444}{\mathbf{1}}, & 1, \; 1, \; 0, \; 1 \,] & (\text{Cột 2: } \text{noisy\_beds} = \mathbf{1}) \\[6pt]
+\hline \\[-8pt]
+\text{Con lai (Dù lai kiểu gì):} & [\, *, & \color{#ef4444}{\mathbf{1}}, & *, \; *, \; *, \; * \,] & \implies \text{Không cách nào xóa được bit } \mathbf{1} \text{ này!}
+\end{array}" />
+
+---
+
+Để phá vỡ bế tắc này, giải thuật cần đến **Đột biến (Bit-flip Mutation)**:
+
+<BlockMath formula="\begin{array}{rccccccl}
+& \text{sqft} & \text{noisy\_beds} & \text{location} & \text{noisy\_year} & \text{bathrooms} & \text{noisy\_dist} & \\[4pt]
+\text{Trước đột biến } (\mathbf{g}): & [\, \color{#205089}{\mathbf{1}} & \color{#ef4444}{\mathbf{1}} & \color{#205089}{\mathbf{1}} & \color{#94a3b8}{0} & \color{#d97706}{\mathbf{1}} & \color{#d97706}{\mathbf{1}} \,] & \\[8pt]
+\text{Vector ngẫu nhiên } (\mathbf{r}): & [\, 0.52 & \color{#ef4444}{\mathbf{0.02}} & 0.78 & 0.15 & 0.59 & 0.81 \,] & \leftarrow p_m = \color{#ef4444}{0.05} \\[8pt]
+\text{Sau đột biến } (\mathbf{g}'): & [\, \color{#205089}{\mathbf{1}} & \color{#10b981}{\mathbf{0}} & \color{#205089}{\mathbf{1}} & \color{#94a3b8}{0} & \color{#d97706}{\mathbf{1}} & \color{#d97706}{\mathbf{1}} \,] &
+\end{array}" />
+
+**Vai trò thực tế của Đột biến:**
+1. Lật bit theo cả hai hướng `0 <-> 1`, qua đó khôi phục allele đã biến mất khỏi quần thể.
+2. Duy trì khả năng tiếp cận các vùng mới của không gian tìm kiếm.
+3. Tạo cơ hội thoát basin cục bộ; mutation không bảo đảm bước nhảy sẽ tốt hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Phối hợp Lai ghép & Đột biến trong Thực tế
+
+Lai ghép khai thác tổ hợp đang có, còn đột biến bổ sung biến thể. Cả hai chỉ sinh ứng viên; hàm fitness và selection quyết định ứng viên nào đóng góp cho thế hệ sau.
+
+**Quy tắc Vàng cho Kỹ sư ML:**
+- **Xác suất Crossover (<InlineMath formula="p_c" />):** thường được đặt tương đối cao trong GA nhị phân, nhưng cần điều chỉnh theo representation và toán tử.
+- **Xác suất Mutation theo gene (<InlineMath formula="p_m" />):** quy tắc khởi đầu phổ biến là <InlineMath formula="1/D" />, tức trung bình một bit bị lật mỗi cá thể. Với <InlineMath formula="D=6" />, giá trị này là khoảng <InlineMath formula="0.167" />, không phải 1-5%. Tỷ lệ phù hợp phải được kiểm chứng theo bài toán.
+
+Ở bài thực hành lập trình tiếp theo, chúng ta sẽ trực tiếp viết code NumPy cài đặt Tournament Selection, Crossover và Mutation từ đầu, đồng thời đối chiếu kiểm chứng (double-check) kết quả với thư viện tiêu chuẩn để giải bài toán lọc đặc trưng tự động!
+
+</MdxPage>

@@ -76,6 +76,7 @@ const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<
   'continual-learning-llm': () => import('./domains/continual-learning-llm/mdxComponents').then(({ continualLearningLlmMdxComponents }) => continualLearningLlmMdxComponents),
   'llm-ai-engineering': () => import('./domains/llm-ai-engineering/mdxComponents').then(({ llmMdxComponents }) => llmMdxComponents),
   'linear-algebra': () => import('./domains/linear-algebra/mdxComponents').then(({ linearAlgebraMdxComponents }) => linearAlgebraMdxComponents),
+  'evolutionary-algorithms': () => import('./domains/evolutionary-algorithms/mdxComponents').then(({ eaMdxComponents }) => eaMdxComponents),
 };
 
 function loadLearningReferenceComponents(): Promise<Record<string, LearningMdxComponent>> {

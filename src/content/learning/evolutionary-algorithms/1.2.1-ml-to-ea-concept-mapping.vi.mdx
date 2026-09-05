@@ -1,0 +1,261 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'ml-to-ea-concept-mapping',
+  locale: 'vi',
+  title: "Từ Machine Learning đến Thuật toán Tiến hóa",
+  headings: [
+    'Cảm hứng Tự nhiên: Từ Sinh học đến Chọn lọc Thích nghi',
+    'Ứng dụng Thực tế',
+    'Vòng lặp Tiến hóa Cốt lõi (The Evolutionary Loop)',
+  ],
+  keywords: ['ML to EA', 'Natural Selection', 'Fitness Evaluation', 'House Price Prediction', 'Evolutionary Loop'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Cảm hứng Tự nhiên: Từ Sinh học đến Chọn lọc Thích nghi
+
+Khi gradient không có sẵn hoặc biến quyết định là rời rạc, làm thế nào để tìm kiếm nghiệm tốt mà không dùng đạo hàm trực tiếp?
+
+Chúng ta có thể mượn lời giải đã vận hành hàng tỉ năm của tự nhiên: quá trình **một quần thể sinh vật thích nghi qua từng thế hệ** — cội nguồn cảm hứng của **Giải thuật Di truyền (Genetic Algorithm)**.
+
+Trong tự nhiên, biến dị có tính di truyền đã tồn tại trong quần thể trước khi môi trường chọn lọc; cá thể không chủ động đổi đặc điểm để thích nghi. Hai ví dụ đơn giản sau minh họa cách môi trường làm thay đổi tần suất đặc điểm qua nhiều thế hệ:
+
+<CourseCards
+  ariaLabel="So sánh thước đo thích nghi giữa loài hươu và loài chuột"
+  exampleLabel="Thước đo thích nghi"
+  takeawayLabel="Áp lực chọn lọc từ môi trường"
+  items={[
+    {
+      title: '1. Loài hươu cao cổ',
+      example: 'f(x) = Chiều cao của cổ',
+      takeaway: 'Trong một số điều kiện, biến thể chiều cao cổ có thể tạo khác biệt về sống sót hoặc sinh sản; đặc điểm có lợi khi đó xuất hiện thường xuyên hơn qua các thế hệ.',
+    },
+    {
+      title: '2. Loài chuột đồng',
+      example: 'f(x) = Độ tối màu lông (Ngụy trang)',
+      takeaway: 'Trên nền đất tối, màu lông khó bị phát hiện có thể tăng xác suất sống sót và sinh sản, làm alen liên quan phổ biến hơn trong quần thể.',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="evolutionary-algorithms/03-natural-selection-adaptation.png"
+  alt="Minh họa 4 giai đoạn thích nghi tự nhiên: Đa dạng ban đầu, Thử thách môi trường, Chọn lọc cá thể thích nghi và Thế hệ kế tiếp"
+  caption="Quy trình Thích nghi Tự nhiên: Đa dạng quần thể (Diversity) → Thử thách môi trường (Challenge) → Chọn lọc tự nhiên (Selection) → Kế thừa thế hệ sau (Next Gen)."
+/>
+
+
+Tự nhiên không hề cần đạo hàm để tính xem cổ hươu phải dài thêm bao nhiêu cm hay màu lông chuột phải tối đi bao nhiêu sắc độ. Cả quần thể tự động tìm ra giải pháp tối ưu cho bài toán sinh tồn nhờ sự kết hợp của 3 yếu tố:
+
+<ConceptFlow
+  ariaLabel="3 yếu tố cốt lõi giúp quần thể tự động tìm ra giải pháp tối ưu"
+  items={[
+    {
+      title: 'Quần thể Đa dạng',
+      detail: 'Duy trì đồng thời nhiều biến thể cá thể khác nhau thay vì chỉ thăm dò một điểm đơn lẻ.',
+      visual: 'space',
+      tone: 'blue',
+    },
+    {
+      title: 'Chấm điểm Thích nghi',
+      detail: 'Môi trường đóng vai trò hàm đánh giá, đo lường độ sinh tồn của từng cá thể.',
+      visual: 'objective',
+      tone: 'teal',
+    },
+    {
+      title: 'Kế thừa có Chọn lọc',
+      detail: 'Giữ lại các cá thể ưu tú nhất để trao đổi và truyền lại thông tin cho thế hệ kế tiếp.',
+      visual: 'solution',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ánh xạ sang Data Science: Bảng từ điển & Bản chất Fitness
+
+Rời khỏi tự nhiên hoang dã, làm thế nào để một Data Scientist mang tư duy này vào giải quyết các bài toán máy học thực tế?
+
+Hãy xét bài toán kinh điển: **Dự đoán Giá nhà (House Price Prediction)**. Giả sử ta muốn tìm bộ tham số tối ưu cho mô hình dự đoán mà không dùng Gradient Descent:
+
+<BlockMath formula="\hat{y} = w_1 \cdot \text{Area} + w_2 \cdot \text{Bedrooms} + w_3 \cdot \text{Distance} + b" />
+
+Dưới đây là sơ đồ phân cấp quy đổi toàn diện từ khái niệm Machine Learning, thuật ngữ sinh học (EA) đến bài toán Dự đoán Giá nhà:
+
+<ConceptHierarchy
+  ariaLabel="Sơ đồ phân cấp quy đổi khái niệm Machine Learning sang Thuật toán Tiến hóa"
+  root={{
+    title: 'Khái niệm',
+    detail: 'Quy đổi ngôn ngữ Machine Learning sang Thuật toán Tiến hóa (EA)',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Cá thể (Individual)',
+      tone: 'blue',
+      children: [
+        {
+          title: 'Bộ trọng số $(w, b)$',
+          detail: 'Vector nghiệm ứng viên $w = [w_1, w_2, w_3, b]$ đại diện cho một mô hình dự đoán.',
+          visual: 'solution',
+          tone: 'blue',
+        },
+      ],
+    },
+    {
+      title: '2. Quần thể (Population)',
+      tone: 'teal',
+      children: [
+        {
+          title: 'Tập điểm thử nghiệm',
+          detail: 'Nhóm gồm $N$ vector trọng số ngẫu nhiên cùng chạy thử và đánh giá song song.',
+          visual: 'space',
+          tone: 'teal',
+        },
+      ],
+    },
+    {
+      title: '3. Môi trường (Environment)',
+      tone: 'amber',
+      children: [
+        {
+          title: 'Tập dữ liệu $(X, y)$',
+          detail: 'Bảng dữ liệu giá nhà thực tế dùng để thử thách và chấm điểm mô hình.',
+          visual: 'database',
+          tone: 'amber',
+        },
+      ],
+    },
+    {
+      title: '4. Hàm Thích nghi (Fitness)',
+      tone: 'violet',
+      children: [
+        {
+          title: 'Hàm mất mát $(\\text{Loss } L)$',
+          detail: 'Định lượng sai số dự đoán: $\\text{Fitness} = -\\text{MAE}$ hoặc $\\frac{1}{1 + \\text{MSE}}$.',
+          visual: 'objective',
+          tone: 'violet',
+        },
+      ],
+    },
+    {
+      title: '5. Chọn lọc & Đột biến',
+      tone: 'teal',
+      children: [
+        {
+          title: 'Bước cập nhật Gradient',
+          detail: 'Chọn các bộ $w$ có điểm tốt rồi tạo biến thể ngẫu nhiên qua từng thế hệ; biến thể chỉ được giữ lại nếu cơ chế đánh giá và chọn lọc ưu tiên nó.',
+          visual: 'zero-order',
+          tone: 'teal',
+        },
+      ],
+    },
+  ]}
+/>
+
+### Chuyển đổi Hàm Mục tiêu: Từ Loss sang Fitness
+
+Trong ví dụ hồi quy này, mục tiêu là **cực tiểu hóa sai số (Loss)**:
+
+<BlockMath formula="\text{Loss} = \text{MAE}(w) = \frac{1}{N} \sum_{i=1}^N |y_i - \hat{y}_i|" />
+
+Nhiều thư viện EA có thể cực tiểu hóa trực tiếp; một số tài liệu dùng quy ước cực đại hóa Fitness. Với quy ước đó, ta có thể đổi dấu Loss hoặc, khi Loss không âm, dùng phép biến đổi nghịch đảo. Hai phép biến đổi giữ thứ hạng nhưng tạo áp lực chọn lọc khác nhau:
+
+<BlockMath formula="\text{Fitness}(w) = -\text{Loss}(w) \quad \text{hoặc} \quad \text{Fitness}(w) = \frac{1}{1 + \text{Loss}(w)}" />
+
+<LossToFitnessVisualizer />
+
+
+
+### Lựa chọn Hàm Fitness theo Từng Bài toán
+
+Trong thực tế, **không có một hàm Fitness cố định** cho mọi vấn đề. Tùy thuộc vào mục tiêu cụ thể của từng bài toán, chúng ta sẽ linh hoạt lựa chọn hoặc thiết kế hàm Fitness phù hợp:
+
+- **Bài toán Hồi quy (Regression):** Khi cần cực tiểu hóa sai số dự đoán (như bài toán giá nhà), ta có thể đổi dấu hoặc lấy nghịch đảo Loss: <InlineMath formula="\text{Fitness} = -\text{MAE}" /> hoặc <InlineMath formula="\text{Fitness} = \frac{1}{1 + \text{MSE}}" />.
+- **Bài toán Phân loại (Classification):** Mục tiêu là tối đa hóa tỷ lệ đoán đúng, vì vậy có thể dùng trực tiếp độ chính xác: <InlineMath formula="\text{Fitness} = \text{Accuracy}" /> hoặc <InlineMath formula="\text{Fitness} = \text{F1-score}" />.
+- **Bài toán Điều khiển & Mô phỏng (Robotics / Gaming):** Hàm Fitness thường là tổng điểm thưởng tích lũy (Reward), quãng đường di chuyển được, hoặc thời gian sống sót của robot trong môi trường giả lập.
+
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vòng lặp Tiến hóa Cốt lõi (The Evolutionary Loop)
+
+Nếu như quy trình huấn luyện mô hình ML là vòng lặp quen thuộc: `Forward -> Compute Loss -> Backward -> Optimizer Step`, thì trong Thuật toán Tiến hóa, vòng lặp thế hệ diễn ra qua 4 bước cơ bản:
+
+<ConceptFlow
+  ariaLabel="4 bước trong một vòng lặp thế hệ của Thuật toán Tiến hóa"
+  items={[
+    {
+      title: '1. Đánh giá (Evaluation)',
+      detail: 'Nạp từng cá thể trong quần thể vào bài toán và tính điểm Fitness tương ứng.',
+      visual: 'evaluation',
+      tone: 'violet',
+    },
+    {
+      title: '2. Chọn lọc (Selection)',
+      detail: 'Chọn ra các cá thể ưu tú (Fitness cao) làm cha mẹ để nhân giống cho thế hệ sau.',
+      visual: 'selection',
+      tone: 'teal',
+    },
+    {
+      title: '3. Lai ghép (Crossover)',
+      detail: 'Kết hợp thông tin từ các cá thể cha mẹ để tạo ra các cá thể con (offspring).',
+      visual: 'crossover',
+      tone: 'blue',
+    },
+    {
+      title: '4. Đột biến (Mutation)',
+      detail: 'Thêm một lượng nhiễu ngẫu nhiên nhỏ vào cá thể con nhằm duy trì tính đa dạng và khám phá vùng mới.',
+      visual: 'mutation',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+### Cụ thể hóa qua Bài toán Dự đoán Giá nhà
+
+Áp dụng chính xác 4 bước trên khi tối ưu hóa bộ trọng số <InlineMath formula="w = [w_1, w_2, w_3, b]" /> dự đoán giá nhà:
+
+<ConceptFlow
+  ariaLabel="4 bước vòng lặp tiến hóa áp dụng vào bài toán dự đoán giá nhà"
+  items={[
+    {
+      title: '1. Đánh giá (Evaluation)',
+      detail: 'Nạp từng vector $w$ vào bảng dữ liệu, chạy mô hình dự đoán giá nhà và đo điểm thích nghi: $\\text{Fitness} = -\\text{MAE}(w)$.',
+      visual: 'evaluation',
+      tone: 'violet',
+    },
+    {
+      title: '2. Chọn lọc (Selection)',
+      detail: 'Xếp hạng các bộ trọng số $w$; giữ lại các bộ có sai số nhỏ nhất (Fitness cao) làm mô hình cha mẹ, loại bỏ các bộ dự đoán sai lệch lớn.',
+      visual: 'selection',
+      tone: 'teal',
+    },
+    {
+      title: '3. Lai ghép (Crossover)',
+      detail: 'Trộn lẫn trọng số từ 2 mô hình cha mẹ tốt: $w_{\\text{con}} = 0.5 \\cdot w_{\\text{bố}} + 0.5 \\cdot w_{\\text{mẹ}}$ để tổng hợp ưu điểm của cả hai mô hình.',
+      visual: 'crossover',
+      tone: 'blue',
+    },
+    {
+      title: '4. Đột biến (Mutation)',
+      detail: 'Cộng thêm một lượng nhiễu ngẫu nhiên nhỏ vào các hệ số: $w_{\\text{con}} \\mathrel{+}= \\mathcal{N}(0, 0.1)$ để mô hình con không bị rập khuôn và khám phá hướng đi mới.',
+      visual: 'mutation',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+
+Qua nhiều thế hệ, các biến thể được đánh giá tốt có xác suất đóng góp vào quần thể sau cao hơn. Đây là cơ chế ngẫu nhiên có thiên hướng, không phải bảo đảm rằng mọi "gen tốt" đều được giữ hoặc rằng mỗi thế hệ đều tiến bộ.
+
+
+</MdxPage>

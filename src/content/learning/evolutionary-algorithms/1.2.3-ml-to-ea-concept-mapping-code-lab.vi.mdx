@@ -1,0 +1,684 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'ml-to-ea-concept-mapping-code-lab',
+  locale: 'vi',
+  title: "Code",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Tạo Dữ liệu Hồi quy Mẫu',
+    'Khởi tạo Quần thể: 60 Đường thẳng Ngẫu nhiên',
+    'Đánh giá & Chọn lọc: Giữ 10 Đường Tốt Nhất (Elites)',
+    'Sinh sản & Đột biến để Tạo Thế hệ Con',
+    'Đóng gói Vòng lặp Tiến hóa qua 50 Thế hệ',
+    'So sánh Nghiệm Tiến hóa với Scikit-Learn Baseline',
+    'Đối chiếu Lab 1 & Thách thức Tiếp theo',
+  ],
+  keywords: ['Code Lab', 'Linear Regression', 'Minimal EA', 'NumPy', 'Scikit-Learn', 'Python', 'Elitism', 'Selection'],
+  pageCount: 8,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Cách tốt nhất để hiểu sâu Thuật toán Tiến hóa là tự tay lập trình một vòng lặp tiến hóa hoàn chỉnh để giải bài toán quen thuộc nhất: **Hồi quy Tuyến tính (Linear Regression)**:
+
+<BlockMath formula="\hat{y} = w \cdot x + b" />
+
+Chúng ta sẽ tìm cặp tham số tối ưu <InlineMath formula="(w, b)" /> mà **hoàn toàn KHÔNG dùng bất kỳ phép tính đạo hàm hay gradient nào**. Chỉ dùng:
+1. Đánh giá hàm mất mát MSE làm điểm Fitness.
+2. Chọn lọc top các cá thể tốt nhất (Elitism).
+3. Đột biến bằng cách cộng nhiễu phân phối chuẩn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tạo Dữ liệu Hồi quy Mẫu
+
+Khởi tạo một tập dữ liệu đồ thị đường thẳng nhân tạo với phương trình thực: <InlineMath formula="y = 3.5x + 1.2 + \text{noise}" />:
+
+```python
+import numpy as np
+
+# Cố định seed để tái lập kết quả
+np.random.seed(42)
+
+# Sinh 100 điểm dữ liệu mẫu
+X = np.random.uniform(-3.0, 3.0, size=(100, 1))
+TRUE_W = 3.5
+TRUE_B = 1.2
+y = TRUE_W * X + TRUE_B + np.random.normal(0, 0.4, size=(100, 1))
+
+print(f"Dataset: 100 mẫu | Ground Truth: w = {TRUE_W}, b = {TRUE_B}")
+```
+
+```output
+Dataset: 100 mẫu | Ground Truth: w = 3.5, b = 1.2
+```
+
+Vẽ đồ thị trực quan hóa tập dữ liệu mẫu và đường thẳng thực tế (Ground Truth):
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4.6), facecolor="white")
+ax.set_facecolor("white")
+
+# Vẽ các điểm dữ liệu mẫu
+ax.scatter(X, y, color="#3B82F6", alpha=0.75, s=40, label="Data points", zorder=3)
+
+# Vẽ đường Ground Truth
+x_line = np.linspace(-3.2, 3.2, 200)
+y_truth = TRUE_W * x_line + TRUE_B
+ax.plot(x_line, y_truth, color="#64748B", linestyle="--", linewidth=2.0, label="Ground truth (y = 3.5x + 1.2)", zorder=4)
+
+for spine in ax.spines.values():
+    spine.set_visible(False)
+ax.grid(True, linestyle="--", alpha=0.3, color="#CBD5E1")
+ax.legend(frameon=False, loc="upper left", fontsize=11)
+ax.set_xlabel("Feature X", fontsize=11, color="#475569")
+ax.set_ylabel("Target y", fontsize=11, color="#475569")
+plt.title("Synthetic Linear Regression Dataset (100 samples)", fontsize=13, pad=12, fontweight="bold", color="#1E293B")
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/07-linear-regression-sample-data.png"
+  alt="Tập dữ liệu hồi quy tuyến tính mẫu 100 điểm kèm đường Ground Truth"
+  caption="Dữ liệu hồi quy mẫu: 100 điểm dữ liệu phân tán quanh đường Ground Truth y = 3.5x + 1.2 với độ nhiễu Gauss sigma = 0.4."
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khởi tạo Quần thể: 60 Đường thẳng Ngẫu nhiên
+
+Mỗi cá thể trong bài toán này mang cặp gen <InlineMath formula="[w_i, b_i]" />. Vì phương trình là <InlineMath formula="\hat{y} = w_i \cdot x + b_i" />, **mỗi cá thể chính là một đường thẳng cụ thể** trên mặt phẳng tọa độ!
+
+Khởi tạo ngẫu nhiên một quần thể gồm 60 cá thể từ phân phối chuẩn:
+
+```python
+# Khởi tạo Quần thể: 60 cá thể ngẫu nhiên mang cặp gen [w, b]
+pop_size = 60
+population = np.random.randn(pop_size, 2)
+
+print("Kích thước quần thể:", population.shape)
+print("3 cá thể ngẫu nhiên đầu tiên:")
+for i in range(3):
+    print(f"  Cá thể {i+1}: w = {population[i, 0]:.3f}, b = {population[i, 1]:.3f}")
+```
+
+```output
+Kích thước quần thể: (60, 2)
+3 cá thể ngẫu nhiên đầu tiên:
+  Cá thể 1: w = 0.013, b = 1.454
+  Cá thể 2: w = -0.265, b = 2.720
+  Cá thể 3: w = 0.626, b = -0.857
+```
+
+Vẽ đồ thị trực quan hóa toàn bộ 60 cá thể ngẫu nhiên trong quần thể ban đầu:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4.8), facecolor="white")
+ax.set_facecolor("white")
+
+# Vẽ các điểm dữ liệu mẫu
+ax.scatter(X, y, color="#64748B", alpha=0.5, s=30, label="Data points", zorder=3)
+
+# Vẽ 60 đường thẳng mờ đại diện cho 60 cá thể ban đầu
+x_line = np.linspace(-3.2, 3.2, 200)
+for i in range(pop_size):
+    w_i, b_i = population[i]
+    if i == 0:
+        ax.plot(x_line, w_i * x_line + b_i, color="#CBD5E1", alpha=0.5, linewidth=1.0, label="Random individuals (Pop 60)", zorder=2)
+    else:
+        ax.plot(x_line, w_i * x_line + b_i, color="#CBD5E1", alpha=0.5, linewidth=1.0, zorder=2)
+
+# Nổi bật 2 cá thể đầu tiên để dễ quan sát
+ax.plot(x_line, population[0, 0] * x_line + population[0, 1], color="#F59E0B", linewidth=1.8, linestyle="--", label="Individual 1 (w=0.01, b=1.45)", zorder=4)
+ax.plot(x_line, population[1, 0] * x_line + population[1, 1], color="#EF4444", linewidth=1.8, linestyle="--", label="Individual 2 (w=-0.26, b=2.72)", zorder=4)
+
+# Vẽ đường Ground Truth
+y_truth = TRUE_W * x_line + TRUE_B
+ax.plot(x_line, y_truth, color="#10B981", linewidth=2.5, label="Ground truth (y = 3.5x + 1.2)", zorder=5)
+
+ax.set_ylim(-12, 14)
+for spine in ax.spines.values():
+    spine.set_visible(False)
+ax.grid(True, linestyle="--", alpha=0.3, color="#E2E8F0", zorder=1)
+ax.legend(frameon=False, loc="upper left", fontsize=10)
+ax.set_xlabel("Feature X", fontsize=11, color="#475569")
+ax.set_ylabel("Target y", fontsize=11, color="#475569")
+plt.title("Initial Random Population (Generation 0: 60 Lines)", fontsize=13, pad=12, fontweight="bold", color="#1E293B")
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/08-initial-random-population-lines.png"
+  alt="Quần thể ngẫu nhiên ban đầu gồm 60 đường thẳng xiên xẹo khắp mặt phẳng tọa độ"
+  caption="Quần thể thế hệ 0: 60 cá thể là 60 đường thẳng ngẫu nhiên (nét xám mờ). Đa số nằm lệch rất xa so với đường thực tế (Ground truth màu xanh lá)."
+/>
+
+
+**Ý nghĩa trực quan:** Ở thế hệ 0, các đường thẳng chạy hoàn toàn hỗn loạn. Mục tiêu của tiến hóa là: qua từng thế hệ chọn lọc và biến dị, cả đàn 60 đường thẳng này sẽ xoay và kéo sát về phía đường Ground Truth!
+
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đánh giá & Chọn lọc: Giữ 10 Đường Tốt Nhất (Elites)
+
+Bây giờ ta tiến hành chấm điểm toàn bộ 60 đường thẳng bằng hàm mất mát MSE, sau đó lọc ra **Top 10 đường tốt nhất (Elites)**:
+
+```python
+# 1. Đánh giá (Evaluation): Tính MSE cho toàn bộ 60 cá thể
+w = population[:, 0:1, np.newaxis] # shape: (60, 1, 1)
+b = population[:, 1:2, np.newaxis] # shape: (60, 1, 1)
+y_preds = w * X.T + b              # shape: (60, 1, 100)
+mse_losses = np.mean((y_preds - y.T)**2, axis=2).flatten()
+
+best_idx = np.argmin(mse_losses)
+print(f"Thế hệ 0 | Cá thể tốt nhất: w = {population[best_idx, 0]:.3f}, b = {population[best_idx, 1]:.3f}")
+print(f"MSE ban đầu (còn rất cao): {mse_losses[best_idx]:.4f}")
+
+# 2. Chọn lọc (Selection)
+top_k = 10
+sorted_indices = np.argsort(mse_losses)
+elites = population[sorted_indices[:top_k]]
+print(f"MSE trung bình của Top 10 Elite: {np.mean(mse_losses[sorted_indices[:top_k]]):.4f}")
+```
+
+```output
+Thế hệ 0 | Cá thể tốt nhất: w = 2.144, b = 0.634
+MSE ban đầu (còn rất cao): 5.7743
+MSE trung bình của Top 10 Elite: 7.2185
+```
+
+Vẽ đồ thị làm nổi bật Top 10 đường Elite so với 50 đường bị loại bỏ:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4.8), facecolor="white")
+ax.set_facecolor("white")
+
+# Vẽ các điểm dữ liệu mẫu
+ax.scatter(X, y, color="#94A3B8", alpha=0.5, s=30, label="Data points", zorder=3)
+x_line = np.linspace(-3.2, 3.2, 200)
+
+# 1. Vẽ 50 đường bị loại bỏ (màu xám rất mờ)
+discarded_indices = sorted_indices[top_k:]
+for i, idx in enumerate(discarded_indices):
+    w_i, b_i = population[idx]
+    if i == 0:
+        ax.plot(x_line, w_i * x_line + b_i, color="#E2E8F0", alpha=0.4, linewidth=0.8, label="Discarded (50 lines)", zorder=1)
+    else:
+        ax.plot(x_line, w_i * x_line + b_i, color="#E2E8F0", alpha=0.4, linewidth=0.8, zorder=1)
+
+# 2. Vẽ Top 10 đường Elite (màu cam nổi bật)
+for i, idx in enumerate(sorted_indices[1:top_k]):
+    w_i, b_i = population[idx]
+    if i == 0:
+        ax.plot(x_line, w_i * x_line + b_i, color="#F59E0B", alpha=0.75, linewidth=1.5, label="Top 10 Elites (MSE < 8.0)", zorder=4)
+    else:
+        ax.plot(x_line, w_i * x_line + b_i, color="#F59E0B", alpha=0.75, linewidth=1.5, zorder=4)
+
+# 3. Vẽ cá thể tốt nhất thế hệ 0 (màu đỏ)
+w_best, b_best = population[best_idx]
+ax.plot(x_line, w_best * x_line + b_best, color="#EF4444", linewidth=2.2, linestyle="--", label=f"Best Gen 0 (w={w_best:.2f}, b={b_best:.2f})", zorder=5)
+
+# 4. Vẽ đường Ground truth (màu xanh lá)
+y_truth = TRUE_W * x_line + TRUE_B
+ax.plot(x_line, y_truth, color="#10B981", linewidth=2.5, label="Ground truth (y = 3.5x + 1.2)", zorder=6)
+
+ax.set_ylim(-12, 14)
+for spine in ax.spines.values():
+    spine.set_visible(False)
+ax.grid(True, linestyle="--", alpha=0.3, color="#F1F5F9", zorder=1)
+ax.legend(frameon=False, loc="upper left", fontsize=10)
+ax.set_xlabel("Feature X", fontsize=11, color="#475569")
+ax.set_ylabel("Target y", fontsize=11, color="#475569")
+plt.title("Selection: Top 10 Elites vs 50 Discarded Lines (Gen 0)", fontsize=13, pad=12, fontweight="bold", color="#1E293B")
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/09-selection-top10-elites.png"
+  alt="Top 10 đường Elite màu cam nổi bật và cá thể tốt nhất màu đỏ so với 50 đường bị loại bỏ"
+  caption="Chọn lọc cá thể ưu tú: 50 đường dốc ngược hoặc quá lệch (nét xám mờ) bị loại bỏ; Top 10 đường có xu hướng dốc lên thuận chiều dữ liệu (màu cam) được giữ lại!"
+/>
+
+
+Trong lần khởi tạo này, xếp hạng theo MSE ưu tiên các đường bám dữ liệu tốt hơn. Selection chỉ dùng điểm đánh giá để chọn cha mẹ; nó không tự biết hướng đúng và kết quả phụ thuộc vào quần thể đã lấy mẫu.
+
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Sinh sản & Đột biến để Tạo Thế hệ Con
+
+Sau khi đã giữ lại 10 cá thể ưu tú (Elites), làm thế nào để khôi phục lại quy mô quần thể về 60 cá thể cho thế hệ tiếp theo?
+
+Ta áp dụng cơ chế **Nhân bản có biến dị (Asexual Reproduction with Gaussian Mutation)**:
+
+```python
+# 1. Nhân bản: Chọn ngẫu nhiên có hoàn lại từ Top 10 Elite để tạo 50 bản sao
+parent_indices = np.random.choice(top_k, size=pop_size - top_k)
+offspring_copies = elites[parent_indices]
+
+# 2. Đột biến: Cộng nhiễu phân phối chuẩn Gaussian N(0, sigma) vào từng trọng số
+mutation_sigma = 0.1
+mutations = np.random.normal(0, mutation_sigma, size=offspring_copies.shape)
+offspring = offspring_copies + mutations
+
+# 3. Tạo Quần thể thế hệ mới: 10 Elite gốc + 50 cá thể con đột biến
+new_population = np.vstack([elites, offspring])
+
+print("Kích thước quần thể thế hệ 1:", new_population.shape)
+print(f"Số lượng Elite bảo tồn nguyên vẹn: {len(elites)}")
+print(f"Số lượng cá thể con đột biến: {len(offspring)}")
+print("\nVí dụ: 1 cá thể cha mẹ và cá thể con sau khi đột biến:")
+print(f"  Elite cha mẹ : w = {offspring_copies[0, 0]:.3f}, b = {offspring_copies[0, 1]:.3f}")
+print(f"  Con đột biến : w = {offspring[0, 0]:.3f}, b = {offspring[0, 1]:.3f}")
+```
+
+```output
+Kích thước quần thể thế hệ 1: (60, 2)
+Số lượng Elite bảo tồn nguyên vẹn: 10
+Số lượng cá thể con đột biến: 50
+
+Ví dụ: 1 cá thể cha mẹ và cá thể con sau khi đột biến:
+  Elite cha mẹ : w = 2.144, b = 0.634
+  Con đột biến : w = 2.094, b = 0.621
+```
+
+Vẽ đồ thị so sánh trực tiếp 2 cột giữa **Quần thể ngẫu nhiên ban đầu (Gen 0)** và **Quần thể sau sinh sản & đột biến (Gen 1)**:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.2), facecolor="white")
+x_line = np.linspace(-3.2, 3.2, 200)
+y_truth = TRUE_W * x_line + TRUE_B
+
+# ---- Cột 1: Trước - Quần thể thế hệ 0 khởi tạo ngẫu nhiên ----
+ax1.set_facecolor("white")
+ax1.scatter(X, y, color="#94A3B8", alpha=0.5, s=28, label="Data points", zorder=3)
+for i in range(pop_size):
+    w_i, b_i = population[i]
+    if i == 0:
+        ax1.plot(x_line, w_i * x_line + b_i, color="#94A3B8", alpha=0.45, linewidth=1.0, label="Random lines (60 pop)", zorder=2)
+    else:
+        ax1.plot(x_line, w_i * x_line + b_i, color="#94A3B8", alpha=0.45, linewidth=1.0, zorder=2)
+ax1.plot(x_line, y_truth, color="#10B981", linewidth=2.4, label="Ground truth", zorder=5)
+ax1.set_ylim(-12, 14)
+for spine in ax1.spines.values():
+    spine.set_visible(False)
+ax1.grid(True, linestyle="--", alpha=0.3, color="#E2E8F0", zorder=1)
+ax1.legend(frameon=False, loc="upper left", fontsize=9.5)
+ax1.set_xlabel("Feature X", fontsize=11, color="#475569")
+ax1.set_ylabel("Target y", fontsize=11, color="#475569")
+ax1.set_title("Before: Random Initial Population (Gen 0)\nChaotic dispersal | Mean MSE = 42.26", fontsize=12, pad=10, fontweight="bold", color="#1E293B")
+
+# ---- Cột 2: Sau - Quần thể thế hệ 1 sau chọn lọc & đột biến ----
+ax2.set_facecolor("white")
+ax2.scatter(X, y, color="#94A3B8", alpha=0.5, s=28, label="Data points", zorder=3)
+
+# 50 cá thể con đột biến
+for i in range(len(offspring)):
+    w_i, b_i = offspring[i]
+    if i == 0:
+        ax2.plot(x_line, w_i * x_line + b_i, color="#60A5FA", alpha=0.5, linewidth=1.1, label="50 Mutated offspring", zorder=2)
+    else:
+        ax2.plot(x_line, w_i * x_line + b_i, color="#60A5FA", alpha=0.5, linewidth=1.1, zorder=2)
+
+# 10 Elites bảo tồn nguyên vẹn
+for i in range(len(elites)):
+    w_i, b_i = elites[i]
+    if i == 0:
+        ax2.plot(x_line, w_i * x_line + b_i, color="#F59E0B", alpha=0.85, linewidth=1.6, label="10 Preserved elites", zorder=4)
+    else:
+        ax2.plot(x_line, w_i * x_line + b_i, color="#F59E0B", alpha=0.85, linewidth=1.6, zorder=4)
+
+# Cá thể tốt nhất thế hệ 1
+w_best1, b_best1 = new_population[np.argmin(np.mean((new_population[:, 0:1, np.newaxis] * X.T + new_population[:, 1:2, np.newaxis] - y.T)**2, axis=2).flatten())]
+ax2.plot(x_line, w_best1 * x_line + b_best1, color="#EF4444", linewidth=2.0, linestyle="--", label=f"Best Gen 1 (w={w_best1:.2f}, b={b_best1:.2f})", zorder=5)
+ax2.plot(x_line, y_truth, color="#10B981", linewidth=2.4, label="Ground truth", zorder=6)
+
+ax2.set_ylim(-12, 14)
+for spine in ax2.spines.values():
+    spine.set_visible(False)
+ax2.grid(True, linestyle="--", alpha=0.3, color="#E2E8F0", zorder=1)
+ax2.legend(frameon=False, loc="upper left", fontsize=9.5)
+ax2.set_xlabel("Feature X", fontsize=11, color="#475569")
+ax2.set_ylabel("Target y", fontsize=11, color="#475569")
+ax2.set_title("After: Reproduction & Mutation (Gen 1)\nConverging cluster | Mean MSE = 13.38", fontsize=12, pad=10, fontweight="bold", color="#1E293B")
+
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/10-reproduction-mutation-comparison.png"
+  alt="So sánh 2 cột trực quan trước ngẫu nhiên và sau khi đột biến tạo thế hệ con"
+  caption="So sánh 2 cột trực quan: Cột trái (Gen 0) là 60 đường ngẫu nhiên xiên xẹo khắp nơi (MSE trung bình 42.26). Cột phải (Gen 1) gồm 10 Elites (màu cam) và 50 con đột biến (màu xanh dương) đã đồng loạt co cụm và bám sát đám mây dữ liệu (MSE trung bình giảm còn 13.38)."
+/>
+
+
+**Cơ chế giữ vững và khám phá:**
+- **Giữ lại nguyên vẹn 10 Elite (Elitism):** Đảm bảo kỷ lục điểm số của thế hệ trước không bao giờ bị thụt lùi.
+- **Cộng nhiễu Gaussian vào 50 cá thể con:** Giúp các đường thẳng mới thăm dò nhẹ xung quanh các vị trí tiềm năng nhất thay vì chạy lung tung khắp mặt phẳng như thế hệ 0!
+
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Đóng gói Vòng lặp Tiến hóa qua 50 Thế hệ
+
+Bây giờ ta đóng gói toàn bộ quy trình trên vào một hàm hoàn chỉnh và cho tiến hóa tự động qua 50 thế hệ:
+
+```python
+def evolve_linear_regression(X, y, pop_size=60, generations=50, top_k=10, mutation_sigma=0.1):
+    population = np.random.randn(pop_size, 2)
+    history_loss = []
+    gen0_best = None
+
+    for gen in range(generations):
+        # Đánh giá (Evaluation)
+        w = population[:, 0:1, np.newaxis]
+        b = population[:, 1:2, np.newaxis]
+        y_preds = w * X.T + b
+        mse_losses = np.mean((y_preds - y.T)**2, axis=2).flatten()
+
+        sorted_indices = np.argsort(mse_losses)
+        elites = population[sorted_indices[:top_k]]
+
+        history_loss.append(mse_losses[sorted_indices[0]])
+        if gen == 0:
+            gen0_best = elites[0].copy()
+
+        # Sinh sản & Đột biến (Reproduction & Mutation)
+        offspring_copies = elites[np.random.choice(top_k, size=pop_size - top_k)]
+        mutations = np.random.normal(0, mutation_sigma, size=offspring_copies.shape)
+        offspring = offspring_copies + mutations
+
+        population = np.vstack([elites, offspring])
+
+        if (gen + 1) % 10 == 0 or gen == 0:
+            best_loss = mse_losses[sorted_indices[0]]
+            best_w, best_b = elites[0]
+            print(f"Gen {gen+1:02d} | Best MSE: {best_loss:.4f} | w = {best_w:.3f}, b = {best_b:.3f}")
+
+    return elites[0], history_loss, gen0_best
+
+best_params, history_loss, gen0_params = evolve_linear_regression(X, y)
+```
+
+```output
+Gen 01 | Best MSE: 5.7743 | w = 2.144, b = 0.634
+Gen 10 | Best MSE: 0.1304 | w = 3.462, b = 1.158
+Gen 20 | Best MSE: 0.1291 | w = 3.466, b = 1.201
+Gen 30 | Best MSE: 0.1291 | w = 3.471, b = 1.202
+Gen 40 | Best MSE: 0.1291 | w = 3.471, b = 1.202
+Gen 50 | Best MSE: 0.1291 | w = 3.468, b = 1.194
+```
+
+Trực quan hóa toàn bộ vòng đời tiến hóa qua ảnh động (Animation) từng bước: **Khởi tạo → Đánh giá & Highlight Top 10 → Loại bỏ → Sinh thế hệ mới → Tiếp tục lặp đến hội tụ**:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/11-evolutionary-loop-animation.webp"
+  alt="Animation trực quan hóa toàn bộ vòng lặp tiến hóa từ khởi tạo ngẫu nhiên, chọn lọc top 10, loại bỏ, sinh sản đột biến đến hội tụ qua 50 thế hệ"
+  caption="Animation chu trình tiến hóa: (1) 60 đường ngẫu nhiên ban đầu → (2) Highlight Top 10 Elites (màu cam) và Best Gen 0 (đỏ nét đứt) → (3) Loại bỏ 50 cá thể kém → (4) Nhân bản & đột biến sinh ra 50 con mới (xanh dương) → (5) Đàn cá thể co cụm và khóa chặt vào đường Ground Truth (xanh lá) sau 50 thế hệ!"
+/>
+
+Vẽ đồ thị theo dõi đường cong hội tụ hàm mất mát MSE qua 50 thế hệ:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4.5), facecolor="white")
+ax.set_facecolor("white")
+
+generations_arr = np.arange(1, len(history_loss) + 1)
+ax.plot(generations_arr, history_loss, color="#2563EB", linewidth=2.5, marker="o", markersize=4, label="Best MSE")
+ax.fill_between(generations_arr, history_loss, color="#DBEAFE", alpha=0.4)
+
+ax.scatter([generations_arr[-1]], [history_loss[-1]], color="#10B981", s=70, zorder=5)
+ax.annotate(f"Final MSE: {history_loss[-1]:.4f}", xy=(generations_arr[-1], history_loss[-1]),
+            xytext=(generations_arr[-1] - 12, history_loss[-1] + 0.8),
+            fontsize=10, fontweight="bold", color="#059669",
+            arrowprops=dict(arrowstyle="->", color="#059669", lw=1.5))
+
+for spine in ax.spines.values():
+    spine.set_visible(False)
+ax.grid(True, linestyle="--", alpha=0.3, color="#CBD5E1")
+ax.legend(frameon=False, loc="upper right", fontsize=11)
+ax.set_xlabel("Generation", fontsize=11, color="#475569")
+ax.set_ylabel("Mean Squared Error (MSE)", fontsize=11, color="#475569")
+plt.title("Evolutionary Convergence Curve (50 Generations)", fontsize=13, pad=12, fontweight="bold", color="#1E293B")
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/06-ea-convergence-history.png"
+  alt="Đường cong hội tụ MSE qua 50 thế hệ của thuật toán tiến hóa tối giản"
+  caption="Đường cong hội tụ MSE: Quần thể giảm mạnh sai số từ 5.77 xuống 0.13 chỉ sau khoảng 10 thế hệ đầu tiên và ổn định ở mức tối ưu."
+/>
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## So sánh Nghiệm Tiến hóa với Scikit-Learn Baseline
+
+So sánh kết quả của thuật toán tiến hóa với nghiệm least-squares do Scikit-Learn tính bằng solver số ổn định:
+
+```python
+from sklearn.linear_model import LinearRegression
+
+# Huấn luyện mô hình Scikit-Learn
+sklearn_model = LinearRegression()
+sklearn_model.fit(X, y)
+
+w_sklearn = sklearn_model.coef_[0][0]
+b_sklearn = sklearn_model.intercept_[0]
+w_ea, b_ea = best_params
+
+print("=== KẾT QUẢ SO SÁNH ===")
+print(f"Ground Truth : w = {TRUE_W:.4f}, b = {TRUE_B:.4f}")
+print(f"Scikit-Learn : w = {w_sklearn:.4f}, b = {b_sklearn:.4f}")
+print(f"Tiến hóa EA  : w = {w_ea:.4f}, b = {b_ea:.4f}")
+print(f"Độ lệch sai số giữa EA và Sklearn: {abs(w_ea - w_sklearn):.4f}")
+```
+
+```output
+=== KẾT QUẢ SO SÁNH ===
+Ground Truth : w = 3.5000, b = 1.2000
+Scikit-Learn : w = 3.4693, b = 1.1941
+Tiến hóa EA  : w = 3.4677, b = 1.1937
+Độ lệch sai số giữa EA và Sklearn: 0.0016
+```
+
+Vẽ đồ thị trực quan hóa các đường hồi quy tìm được so với dữ liệu thực tế:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 4.8), facecolor="white")
+ax.set_facecolor("white")
+
+# Vẽ các điểm dữ liệu mẫu
+ax.scatter(X, y, color="#94A3B8", alpha=0.7, s=35, label="Data points", zorder=3)
+
+# Tính toán các đường hồi quy
+x_line = np.linspace(-3.2, 3.2, 200)
+y_truth = TRUE_W * x_line + TRUE_B
+y_ea = w_ea * x_line + b_ea
+y_gen0 = gen0_params[0] * x_line + gen0_params[1]
+
+# Vẽ đường hồi quy thế hệ 1, đường ground truth và đường tối ưu của EA
+ax.plot(x_line, y_gen0, color="#EF4444", linestyle=":", linewidth=1.8, label="Gen 01", zorder=4)
+ax.plot(x_line, y_truth, color="#64748B", linestyle="--", linewidth=2.0, label="Ground truth", zorder=5)
+ax.plot(x_line, y_ea, color="#10B981", linewidth=2.5, label="EA fitted", zorder=6)
+
+for spine in ax.spines.values():
+    spine.set_visible(False)
+ax.grid(True, linestyle="--", alpha=0.3, color="#CBD5E1")
+ax.legend(frameon=False, loc="upper left", fontsize=11)
+plt.title(f"Linear Regression via Evolution: w={w_ea:.3f}, b={b_ea:.3f}", fontsize=13, pad=12, fontweight="bold", color="#1E293B")
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.png"
+  alt="Đường hồi quy tìm được bằng thuật toán tiến hóa so với dữ liệu thực tế và đường Ground Truth"
+  caption="Với seed của lab, đường EA fitted gần đường least-squares và Ground Truth; sai khác còn lại đến từ nhiễu dữ liệu và ngân sách tìm kiếm."
+/>
+
+
+**Tổng kết:** Trong lần chạy này, EA tìm được nghiệm gần baseline Scikit-Learn mà không dùng gradient. Đổi lại, EA cần đánh giá cả quần thể qua nhiều thế hệ, nên OLS vẫn là lựa chọn hợp lý cho hồi quy tuyến tính.
+
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Đối chiếu Lab 1 & Thách thức Tiếp theo
+
+**Câu hỏi 1: Làm sao tránh lãng phí tri thức?**
+Ở Lab 1, các điểm ngẫu nhiên độc lập không dùng lại kết quả trước. Trong lab này, **Elitism** giữ Top 10 cá thể có MSE thấp, nhờ đó quần thể sau không mất nghiệm tốt nhất đã quan sát. Cơ chế này vẫn có thể làm giảm đa dạng nếu giữ quá nhiều elite.
+
+<LessonImage
+  assetPath="evolutionary-algorithms/09-selection-top10-elites.png"
+  alt="Top 10 Elites màu cam được bảo tồn làm cha mẹ thay vì loại bỏ lãng phí"
+  caption="Bảo tồn tri thức bằng Elitism: Giữ lại nguyên vẹn Top 10 đường có xu hướng tốt nhất (màu cam), loại bỏ 50 đường sai hướng (nét mờ) nhưng không làm mất đi các tọa độ tiềm năng đã khám phá được."
+/>
+
+---
+
+**Câu hỏi 2: Làm sao tinh chỉnh cục bộ chính xác?**
+Gaussian Mutation với <InlineMath formula="\sigma = 0.1" /> lấy mẫu cục bộ quanh các elite. Với seed này, sau 50 thế hệ nghiệm đạt <InlineMath formula="w = 3.468, b = 1.194" />, lệch hệ số góc so với baseline Scikit-Learn khoảng **0.0016**; kết quả khác có thể xuất hiện khi đổi seed hoặc hyperparameter.
+
+<LessonImage
+  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.png"
+  alt="Nghiệm tìm được bằng thuật toán tiến hóa trùng khít với đường Ground Truth"
+  caption="Gaussian mutation thăm dò quanh vùng elite; trong lần chạy này, đường EA fitted gần baseline least-squares."
+/>
+
+---
+
+### Đánh đổi Cốt lõi: Quy mô Quần thể & Tỷ lệ Elitism (Trade-offs)
+
+Hai siêu tham số cốt lõi kiểm soát cán cân giữa **Thám hiểm (Exploration)** và **Khai thác (Exploitation)** trong vòng lặp tiến hóa:
+
+#### 1. Đánh đổi theo Quy mô Quần thể
+
+<ConceptHierarchy
+  ariaLabel="Ưu điểm và khuyết điểm của quy mô quần thể"
+  root={{
+    title: 'Quy mô Quần thể (Population Size)',
+    detail: 'Số lượng cá thể ứng viên rà soát không gian trong mỗi thế hệ',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: 'Ưu điểm (Thám hiểm diện rộng)',
+      align: 'left',
+      detail: 'Mật độ ăng-ten rà soát dày đặc khắp không gian; tăng mạnh xác suất có cá thể rơi trúng thung lũng của Cực tiểu Toàn cục (Global Minimum) ngay từ thế hệ đầu; tránh bị mù hướng trong bẫy cục bộ.',
+      tone: 'teal',
+    },
+    {
+      title: 'Khuyết điểm (Chi phí tính toán)',
+      align: 'left',
+      detail: 'Chi phí đánh giá tăng tuyến tính. Trong Machine Learning thực tế, mỗi cá thể là một mô hình cần Forward Pass qua toàn bộ dữ liệu, gây bùng nổ thời gian huấn luyện nếu quần thể quá lớn.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+#### 2. Đánh đổi theo Tỷ lệ Elitism
+
+<ConceptHierarchy
+  ariaLabel="Ưu điểm và khuyết điểm của tỷ lệ Elitism"
+  root={{
+    title: 'Tỷ lệ Elitism (Elitism Rate)',
+    detail: 'Tỷ lệ % cá thể ưu tú được bảo tồn nguyên vẹn làm cha mẹ cho thế hệ sau',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: 'Ưu điểm (Bảo tồn & Đa dạng)',
+      align: 'left',
+      detail: 'Bảo tồn kỷ lục tốt nhất của giống loài không bao giờ bị thụt lùi; khi giữ tỷ lệ vừa phải (10% – 20%), quần thể duy trì nguồn gen đa dạng từ nhiều cha mẹ để thăm dò đồng thời nhiều hướng đi tiềm năng.',
+      tone: 'teal',
+    },
+    {
+      title: 'Khuyết điểm (Rủi ro cực đoan)',
+      align: 'left',
+      detail: 'Nếu Elitism quá thấp (< 5%), áp lực chọn lọc cực gắt gây chết yểu (Premature Convergence) do cận huyết trong hố nông. Nếu quá cao (> 50%), áp lực chọn lọc quá yếu khiến quần thể hội tụ cực kỳ chậm chạp.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+
+**Khái niệm then chốt:** Đây chính là bản chất của **Áp lực Chọn lọc (Selection Pressure)** — bài toán trung tâm quyết định sự sống còn của thuật toán tiến hóa mà chúng ta sẽ mổ xẻ sâu trong **Chủ đề 1.3 (Fitness Landscapes & Selection Pressure)**!
+
+
+---
+
+### Các Câu hỏi Dẫn dắt Mở rộng
+
+Bên cạnh câu hỏi số 3 còn bỏ ngỏ, kết quả thực nghiệm của vòng lặp tiến hóa tối giản đặt ra thêm những thách thức mới cần giải quyết trong các chủ đề tiếp theo:
+
+<ConceptHierarchy
+  ariaLabel="4 Thách thức và câu hỏi dẫn dắt tiếp theo trong Thuật toán Tiến hóa"
+  root={{
+    title: '4 Hướng Mở rộng Cốt lõi',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Lời nguyền số chiều (Curse of Dimensionality)?',
+      align: 'left',
+      detail: 'Với hàng ngàn tham số, việc cộng nhiễu Gaussian ngẫu nhiên độc lập từng chiều sẽ biến tìm kiếm thành mò kim đáy bể. Cần cơ chế thích nghi hiệp phương sai (như CMA-ES) để co giãn và xoay elip tìm kiếm.',
+      tone: 'violet',
+    },
+    {
+      title: '2. Cận huyết & Kẹt cực tiểu cục bộ (Selection Pressure)?',
+      align: 'left',
+      detail: 'Elitism tuyệt đối chỉ nhân bản Top 10 cá thể tốt nhất. Nếu cả 10 cá thể cùng kẹt trong một thung lũng cục bộ nông, toàn bộ thế hệ sau sẽ bị đồng hóa. Làm sao duy trì sự đa dạng sinh học cho quần thể?',
+      tone: 'teal',
+    },
+    {
+      title: '3. Biểu diễn biến rời rạc & phi số thực (Genotype vs Phenotype)?',
+      align: 'left',
+      detail: 'Lab 2 tối ưu số thực [w, b]. Nhưng nếu bài toán là Chọn tập đặc trưng (Feature Selection: 0 hoặc 1), Lộ trình giao hàng (TSP: hoán vị), hay Kiến trúc mạng nơ-ron (NAS) thì biểu diễn gen và đột biến thế nào?',
+      tone: 'amber',
+    },
+    {
+      title: '4. Tận dụng ưu điểm từ cả hai cha mẹ (Lai ghép - Crossover)?',
+      align: 'left',
+      detail: 'Hiện tại con chỉ đột biến từ 1 cha mẹ (vô tính). Nếu cha A có trọng số w rất tốt, còn cha B có độ chệch b rất chuẩn, làm sao để phối hợp các đoạn gen ưu tú của cả hai để tạo ra cá thể vượt trội?',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+
+**Cầu nối sang các chủ đề tiếp theo:** Thách thức về kẹt cực tiểu cục bộ và mất đa dạng sẽ được giải mã ngay trong **Chủ đề 1.3: Fitness Landscapes & Áp lực Chọn lọc**. Tiếp đó, bài toán biểu diễn giải pháp rời rạc và lai ghép sẽ được sáng tỏ trong **Chủ đề 1.4: Genotype & Phenotype** và **Chủ đề 1.5: Toán tử Di truyền**!
+
+
+</MdxPage>
