@@ -743,7 +743,7 @@ export function ZeroOrderSamplingVisualizer() {
               Chọn điểm tốt nhất
             </div>
             <div className="hidden sm:block text-[10px] text-slate-500 leading-tight truncate mt-0.5">
-              Ứng viên có f(θ) tối ưu nhất
+              Ứng viên có <InlineMath formula="f(\theta)" /> tối ưu nhất
             </div>
           </div>
         </button>

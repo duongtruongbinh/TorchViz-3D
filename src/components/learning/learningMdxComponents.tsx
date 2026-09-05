@@ -681,9 +681,13 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
       {visual === 'database' ? <DatabaseBackup className="size-10" strokeWidth={1.65} /> : null}
       {visual === 'two-term-loss' ? (
         <div className="flex items-center justify-center gap-2 font-mono text-xs font-bold">
-          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>L<sub>new</sub></span>
+          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>
+            <InlineMath formula="L_{\mathrm{new}}" />
+          </span>
           <span className="text-base font-black">+</span>
-          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>λL<sub>keep</sub></span>
+          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>
+            <InlineMath formula="\lambda L_{\mathrm{keep}}" />
+          </span>
         </div>
       ) : null}
       {visual === 'neural-network' ? (
