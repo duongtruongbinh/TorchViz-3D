@@ -72,6 +72,15 @@ const chapters: LearningTocTrackSeed[] = [
         contentStatus: 'published',
       },
       {
+        id: 'sales-forecasting-conformal-prediction-intervals-code-lab',
+        title: {
+          en: 'Code: Conformal Prediction Intervals',
+          vi: 'Code: Khoảng Dự báo bằng Conformal Calibration',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
         id: 'sales-forecasting-quiz',
         title: {
           en: 'Quiz: Sales Forecasting Production Mastery',

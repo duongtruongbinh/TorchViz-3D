@@ -1,0 +1,189 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-conformal-prediction-intervals-code-lab',
+  locale: 'vi',
+  title: 'Code: Khoảng Dự báo bằng Conformal Calibration',
+  headings: [
+    'Từ một con số đến một khoảng quyết định',
+    'Thu residual ngoài mẫu theo trục thời gian',
+    'Hiệu chỉnh bán kính và tạo khoảng dự báo',
+    'Đo coverage trước khi đưa vào vận hành',
+  ],
+  keywords: ['LightGBM', 'Prediction Interval', 'Conformal Prediction', 'Coverage', 'Time Series', 'Data Leakage'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+Mô hình hiện tại trả về một dự báo điểm, chẳng hạn 4,2 triệu đồng cho ngày mai. Con số này chưa cho đội vận hành biết sai số có thể lớn tới đâu. Trong lab ngắn này, ta giữ nguyên LightGBM và bọc quanh dự báo điểm một **khoảng dự báo** được hiệu chỉnh từ sai số ngoài mẫu trong quá khứ.
+
+## Từ một con số đến một khoảng quyết định
+
+Với mức bao phủ mục tiêu 90%, đầu ra cho mỗi ngày có ba cột:
+
+| Cột | Cách đọc |
+| :--- | :--- |
+| `prediction` | Dự báo điểm của LightGBM. |
+| `lower` | Cận dưới đã chặn tại 0 vì doanh thu không thể âm. |
+| `upper` | Cận trên dùng cho kịch bản cần thêm năng lực hoặc tồn kho. |
+
+Ta dùng conformal calibration với điểm không phù hợp là sai số tuyệt đối:
+
+<BlockMath formula="s_i = |y_i - \hat{y}_i|" />
+
+Sau khi lấy phân vị bảo thủ <InlineMath formula="\hat{q}" /> của các điểm <InlineMath formula="s_i" />, khoảng cho dự báo mới là:
+
+<BlockMath formula="[\max(0,\hat{y}-\hat{q}),\;\hat{y}+\hat{q}]" />
+
+Điểm quan trọng không nằm ở công thức mà ở nguồn residual: chúng phải đến từ những giai đoạn mô hình chưa nhìn thấy khi huấn luyện. Vì vậy ta dùng Fold 2 và Fold 3 đã có trong project, không dùng residual trên chính tập train và không nhìn nhãn TEST để hiệu chỉnh khoảng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Bước đầu tiên là tạo dự báo ngoài mẫu theo đúng expanding window. Mỗi model chỉ học dữ liệu trước `train_end`, sau đó mới dự báo cửa sổ validation tương ứng.
+
+## Thu residual ngoài mẫu theo trục thời gian
+
+Cell dưới đây dùng lại `df`, `features`, `FOLDS`, `CV_FOLDS`, `get_models` và `split_by_date` từ notebook:
+
+```python
+def collect_oof_residuals(frame, columns, model_name="LightGBM"):
+    """Thu absolute residual chỉ từ các fold ổn định và ngoài mẫu."""
+    fold_outputs = []
+
+    for fold in FOLDS:
+        fold_name, train_end, valid_start, valid_end = fold
+        if fold_name not in CV_FOLDS:
+            continue
+
+        train, valid = split_by_date(
+            frame, train_end, valid_start, valid_end
+        )
+        model = get_models()[model_name]
+        model.fit(train[columns], np.log1p(train.revenue.values))
+
+        prediction = np.clip(
+            np.expm1(model.predict(valid[columns])), 0, None
+        )
+        fold_outputs.append(pd.DataFrame({
+            "date": valid.date.to_numpy(),
+            "fold": fold_name,
+            "actual": valid.revenue.to_numpy(),
+            "prediction": prediction,
+            "abs_error": np.abs(valid.revenue.to_numpy() - prediction),
+        }))
+
+    return pd.concat(fold_outputs, ignore_index=True)
+
+
+calibration = collect_oof_residuals(df, features)
+print(calibration.groupby("fold").agg(
+    rows=("abs_error", "size"),
+    median_error=("abs_error", "median"),
+    p90_error=("abs_error", lambda x: x.quantile(0.90)),
+).round(0))
+```
+
+Hai chốt chặn giúp cell này không rò rỉ:
+
+1. `fold_name not in CV_FOLDS` loại Fold 1 có structural break theo quyết định đánh giá của project.
+2. Model mới được tạo bên trong từng vòng lặp, nên Fold 3 không kế thừa trạng thái đã học từ Fold 2.
+
+Không lấy `abs(y_train - model.predict(X_train))`: residual trong tập train thường quá nhỏ và sẽ tạo khoảng tự tin giả.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Ta cần chọn đúng một residual theo thứ hạng thay vì gọi tùy ý phân vị 90%. Hiệu chỉnh hữu hạn mẫu đẩy thứ hạng lên một chút để tránh khoảng quá hẹp khi số mẫu calibration còn giới hạn.
+
+## Hiệu chỉnh bán kính và tạo khoảng dự báo
+
+Với <InlineMath formula="n" /> residual và coverage mục tiêu <InlineMath formula="1-\alpha" />, thứ hạng bảo thủ là:
+
+<BlockMath formula="k = \min\left(n,\left\lceil(n+1)(1-\alpha)\right\rceil\right)" />
+
+`np.partition` lấy đúng phần tử thứ <InlineMath formula="k" /> mà không phụ thuộc vào quy ước nội suy của hàm quantile:
+
+```python
+def conformal_radius(abs_errors, coverage=0.90):
+    errors = np.asarray(abs_errors, dtype=float)
+    if errors.ndim != 1 or len(errors) == 0:
+        raise ValueError("abs_errors phải là mảng một chiều không rỗng")
+    if not 0 < coverage < 1:
+        raise ValueError("coverage phải nằm giữa 0 và 1")
+
+    rank = min(len(errors), int(np.ceil((len(errors) + 1) * coverage)))
+    return float(np.partition(errors, rank - 1)[rank - 1])
+
+
+coverage_target = 0.90
+q_hat = conformal_radius(calibration.abs_error, coverage_target)
+print(f"Bán kính interval {coverage_target:.0%}: {q_hat:,.0f}")
+```
+
+Sau đó huấn luyện lại model cuối trên đúng phần train của `TEST_FOLD`. Cách này giữ nguyên phép đánh giá cuối trong notebook: mọi quyết định đến từ lịch sử, còn TEST vẫn chưa được dùng để chọn bán kính.
+
+```python
+_, train_end, test_start, test_end = TEST_FOLD
+train_final, test = split_by_date(df, train_end, test_start, test_end)
+
+final_model = get_models()["LightGBM"]
+final_model.fit(
+    train_final[features],
+    np.log1p(train_final.revenue.values),
+)
+
+point_prediction = np.clip(
+    np.expm1(final_model.predict(test[features])), 0, None
+)
+forecast = pd.DataFrame({
+    "date": test.date.to_numpy(),
+    "actual": test.revenue.to_numpy(),
+    "prediction": point_prediction,
+    "lower": np.clip(point_prediction - q_hat, 0, None),
+    "upper": point_prediction + q_hat,
+})
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+Coverage trả lời “bao nhiêu phần trăm giá trị thật nằm trong khoảng?”, còn mean width trả lời “khoảng rộng đến mức nào?”. Chỉ báo cáo coverage sẽ khuyến khích một khoảng cực rộng nhưng vô dụng; chỉ báo cáo width sẽ khuyến khích một khoảng hẹp nhưng bỏ sót rủi ro.
+
+## Đo coverage trước khi đưa vào vận hành
+
+```python
+inside = forecast.actual.between(forecast.lower, forecast.upper)
+diagnostics = {
+    "target_coverage": coverage_target,
+    "empirical_coverage": float(inside.mean()),
+    "mean_width": float((forecast.upper - forecast.lower).mean()),
+    "point_WAPE": metrics(
+        forecast.actual.values,
+        forecast.prediction.values,
+    )["WAPE"],
+}
+print(pd.Series(diagnostics).round(4))
+
+# Bảng tối thiểu cho downstream planning; không xuất cột actual khi production.
+production_forecast = forecast[
+    ["date", "prediction", "lower", "upper"]
+].copy()
+assert (production_forecast.lower >= 0).all()
+assert (production_forecast.lower <= production_forecast.prediction).all()
+assert (production_forecast.prediction <= production_forecast.upper).all()
+```
+
+Khi chạy notebook, hãy đọc bốn tín hiệu cùng nhau:
+
+- `empirical_coverage` thấp hơn nhiều 0,90: residual lịch sử không còn đại diện cho giai đoạn mới; cần hiệu chỉnh lại trên cửa sổ gần hơn hoặc thêm cơ chế phát hiện regime shift.
+- `mean_width` quá lớn so với doanh thu trung bình: khoảng an toàn nhưng ít giá trị ra quyết định; thử residual chuẩn hóa theo mức doanh thu hoặc interval theo từng mùa.
+- `point_WAPE` xấu đồng thời với coverage thấp: vấn đề nằm ở model hoặc dữ liệu, không nên chỉ nới interval để che lỗi.
+- Các `assert` thất bại: dừng pipeline trước khi xuất dữ liệu cho hệ thống lập kế hoạch.
+
+Conformal prediction có bảo đảm hữu hạn mẫu khi calibration và tương lai có tính hoán đổi phù hợp. Chuỗi doanh thu có thể đổi chế độ theo thời gian, nên mức 90% ở đây là **mục tiêu cần giám sát**, không phải lời hứa vô điều kiện. Cải tiến nhỏ này có giá trị vì nó biến sự không chắc chắn thành một đại lượng đo được mà vẫn giữ nguyên model LightGBM và phần giải thích SHAP hiện có.
+
+</MdxPage>

@@ -40,7 +40,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 16);
   assert.equal(learningCatalog.domains.length, 16);
   assert.equal(learningCatalog.tracks.length, 102);
-  assert.equal(learningCatalog.lessons.length, 765);
+  assert.equal(learningCatalog.lessons.length, 766);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -329,7 +329,15 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 7);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
+  const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
+  assert.ok(salesForecastingTrack);
+  assert.deepEqual(
+    getLearningLessonsForTrack(learningCatalog, salesForecastingTrack)
+      .slice(-2)
+      .map((lesson) => lesson.id),
+    ['sales-forecasting-conformal-prediction-intervals-code-lab', 'sales-forecasting-quiz'],
+  );
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',
     'conv2d-value-exercise',
