@@ -8,9 +8,10 @@ export const lessonMetadata = {
     'Thu residual ngoài mẫu theo trục thời gian',
     'Hiệu chỉnh bán kính và tạo khoảng dự báo',
     'Đo coverage trước khi đưa vào vận hành',
+    'Human-in-the-loop: review ít ngày, giảm thiệt hại',
   ],
   keywords: ['LightGBM', 'Prediction Interval', 'Conformal Prediction', 'Coverage', 'Time Series', 'Data Leakage'],
-  pageCount: 4,
+  pageCount: 5,
 };
 
 <MdxPage page={0}>
@@ -266,5 +267,72 @@ Khi chạy notebook, hãy đọc bốn tín hiệu cùng nhau:
 - Các `assert` thất bại: dừng pipeline trước khi xuất dữ liệu cho hệ thống lập kế hoạch.
 
 Conformal prediction có bảo đảm hữu hạn mẫu khi calibration và tương lai có tính hoán đổi phù hợp. Chuỗi doanh thu có thể đổi chế độ theo thời gian, nên mức 90% ở đây là **mục tiêu cần giám sát**, không phải lời hứa vô điều kiện. Cải tiến nhỏ này có giá trị vì nó biến sự không chắc chắn thành một đại lượng đo được mà vẫn giữ nguyên model LightGBM và phần giải thích SHAP hiện có.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+Interval hữu ích nhất khi nó không tự động thay con người, mà giúp chọn đúng vài ngày đáng xem. Scenario dưới đây giả sử hệ thống chỉ cần human review khi chưa chắc doanh thu có vượt ngưỡng năng lực 5 triệu đồng/ngày hay không.
+
+## Human-in-the-loop: review ít ngày, giảm thiệt hại
+
+Một ngày đi vào review queue khi interval cắt ngưỡng: cận dưới chưa vượt 5 triệu nhưng cận trên đã vượt. Reviewer kiểm tra thêm lịch khuyến mãi, tồn kho và sự kiện rồi có thể chọn phương án an toàn. Để backtest đơn giản và tái lập, ta mô phỏng quyết định an toàn đó bằng cách dùng `upper`; những ngày còn lại vẫn dùng point forecast.
+
+```python
+CAPACITY_LIMIT = 5_000_000
+UNDER_WEIGHT = 2.0   # thiếu 1 đồng gây thiệt hại gấp đôi dư 1 đồng
+OVER_WEIGHT = 1.0
+
+needs_review = (
+    (forecast.lower <= CAPACITY_LIMIT)
+    & (forecast.upper >= CAPACITY_LIMIT)
+)
+fallback_plan = forecast.prediction.copy()
+fallback_plan.loc[needs_review] = forecast.loc[needs_review, "upper"]
+
+def business_loss(actual, planned):
+    shortage = np.clip(np.asarray(actual) - np.asarray(planned), 0, None)
+    excess = np.clip(np.asarray(planned) - np.asarray(actual), 0, None)
+    return UNDER_WEIGHT * shortage + OVER_WEIGHT * excess
+
+point_loss = business_loss(forecast.actual, forecast.prediction)
+fallback_loss = business_loss(forecast.actual, fallback_plan)
+reduction = point_loss.sum() - fallback_loss.sum()
+
+point_shortage = np.clip(
+    forecast.actual.to_numpy() - forecast.prediction.to_numpy(), 0, None
+).sum()
+fallback_shortage = np.clip(
+    forecast.actual.to_numpy() - fallback_plan.to_numpy(), 0, None
+).sum()
+point_excess = np.clip(
+    forecast.prediction.to_numpy() - forecast.actual.to_numpy(), 0, None
+).sum()
+fallback_excess = np.clip(
+    fallback_plan.to_numpy() - forecast.actual.to_numpy(), 0, None
+).sum()
+
+print(f"Human review       : {needs_review.sum()}/{len(forecast)} ngày "
+      f"({needs_review.mean():.1%})")
+print(f"Loss point forecast: {point_loss.sum():,.0f}")
+print(f"Loss có fallback   : {fallback_loss.sum():,.0f}")
+print(f"Loss giảm          : {reduction:,.0f} "
+      f"({reduction / point_loss.sum():.2%})")
+print(f"Shortage giảm      : {1 - fallback_shortage / point_shortage:.2%}")
+print(f"Overplanning tăng  : {fallback_excess / point_excess - 1:.2%}")
+```
+
+```output
+Human review       : 15/184 ngày (8.2%)
+Loss point forecast: 174,108,392
+Loss có fallback   : 166,172,836
+Loss giảm          : 7,935,556 (4.56%)
+Shortage giảm      : 11.35%
+Overplanning tăng  : 46.48%
+```
+
+Kết quả scenario cho thấy interval thu hẹp khối lượng human review xuống **8,2% số ngày** nhưng vẫn giảm 4,56% asymmetric loss và giảm 11,35% tổng thiếu hụt. Đổi lại, lượng dự báo dư tăng 46,48%; đây là lý do fallback cần human judgement thay vì luôn tự động chọn cận trên.
+
+Ngưỡng 5 triệu và trọng số 2:1 chỉ là giả định minh họa, không được tối ưu trên TEST. Khi triển khai thật, doanh nghiệp phải thay chúng bằng giới hạn năng lực và chi phí thiếu hàng/tồn kho đã thống nhất trước, sau đó backtest trên nhiều cửa sổ thời gian. Con số 4,56% mô tả scenario này, không phải cam kết rằng mọi human-in-the-loop system sẽ giảm thiệt hại ở cùng mức.
 
 </MdxPage>
