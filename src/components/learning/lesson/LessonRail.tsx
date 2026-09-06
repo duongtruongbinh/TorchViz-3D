@@ -459,7 +459,7 @@ export default function LessonRail({
 
               {/* View Level 2: Topic -> List Papers */}
               {breadcrumbViewLevel === 'topic' ? (
-                <div className="grid gap-2 pt-1">
+                <div className="grid min-w-0 gap-2 pt-1">
 
                   {papersInActiveTopic.map((item) => {
                     const isCurrent = item.group.track.id === activePaperGroup?.track.id;
@@ -476,19 +476,19 @@ export default function LessonRail({
                           }
                         }}
                         className={cx(
-                          'flex items-center justify-between rounded-xl border p-3 text-left transition-all',
+                          'flex w-full min-w-0 items-center justify-between overflow-hidden rounded-xl border p-3 text-left transition-all',
                           isCurrent
                             ? 'border-[#205089]/30 bg-[#205089]/10 shadow-sm'
                             : 'border-[#205089]/12 bg-white/80 hover:border-[#205089]/30 hover:bg-white hover:shadow-sm'
                         )}
                       >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 text-sm font-bold text-[#123B68]">
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex min-w-0 items-center gap-2 text-sm font-bold text-[#123B68]">
                             <FileText className="h-4 w-4 shrink-0 text-[#205089]" />
-                            <span className="truncate">{item.paper}</span>
+                            <span className="min-w-0 flex-1 truncate">{item.paper}</span>
                           </div>
                           {trackDescription ? (
-                            <div className="mt-1 text-xs text-[#123B68]/70 pl-6 leading-relaxed">
+                            <div className="mt-1 line-clamp-3 break-words pl-6 text-xs leading-relaxed text-[#123B68]/70">
                               {trackDescription}
                             </div>
                           ) : null}
