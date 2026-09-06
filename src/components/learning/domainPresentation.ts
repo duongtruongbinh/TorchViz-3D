@@ -14,6 +14,7 @@ import {
   ServerCog,
   ShieldCheck,
   Dna,
+  FolderKanban,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -35,6 +36,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'robot-learning': Bot,
   'evolutionary-algorithms': Dna,
   'research-papers': GraduationCap,
+  'ai-projects': FolderKanban,
 };
 
 export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
@@ -132,6 +134,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#F0F5FF]/42',
     icon: 'bg-[#F0F5FF] text-[#34527D]',
     accent: 'bg-[#5376A8]',
+  },
+  'ai-projects': {
+    visual: 'bg-[#9DC7C8]',
+    glow: 'bg-[#E6F8F9]/40',
+    icon: 'bg-[#EBF9FA] text-[#1E5D63]',
+    accent: 'bg-[#35858E]',
   },
 };
 

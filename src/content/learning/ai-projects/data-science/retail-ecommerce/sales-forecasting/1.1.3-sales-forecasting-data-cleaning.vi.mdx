@@ -1,0 +1,308 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-data-cleaning',
+  locale: 'vi',
+  title: 'Phần 3: Làm sạch Dữ liệu & Chốt chặn An toàn',
+  headings: [
+    'Quy trình Ba Bước Làm sạch Dữ liệu',
+    'Chuyển Doanh thu về Kiểu Số',
+    'Thống nhất Định dạng Ngày',
+    'Gộp các Ngày Trùng',
+    'Kiểm tra Dữ liệu Sau Xử lý',
+    'Nhìn lại Quy trình: Điểm Tốt & Điểm Cải thiện',
+  ],
+  keywords: ['Data Cleaning', 'Data Transformation', 'Safe Conversion', 'Datetime Normalization', 'Deduplication', 'Validation Gate', 'Defensive Programming', 'Parquet'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+Ở phần này chúng ta xử lý các lỗi đã tìm được ở Mục II, theo quy trình vẽ trong Hình 5. Sau khi sửa xong, chúng ta chạy một vòng kiểm tra lại để chắc rằng dữ liệu đã sạch đúng như mong đợi.
+
+### Quy trình Ba Bước Làm sạch Dữ liệu
+
+Sơ đồ quy trình làm sạch dữ liệu đưa 3,851 dòng thô về 3,833 ngày liên tục được mô tả trong Hình 5:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-05-cac-buoc-xu-ly-lam-sach.png"
+  alt="Hình 5: Các bước xử lý, đưa 3,851 dòng thô về 3,833 ngày liên tục"
+  caption="Hình 5: Các bước xử lý, đưa 3,851 dòng thô về 3,833 ngày liên tục."
+/>
+
+Trước hết chúng ta đọc lại tệp thô và đổi tên cột sang chữ thường cho thống nhất với phần còn lại của tài liệu:
+
+```python
+raw = pd.read_csv("sales.csv", dtype=str)
+df = raw.rename(columns={"Date": "date", "Revenue": "revenue", "COGS": "cogs"})
+n_input = len(df)
+print(f"Đọc vào {n_input:,} dòng từ sales.csv")
+```
+
+Kết quả in ra:
+
+```text
+Đọc vào 3,851 dòng từ sales.csv
+```
+
+---
+
+### Chuyển Doanh thu về Kiểu Số
+
+Bước đầu tiên là bỏ dấu phân cách hàng nghìn rồi ép hai cột về số thực. Ở Mục II.1 chúng ta đã xác định ký tự lạ duy nhất là dấu phẩy, nên chỉ cần bỏ đúng dấu phẩy mà không đụng đến dấu chấm thập phân:
+
+```python
+for column in ("revenue", "cogs"):
+    text = df[column].astype(str).str.strip()
+    n_string = int(text.str.contains(",", regex=False).sum())
+    df[column] = text.str.replace(",", "", regex=False).astype(float)
+    print(f"  {column:8s}: bỏ dấu phân cách ở {n_string:,} ô,"
+          f" kiểu cột thành {df[column].dtype}")
+
+print(f"  Khoảng giá trị: {df.revenue.min():,.0f}"
+      f" đến {df.revenue.max():,.0f}")
+```
+
+Kết quả:
+
+```text
+  revenue : bỏ dấu phân cách ở 308 ô, kiểu cột thành float64
+  cogs    : bỏ dấu phân cách ở 308 ô, kiểu cột thành float64
+  Khoảng giá trị: 279,814 đến 20,905,271
+```
+
+Cả hai cột nay mang kiểu float64. Chúng ta in luôn khoảng giá trị để đối chiếu chéo: con số thu về nằm trong khoảng vài trăm nghìn đến hai mươi triệu, cùng cỡ độ lớn với ba dòng mẫu ở Mục I.2.
+
+Một lỗi thường gặp ở bước này là gọi `str.replace(".", "")` cho cả cột với ý định bỏ dấu phân cách kiểu châu Âu. Trong bộ dữ liệu này dấu chấm lại là dấu thập phân, nên lệnh đó sẽ nhân mọi giá trị lên 100 lần mà không báo lỗi gì. Vì vậy chúng ta luôn xác định ký tự cần bỏ trước, rồi mới bỏ đúng ký tự đó.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Sau khi các cột tiền tệ đã được đưa về kiểu số thực an toàn, chúng ta tiến hành thống nhất định dạng cột ngày.
+
+### Thống nhất Định dạng Ngày
+
+Bước thứ hai xử lý cả hai lỗi của cột ngày. Chúng ta cắt phần thời gian trước, rồi mới đọc từng nhóm theo đúng định dạng của nó. Thứ tự này quan trọng, nếu đọc trước khi cắt thì chuỗi `01/03/2016 00:00:00` không khớp với định dạng `%d/%m/%Y` và pandas sẽ báo lỗi.
+
+Vậy nên, trước khi cắt thì chúng ta khẳng định lại bằng một câu assert rằng mọi phần thời gian đều bằng nửa đêm. Nếu sau này ai đó thay tệp dữ liệu bằng một bản có giờ thật, câu lệnh sẽ dừng ngay thay vì tự động loại bỏ mất thông tin:
+
+```python
+date_text = df.date.astype(str).str.strip()
+has_time = date_text.str.contains(":", na=False)
+
+time_part = date_text[has_time].str.split().str[1]
+distinct_time = sorted(time_part.unique())
+print(f"  {int(has_time.sum()):,} dòng có phần thời gian,"
+      f" giá trị gặp được: {distinct_time}")
+
+assert distinct_time == ["00:00:00"], "có giờ khác 0, không cắt"
+date_text = date_text.str.split().str[0]
+```
+
+Kết quả:
+
+```text
+  214 dòng có phần thời gian, giá trị gặp được: ['00:00:00']
+```
+
+Tiếp theo chúng ta đọc cột ngày. Cách làm là dựng một cột rỗng kiểu ngày tháng, rồi điền vào từng nhóm bằng đúng định dạng của nhóm đó. Nhờ vậy mỗi dòng chỉ được đọc bằng một định dạng duy nhất, và không dòng nào phải để pandas đoán:
+
+```python
+has_slash = date_text.str.contains("/", na=False)
+n_slash = int(has_slash.sum())
+
+parsed = pd.Series(pd.NaT, index=date_text.index, dtype="datetime64[ns]")
+parsed[has_slash] = pd.to_datetime(date_text[has_slash], format="%d/%m/%Y")
+parsed[~has_slash] = pd.to_datetime(date_text[~has_slash], format="%Y-%m-%d")
+df["date"] = parsed
+df = df.sort_values("date").reset_index(drop=True)
+
+print(f"  Đọc {n_slash:,} dòng theo dd/mm/yyyy"
+      f" và {n_input - n_slash:,} dòng theo yyyy-mm-dd")
+print(f"  Chuỗi trải từ {df.date.min().date()}"
+      f" đến {df.date.max().date()}")
+```
+
+Kết quả:
+
+```text
+  Đọc 213 dòng theo dd/mm/yyyy và 3,638 dòng theo yyyy-mm-dd
+  Chuỗi trải từ 2012-07-04 đến 2022-12-31
+```
+
+Sau bước này cột date mang kiểu ngày tháng thật, và khi ghi ra tệp nó sẽ chỉ còn một định dạng duy nhất là `yyyy-mm-dd`.
+
+---
+
+### Gộp các Ngày Trùng
+
+Bước cuối là gộp 18 ngày bị ghi hai lần. Ở Mục II.3 chúng ta đã xác nhận các dòng trùng mang giá trị giống hệt nhau, nên giữ dòng nào cũng cho kết quả như nhau và chúng ta chỉ cần giữ lại một dòng cho mỗi ngày:
+
+```python
+is_duplicated = df.date.duplicated(keep=False)
+n_rows = int(is_duplicated.sum())
+n_days = int(df.date[is_duplicated].nunique())
+identical = bool(df[is_duplicated].duplicated(keep=False).all())
+
+print(f"  Tìm thấy {n_days} ngày ghi trùng, tổng {n_rows} dòng")
+print(f"  Các dòng trùng giống hệt nhau: {identical}")
+
+df = df.drop_duplicates(subset="date", keep="last")
+df = df.reset_index(drop=True)
+print(f"  Còn lại {len(df):,} dòng sau khi gộp")
+```
+
+Kết quả:
+
+```text
+  Tìm thấy 18 ngày ghi trùng, tổng 36 dòng
+  Các dòng trùng giống hệt nhau: True
+  Còn lại 3,833 dòng sau khi gộp
+```
+
+Con số 3,833 dòng trùng khớp với số ngày khác nhau mà chúng ta đã đếm được ở Mục II.4, nên phép gộp đã chạy đúng như dự kiến.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Sau khi thực hiện các phép biến đổi, việc kiểm tra lại toàn bộ tập dữ liệu là bước bắt buộc để khẳng định các lỗi đã được khắc phục hoàn toàn mà không làm tổn hại đến các đặc tính đã đạt.
+
+### Kiểm tra Dữ liệu Sau Xử lý
+
+Ba bước trên đều sửa dữ liệu, nên chúng ta chạy lại các phép kiểm để xác nhận cả những lỗi đã sửa lẫn những tính chất vốn đã đạt ở Mục II vẫn còn nguyên:
+
+```python
+gap = df.date.diff().dropna().dt.days
+checks = {
+    "số dòng khớp số ngày khác nhau": len(df) == df.date.nunique(),
+    "kiểu doanh thu là số thực": df.revenue.dtype.kind == "f",
+    "kiểu giá vốn là số thực": df.cogs.dtype.kind == "f",
+    "không sinh ô rỗng": int(df.isna().sum().sum()) == 0,
+    "ngày tăng dần": bool(df.date.is_monotonic_increasing),
+    "chuỗi ngày liên tục": bool((gap == 1).all()),
+    "doanh thu đều dương": bool((df.revenue > 0).all()),
+}
+for name, passed in checks.items():
+    check(name, passed)
+assert all(checks.values()), "kiểm tra sau xử lý thất bại"
+
+df.to_csv("sales_clean.csv", index=False)
+print(f"\n  {n_input:,} dòng vào, {len(df):,} dòng ra")
+```
+
+Kết quả in ra:
+
+```text
+  ĐẠT   số dòng khớp số ngày khác nhau
+  ĐẠT   kiểu doanh thu là số thực
+  ĐẠT   kiểu giá vốn là số thực
+  ĐẠT   không sinh ô rỗng
+  ĐẠT   ngày tăng dần
+  ĐẠT   chuỗi ngày liên tục
+  ĐẠT   doanh thu đều dương
+
+  3,851 dòng vào, 3,833 dòng ra
+```
+
+Cả bảy tiêu chí đều đạt, và chênh lệch 18 dòng giữa đầu vào với đầu ra đúng bằng số bản sao chúng ta vừa gộp. Câu assert ở cuối đóng vai trò như một chốt chặn: nếu sau này có người sửa mã ở một trong ba bước trên và làm hỏng một tính chất nào đó, chương trình sẽ dừng ngay tại đây thay vì để lỗi tiếp tục ảnh hưởng đến các mục sau.
+
+Tệp `sales_clean.csv` thu về là đầu vào cho toàn bộ phần còn lại của tài liệu. Từ Mục IV trở đi, mọi con số đều tính trên 3,833 ngày này.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Nhìn lại Quy trình: Điểm Tốt & Điểm Cải thiện
+
+Để xây dựng một quy trình xử lý dữ liệu vững chắc cho các dự án sau này, việc đánh giá khách quan cả điểm mạnh lẫn hạn chế của mã nguồn hiện tại là vô cùng cần thiết.
+
+#### 1. Những Điểm Nhóm Tác Giả Đã Làm Rất Tốt
+
+<ConceptHierarchy
+  ariaLabel="4 điểm sáng kỹ thuật trong khâu làm sạch dữ liệu của nhóm tác giả"
+  root={{
+    title: 'Quy trình Làm sạch Phòng thủ (Defensive Data Cleaning)',
+    detail: 'Tư duy chốt chặn an toàn và kiểm chứng mọi giả định trước khi thực hiện biến đổi dữ liệu.',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: 'Chốt Chặn An Toàn',
+      detail: 'Bảng 7 phép kiểm tra logic đi cùng lệnh assert all(...) hoạt động như cầu chì ngắt mạch, chặn đứng rò rỉ dữ liệu lỗi xuống downstream.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: 'Kiểm Chứng Giả Định',
+      detail: 'Khẳng định giờ luôn bằng 00:00:00 trước khi cắt chuỗi; xác nhận 18 ngày trùng là bản sao ghi lặp nguyên văn (identical) trước khi drop.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: 'Phân Nhánh Parse Ngày',
+      detail: 'Nhận diện đúng 2 họ ký tự (/ và -) để parse độc lập theo %d/%m/%Y và %Y-%m-%d, tránh được bẫy hoán đổi ngày tháng của cờ dayfirst.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: 'Bảo Toàn Độ Chính Xác',
+      detail: 'Chỉ loại bỏ đúng dấu phẩy phân cách hàng nghìn, giữ nguyên vẹn dấu chấm thập phân và phần số lẻ của kiểu số thực float64.',
+      tone: 'neutral',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+#### 2. Những Điểm Có Thể Cải Thiện Cho Môi Trường Production
+
+<ConceptHierarchy
+  ariaLabel="3 khuyến nghị nâng cấp quy trình làm sạch cho môi trường Production"
+  root={{
+    title: 'Khuyến Nghị Nâng Cấp Quy Trình Doanh Nghiệp',
+    detail: 'Chuyển dịch từ xử lý vá lỗi thủ công trên notebook sang quy trình phối hợp kỹ thuật chuẩn mực và tự động hóa.',
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: 'Phối Hợp DE & Chuẩn Hóa ETL',
+      detail: 'Làm việc lại với đội ngũ Data Engineer (DE) để xây dựng lại luồng ETL/ELT. Thông thường DE sẽ đảm nhận các bước tiền xử lý đúng quy chuẩn. DS cần ghi nhận và báo cáo nếu lỗi format lặp lại thường xuyên (do nhiều phòng ban thu thập khác nhau), từ đó tổ chức lại cách thức thu thập, lưu trữ và đào tạo lại nhân sự.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: 'Lưu Trữ Bằng Parquet',
+      detail: 'Thay thế tệp CSV bằng định dạng Parquet (sales_clean.parquet) hoặc Feather. Giúp nén dung lượng nhỏ hơn 70–80%, bảo toàn 100% schema và kiểu dữ liệu (datetime64, float64), tăng tốc độ đọc/ghi gấp 5–10 lần ở các bước sau.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: 'Kế Hoạch Bù Ngày Thiếu (Reindex)',
+      detail: 'Nên lên kế hoạch từ trước để phòng trường hợp các đợt dữ liệu tương lai bị khuyết ngày (do sự cố server ghi log hoặc ngày lễ đóng cửa). Thay vì chỉ kiểm tra cứng bằng assert khiến pipeline bị crash đột ngột, cần chuẩn bị sẵn phương án reindex tự động theo pd.date_range để bù ngày thiếu (gán doanh thu = 0 hoặc nội suy), giúp hệ thống duy trì vận hành ổn định.',
+      tone: 'blue',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+### Cơ Chế Phối Hợp Giải Quyết Tận Gốc Vấn Đề Dữ Liệu Doanh Nghiệp
+
+Khi dữ liệu bẩn lặp đi lặp lại có tính hệ thống, việc Data Scientist tự ngồi viết code "vá lỗi" tạm bợ trong notebook chỉ là giải pháp tình thế. Để giải quyết triệt để vấn đề từ nguồn phát sinh và mang lại giá trị bền vững cho toàn bộ tổ chức, cần thiết lập một cơ chế phối hợp liên chức năng:
+
+| Hạng mục | Chi tiết thực thi trong doanh nghiệp |
+| :--- | :--- |
+| **1. Nguyên nhân tại sao?** | Dữ liệu được tổng hợp từ nhiều hệ thống khác nhau (phần mềm POS cũ tại cửa hàng, ERP mới, sàn thương mại điện tử); nhân sự các chi nhánh dùng máy tính có cài đặt *Locale* khác nhau (máy tiếng Anh nhập `YYYY-MM-DD`, máy tiếng Việt nhập `DD/MM/YYYY`, máy kế toán dùng dấu phẩy `,`); hệ thống nguồn thiếu chốt chặn xác thực dữ liệu đầu vào (*Input Validation*). |
+| **2. Ai sẽ làm việc đó?** | **Data Scientist (DS):** Chủ động đóng vai trò khởi xướng, tổng hợp biên bản kiểm toán chất lượng dữ liệu (*Data Audit Report*), phân loại các nhóm lỗi và lượng hóa rủi ro sai số dự báo đối với các quyết định đặt hàng/tồn kho của doanh nghiệp. |
+| **3. Phối hợp với ai?** | **Data Engineer (DE):** Cùng rà soát và thiết kế lại đường ống ETL/ELT tự động trên kho dữ liệu tập trung. **Phòng ban nghiệp vụ (Kế toán, Vận hành bán lẻ, Quản lý kho):** Rà soát lại quy trình tác nghiệp và biểu mẫu nhập liệu thực tế tại các điểm bán. |
+| **4. Cần xin ý kiến ai chỉ đạo?** | **Head of Data / Chief Data Officer (CDO)** hoặc **CTO / COO:** Cần sự bảo trợ và chỉ đạo trực tiếp từ cấp lãnh đạo (*Executive Sponsorship*) để ban hành Bộ quy chuẩn dữ liệu chung (*Data Contract*) có tính bắt buộc tuân thủ trên quy mô toàn công ty. |
+| **5. Kế hoạch triển khai** | **Tuần 1:** Báo cáo lỗi và đề xuất chuẩn hóa. **Tuần 2:** Ban hành quy chuẩn ngày `YYYY-MM-DD`, số thực không dấu phẩy và ID đơn hàng duy nhất. **Tuần 3–4:** Chặn lỗi ở form nguồn và xây validation gates cho ETL. **Từ tuần 5:** Đào tạo nhân sự và theo dõi chất lượng định kỳ. |
+| **6. Trách nhiệm từng bên** | **DS:** Định nghĩa tiêu chuẩn đầu vào. **DE:** Tự động hóa ETL và cảnh báo. **Nghiệp vụ:** Tuân thủ biểu mẫu. **Lãnh đạo:** Phê duyệt chính sách và nguồn lực liên phòng ban. |
+
+  **Bài học cốt lõi:**
+  Không chỉ dừng lại ở việc làm sạch dữ liệu để chạy notebook thông thường hay phát hiện vấn đề rồi tự xử lý riêng lẻ ở phạm vi Data Science. Điều quan trọng hơn là phải **tìm ra nguyên nhân gốc rễ của vấn đề từ chính nguồn dữ liệu**, từ đó chủ động đề xuất giải pháp phối hợp để giải quyết triệt để và mang lại giá trị dài hạn cho toàn bộ công ty.
+
+</MdxPage>

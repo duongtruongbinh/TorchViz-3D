@@ -12,6 +12,7 @@ import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 import LessonNode from './LessonNode';
 
 export type LessonRailFilter = 'all' | 'ready' | 'locked';
+export type LessonHierarchyViewLevel = 'all' | 'category' | 'topic' | 'paper';
 
 export type FilteredLearningLessonGroup = {
   track: LearningTrack;
@@ -32,8 +33,8 @@ export type LessonRailProps = {
   selectedFilter: LessonRailFilter;
   theme: LearningLabTheme;
   isRailOpen?: boolean;
-  breadcrumbViewLevel?: 'all' | 'category' | 'topic' | 'paper';
-  onBreadcrumbViewLevelChange?: (level: 'all' | 'category' | 'topic' | 'paper') => void;
+  breadcrumbViewLevel?: LessonHierarchyViewLevel;
+  onBreadcrumbViewLevelChange?: (level: LessonHierarchyViewLevel) => void;
   onClearSearch: () => void;
   onToggleRail?: () => void;
   onSearchChange: (value: string) => void;
@@ -51,6 +52,10 @@ const BREADCRUMB_ABBREVIATIONS: Record<string, string> = {
 
 function formatBreadcrumbLabel(name: string): string {
   return BREADCRUMB_ABBREVIATIONS[name] ?? name;
+}
+
+function formatCountLabel(count: number, singular: string, plural = singular): string {
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 export default function LessonRail({
@@ -88,9 +93,14 @@ export default function LessonRail({
     }
   }, [selectedLesson?.id]);
 
+  const hierarchyDomainId = groups[0]?.track.domainId;
+  const isAiProjects = hierarchyDomainId === 'ai-projects';
+
   const isBreadcrumbDomain = useMemo(() => (
-    groups.some((group) => group.track.domainId === 'research-papers' || group.track.text.title.en.includes(' > '))
-  ), [groups]);
+    hierarchyDomainId === 'research-papers'
+    || hierarchyDomainId === 'ai-projects'
+    || groups.some((group) => group.track.text.title.en.includes(' > '))
+  ), [groups, hierarchyDomainId]);
 
   const parsedBreadcrumbTracks = useMemo(() => {
     if (!isBreadcrumbDomain) return [];
@@ -99,7 +109,7 @@ export default function LessonRail({
       const parts = titleText.split(/\s*>\s*/);
       return {
         group,
-        category: parts[0] || 'LLM',
+        category: parts[0] || 'General',
         topic: parts[1] || 'General',
         paper: parts[2] || parts[0],
       };
@@ -114,16 +124,16 @@ export default function LessonRail({
     );
   }, [isBreadcrumbDomain, parsedBreadcrumbTracks, selectedLesson?.trackId]);
 
-  const [internalViewLevel, setInternalViewLevel] = useState<'all' | 'category' | 'topic' | 'paper'>('all');
+  const [internalViewLevel, setInternalViewLevel] = useState<LessonHierarchyViewLevel>('all');
   const breadcrumbViewLevel = propsBreadcrumbViewLevel ?? internalViewLevel;
-  const setBreadcrumbViewLevel = useCallback((level: 'all' | 'category' | 'topic' | 'paper') => {
+  const setBreadcrumbViewLevel = useCallback((level: LessonHierarchyViewLevel) => {
     setInternalViewLevel(level);
     onBreadcrumbViewLevelChange?.(level);
   }, [onBreadcrumbViewLevelChange]);
 
-  const [activeCategory, setActiveCategory] = useState<string>('LLM');
-  const [activeTopic, setActiveTopic] = useState<string>('Continual Learning');
-  const [activePaperTrackId, setActivePaperTrackId] = useState<string>('sdc-lora-paper');
+  const [activeCategory, setActiveCategory] = useState('');
+  const [activeTopic, setActiveTopic] = useState('');
+  const [activePaperTrackId, setActivePaperTrackId] = useState('');
 
   useEffect(() => {
     if (currentTrackEntry) {
@@ -165,9 +175,9 @@ export default function LessonRail({
   const activePaperName = useMemo(() => {
     return (
       parsedBreadcrumbTracks.find((item) => item.group.track.id === activePaperGroup?.track.id)?.paper ??
-      'Paper'
+      (isAiProjects ? 'Project' : 'Paper')
     );
-  }, [activePaperGroup?.track.id, parsedBreadcrumbTracks]);
+  }, [activePaperGroup?.track.id, isAiProjects, parsedBreadcrumbTracks]);
 
   return (
     <aside className="flex h-full min-h-0 justify-center pr-1">
@@ -282,9 +292,9 @@ export default function LessonRail({
                       ? 'font-black text-[#205089] bg-[#205089]/10'
                       : 'font-semibold text-[#123B68]/75 hover:bg-[#205089]/5 hover:text-[#205089]'
                   )}
-                  title="View topics"
+                  title={isAiProjects ? (language === 'vi' ? 'Xem danh mục dự án' : 'View project categories') : 'View topics'}
                 >
-                  Topics
+                  {isAiProjects ? (language === 'vi' ? 'Dự án' : 'Projects') : 'Topics'}
                 </button>
 
                 {/* Level 1: Category */}
@@ -390,7 +400,13 @@ export default function LessonRail({
                             <span className="truncate">{categoryName}</span>
                           </div>
                           <div className="mt-1 text-xs text-[#123B68]/65 pl-6">
-                            {distinctTopics.length} {distinctTopics.length > 1 ? 'topics' : 'topic'} &bull; {tracksInCategory.length} {tracksInCategory.length > 1 ? 'papers' : 'paper'}
+                            {isAiProjects
+                              ? formatCountLabel(distinctTopics.length, language === 'vi' ? 'lĩnh vực' : 'field', language === 'vi' ? 'lĩnh vực' : 'fields')
+                              : formatCountLabel(distinctTopics.length, 'topic', 'topics')}
+                            {' • '}
+                            {isAiProjects
+                              ? formatCountLabel(tracksInCategory.length, language === 'vi' ? 'dự án' : 'project', language === 'vi' ? 'dự án' : 'projects')
+                              : formatCountLabel(tracksInCategory.length, 'paper', 'papers')}
                           </div>
                         </div>
                         <ChevronRight className="h-4 w-4 shrink-0 text-[#205089]/60" />
@@ -429,7 +445,9 @@ export default function LessonRail({
                             <span className="truncate">{topicName}</span>
                           </div>
                           <div className="mt-1 text-xs text-[#123B68]/65 pl-6">
-                            {papersCount} {papersCount > 1 ? 'papers' : 'paper'}
+                            {isAiProjects
+                              ? formatCountLabel(papersCount, language === 'vi' ? 'dự án' : 'project', language === 'vi' ? 'dự án' : 'projects')
+                              : formatCountLabel(papersCount, 'paper', 'papers')}
                           </div>
                         </div>
                         <ChevronRight className="h-4 w-4 shrink-0 text-[#205089]/60" />
@@ -441,7 +459,7 @@ export default function LessonRail({
 
               {/* View Level 2: Topic -> List Papers */}
               {breadcrumbViewLevel === 'topic' ? (
-                <div className="grid gap-2 pt-1">
+                <div className="grid min-w-0 gap-2 pt-1">
 
                   {papersInActiveTopic.map((item) => {
                     const isCurrent = item.group.track.id === activePaperGroup?.track.id;
@@ -458,19 +476,19 @@ export default function LessonRail({
                           }
                         }}
                         className={cx(
-                          'flex items-center justify-between rounded-xl border p-3 text-left transition-all',
+                          'flex w-full min-w-0 items-center justify-between overflow-hidden rounded-xl border p-3 text-left transition-all',
                           isCurrent
                             ? 'border-[#205089]/30 bg-[#205089]/10 shadow-sm'
                             : 'border-[#205089]/12 bg-white/80 hover:border-[#205089]/30 hover:bg-white hover:shadow-sm'
                         )}
                       >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 text-sm font-bold text-[#123B68]">
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex min-w-0 items-center gap-2 text-sm font-bold text-[#123B68]">
                             <FileText className="h-4 w-4 shrink-0 text-[#205089]" />
-                            <span className="truncate">{item.paper}</span>
+                            <span className="min-w-0 flex-1 truncate">{item.paper}</span>
                           </div>
                           {trackDescription ? (
-                            <div className="mt-1 text-xs text-[#123B68]/70 pl-6 leading-relaxed">
+                            <div className="mt-1 line-clamp-3 break-words pl-6 text-xs leading-relaxed text-[#123B68]/70">
                               {trackDescription}
                             </div>
                           ) : null}

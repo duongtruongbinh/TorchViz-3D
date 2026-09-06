@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Learning Lab
@@ -19,13 +19,13 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 15 domains, 98 tracks, and 755 lesson nodes. Two hundred
-ninety Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 16 domains, 102 tracks, and 766 lesson nodes. Two hundred
+ninety-eight Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-one in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), nineteen in `research-papers`, fifteen in `evolutionary-algorithms`,
-and four tagged exercise lessons in `cv`. The other 465 nodes are navigable placeholders and render one shared localized
+eight in `ai-projects`, and four tagged exercise lessons in `cv`. The other 468 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see

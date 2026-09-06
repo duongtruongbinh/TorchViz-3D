@@ -1,0 +1,557 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-feature-engineering',
+  locale: 'vi',
+  title: 'Phần 5: Xây dựng 53 Đặc trưng & Phép thử Rò rỉ',
+  headings: [
+    'Quy tắc Lùi Thời gian và Thực nghiệm Phá hoại',
+    'Xây dựng 53 Đặc trưng qua Bốn Nhóm',
+    'Kiểm tra Rò rỉ Dữ liệu Tự động',
+    'Giai đoạn Khởi động và Khử Bỏ Dữ liệu Thiếu',
+    'Cạm bẫy Điểm số khi để Rò rỉ Dữ liệu Lọt vào',
+    'Tổng kết & Đánh giá: Điểm Sáng Kỹ Thuật & Hạn Chế Cần Hoàn Thiện',
+  ],
+  keywords: ['Feature Engineering', 'Data Leakage', 'Leakage Probe', 'Fourier Features', 'Rolling Features', 'Warmup Period'],
+  pageCount: 6,
+};
+
+<MdxPage page={0}>
+
+Ở phần này chúng ta biến chuỗi 3,833 ngày thành một bảng đặc trưng để đưa vào mô hình cây. Toàn bộ công việc bị chi phối bởi một ràng buộc duy nhất, là mốc thông tin <InlineMath formula="d - H" /> đã nêu ở đoạn Mở đầu. Vì vậy chúng ta bắt đầu bằng cách phát biểu ràng buộc đó cho thật rõ, rồi mới xây từng nhóm đặc trưng, sau đó kiểm tra tự động xem có cột nào lỡ vi phạm hay không.
+
+```python
+raw = pd.read_csv("sales_clean.csv", parse_dates=["date"])
+raw = raw.sort_values("date").reset_index(drop=True)
+print(f"Đọc {len(raw):,} dòng, khoảng dự báo H = {H} ngày")
+```
+
+Kết quả:
+
+```text
+Đọc 3,833 dòng, khoảng dự báo H = 28 ngày
+```
+
+### Quy tắc Lùi Thời gian và Thực nghiệm Phá hoại
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-13-vung-du-lieu-duoc-dung-khi-du-bao.png"
+  alt="Hình 13: Phân tích vùng dữ liệu được sử dụng khi chạy dự báo"
+  caption="Hình 13: Phân tích vùng dữ liệu được sử dụng khi chạy dự báo."
+/>
+
+Khi dự báo cho ngày <InlineMath formula="d" />, mô hình chỉ được biết dữ liệu đến hết ngày <InlineMath formula="d - H" />. Hai mươi tám ngày ngay trước <InlineMath formula="d" /> chưa tồn tại ở thời điểm chạy dự báo, nên mọi đặc trưng dẫn xuất từ doanh thu đều phải lùi ít nhất <InlineMath formula="H" /> ngày. Hình 13 minh hoạ vùng được phép dùng bằng một bảng trích thật từ dữ liệu.
+
+Quy tắc nghe thì đơn giản nhưng rất dễ vi phạm, vì cách viết trong pandas không nói cho chúng ta biết cửa sổ đang chạm tới ngày nào. Để thấy rõ điều đó, chúng ta so sánh năm cách viết cùng tính trung bình trượt 28 ngày.
+
+Cách kiểm là phá hoại bằng cách nhân doanh thu của 27 ngày cuối chuỗi lên **9.3 lần** rồi xem giá trị ở hàng cuối của mỗi cách viết có đổi theo hay không. Cách viết nào đổi theo tức là nó đang nhìn vào vùng lẽ ra bị chặn.
+
+```python
+def rolling_variants(y):
+    """Năm cách viết cùng tính trung bình trượt 28 ngày."""
+    return {
+        "y.rolling(28).mean()": y.rolling(28).mean(),
+        "y.shift(1).rolling(28).mean()": y.shift(1).rolling(28).mean(),
+        "y.shift(7).rolling(28).mean()": y.shift(7).rolling(28).mean(),
+        "y.rolling(28, center=True).mean().shift(28)":
+            y.rolling(28, center=True).mean().shift(28),
+        "y.shift(28).rolling(28).mean() (an toàn)":
+            y.shift(28).rolling(28).mean(),
+    }
+
+broken = raw.copy()
+broken.loc[broken.index[-(H - 1):], "revenue"] *= 9.3
+intact = rolling_variants(raw["revenue"])
+damaged = rolling_variants(broken["revenue"])
+
+change = pd.Series({name: abs(float(intact[name].iloc[-1])
+                              - float(damaged[name].iloc[-1]))
+                    for name in intact})
+verdict = np.where(change < 1e-9, "AN TOÀN", "RÒ RỈ")
+print(pd.DataFrame({"phản ứng ở hàng cuối": change,
+                    "kết luận": verdict})
+      .to_string(float_format="{:.3e}".format))
+```
+
+Kết quả:
+
+```text
+                                             phản ứng ở hàng cuối kết luận
+y.rolling(28).mean()                                    1.442e+07    RÒ RỈ
+y.shift(1).rolling(28).mean()                           1.371e+07    RÒ RỈ
+y.shift(7).rolling(28).mean()                           9.337e+06    RÒ RỈ
+y.rolling(28, center=True).mean().shift(28)             5.110e+06    RÒ RỈ
+y.shift(28).rolling(28).mean() (an toàn)                0.000e+00  AN TOÀN
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-14-danh-gia-cac-phuong-phap-tao-du-lieu-chuoi.png"
+  alt="Hình 14: Điểm mới nhất mà cửa sổ chạm tới quyết định tất cả: chỉ shift(28).rolling(28) dừng ở d - 28 nên an toàn để sử dụng"
+  caption="Hình 14: Điểm mới nhất mà cửa sổ chạm tới quyết định tất cả: chỉ shift(28).rolling(28) dừng ở d − 28 nên an toàn để sử dụng."
+/>
+
+Theo Hình 14, bốn cách viết đầu đều phản ứng, chỉ cách cuối cùng đứng yên. Điều đáng chú ý là cách thứ tư, `rolling(28, center=True).mean().shift(28)`, trông rất giống cách an toàn vì cũng có `shift(28)` ở cuối, nhưng cửa sổ giữa tâm nhìn cả sang hai phía nên nó vẫn chạm tới ngày <InlineMath formula="d - 14" />.
+
+Từ đó chúng ta rút ra một quy tắc đọc mã: điều cần nhìn là điểm mới nhất mà cửa sổ chạm tới, và điểm đó phải nằm ở <InlineMath formula="d - H" /> hoặc xa hơn. Với cách viết an toàn, `shift(28)` đẩy toàn bộ chuỗi lùi 28 ngày trước, nên cửa sổ 28 ngày sau đó chỉ trải từ <InlineMath formula="d - 55" /> đến <InlineMath formula="d - 28" />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Xây dựng 53 Đặc trưng qua Bốn Nhóm
+
+Chúng ta chia 53 đặc trưng theo một tiêu chí duy nhất, là mỗi nhóm biết được đến ngày nào tại thời điểm chạy dự báo. Hình 15 vẽ lại tiêu chí đó.
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-15-53-dac-trung-chia-bon-nhom.png"
+  alt="Hình 15: 53 đặc trưng chia bốn nhóm. Chỉ nhóm lịch sử doanh thu bị mốc d - 28 chặn lại, ba nhóm còn lại biết được đến tận ngày d"
+  caption="Hình 15: 53 đặc trưng chia bốn nhóm. Chỉ nhóm lịch sử doanh thu bị mốc d − 28 chặn lại, ba nhóm còn lại biết được đến tận ngày d."
+/>
+
+#### Nhóm lịch sử doanh thu (24 cột)
+
+Đây là nhóm duy nhất bị mốc <InlineMath formula="d - H" /> chặn lại, vì nó dẫn xuất trực tiếp từ biến mục tiêu. Nhóm này gồm độ trễ thô lấy thẳng doanh thu của một ngày trong quá khứ, thống kê trượt tính trên nền đã lùi <InlineMath formula="H" /> ngày, và tỉ số cùng xu hướng giúp mô hình tách mức doanh thu ra khỏi hình dạng biến động.
+
+```python
+def add_lag_features(df, col=TARGET):
+    """Đặc trưng lịch sử. Mọi cột đều đã lùi ít nhất H ngày."""
+    y = df[col]
+    safe = y.shift(H) # nền an toàn, không thấy H ngày gần nhất
+
+    for lag in (28, 35, 42, 56, 91, 182, 364, 371):
+        df[f"lag_{lag}"] = y.shift(lag)
+
+    for w in (7, 28, 91, 364):
+        n = max(2, w // 4)
+        df[f"roll_mean_{w}"] = safe.rolling(w, min_periods=n).mean()
+        df[f"roll_std_{w}"] = safe.rolling(w, min_periods=n).std()
+        df["roll_min_91"] = safe.rolling(91, min_periods=20).min()
+        df["roll_max_91"] = safe.rolling(91, min_periods=20).max()
+
+    # cùng kỳ năm ngoái, làm mượt cho bớt nhiễu
+    df["lag364_smooth7"] = (y.shift(364 - 3)
+                            .rolling(7, min_periods=3).mean())
+    df["lag364_smooth28"] = (y.shift(364 - 14)
+                             .rolling(28, min_periods=10).mean())
+
+    # tỉ số và xu hướng: tách mức ra khỏi hình dạng
+    df["ratio_28_364"] = df.roll_mean_28 / df.roll_mean_364
+    df["ratio_91_364"] = df.roll_mean_91 / df.roll_mean_364
+    df["trend_28_91"] = df.roll_mean_28 - df.roll_mean_91
+    df["cv_91"] = df.roll_std_91 / df.roll_mean_91
+    return df
+```
+
+Danh sách độ trễ được chọn theo kết quả ở Mục IV.6. Mốc 28 là điểm gần nhất còn được phép, mốc 364 và 371 bám lấy cùng kỳ năm trước vốn giữ hệ số tự tương quan 0.751, còn các mốc ở giữa lấp khoảng trống để mô hình có thể nội suy.
+
+**"Lấp khoảng trống để mô hình nội suy" là gì?**
+
+Câu nhận xét ngắn gọn của nhóm tác giả ẩn chứa một nguyên lý thiết kế đặc trưng chuỗi thời gian then chốt cho các mô hình cây quyết định (Decision Trees như LightGBM / XGBoost):
+
+1. **Khoảng mù thông tin nếu thiếu các mốc giữa:**
+   Nếu chỉ chọn `lag_28` (mốc gần nhất hợp lệ) và `lag_364` (cùng kỳ năm trước), giữa hai mốc này sẽ tồn tại một "khoảng trống khổng lồ" dài tới 11 tháng (từ ngày 29 đến ngày 363). Mô hình cây chỉ phân nhánh trên các giá trị cụ thể, nó không thể tự ngoại suy xem chuỗi doanh thu trong 11 tháng đó đang đi lên, đi ngang hay suy thoái.
+
+2. **Lưới độ trễ giảm dần mật độ (Decaying Temporal Grid):**
+   Hệ độ trễ `(28, 35, 42, 56, 91, 182, 364, 371)` được cấu hình theo nguyên lý thang đo giảm dần:
+   - **Vùng gần (28, 35, 42, 56 ngày):** Lấy mẫu dày đặc theo từng bước nhảy 7 ngày (bội số của chu kỳ tuần) để mô hình nắm bắt quán tính ngắn hạn và độ dốc (slope) của doanh thu ngay trước thời điểm dự báo.
+   - **Vùng trung hạn (91 ngày = 1 quý, 182 ngày = nửa năm):** Lấy mẫu thưa dần theo chu kỳ quý và bán niên để mô hình định vị chuỗi đang nằm ở pha nào của chu kỳ kinh doanh trung hạn.
+   - **Vùng dài hạn (364, 371 ngày):** Bắt trọn vẹn điểm tựa mùa vụ cùng kỳ năm trước (và lệch 1 tuần).
+
+3. **Cung cấp điểm tựa để mô hình "nội suy" hình thái biến động:**
+   Nhờ có các mốc trung gian này, các phép chia nhánh (tree splits) của LightGBM có thể kết hợp so sánh (ví dụ: `lag_28` so với `lag_56`, hay `lag_91` so với `lag_182`) để ước lượng tốc độ thay đổi và gia tốc của chuỗi tại mọi khoảng thời gian, từ đó "nội suy" chính xác đường cong xu hướng thay vì chỉ có hai điểm đầu - cuối rời rạc.
+
+Hai cột `lag364_smooth7` và `lag364_smooth28` là bản làm mượt của cùng kỳ năm trước. Chúng lùi lần lượt 361 và 350 ngày rồi lấy trung bình một cửa sổ ngắn, nên điểm mới nhất mà chúng chạm tới vẫn nằm quanh mốc 364 chứ không tiến gần <InlineMath formula="d" />.
+
+**Lưu ý quan trọng: Kỹ thuật biến safe chống rò rỉ khi trượt cửa sổ**
+
+Biến `safe = series.shift(H)` là một kỹ thuật phòng thủ sống còn để triệt tiêu lỗi rò rỉ dữ liệu (data leakage). Thay vì viết `series.rolling(w).mean().shift(H)` lặp lại cho từng cửa sổ (rất dễ sơ suất quên gọi `shift` hoặc đảo lộn thứ tự tính toán khiến nhãn tương lai lọt vào), chúng ta lùi một lần duy nhất ngay từ đầu `safe = series.shift(H)` rồi mọi phép trượt (`rolling`) sau đó đều an toàn tuyệt đối theo.
+
+#### Nhóm lịch và Fourier (19 cột)
+
+Nhóm lịch suy ra hoàn toàn từ ngày tháng nên không cần lùi. Với ngày <InlineMath formula="d" /> bất kỳ trong tương lai, chúng ta luôn biết nó là thứ mấy, ngày bao nhiêu và thuộc tháng nào.
+
+```python
+def add_calendar_features(df):
+    """Đặc trưng lịch, ba tầng mùa vụ đều biết trước nên không lùi."""
+    d = df["date"]
+    df["dow"] = d.dt.dayofweek
+    df["dom"] = d.dt.day
+    df["month"] = d.dt.month
+    df["quarter"] = d.dt.quarter
+    df["doy"] = d.dt.dayofyear
+    df["days_in_month"] = d.dt.days_in_month
+    df["dom_reverse"] = df.days_in_month - df.dom # 0 = cuối tháng
+    df["is_weekend"] = (df.dow >= 5).astype("int8")
+    df["is_eom"] = (df.dom_reverse <= 3).astype("int8")
+    df["is_som"] = (df.dom <= 2).astype("int8")
+    df["is_odd_year"] = (d.dt.year % 2).astype("int8")
+    for k in (1, 2, 3, 4):
+        angle = 2 * np.pi * k * df.doy / 365.25
+        df[f"fourier_sin{k}"] = np.sin(angle)
+        df[f"fourier_cos{k}"] = np.cos(angle)
+    return df
+```
+
+Cột `dom_reverse` chính là quyết định rút ra ở Mục IV.4. Nó đếm ngược đến cuối tháng, nên ngày cuối tháng luôn mang giá trị 0 dù tháng đó dài 28, 30 hay 31 ngày. Nếu chỉ có cột `dom` thì mô hình phải học riêng cho từng độ dài tháng, còn với `dom_reverse` thì quy luật cuối tháng gom về một chỗ.
+
+Bốn cặp sin và cos là khai triển Fourier của chu kỳ năm:
+
+<BlockMath formula="\text{angle} = \frac{2\pi \cdot k \cdot \text{doy}}{365.25}, \quad k \in \{1, 2, 3, 4\}" />
+
+**Giải thích trực quan: Khai triển Fourier là gì và vì sao cần thiết?**
+
+1. **Ý tưởng cốt lõi (Core Intuition):**
+   Định lý Fourier chỉ ra rằng **mọi đường cong dao động tuần hoàn phức tạp đều có thể được phân tách thành tổng của các sóng sin và cos đơn giản** với các tần số khác nhau (giống như việc hòa âm nhiều nốt nhạc cơ bản để tạo nên một giai điệu phức tạp).
+
+2. **Khắc phục đứt gãy biên thời gian (31/12 và 01/01):**
+   Nếu chỉ dùng số thứ tự ngày trong năm (`doy` chạy từ 1 đến 365), mô hình cây sẽ coi ngày 31/12 (`doy = 365`) và ngày 01/01 (`doy = 1`) là hai con số ở hai đầu cực xa nhau, dù thực tế chúng là hai ngày liền kề sát sườn. Phép biến đổi sang cặp <InlineMath formula="\sin" /> và <InlineMath formula="\cos" /> giúp uốn trục thời gian 365 ngày thành một **vòng tròn khép kín**: thời điểm giao thừa nối liền mượt mà, giúp mô hình hiểu được tính liên tục của mùa vụ.
+
+3. **Ý nghĩa của 4 bậc tần số (<InlineMath formula="k = 1, 2, 3, 4" />):**
+   - <InlineMath formula="k = 1" />: Sóng cơ bản chu kỳ **1 năm** (365.25 ngày) — phản ánh nhịp điệu lớn theo năm (xuân, hạ, thu, đông).
+   - <InlineMath formula="k = 2" />: Họa âm chu kỳ **nửa năm** (~182 ngày) — phản ánh nhịp điệu bán niên.
+   - <InlineMath formula="k = 3" />: Họa âm chu kỳ **4 tháng** (~121 ngày).
+   - <InlineMath formula="k = 4" />: Họa âm chu kỳ **1 quý** (~91 ngày) — phản ánh chu kỳ mua sắm theo từng mùa/quý kinh doanh.
+
+Kết hợp 4 cặp sóng sin-cos này cho phép mô hình cây tự do "uốn nắn" và xấp xỉ bất kỳ hình thái mùa vụ uốn lượn nào trong năm một cách trơn tru, thay vì phải dùng hàng chục phép chia ngưỡng rời rạc và thô cứng (như `doy > 120`, `doy <= 150`...).
+
+Chúng cho mô hình cây một cách mô tả mùa vụ trơn tru, thay vì phải cắt trục thời gian thành từng khoảng bằng các ngưỡng rời rạc.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+#### Nhóm Tết và ngày đặc biệt (4 cột)
+
+Tết Nguyên đán trượt theo lịch dương nên không suy ra được từ ngày tháng dương lịch, mà phải tra một bảng ngày đã biết trước. Bảng này phủ cả năm nằm ngoài phạm vi dữ liệu, để hai đầu chuỗi không bị tính sai khoảng cách.
+
+```python
+RETAIL_SPECIAL_DAYS = [(1, 1), (3, 8), (4, 30), (5, 1), (9, 2),
+                       (10, 20), (11, 11), (12, 12), (12, 24), (12, 25)]
+
+def add_tet_features(df):
+    """Đặc trưng Tết. Âm lịch dịch chuyển nên phải tra bảng."""
+    d = df["date"]
+    tet = pd.to_datetime(pd.Series(TET_DATES))
+    diff = np.stack([(d - t).dt.days.values for t in tet])
+    df["days_to_tet"] = diff[np.abs(diff).argmin(axis=0),
+                             np.arange(len(df))]
+    df["tet_before"] = df.days_to_tet.between(-30, -1).astype("int8")
+    df["tet_after"] = df.days_to_tet.between(0, 14).astype("int8")
+    sp = set(RETAIL_SPECIAL_DAYS)
+    df["is_special_day"] = np.array(
+        [(m, dd) in sp for m, dd in zip(d.dt.month, d.dt.day)],
+        dtype="int8")
+    return df
+```
+
+Cột `is_special_day` đánh dấu các mốc bán lẻ theo lịch dương. Ngoài ngày lễ chính thức, danh sách còn có 8 tháng 3, 20 tháng 10, 11 tháng 11 và 12 tháng 12 vì đây là những mốc mua sắm dù không phải ngày nghỉ.
+
+Như đã thấy ở Mục IV.5.1, chúng ta giữ nhóm này với kỳ vọng đóng góp thấp. Bốn cột là đủ để mô hình nắm được hiệu ứng nếu có, mà không tốn nhiều chỗ nếu không có.
+
+#### Nhóm khuyến mãi (6 cột)
+
+Lịch khuyến mãi được công bố trước, nên tại thời điểm chạy dự báo chúng ta đã biết ngày <InlineMath formula="d" /> nằm trong chương trình nào. Đây là nhóm duy nhất ngoài lịch mà biết được đến tận ngày <InlineMath formula="d" />.
+
+```python
+def add_promo_features(df):
+    """Lịch khuyến mãi công bố trước nên biết được tới ngày d."""
+    pr = pd.read_csv("promotions.csv",
+                     parse_dates=["start_date", "end_date"])
+    df["promo_n"] = 0
+    df["promo_disc_max"] = 0.0
+    df["promo_day_idx"] = -1
+    df["promo_streetwear"] = 0
+    df["promo_outdoor"] = 0
+    for _, p in pr.iterrows():
+        m = (df.date >= p.start_date) & (df.date <= p.end_date)
+        if not m.any():
+            continue
+        df.loc[m, "promo_n"] += 1
+        df.loc[m, "promo_disc_max"] = np.maximum(
+            df.loc[m, "promo_disc_max"], float(p.discount_value))
+        # hai chương trình có thể chồng nhau: giữ chương trình mới
+        # bắt đầu, nếu không kết quả phụ thuộc thứ tự dòng trong CSV
+        idx = (df.loc[m, "date"] - p.start_date).dt.days
+        cur = df.loc[m, "promo_day_idx"]
+        df.loc[m, "promo_day_idx"] = np.where(cur < 0, idx,
+                                              np.minimum(cur, idx))
+        if p.applicable_category == "Streetwear":
+            df.loc[m, "promo_streetwear"] = 1
+        elif p.applicable_category == "Outdoor":
+            df.loc[m, "promo_outdoor"] = 1
+    df["promo_any"] = (df.promo_n > 0).astype("int8")
+    return df
+```
+
+Chi tiết đáng chú ý ở đây là cách xử lý khi hai chương trình chồng lên nhau. Cột `promo_day_idx` đếm số ngày kể từ lúc chương trình bắt đầu, và nếu một ngày thuộc hai chương trình thì chúng ta lấy giá trị nhỏ hơn, tức chương trình mới bắt đầu gần đây nhất. Nếu không quy định rõ như vậy, kết quả sẽ phụ thuộc vào thứ tự dòng trong tệp CSV, và chỉ cần ai đó sắp xếp lại tệp là mọi con số phía sau đổi theo.
+
+#### Ghép bốn nhóm đặc trưng
+
+Bốn hàm trên chạy nối tiếp nhau trên cùng một bảng, rồi chúng ta liệt kê danh sách đặc trưng và kiểm rằng không cột nào lọt ra ngoài bốn nhóm:
+
+```python
+df = add_promo_features(add_tet_features(add_calendar_features(
+    add_lag_features(raw.copy()))))
+skip_columns = ("date", TARGET, "cogs")
+features = [c for c in df.columns if c not in skip_columns]
+
+GROUPS = {
+    "lịch sử doanh thu": ("lag", "roll", "ratio", "trend", "cv_"),
+    "lịch": ("dow", "dom", "month", "quarter", "doy", "days_in",
+             "is_week", "is_eom", "is_som", "is_odd", "fourier"),
+    "Tết và ngày đặc biệt": ("days_to_tet", "tet_", "is_special"),
+    "khuyến mãi": ("promo",),
+}
+groups = {}
+for name, prefixes in GROUPS.items():
+    columns = [c for c in features if c.startswith(prefixes)]
+    groups[name] = columns
+    print(f" {name:24s} {len(columns):3d} cột"
+          f" {', '.join(columns[:4])} ...")
+print(f" {'TỔNG':24s} {len(features):3d} cột")
+assert sum(len(v) for v in groups.values()) == len(features)
+```
+
+Kết quả:
+
+```text
+ lịch sử doanh thu          24 cột lag_28, lag_35, lag_42, lag_56 ...
+ lịch                       19 cột dow, dom, month, quarter ...
+ Tết và ngày đặc biệt        4 cột days_to_tet, tet_before, tet_after, is_special_day ...
+ khuyến mãi                  6 cột promo_n, promo_disc_max, promo_day_idx, promo_streetwear ...
+ TỔNG                       53 cột
+```
+
+Câu `assert` ở cuối lại là một chốt chặn: ai thêm cột mới mà quên đưa tiền tố vào `GROUPS` thì chương trình dừng ngay, thay vì để cột đó biến mất khỏi mọi phép phân tích theo nhóm ở Mục VIII.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Kiểm tra Rò rỉ Dữ liệu Tự động
+
+Bốn hàm ở Mục V.2 viết bằng tay, mà quy tắc lùi thời gian thì rất dễ vi phạm như Mục V.1 đã cho thấy. Vì vậy chúng ta cần một phép kiểm tự động chạy được mỗi lần sửa mã, chứ không thể chỉ đọc lại bằng mắt. Rò rỉ dữ liệu là một lỗi phổ biến và khó phát hiện, được phân loại đầy đủ trong *Leakage in Data Mining* (Kaufman, 2012).
+
+Ý tưởng vẫn là phá hoại, nhưng lần này áp cho toàn bộ nhóm lịch sử. Tại hàng dự báo cho ngày <InlineMath formula="d" />, nếu chúng ta thay đổi nhãn trong vùng từ <InlineMath formula="d - H + 1" /> đến <InlineMath formula="d" /> thì không đặc trưng nào ở hàng <InlineMath formula="d" /> được phép đổi theo.
+
+```python
+def leakage_probe(raw, n_checks=8):
+    """Phép thử phá hoại.
+
+    Đổi nhãn trong vùng bị chặn rồi xem đặc trưng có động không. Chạy ở
+    nhiều mốc chứ không chỉ hàng cuối, một lỗi chỉ lộ ra khi đã có đủ
+    lịch sử sẽ hoàn toàn im lặng nếu chỉ kiểm một hàng.
+    """
+    fa = add_lag_features(raw.copy())
+    cols = [c for c in fa.columns
+            if c.startswith(("lag", "roll", "ratio", "trend", "cv_"))]
+    rows = np.linspace(max(H, 400), len(raw) - 1, n_checks, dtype=int)
+    worst = 0.0
+    for row in rows:
+        b = raw.copy()
+        b.loc[b.index[row - H + 1: row + 1], "revenue"] *= 9.3
+        fb = add_lag_features(b)
+        diff = (fa[cols].iloc[row].fillna(-1)
+                - fb[cols].iloc[row].fillna(-1)).abs().max()
+        worst = max(worst, float(diff))
+    return worst, len(rows), len(cols)
+
+worst, n_rows_checked, n_columns = leakage_probe(raw)
+print(f" Phá hoại {H} nhãn gần nhất tại {n_rows_checked} mốc,"
+      f" kiểm {n_columns} cột")
+print(f" Thay đổi lớn nhất quan sát được = {worst:.3e}")
+assert worst < 1e-9, "RÒ RỈ: có đặc trưng nhìn thấy nhãn bị chặn"
+```
+
+Kết quả:
+
+```text
+ Phá hoại 28 nhãn gần nhất tại 8 mốc, kiểm 24 cột
+ Thay đổi lớn nhất quan sát được = 0.000e+00
+```
+
+Thay đổi lớn nhất bằng đúng 0 trên cả 24 cột và cả 8 mốc, nên nhóm lịch sử không rò rỉ. Phép thử chạy ở tám mốc rải đều vì nhiều cột chỉ có giá trị khi đã tích đủ lịch sử, nên một lỗi ở `roll_mean_364` sẽ im lặng nếu chúng ta chỉ kiểm một hàng đầu chuỗi.
+
+### Giai đoạn Khởi động và Khử Bỏ Dữ liệu Thiếu
+
+Cuối cùng chúng ta bỏ những ngày đầu chuỗi không đủ dữ liệu để tính đặc trưng. Cột `lag_371` cần 371 ngày lịch sử mới có giá trị, còn `roll_mean_364` cần cửa sổ 364 ngày trên nền đã lùi 28 ngày.
+
+```python
+n_before = len(df)
+df = df.dropna(subset=["lag_371", "roll_mean_364"])
+df = df.reset_index(drop=True)
+dropped_pct = 100 * (n_before - len(df)) / n_before
+
+print(f" Bỏ {n_before - len(df)} ngày đầu chuỗi ({dropped_pct:.1f}%)")
+print(f" Còn {len(df):,} ngày, từ {df.date.min().date()}"
+      f" đến {df.date.max().date()}")
+df.to_csv(f"features_h{H}.csv", index=False)
+save_results("04_features", {"features": features,
+                             "n_features": len(features),
+                             "warmup": {"dropped": n_before - len(df),
+                                        "remaining": len(df)}})
+```
+
+Kết quả:
+
+```text
+ Bỏ 371 ngày đầu chuỗi (9.7%)
+ Còn 3,462 ngày, từ 2013-07-10 đến 2022-12-31
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-16-su-dung-371-ngay-khoi-dong.png"
+  alt="Hình 16: Bỏ 371 ngày đầu chuỗi, tức 9.7%, để đổi lấy nhóm đặc trưng cùng kỳ năm trước"
+  caption="Hình 16: Bỏ 371 ngày đầu chuỗi, tức 9.7%, để đổi lấy nhóm đặc trưng cùng kỳ năm trước."
+/>
+
+Theo Hình 16, chúng ta mất 371 ngày, tức 9.7% chuỗi, và đổi lại là đặc trưng cùng kỳ năm trước, mốc mạnh nhất trong vùng được phép dùng theo Mục IV.6.
+
+Cần lưu ý rằng phần bị bỏ nằm ở đầu chuỗi, tức toàn bộ năm 2012 và nửa đầu 2013. Đây là giai đoạn có miền doanh thu cao, thuộc về thời kỳ trước cú đứt gãy ở Mục IV.1. Bỏ nó đi cũng đồng nghĩa với việc mô hình được huấn luyện trên phần dữ liệu gần với hiện tại hơn.
+
+Tệp `features_h28.csv` thu về có 3,462 dòng và 53 đặc trưng. Đây là đầu vào cho Mục VI.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Cạm bẫy Điểm số khi để Rò rỉ Dữ liệu Lọt vào
+
+Phép thử trên xác nhận chúng ta không bị rò rỉ. Nhưng để thấy vì sao phải cẩn thận đến vậy, chúng ta thử cố tình để rò rỉ lọt vào rồi xem điểm số đổi ra sao. Cả hai lần đều đọc `features_h28.csv` vừa ghi ở Mục V.4, huấn luyện trên phần train của lần cắt TEST và đo trên nửa cuối năm 2022. Cột dùng để minh hoạ là `cogs`, giá vốn của chính ngày cần dự báo, vốn có tương quan 0.976 với doanh thu như đã thấy ở Mục IV.5.3.
+
+```python
+ready = pd.read_csv(f"features_h{H}.csv", parse_dates=["date"])
+train, test = split_by_date(ready, *TEST_FOLD[1:])
+y_train_log = np.log1p(train.revenue.values)
+y_test = test.revenue.values
+
+runs = {f"{len(features)} đặc trưng hợp lệ": features,
+        "thêm cogs cùng ngày (rò rỉ)": features + ["cogs"]}
+scores, models = {}, {}
+
+for name, columns in runs.items():
+    models[name] = get_models()["LightGBM"]
+    models[name].fit(train[columns], y_train_log)
+    prediction = np.expm1(models[name].predict(test[columns]))
+    scores[name] = metrics(y_test, prediction)
+
+print(pd.DataFrame(scores).T.round(4).to_string())
+importance = pd.Series(models["thêm cogs cùng ngày (rò rỉ)"]
+                       .feature_importances_,
+                       index=runs["thêm cogs cùng ngày (rò rỉ)"])
+print("\n Năm cột đứng đầu bảng quan trọng: "
+      + ", ".join(f"{k}={v}" for k, v
+                  in importance.nlargest(5).items()))
+```
+
+Kết quả:
+
+```text
+                               WAPE    bias      R2
+53 đặc trưng hợp lệ          0.2038 -0.1181  0.6398
+thêm cogs cùng ngày (rò rỉ)  0.0285  0.0102  0.9945
+
+ Năm cột đứng đầu bảng quan trọng: cogs=2817, lag_364=1316, lag_28=1092, lag364_smooth7=809, lag_371=759
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-17-so-sanh-khi-ro-ri-cogs.png"
+  alt="Hình 17: Cùng một mô hình, chạy với 53 đặc trưng hợp lệ và khi thêm giá vốn cùng ngày. Con số đẹp lên hẳn nhưng không dùng được khi dự báo thật"
+  caption="Hình 17: Cùng một mô hình, chạy với 53 đặc trưng hợp lệ và khi thêm giá vốn cùng ngày. Con số đẹp lên hẳn nhưng không dùng được khi dự báo thật."
+/>
+
+Hình 17 đặt hai điểm số cạnh nhau. Chỉ cần thêm một cột, <InlineMath formula="R^2" /> nhảy từ **0.6398** lên **0.9945** và WAPE giảm từ **0.2038** xuống **0.0285**, tức sai số nhỏ đi bảy lần. Trong bảng xếp hạng độ quan trọng, `cogs` đứng đầu với 2,817 điểm, hơn gấp đôi cột thứ hai là `lag_364` với 1,316.
+
+Con số ấy không có ý nghĩa trong thực tế: như Mục IV.5.3 đã nêu, mô hình đang sử dụng trực tiếp thông tin về biến mục tiêu thay vì thực hiện dự báo. Đây cũng là một dấu hiệu cần xem xét: khi <InlineMath formula="R^2" /> gần 1 trong một bài toán dự báo, chúng ta nên kiểm tra xem có đặc trưng nào đứng đầu bảng mức quan trọng một cách bất thường hay không.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Tổng kết & Đánh giá: Điểm Sáng Kỹ Thuật & Hạn Chế Cần Hoàn Thiện
+
+Giai đoạn kỹ thuật tạo đặc trưng (Feature Engineering) và phòng chống rò rỉ dữ liệu (Data Leakage) của nhóm tác giả là một trong những phần xuất sắc nhất của dự án về mặt kỷ luật phần mềm và kiểm thử tự động. Dưới đây là phân tích toàn diện về các điểm sáng kỹ thuật cùng những điểm hạn chế có thể tối ưu hóa và mở rộng thêm.
+
+---
+
+#### 1. Những Điểm Sáng Kỹ Thuật Của Nhóm Tác Giả
+
+<ConceptHierarchy
+  ariaLabel="4 điểm sáng kỹ thuật nổi bật của nhóm tác giả trong Phần 5"
+  root={{
+    title: 'Kỷ Luật Kỹ Thuật & Kiểm Thử Phòng Ngừa Rò Rỉ',
+    detail: 'Thiết kế pipeline có tính phòng vệ cao, tự động hóa việc phát hiện vi phạm ranh giới thời gian và bảo đảm tính tái lập kết quả.',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: 'Phép Thử Rò Rỉ Bằng Thực Nghiệm Phá Hoại (Adversarial Leakage Probe)',
+      detail: 'Thay vì chỉ rà soát code bằng mắt, nhóm tác giả xây dựng hàm leakage_probe tự động: nhân nhãn 28 ngày bị chặn lên 9.3 lần tại 8 mốc thời gian khác nhau. Nếu bất kỳ đặc trưng nào bị lay động dù chỉ 1e-9, hệ thống sẽ báo động đỏ ngay lập tức. Đây là tư duy kiểm thử đơn vị (Unit Testing) đỉnh cao trong Machine Learning thực chiến.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: 'Kiến Trúc Biến Đệm An Toàn (safe = y.shift(H))',
+      detail: 'Một giải pháp kiến trúc mã nguồn cực kỳ thanh lịch: lùi toàn bộ chuỗi đúng một lần duy nhất ở gốc, sau đó mọi phép tính rolling bên dưới đều nghiễm nhiên an toàn. Cách làm này triệt tiêu hoàn toàn nguy cơ quên shift hoặc dùng nhầm center=True trong pandas.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: 'Chuyển Hóa Insight Nghiệp Vụ Thành Đặc Trưng Đếm Ngược (dom_reverse)',
+      detail: 'Chuyển hóa trực tiếp phát hiện từ EDA về đỉnh ngày 31 thành đặc trưng đếm ngược về mốc 0. Nhờ đó, ngày cuối tháng của mọi tháng (dù 28, 30 hay 31 ngày) đều quy về cùng một tọa độ số học, giúp mô hình cây học quy luật bùng nổ cuối tháng dễ dàng mà không bị phân mảnh dữ liệu.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: 'Xử Lý Xung Đột Khuyến Mãi Có Tính Tất Định (Deterministic Logic)',
+      detail: 'Khi các chương trình khuyến mãi bị chồng chéo ngày, tác giả ưu tiên chương trình mới bắt đầu gần nhất (lấy min của promo_day_idx). Điều này bảo đảm pipeline chạy ra kết quả nhất quán 100%, không bị ảnh hưởng bởi thứ tự ngẫu nhiên của các dòng trong file CSV.',
+      tone: 'neutral',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+#### 2. Những Điểm Hạn Chế & Cơ Hội Mở Rộng
+
+<ConceptHierarchy
+  ariaLabel="4 điểm hạn chế và cơ hội mở rộng trong thiết kế đặc trưng"
+  root={{
+    title: 'Các Hạn Chế & Cơ Hội Nâng Cấp Thiết Kế',
+    detail: 'Khắc phục việc gộp phẳng khuyến mãi, lãng phí tín hiệu lịch sử COGS, thiếu đặc trưng tương tác chéo và mất dữ liệu ở giai đoạn khởi động.',
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: '1. Khuyến Mãi Bị Gộp Phẳng (Flat Promotion Encoding)',
+      detail: '50 đợt khuyến mãi trong 10 năm bị nén vào các biến số đơn giản (promo_n, promo_disc_max) mà không phân loại hình thức sale (Flash sale giảm sốc, xả hàng tồn kho, hay tặng voucher/freeship). Đặc biệt, mô hình thiếu hoàn toàn các đặc trưng đón đầu và dư âm (Lead & Lag Promo Effects): tâm lý khách ngưng mua trước đợt sale lớn để chờ giảm giá, và sức mua chững lại sau đợt sale (post-promotion dip).',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '2. Vứt Bỏ Hoàn Toàn COGS Thay Vì Tận Dụng COGS Quá Khứ Hợp Lệ',
+      detail: 'Đúng là cogs của ngày d chưa tồn tại ở mốc d - H nên không được dùng cogs cùng ngày. Tuy nhiên, tại mốc d - H ta hoàn toàn biết giá vốn của quá khứ (d - 28, d - 35...). Việc loại bỏ 100% cột COGS là bỏ lỡ tín hiệu biên lợi nhuận lịch sử (historical margins): nếu chuỗi cửa hàng liên tục bán dưới giá vốn trong tháng qua, đó là chỉ báo mạnh mẽ về áp lực xả kho sẽ tác động trực tiếp đến sức mua tuần tới.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: '3. Thiếu Các Đặc Trưng Tương Tác Chéo Nghiệp Vụ (Cross-Feature Interactions)',
+      detail: '53 đặc trưng được xây dựng theo từng ốc đảo riêng biệt. Trong bán lẻ, sức mạnh doanh số bùng nổ mạnh nhất khi các điều kiện cộng hưởng với nhau: ví dụ Khuyến mãi rơi đúng vào ngày lương về cuối tháng (has_promo * is_eom) hoặc Khuyến mãi dịp cận Tết (has_promo * tet_before). Việc thiếu các đặc trưng tương tác này buộc mô hình cây phải tự tốn độ sâu để tìm kiếm giao điểm.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '4. Loại Bỏ 371 Ngày Đầu Chuỗi Một Cách Thô Bạo (Aggressive Warmup Drop)',
+      detail: 'Để tính lag_371 và roll_mean_364, tác giả dùng dropna xóa thẳng cánh 371 ngày đầu (9.7% dữ liệu). Trong bài toán này dữ liệu kéo dài 10 năm nên có thể chấp nhận, nhưng trong các dự án thực tế có chuỗi thời gian ngắn (1-2 năm), việc vứt bỏ gần 1 năm dữ liệu sẽ làm mất đi lượng thông tin rất lớn. Giải pháp tốt hơn là sử dụng cờ missing_flag hoặc các mô hình dự báo phân tầng.',
+      tone: 'blue',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+**Bài học cốt lõi từ Phần 5:**
+Kỹ thuật tạo đặc trưng cho chuỗi thời gian không chỉ là việc tạo ra càng nhiều cột càng tốt, mà là sự cân bằng giữa **kỷ luật phòng vệ ranh giới thông tin (Preventing Leakage)** và **mức độ bóc tách tín hiệu nghiệp vụ (Feature Expressiveness)**. Việc kiểm thử rò rỉ tự động bằng thực nghiệm phá hoại là tiêu chuẩn vàng cần áp dụng cho mọi hệ thống Machine Learning chuỗi thời gian trong thực tế.
+
+</MdxPage>

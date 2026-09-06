@@ -13,7 +13,8 @@ export type LearningDomainId =
   | 'reinforcement-learning'
   | 'robot-learning'
   | 'evolutionary-algorithms'
-  | 'research-papers';
+  | 'research-papers'
+  | 'ai-projects';
 
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';

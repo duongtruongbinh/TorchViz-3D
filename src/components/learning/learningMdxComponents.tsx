@@ -3,6 +3,7 @@ import {
   Code2,
   DatabaseBackup,
   Dna,
+  ExternalLink,
   GitFork,
   ListFilter,
   Monitor,
@@ -325,6 +326,7 @@ type EvidenceCardItem = {
   insight: string;
   takeaway?: string;
   tone?: LearningSemanticTone;
+  url?: string;
 };
 
 export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = false }: { ariaLabel: string; insightLabel?: string; items: EvidenceCardItem[]; singleColumn?: boolean }) {
@@ -353,7 +355,21 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
             <div className="grid h-full content-start px-5 py-4 pl-6">
               <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.14em]', themeClasses.mutedText)}>{item.eyebrow}</p>
               <strong className={cx('mt-2 block text-[1.75rem] font-black leading-tight tracking-[-0.035em] tabular-nums sm:text-[1.9rem]', valueColor)}>{item.value}</strong>
-              <p className={cx('mt-1 text-sm font-bold leading-5', themeClasses.titleText)}>{item.label}</p>
+              <p className={cx('mt-1 text-sm font-bold leading-5', themeClasses.titleText)}>
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1.5 transition-colors hover:text-[#205089] hover:underline"
+                  >
+                    <span>{item.label}</span>
+                    <ExternalLink className="inline h-3.5 w-3.5 shrink-0 opacity-65" aria-hidden="true" />
+                  </a>
+                ) : (
+                  item.label
+                )}
+              </p>
               <div className={cx('mt-4 border-t pt-3 text-sm leading-6', border, themeClasses.bodyText)}>
                 <p>
                   {insightLabel && <strong className={cx('mr-1.5 font-black', valueColor)}>{insightLabel}</strong>}
@@ -1527,9 +1543,6 @@ export function SelfCheckList({ ariaLabel, items }: {
   );
 }
 
-type ComparisonMatrixCell = string | string[];
-type ComparisonMatrixRow = { label: string; values: ComparisonMatrixCell[]; highlightedColumn?: number };
-
 export function PaperTradeoff({ advantages, limitations, neutralText = false }: {
   advantages: string[];
   limitations: string[];
@@ -1554,30 +1567,75 @@ export function PaperTradeoff({ advantages, limitations, neutralText = false }: 
   );
 }
 
-export function ComparisonMatrix({ ariaLabel, columns, rows, rowHeaderLabel = 'Tiêu chí', compactRowHeader = false }: {
+type ComparisonMatrixCell = string | string[];
+type ComparisonMatrixRow = {
+  label: string;
+  values: ComparisonMatrixCell[];
+  highlightedColumn?: number;
+};
+type KeyedComparisonMatrixRow = Record<string, ComparisonMatrixCell | number | undefined>;
+type ComparisonMatrixColumn = { title: string; key: string };
+type ComparisonMatrixColumnDef = string | ComparisonMatrixColumn;
+
+function hasKeyedComparisonColumns(
+  columns: ComparisonMatrixColumnDef[],
+): columns is ComparisonMatrixColumn[] {
+  return columns.length > 0 && typeof columns[0] !== 'string';
+}
+
+export function ComparisonMatrix({
+  ariaLabel,
+  columns,
+  rows = [],
+  rowHeaderLabel = 'Tiêu chí',
+  compactRowHeader = false,
+}: {
   ariaLabel: string;
-  columns: string[];
-  rows: ComparisonMatrixRow[];
+  columns: ComparisonMatrixColumnDef[];
+  rows: Array<ComparisonMatrixRow | KeyedComparisonMatrixRow>;
   rowHeaderLabel?: string;
   compactRowHeader?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
   const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+
+  const keyedColumns = hasKeyedComparisonColumns(columns) ? columns : null;
+
+  const headerTitle = keyedColumns?.[0].title ?? rowHeaderLabel;
+
+  const colList = keyedColumns
+    ? keyedColumns.slice(1).map((column) => column.title)
+    : columns as string[];
+
+  const normalizedRows = rows.map((row) => {
+    if (keyedColumns) {
+      const keyedRow = row as KeyedComparisonMatrixRow;
+      return {
+        label: String(keyedRow[keyedColumns[0].key] ?? ''),
+        values: keyedColumns.slice(1).map((column) => String(keyedRow[column.key] ?? '')),
+        highlightedColumn: typeof keyedRow.highlightedColumn === 'number' ? keyedRow.highlightedColumn : undefined,
+      };
+    }
+    return row as ComparisonMatrixRow;
+  });
+
   return (
     <div className={cx('my-6 overflow-x-auto rounded-xl border', border)}>
       <table className="!my-0 w-full min-w-[36rem] !border-0 border-collapse text-left text-sm leading-5 [&_td]:!border-b-0 [&_th]:!border-b-0">
         <caption className="sr-only">{ariaLabel}</caption>
         <thead className={themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]'}>
           <tr>
-            <th scope="col" className={cx('px-4 py-3 font-black', compactRowHeader ? 'w-16 text-center' : 'w-[26%]')}>{rowHeaderLabel}</th>
-            {columns.map((column) => <th key={column} scope="col" className="px-4 py-3 font-black">{column}</th>)}
+            <th scope="col" className={cx('px-4 py-3 font-black', compactRowHeader ? 'w-16 text-center' : 'w-[26%]')}>{headerTitle}</th>
+            {colList.map((colName, idx) => (
+              <th key={`${colName}-${idx}`} scope="col" className="px-4 py-3 font-black">{colName}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
+          {normalizedRows.map((row, rowIndex) => (
             <tr key={`${row.label}-${rowIndex}`} className={cx('border-t align-top', border)}>
               <th scope="row" className={cx('px-4 py-3 font-black', compactRowHeader && 'text-center tabular-nums', themeClasses.titleText)}>{row.label}</th>
-              {columns.map((_, columnIndex) => {
+              {colList.map((_, columnIndex) => {
                 const value = row.values[columnIndex];
                 return (
                   <td

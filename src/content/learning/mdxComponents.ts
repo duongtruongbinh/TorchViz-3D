@@ -108,12 +108,20 @@ export const EVOLUTIONARY_ALGORITHMS_MDX_COMPONENT_NAMES = [
   'LossToFitnessVisualizer',
 ] as const;
 
+export const AI_PROJECTS_MDX_COMPONENT_NAMES = [
+  'ForecastHorizonCalendar',
+  'LagFeatureVisualizer',
+  'MovingAverageVisualizer',
+  'CogsLeakageVisualizer',
+] as const;
+
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,
   'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,
   'linear-algebra': LINEAR_ALGEBRA_MDX_COMPONENT_NAMES,
   'evolutionary-algorithms': EVOLUTIONARY_ALGORITHMS_MDX_COMPONENT_NAMES,
+  'ai-projects': AI_PROJECTS_MDX_COMPONENT_NAMES,
 } as const;
 
 export function getLearningDomainMdxComponentNames(domainId: string): readonly string[] {
