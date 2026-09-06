@@ -85,6 +85,15 @@ print(calibration.groupby("fold").agg(
 ).round(0))
 ```
 
+Output khi chạy lại với `sales.csv` và `promotions.csv`:
+
+```output
+        rows  median_error  p90_error
+fold
+Fold 2   184      437912.0  1276396.0
+Fold 3   184      399355.0  1035785.0
+```
+
 Hai chốt chặn giúp cell này không rò rỉ:
 
 1. `fold_name not in CV_FOLDS` loại Fold 1 có structural break theo quyết định đánh giá của project.
@@ -121,6 +130,10 @@ def conformal_radius(abs_errors, coverage=0.90):
 coverage_target = 0.90
 q_hat = conformal_radius(calibration.abs_error, coverage_target)
 print(f"Bán kính interval {coverage_target:.0%}: {q_hat:,.0f}")
+```
+
+```output
+Bán kính interval 90%: 1,215,280
 ```
 
 Sau đó huấn luyện lại model cuối trên đúng phần train của `TEST_FOLD`. Cách này giữ nguyên phép đánh giá cuối trong notebook: mọi quyết định đến từ lịch sử, còn TEST vẫn chưa được dùng để chọn bán kính.
@@ -160,13 +173,20 @@ inside = forecast.actual.between(forecast.lower, forecast.upper)
 diagnostics = {
     "target_coverage": coverage_target,
     "empirical_coverage": float(inside.mean()),
+    "conformal_radius": q_hat,
     "mean_width": float((forecast.upper - forecast.lower).mean()),
     "point_WAPE": metrics(
         forecast.actual.values,
         forecast.prediction.values,
     )["WAPE"],
+    "missed_days": int((~inside).sum()),
 }
-print(pd.Series(diagnostics).round(4))
+print(f"Coverage target   : {coverage_target:.1%}")
+print(f"Coverage thực tế  : {inside.mean():.1%} ({inside.sum()}/{len(inside)} ngày)")
+print(f"Ngày ngoài khoảng : {(~inside).sum()}")
+print(f"Bán kính          : {q_hat:,.0f} đồng")
+print(f"Độ rộng trung bình: {diagnostics['mean_width']:,.0f} đồng")
+print(f"Point WAPE        : {diagnostics['point_WAPE']:.4f}")
 
 # Bảng tối thiểu cho downstream planning; không xuất cột actual khi production.
 production_forecast = forecast[
@@ -176,6 +196,67 @@ assert (production_forecast.lower >= 0).all()
 assert (production_forecast.lower <= production_forecast.prediction).all()
 assert (production_forecast.prediction <= production_forecast.upper).all()
 ```
+
+```output
+Coverage target   : 90.0%
+Coverage thực tế  : 92.4% (170/184 ngày)
+Ngày ngoài khoảng : 14
+Bán kính          : 1,215,280 đồng
+Độ rộng trung bình: 2,412,217 đồng
+Point WAPE        : 0.2038
+```
+
+Cell sau tái tạo plot từ chính bảng `forecast`. Dải xanh nhạt là interval, đường cam là doanh thu thật và các chấm đỏ là 14 ngày nằm ngoài khoảng.
+
+```python
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+
+scale = 1_000_000
+fig, ax = plt.subplots(figsize=(16, 9), dpi=100)
+fig.patch.set_facecolor("white")
+ax.set_facecolor("#F8FAFC")
+ax.fill_between(
+    forecast.date, forecast.lower / scale, forecast.upper / scale,
+    color="#B8C8DA", alpha=0.55, linewidth=0,
+    label="Khoảng conformal 90%",
+)
+ax.plot(forecast.date, forecast.actual / scale,
+        color="#C77655", linewidth=2.2, label="Doanh thu thực tế")
+ax.plot(forecast.date, forecast.prediction / scale,
+        color="#205089", linewidth=2.0, label="LightGBM")
+
+missed = forecast.loc[~inside]
+ax.scatter(missed.date, missed.actual / scale, s=30, color="#A33D3D",
+           edgecolor="white", linewidth=0.7, zorder=4,
+           label=f"Ngoài khoảng ({len(missed)} ngày)")
+ax.set_title("LightGBM với khoảng dự báo conformal trên tập TEST 2022",
+             loc="left", fontsize=20, weight="bold", color="#17324D", pad=28)
+ax.text(0, 1.015,
+        f"Coverage thực tế {inside.mean():.1%} · Mục tiêu "
+        f"{coverage_target:.0%} · Bán kính {q_hat / scale:.2f} triệu đồng",
+        transform=ax.transAxes, fontsize=12, color="#52677D")
+ax.set(xlabel="Ngày", ylabel="Doanh thu (triệu đồng)")
+ax.xaxis.set_major_locator(mdates.MonthLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y"))
+ax.grid(axis="y", color="#DCE5EE")
+ax.grid(axis="x", visible=False)
+ax.spines[["top", "right"]].set_visible(False)
+ax.spines[["left", "bottom"]].set_color("#B8C8DA")
+ax.tick_params(colors="#52677D")
+ax.legend(loc="upper right", frameon=True, facecolor="white",
+          edgecolor="#DCE5EE", ncol=2)
+fig.subplots_adjust(left=0.08, right=0.97, top=0.86, bottom=0.12)
+plt.show()
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-26-khoang-du-bao-conformal-test-2022.png"
+  alt="Biểu đồ doanh thu thật, dự báo LightGBM và khoảng conformal 90% trên 184 ngày của tập kiểm tra nửa cuối năm 2022; 14 điểm màu đỏ nằm ngoài khoảng"
+  caption="Hình 26: Khoảng conformal bao phủ 170/184 ngày, tương đương 92,4%, cao hơn nhẹ so với mục tiêu 90%. Các đỉnh cuối tháng vẫn là nhóm dễ vượt cận trên nhất."
+/>
+
+Độ rộng trung bình 2,41 triệu đồng nhỏ hơn hai lần bán kính vì cận dưới được chặn tại 0 ở những ngày dự báo thấp. Plot cũng cho thấy coverage tổng thể đạt mục tiêu nhưng sai số chưa phân bố đều: nhiều điểm trượt tập trung quanh các đỉnh doanh thu, gợi ý bước tiếp theo nên là interval thích nghi theo mức dự báo hoặc mùa vụ.
 
 Khi chạy notebook, hãy đọc bốn tín hiệu cùng nhau:
 
