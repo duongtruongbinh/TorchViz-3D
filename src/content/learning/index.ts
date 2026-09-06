@@ -15,6 +15,7 @@ import { learningTableOfContents as reinforcementLearningToc } from './reinforce
 import { learningTableOfContents as evolutionaryAlgorithmsToc } from './evolutionary-algorithms/table-of-contents.ts';
 import { learningTableOfContents as researchPapersToc } from './research-papers/table-of-contents.ts';
 import { learningTableOfContents as robotLearningToc } from './robot-learning/table-of-contents.ts';
+import { learningTableOfContents as aiProjectsToc } from './ai-projects/table-of-contents.ts';
 
 export const learningTableOfContents = [
   programmingFoundationToc,
@@ -32,6 +33,7 @@ export const learningTableOfContents = [
   robotLearningToc,
   evolutionaryAlgorithmsToc,
   researchPapersToc,
+  aiProjectsToc,
 ] satisfies LearningTableOfContents[];
 
 export const learningCatalog = materializeLearningCatalog(learningTableOfContents);

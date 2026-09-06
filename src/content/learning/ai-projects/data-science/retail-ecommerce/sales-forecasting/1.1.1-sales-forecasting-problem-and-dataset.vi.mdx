@@ -1,0 +1,672 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-problem-and-dataset',
+  locale: 'vi',
+  title: 'Phần 1: Bài toán & Thiết kế Luồng giải quyết',
+  headings: [
+    'Mở đầu',
+    'Ràng buộc Mốc Thông tin và Khoảng Dự báo',
+    'Các lỗi Sai Phổ biến',
+    'Các bước Giải quyết Bài toán',
+    'Bộ Dữ liệu sales.csv và promotions.csv',
+    'Mục 0: Hướng dẫn Đọc Thực chiến & Bản đồ Thực thi',
+    'Chiến lược Đọc sâu Từng Phần',
+    'Mục I: Khởi tạo Cấu hình Dùng chung',
+    'Đọc Dữ liệu Thô',
+  ],
+  keywords: ['Sales Forecasting', 'LightGBM', 'SHAP', 'Forecast Horizon', 'Decision Tree', 'Random Forest', 'XGBoost'],
+  pageCount: 7,
+};
+
+<MdxPage page={0}>
+
+**Nguồn tài liệu:** [AI VIET NAM](https://aivietnam.edu.vn) (All-in-One Course 2026)
+**Dự án:** Project 3.2 - Sales Forecasting Using LightGBM & SHAP
+**Tác giả:** Nguyễn Quốc Thái, Nguyễn Lê Minh Thông, Đinh Quang Vinh
+**Người chỉnh sửa và bổ sung:** Nguyễn Mạnh Khiêm
+
+---
+
+Dự báo doanh thu và nhu cầu là một trong những bài toán được các doanh nghiệp bán lẻ quan tâm từ sớm. Bộ phận kế hoạch cần biết trước doanh thu dự kiến của tháng tới để đặt hàng từ nhà cung cấp, bố trí nhân sự kho và chốt ngân sách quảng cáo.
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/retail-forecasting-business-decisions.jpg"
+  alt="Ba quyết định nghiệp vụ then chốt dựa trên dự báo doanh thu bán lẻ"
+  caption="Ba quyết định then chốt: Đặt hàng nhà cung cấp (Supplier Orders), Bố trí nhân sự kho (Warehouse Staff), và Chốt ngân sách quảng cáo (Ad Budget)."
+/>
+
+Dù trong thực tế vận hành, các hệ thống thường tập trung dự báo ở cấp độ sản phẩm – cửa hàng thay vì chỉ dự báo tổng doanh thu toàn chuỗi, mục tiêu cốt lõi vẫn là tạo ra thông tin sớm để tối ưu chuỗi cung ứng. Bằng chứng thực tiễn từ các tập đoàn bán lẻ quy mô lớn (Decathlon, Office Depot, Bata, Migros) cho thấy cải thiện độ chính xác dự báo mang lại tác động định lượng rõ rệt: giải phóng hàng chục triệu USD vốn tồn kho, hạn chế đứt gãy mùa cao điểm và thúc đẩy doanh số. Trong đó, nghiên cứu trường hợp Decathlon đồng công bố cùng AWS (08/2026) đặc biệt nổi bật khi lượng hóa được sự tương quan trực tiếp giữa việc giảm sai số WAPE với mức tăng trưởng doanh số và số ngày tiết kiệm hàng tồn.
+
+<EvidenceCards
+  ariaLabel="Bằng chứng thực tiễn về giá trị kinh doanh của dự báo nhu cầu từ các tập đoàn bán lẻ lớn"
+  items={[
+    {
+      eyebrow: 'Decathlon · AWS Case Study (08/2026)',
+      value: '+0,12%',
+      label: 'Tăng doanh số trên mỗi 1% giảm WAPE (Decathlon / AWS)',
+      url: 'https://aws.amazon.com/blogs/machine-learning/how-decathlon-runs-demand-forecasting-at-scale-with-chronos-2/',
+      insight: 'Mỗi 1 điểm % giảm WAPE tương ứng tiết kiệm 0,3 ngày tồn kho và tăng 0,12 điểm % doanh số tại chuỗi thể thao €16,8 tỷ.',
+      tone: 'accent',
+    },
+    {
+      eyebrow: 'Office Depot · ODP Corporation (2025)',
+      value: '30M USD',
+      label: 'Cắt giảm vốn đọng tồn kho (ODP / Blue Yonder)',
+      url: 'https://blueyonder.com/customers/the-odp-corporation',
+      insight: 'Tăng 5% độ chính xác dự báo giúp ODP giải phóng 30 triệu USD tồn kho ở mảng phân phối và thương mại điện tử (doanh số tập đoàn ~7 tỷ USD).',
+      tone: 'primary',
+    },
+    {
+      eyebrow: 'Bata Shoes · Thái Lan (2024–2025)',
+      value: '−29%',
+      label: 'Giảm lượng hàng tồn kho (Bata Thailand / Blue Yonder)',
+      url: 'https://blueyonder.com/customers/bata',
+      insight: 'Độ chính xác tăng 9% đi cùng tồn kho giảm 29% và tốc độ quay vòng tồn kho tăng 31% tại chuỗi hơn 6.000 cửa hàng toàn cầu.',
+      tone: 'warning',
+    },
+    {
+      eyebrow: 'Migros Online · Thụy Sĩ (2025)',
+      value: '−50%',
+      label: 'Giảm đứt hàng khuyến mãi & hao hụt (Migros / RELEX)',
+      url: 'https://www.relexsolutions.com/resources/case-migros-online/',
+      insight: 'Giảm 50% tỷ lệ hết hàng khuyến mãi và giảm 20% hư hỏng thực phẩm với độ sẵn có đạt >99% tại đơn vị thuộc Migros Group (CHF 31,9 tỷ).',
+      tone: 'success',
+    },
+  ]}
+/>
+
+## Mở đầu
+
+Trong dự án này, chúng ta sẽ xây dựng một mô hình dự báo doanh thu bán lẻ hằng ngày, đi từ bước đọc dữ liệu thô cho tới bước giải thích kết quả. Dữ liệu là doanh thu của một chuỗi thương mại điện tử trong hơn mười năm, từ tháng 7 năm 2012 đến hết năm 2022.
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-01-tong-quan-bai-toan.png"
+  alt="Hình 1: Tổng quan về bài toán dự đoán doanh thu dựa trên các mô hình học máy"
+  caption="Hình 1: Tổng quan về bài toán dự đoán doanh thu dựa trên các mô hình học máy: Decision Tree, Random Forest, Gradient Boosting, XGBoost, LightGBM."
+/>
+
+Theo Hình 1, toàn bộ quy trình đi qua các giai đoạn bài bản: phân tích bộ dữ liệu thô, làm sạch liên tục, phân tích chuỗi doanh thu, chuẩn bị đặc trưng với lịch sử lùi 28 ngày, chia tập và huấn luyện năm mô hình cây, kết thúc bằng việc giải thích bằng SHAP.
+
+---
+
+### Ràng buộc Mốc Thông tin và Khoảng Dự báo
+
+Để hiểu rõ ràng buộc này, hãy đặt bài toán vào tình huống chuỗi cung ứng thực tế:
+
+Nhà sản xuất cần đúng **4 tuần (28 ngày)** để gia công và vận chuyển hàng đến kho (*Lead Time*). Do đó, để có đủ hàng bán cho ngày **29/08**, bộ phận kế hoạch bắt buộc phải chốt đơn và gửi lệnh đặt hàng từ ngày **01/08**.
+
+Tại thời điểm ngày **01/08**, doanh thu thực tế của 27 ngày tiếp theo (từ ngày 02/08 đến 28/08) **chưa hề diễn ra**. Vì vậy, khi dự báo doanh thu cho ngày 29/08, mô hình chỉ được phép biết những gì đã chốt sổ tính đến hết ngày 01/08.
+
+<ForecastHorizonCalendar />
+
+#### Phát biểu bài toán dưới dạng hàm toán học
+
+Với khoảng dự báo <InlineMath formula="H = 28" /> ngày, mục tiêu ban đầu là xây dựng hàm <InlineMath formula="f" /> dự đoán doanh thu của ngày tương lai <InlineMath formula="\text{target}" /> dựa trên chuỗi dữ liệu lịch sử:
+
+<BlockMath formula="\hat{y}_{\text{target}} = f(X_{\text{target}-H})" />
+
+Trong đó:
+- <InlineMath formula="\hat{y}_{\text{target}}" />: Doanh thu dự báo của ngày tương lai <InlineMath formula="\text{target}" /> (ví dụ: ngày 29/08).
+- <InlineMath formula="H = 28" />: Khoảng dự báo (**forecast horizon**), chính là 28 ngày thời gian chờ hàng cần biết trước.
+- <InlineMath formula="X_{\text{target}-H}" />: **Toàn bộ dữ liệu doanh thu quá khứ đã quan sát được đến hết ngày <InlineMath formula="\text{target} - 28" />** (ví dụ: ngày 01/08 trở về trước). Mọi thông tin doanh thu sau mốc này đều chưa xảy ra.
+
+Bên cạnh thông tin lịch sử <InlineMath formula="X_{\text{target}-H}" />, chúng ta hoàn toàn có thể bổ sung thêm các **thông tin biết trước của chính ngày target** (<InlineMath formula="i_{\text{target}}" />). Công thức dự báo tổng quát được mở rộng thành:
+
+<BlockMath formula="\hat{y}_{\text{target}} = f(X_{\text{target}-H}, i_{\text{target}})" />
+
+Vector <InlineMath formula="i_{\text{target}}" /> đại diện cho các thông tin thuộc về chính ngày target nhưng hoàn toàn xác định từ trước:
+- **Quy luật lịch (Calendar Features):** Thứ trong tuần (Thứ Năm), vị trí trong tháng (ngày 29 – cận cuối tháng / kỳ nhận lương), tuần thứ 35 của năm. Các giá trị này suy ra trực tiếp từ lịch mà không cần biết dữ liệu thị trường.
+- **Kế hoạch kinh doanh đã công bố (Planned Promotions):** Dữ liệu từ tệp `promotions.csv`. Doanh nghiệp đã chốt và công bố các đợt khuyến mãi từ nhiều tuần trước, do đó trạng thái khuyến mãi của ngày target là thông tin chắc chắn đã biết trước.
+- **Tính an toàn tuyệt đối:** Vì đây là các thuộc tính định trước (không phải kết quả kinh doanh như doanh thu hay giá vốn thực tế), mô hình hoàn toàn được phép sử dụng tại mốc target mà không vi phạm nguyên tắc chống rò rỉ tương lai.
+
+<ForecastHorizonCalendar variant="target-info" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Các lỗi Sai Phổ biến
+
+Trong bài toán dự báo chuỗi thời gian cho bán lẻ, việc rò rỉ dữ liệu (Data Leakage) rất dễ xảy ra nếu không nắm vững bản chất của khoảng chờ đặt hàng (Lead Time). Dưới đây là ba sai lầm phổ biến nhất:
+
+<ConceptFlow
+  ariaLabel="Ba lỗi sai phổ biến gây rò rỉ dữ liệu trong dự báo bán lẻ"
+  items={[
+    {
+      title: '1. Lag quá ngắn (< 28 ngày)',
+      detail: 'Dùng lag 1 ngày đòi hỏi phải biết doanh thu hôm qua — điều chưa xảy ra lúc gửi lệnh đặt hàng 4 tuần trước.',
+      formula: 'k < 28 \\implies \\text{Rò rỉ}',
+    },
+    {
+      title: '2. Cửa sổ trượt sát ngày đích',
+      detail: 'Tính trung bình trượt 3 ngày hay 7 ngày ngay trước ngày đích khiến cửa sổ rơi vào 27 ngày chưa diễn ra.',
+      formula: 'W \\subset [t-27, t-1] \\implies \\text{Rò rỉ}',
+    },
+    {
+      title: '3. Dùng COGS cùng ngày target',
+      detail: 'Thấy tương quan cao (0.98) vội lấy luôn giá vốn ngày đích, nhưng ngày đích chưa bán xong thì chưa có giá vốn.',
+      formula: 'r = 0.98 \\implies \\text{Bẫy rò rỉ}',
+    },
+  ]}
+/>
+
+### 1. Dùng khoảng trễ (Lag) quá ngắn
+
+Trong học máy dạng bảng cho chuỗi thời gian, các mô hình cây không tự ghi nhớ được thứ tự thời gian. Để cung cấp manh mối lịch sử cho mô hình, ta bắt buộc phải **tạo thêm các cột đặc trưng mới** (Feature Engineering).
+
+Giả thuyết tự nhiên là doanh thu hôm nay có quan hệ chặt chẽ với doanh thu các ngày trước. Ta dùng Đặc trưng độ trễ (**Lag <InlineMath formula="k" />**).
+
+<LagFeatureVisualizer />
+
+### 2. Cửa sổ trung bình trượt (Moving Average) đặt sát ngày đích
+
+Bên cạnh độ trễ đơn lẻ, đặc trưng **trung bình trượt (rolling mean / moving average)** giúp làm mịn nhiễu và nắm bắt xu thế ngắn hạn. Tuy nhiên, cửa sổ trượt cũng phải tuân thủ nghiêm ngặt nguyên tắc lùi tối thiểu 28 ngày:
+
+<MovingAverageVisualizer />
+
+### 3. Bẫy rò rỉ từ Giá vốn (COGS) cùng ngày target
+
+Trong dữ liệu lịch sử, giá vốn hàng bán (**COGS**) và doanh thu (**Revenue**) có tương quan tuyến tính rất cao (<InlineMath formula="r \approx 0.98" />). Nhiều người thấy tương quan cao vội vã đưa ngay `COGS` của ngày target vào làm đặc trưng đầu vào (<InlineMath formula="X" />) để dự đoán `Revenue` (<InlineMath formula="y" />).
+
+<CogsLeakageVisualizer />
+
+**Tại sao cách làm này sai hoàn toàn?**
+- **Ảo giác khi huấn luyện (Train):** Trong dữ liệu quá khứ, cả doanh thu và giá vốn đều đã chốt sổ. Mô hình đạt độ chính xác gần như tuyệt đối (<InlineMath formula="R^2 \approx 0.99" />) vì chỉ việc suy luận doanh thu từ giá vốn.
+- **Thất bại khi triển khai (Inference):** Tại mốc ngày **01/08**, khi chạy mô hình dự báo cho ngày **29/08**, ngày 29/08 **chưa hề diễn ra**. Doanh nghiệp chưa bán hàng thì hoàn toàn **chưa có số liệu giá vốn thực tế**, khiến mô hình bị khuyết đặc trưng đầu vào.
+
+Nếu muốn tận dụng thông tin giá vốn, ta bắt buộc phải lùi về quá khứ tối thiểu 28 ngày giống như doanh thu (ví dụ: `cogs_lag_28`, `cogs_rolling_mean_3`).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Quy trình giải quyết bài toán dự báo bán lẻ được thiết kế chặt chẽ nhằm bảo đảm tính độc lập giữa các pha xử lý dữ liệu và kiểm định mô hình.
+
+Mô hình dùng trong bài gồm năm mô hình cây từ cơ bản đến nâng cao: Cây quyết định (Decision Tree), Rừng ngẫu nhiên (Random Forest) và ba biến thể boosting là Gradient Boosting, XGBoost và LightGBM.
+
+### Các bước Giải quyết Bài toán
+
+Ở phần này chúng ta tìm hiểu các bước để giải quyết bài toán dự báo theo quy trình trong Hình 2.
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-02-quy-trinh-giai-quyet.png"
+  alt="Hình 2: Quy trình giải quyết bài toán gồm các bước từ xử lý data đến huấn luyện và đánh giá mô hình"
+  caption="Hình 2: Quy trình giải quyết bài toán gồm các bước từ xử lý data đến huấn luyện và đánh giá mô hình."
+/>
+
+Trong suốt quy trình, cần tuân thủ ba điều kiện:
+1. Chia tập trước mọi phép xử lý có sử dụng thống kê.
+2. Không dùng dữ liệu tương lai kể cả gián tiếp qua một cửa sổ trượt.
+3. Chốt mô hình bằng kiểm định chéo chứ không bằng tập kiểm tra.
+
+Nếu không thỏa mãn một trong ba điều kiện này, mô hình vẫn có thể cho điểm số tốt khi thử nghiệm nhưng sẽ hoạt động kém khi triển khai thực tế.
+
+Các mục tiếp theo của tài liệu đi theo trình tự:
+- Đọc dữ liệu thô và kiểm tra cấu trúc, ở Mục II.
+- Xử lý những lỗi vừa phát hiện, ở Mục III.
+- Phân tích chuỗi doanh thu để đưa ra các quyết định thiết kế, ở Mục IV.
+- Xây dựng đặc trưng kèm phép thử tự động phát hiện rò rỉ, ở Mục V.
+- Chia tập, dựng mô hình cơ sở và huấn luyện năm mô hình cây, ở Mục VI.
+- Mở tập kiểm tra một lần duy nhất để đo, ở Mục VII.
+- Giải thích mô hình bằng SHAP, ở Mục VIII.
+
+---
+
+### Bộ Dữ liệu sales.csv và promotions.csv
+
+Bộ dữ liệu gồm hai tệp:
+- Tệp chính là `sales.csv` với ba cột: Cột `Date` là ngày, cột `Revenue` là doanh thu, cột `COGS` là giá vốn hàng bán. Biến mục tiêu của tài liệu này là `Revenue`.
+- Một tệp phụ là `promotions.csv` ghi lịch 50 chương trình khuyến mãi đã công bố, mỗi chương trình có ngày bắt đầu, ngày kết thúc, mức giảm giá và nhóm hàng áp dụng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Mục 0: Hướng dẫn Đọc Thực chiến & Bản đồ Thực thi
+
+Thông thường trong các dự án mã nguồn chuẩn, chúng ta sẽ có tệp `README.md` hướng dẫn cấu hình môi trường, cài đặt thư viện và cách chạy từng bước. Tuy nhiên, đây là một dự án phân tích dữ liệu dạng Jupyter Notebook thực chiến, nên cách tiếp cận hiệu quả nhất cho người đọc là:
+
+<ConceptFlow
+  ariaLabel="Ba bước tiếp cận thực chiến khi đọc và thực thi notebook"
+  items={[
+    {
+      title: '1. Check sơ dữ liệu',
+      detail: 'Đảm bảo hai tệp sales.csv và promotions.csv đã sẵn sàng trong thư mục làm việc.',
+      tone: 'teal',
+      visual: 'database',
+    },
+    {
+      title: '2. Chạy toàn bộ notebook',
+      detail: 'Bấm Restart & Run All ngay. Chưa cần đọc lý thuyết vội, chỉ để kiểm tra thiếu thư viện hoặc bug runtime.',
+      tone: 'amber',
+      visual: 'evaluation',
+    },
+    {
+      title: '3. Đọc lướt theo bản đồ',
+      detail: 'Skip qua text giải thích dài dòng. Chỉ đọc: Tiêu đề mục -> Đoạn code chính -> Kết quả Output tương ứng.',
+      tone: 'blue',
+      visual: 'tree-graph',
+    },
+  ]}
+/>
+
+---
+
+### Bản đồ Thực thi Toàn bộ Notebook (Execution Map)
+
+Dưới đây là bảng tổng hợp toàn bộ các mục, code thực thi cốt lõi và kết quả đầu ra thực tế của notebook:
+
+#### Mục I — Khởi tạo Cấu hình Dùng chung
+
+```python
+import json
+import time
+import warnings
+from pathlib import Path
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+# Thư mục gốc: nơi chứa các tệp dữ liệu, kết quả, hình ảnh
+ROOT = Path('/content')
+DATA = ROOT
+RESULTS = ROOT / "results"
+IMAGES = ROOT / "images"
+RESULTS.mkdir(exist_ok=True)
+IMAGES.mkdir(exist_ok=True)
+
+# 1. Hằng số của bài toán
+SEED = 42
+H = 28                      # khoảng dự báo: thời gian đặt hàng 4 tuần
+TARGET = "revenue"
+
+# Bốn lần cắt theo cửa sổ mở rộng. Mục VI giải thích vì sao cắt như vậy và
+# điểm kiểm định chéo chỉ lấy trung bình Fold 2 với Fold 3.
+FOLDS = [("Fold 1", "2019-05-31", "2019-07-01", "2019-12-31"),
+         ("Fold 2", "2020-05-31", "2020-07-01", "2020-12-31"),
+         ("Fold 3", "2021-05-31", "2021-07-01", "2021-12-31")]
+TEST_FOLD = ("TEST", "2022-05-31", "2022-07-01", "2022-12-31")
+CV_FOLDS = ["Fold 2", "Fold 3"]
+
+# Tết Nguyên đán. Phủ cả năm ngoài phạm vi dữ liệu để hai đầu chuỗi không sai.
+TET_DATES = ["2012-01-23", "2013-02-10", "2014-01-31", "2015-02-19", "2016-02-08",
+             "2017-01-28", "2018-02-16", "2019-02-05", "2020-01-25", "2021-02-12",
+             "2022-02-01", "2023-01-22"]
+
+# Ngày lễ chính thức cộng mốc bán lẻ.
+RETAIL_SPECIAL_DAYS = [(1, 1), (3, 8), (4, 30), (5, 1), (9, 2),
+                       (10, 20), (11, 11), (12, 12), (12, 24), (12, 25)]
+
+# 2. Các hàm tiện ích dùng lại nhiều lần
+R = {"checks": []}
+
+def check(name, passed, detail=""):
+    """Ghi lại một phép kiểm. passed = True nghĩa là dữ liệu đạt, không phải sửa."""
+    R["checks"].append({"name": name, "passed": bool(passed), "detail": detail})
+    print(f"  {'ĐẠT ' if passed else 'HỎNG'}  {name:30s} {detail}")
+    return passed
+
+def split_by_date(df, train_end, valid_start, valid_end):
+    """Cắt bảng thành phần huấn luyện và phần kiểm định theo mốc thời gian."""
+    train = df[df.date <= train_end]
+    valid = df[(df.date >= valid_start) & (df.date <= valid_end)]
+    return train, valid
+
+def metrics(y_true, y_pred):
+    """WAPE là độ đo chính. Luôn kèm thiên lệch vì WAPE không đo được nó."""
+    y = np.asarray(y_true, float)
+    p = np.clip(np.asarray(y_pred, float), 0, None)
+    return dict(
+        WAPE=float(np.sum(np.abs(y - p)) / np.sum(y)),
+        bias=float((p.mean() - y.mean()) / y.mean()),
+        R2=float(1 - np.sum((y - p) ** 2) / np.sum((y - y.mean()) ** 2))
+    )
+
+def save_results(name, obj):
+    """Ghi kết quả ra JSON. Số kiểu numpy đổi sang kiểu Python trước khi ghi."""
+    path = RESULTS / f"{name}.json"
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2,
+                               default=lambda o: o.tolist()), encoding="utf-8")
+    print(f"\nĐã ghi {path.relative_to(ROOT)}")
+
+def load_results(name):
+    return json.loads((RESULTS / f"{name}.json").read_text(encoding="utf-8"))
+
+# 3. Năm mô hình cây của Module 03
+def get_models(seed=SEED):
+    """Năm mô hình cây của Module 03, xếp theo độ phức tạp tăng dần.
+    Đặt ở đây vì cả bước kiểm rò rỉ, bước huấn luyện và bước giải thích đều dùng
+    chung một cấu hình. Nếu mỗi tệp tự khai báo thì rất dễ lệch nhau.
+    """
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    import lightgbm as lgb
+    import xgboost as xgb
+
+    boosting = dict(n_estimators=700, learning_rate=0.04, subsample=0.85,
+                    colsample_bytree=0.85, reg_lambda=1.0, n_jobs=-1,
+                    random_state=seed)
+    return {
+        "DecisionTree": DecisionTreeRegressor(max_depth=8, min_samples_leaf=15,
+                                              random_state=seed),
+        "RandomForest": RandomForestRegressor(n_estimators=400, max_depth=14,
+                                              min_samples_leaf=3, n_jobs=-1,
+                                              random_state=seed),
+        "GradientBoosting": GradientBoostingRegressor(n_estimators=400, learning_rate=0.05,
+                                                      max_depth=4, subsample=0.85,
+                                                      random_state=seed),
+        "XGBoost": xgb.XGBRegressor(max_depth=5, tree_method="hist", **boosting),
+        "LightGBM": lgb.LGBMRegressor(num_leaves=31, min_child_samples=20,
+                                      subsample_freq=5, verbose=-1, **boosting),
+    }
+```
+
+```text
+[Output] Thiết lập hoàn tất mốc H=28, 4 Folds thời gian, hàm đo WAPE và 5 mô hình cây.
+```
+
+#### Mục II — Phân tích Cấu trúc Dữ liệu Thô
+
+```python
+raw = pd.read_csv("sales.csv", dtype=str)
+# 8 phép kiểm tra: kiểu dữ liệu, định dạng ngày, trùng lặp và thiếu ngày
+check_data_structure(raw)
+```
+
+```text
+[Output] Phát hiện 4 lỗi thô:
+- Doanh thu lưu dạng chuỗi có dấu phẩy (308 ô).
+- Ngày lưu bằng hai format xen kẽ (DD/MM/YYYY và YYYY-MM-DD).
+- 214 dòng chứa phần thời gian 00:00:00.
+- 18 ngày bị ghi trùng lặp (36 dòng).
+```
+
+#### Mục III — Làm sạch Dữ liệu
+
+```python
+# Ép kiểu float không mất số lẻ, chuẩn hóa ngày tháng, gộp 18 ngày trùng keep='last'
+clean = clean_sales_data(raw)
+# 7 phép kiểm tra chốt chặn an toàn
+verify_clean_data(clean)
+clean.to_csv("sales_clean.csv", index=False)
+```
+
+```text
+[Output] sales_clean.csv: 3,833 dòng liên tục (04/07/2012 – 31/12/2022), 0 ngày trùng, 0 giá trị thiếu.
+```
+
+#### Mục IV — Phân tích Chuỗi Doanh thu (EDA)
+
+```python
+# Khảo sát phân phối lệch phải (skewness 1.669), cú đứt gãy 2019 (-38.6%), ACF độ trễ
+plot_eda_and_acf(clean)
+```
+
+```text
+[Output]
+- Cú sụt giảm năm 2019: -38.6% -> Quyết định: Tách riêng Fold 1 khỏi điểm CV.
+- Phân phối lệch phải: Skewness = 1.669 -> Quyết định: Huấn luyện trên log1p.
+- Tự tương quan ACF cao nhất tại lag 364 (r = 0.751) -> Quyết định: Tập trung đặc trưng lịch sử quanh mốc 364 ngày.
+```
+
+#### Mục V — Xây dựng 53 Đặc trưng & Kiểm tra Rò rỉ
+
+```python
+# Tạo 53 đặc trưng lùi an toàn d - H (24 lag & rolling, 19 lịch & Fourier, 4 Tết, 6 khuyến mãi)
+df_feats = build_features_h28(clean, promotions)
+# Phép thử tự động phát hiện rò rỉ trên 8 mốc thời gian
+leakage_probe(df_feats, mốc_kiểm_tra)
+df_feats.iloc[371:].to_csv("features_h28.csv", index=False)
+```
+
+```text
+[Output]
+Kiểm tra rò rỉ: 8/8 mốc thời gian PASSED (0.00% sai lệch tương lai).
+features_h28.csv: 3,462 dòng, 54 cột (loại bỏ 371 ngày khởi động).
+```
+
+#### Mục VI — Huấn luyện Năm Mô hình Cây & Ablation Study
+
+```python
+# Huấn luyện 5 mô hình trên 3 Folds với vùng đệm an toàn buffer_days=31
+cv_results = train_and_eval_cv(df_feats, models=get_models())
+# Ablation study đánh giá đóng góp của 5 nhóm đặc trưng
+ablation_results = run_ablation(df_feats)
+```
+
+```text
+[Output]
+- WAPE giảm từ 0.3793 (Bộ A: 2 lag thô) xuống 0.2423 (Bộ E: Đủ 53 đặc trưng) -> Cải thiện 36.1%.
+- LightGBM đạt kết quả kiểm định chéo tốt nhất (Fold 2 & Fold 3 CV WAPE = 0.2423).
+```
+
+#### Mục VII — Đánh giá trên Tập Kiểm tra TEST
+
+```python
+# Mở tập kiểm tra TEST (01/07/2022 – 31/12/2022, 184 ngày) một lần duy nhất
+test_metrics = evaluate_test_set(best_model, test_fold)
+```
+
+```text
+[Output]
+LightGBM trên TEST: WAPE = 0.2038, Bias = -9.2%, R2 = 0.761.
+Thiên lệch âm (-9.2%) do doanh thu năm 2022 tăng trưởng phục hồi sau đại dịch.
+```
+
+#### Mục VIII — Giải thích Mô hình bằng TreeSHAP
+
+```python
+# Phân rã dự báo bằng TreeSHAP: Mức độ quan trọng toàn cục và waterfall cục bộ
+explainer = shap.TreeExplainer(lgb_model)
+shap_values = explainer(X_test)
+shap.plots.waterfall(shap_values[target_index])
+```
+
+```text
+[Output]
+- Top 2 đặc trưng chi phối mạnh nhất: revenue_lag_364 (+0.089 WAPE) và revenue_rolling_mean_364_7.
+- Waterfall ngày 29/08/2022: Tách rõ đóng góp từng đặc trưng đẩy dự báo từ giá trị kỳ vọng nền lên mức thực tế.
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Chiến lược Đọc sâu Từng Phần
+
+Khi bạn đã hoàn thành lượt chạy toàn bộ notebook ở Mục 0 và xác nhận mọi thứ hoạt động trơn tru (không thiếu thư viện, không phát sinh lỗi runtime), đây là lúc chúng ta quay lại để đọc sâu từng phần của dự án.
+
+Ở lần đọc này, bạn hãy giữ một tâm thế nhẹ nhàng và thực chiến:
+
+1. **Chỉ đọc sơ qua code và phần giải thích:** Nắm bắt luồng xử lý và mục đích chính của từng hàm, chưa cần cố học thuộc lòng từng dòng cú pháp.
+2. **Chỗ nào hiểu nhanh được thì nắm bắt ngay:** Những thao tác quen thuộc như đọc file, kiểm tra dữ liệu, chuẩn hóa định dạng ngày tháng hay tính thống kê cơ bản bạn có thể đọc lướt qua rất nhanh.
+3. **Chỗ nào phức tạp thì cứ tự tin skip qua:** Các phần chứa công thức toán, thuật toán tối ưu hay kỹ thuật phân rã SHAP nếu thấy khó hiểu ở lần đầu, bạn hoàn toàn có thể bỏ qua phần giải thích chi tiết. **Điều quan trọng duy nhất là hiểu output của nó tạo ra là gì**, và dữ liệu đó đóng vai trò gì cho các bước tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Mục I — Khởi tạo Cấu hình Dùng chung
+
+Trong quy trình thực tế của một dự án Khoa học Dữ liệu, bước đầu tiên thông thường phải là **đọc tệp dữ liệu CSV (`pd.read_csv`), sau đó khám phá từng cột và xây dựng dần các bước xử lý theo luồng từ dữ liệu thô**.
+
+Tuy nhiên, cấu trúc của notebook này lại được xây dựng theo kiểu **bottom-up**: sau khi nhóm tác giả đã chạy thử nghiệm xong xuôi toàn bộ quy trình, họ đã gom tất cả các hằng số nghiệp vụ, các mốc chia tập, các hàm tiện ích và năm mô hình cây lên một khối chuẩn bị chung ở đầu notebook. Cách đóng gói này giúp mã nguồn gọn gàng, tránh khai báo rải rác ở từng cell, nhưng lại không phản ánh đúng luồng tư duy khám phá tự nhiên ban đầu.
+
+Vì vậy, **lời khuyên dành cho bạn ở mục này là chỉ cần đọc sơ qua một lượt**:
+- Cứ tự tin lướt qua đoạn code dưới đây, **chưa cần ghi nhớ hay cố hiểu sâu** từng con số hằng số hay từng hàm tiện ích.
+- **Đến phần nào thực sự dùng đến thì chúng ta mới quay lại tìm hiểu chi tiết** (ví dụ: mốc $H = 28$ khi tạo đặc trưng trễ ở Mục V, cách chia `FOLDS` khi huấn luyện kiểm định chéo ở Mục VI, hay gọi `get_models` khi giải thích SHAP ở Mục VIII).
+
+Dưới đây là toàn bộ đoạn mã khởi tạo dùng chung của Mục I trong notebook:
+
+```python
+import json
+import time
+import warnings
+from pathlib import Path
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+# Thư mục gốc: nơi chứa các tệp dữ liệu, kết quả, hình ảnh
+ROOT = Path('/content')
+DATA = ROOT
+RESULTS = ROOT / "results"
+IMAGES = ROOT / "images"
+RESULTS.mkdir(exist_ok=True)
+IMAGES.mkdir(exist_ok=True)
+
+# 1. Hằng số của bài toán
+SEED = 42
+H = 28                      # khoảng dự báo: thời gian đặt hàng 4 tuần
+TARGET = "revenue"
+
+# Bốn lần cắt theo cửa sổ mở rộng. Mục VI giải thích vì sao cắt như vậy và
+# điểm kiểm định chéo chỉ lấy trung bình Fold 2 với Fold 3.
+FOLDS = [("Fold 1", "2019-05-31", "2019-07-01", "2019-12-31"),
+         ("Fold 2", "2020-05-31", "2020-07-01", "2020-12-31"),
+         ("Fold 3", "2021-05-31", "2021-07-01", "2021-12-31")]
+TEST_FOLD = ("TEST", "2022-05-31", "2022-07-01", "2022-12-31")
+CV_FOLDS = ["Fold 2", "Fold 3"]
+
+# Tết Nguyên đán. Phủ cả năm ngoài phạm vi dữ liệu để hai đầu chuỗi không sai.
+TET_DATES = ["2012-01-23", "2013-02-10", "2014-01-31", "2015-02-19", "2016-02-08",
+             "2017-01-28", "2018-02-16", "2019-02-05", "2020-01-25", "2021-02-12",
+             "2022-02-01", "2023-01-22"]
+
+# Ngày lễ chính thức cộng mốc bán lẻ. Ngày 8/3, 20/10, 11/11 và 12/12 không phải
+# ngày nghỉ nhưng vẫn là mốc mua sắm.
+RETAIL_SPECIAL_DAYS = [(1, 1), (3, 8), (4, 30), (5, 1), (9, 2),
+                       (10, 20), (11, 11), (12, 12), (12, 24), (12, 25)]
+
+# 2. Các hàm tiện ích dùng lại nhiều lần và phép kiểm tra
+R = {"checks": []}
+
+def check(name, passed, detail=""):
+    """Ghi lại một phép kiểm. passed = True nghĩa là dữ liệu đạt, không phải sửa."""
+    R["checks"].append({"name": name, "passed": bool(passed), "detail": detail})
+    print(f"  {'ĐẠT ' if passed else 'HỎNG'}  {name:30s} {detail}")
+    return passed
+
+def split_by_date(df, train_end, valid_start, valid_end):
+    """Cắt bảng thành phần huấn luyện và phần kiểm định theo mốc thời gian."""
+    train = df[df.date <= train_end]
+    valid = df[(df.date >= valid_start) & (df.date <= valid_end)]
+    return train, valid
+
+def metrics(y_true, y_pred):
+    """WAPE là độ đo chính. Luôn kèm thiên lệch vì WAPE không đo được nó."""
+    y = np.asarray(y_true, float)
+    p = np.clip(np.asarray(y_pred, float), 0, None)
+    return dict(
+        WAPE=float(np.sum(np.abs(y - p)) / np.sum(y)),
+        bias=float((p.mean() - y.mean()) / y.mean()),
+        R2=float(1 - np.sum((y - p) ** 2) / np.sum((y - y.mean()) ** 2))
+    )
+
+def save_results(name, obj):
+    """Ghi kết quả ra JSON. Số kiểu numpy đổi sang kiểu Python trước khi ghi."""
+    path = RESULTS / f"{name}.json"
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2,
+                               default=lambda o: o.tolist()), encoding="utf-8")
+    print(f"\nĐã ghi {path.relative_to(ROOT)}")
+
+def load_results(name):
+    return json.loads((RESULTS / f"{name}.json").read_text(encoding="utf-8"))
+
+# 3. Năm mô hình cây của Module 03
+def get_models(seed=SEED):
+    """Năm mô hình cây của Module 03, xếp theo độ phức tạp tăng dần.
+
+    Đặt ở đây vì cả bước kiểm rò rỉ, bước huấn luyện và bước giải thích đều dùng
+    chung một cấu hình. Nếu mỗi tệp tự khai báo thì rất dễ lệch nhau.
+    """
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    import lightgbm as lgb
+    import xgboost as xgb
+
+    boosting = dict(n_estimators=700, learning_rate=0.04, subsample=0.85,
+                    colsample_bytree=0.85, reg_lambda=1.0, n_jobs=-1,
+                    random_state=seed)
+    return {
+        "DecisionTree": DecisionTreeRegressor(
+            max_depth=8, min_samples_leaf=15, random_state=seed),
+        "RandomForest": RandomForestRegressor(
+            n_estimators=400, max_depth=14, min_samples_leaf=3,
+            n_jobs=-1, random_state=seed),
+        "GradientBoosting": GradientBoostingRegressor(
+            n_estimators=400, learning_rate=0.05, max_depth=4,
+            subsample=0.85, random_state=seed),
+        "XGBoost": xgb.XGBRegressor(
+            max_depth=5, tree_method="hist", **boosting),
+        "LightGBM": lgb.LGBMRegressor(
+            num_leaves=31, min_child_samples=20, subsample_freq=5,
+            verbose=-1, **boosting),
+    }
+```
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+Sau khi đã lướt qua các cấu hình nền tảng ở Mục I, chúng ta bắt đầu bước đầu tiên của dự án: tải dữ liệu và đọc nội dung tệp.
+
+### Đọc Dữ liệu Thô
+
+Dưới đây là đoạn code mở đầu cho Mục II nguyên bản trong notebook của nhóm tác giả:
+
+```python
+raw = pd.read_csv("sales.csv", dtype=str)
+print(f"Tệp sales.csv: {len(raw):,} dòng, {raw.shape[1]} cột")
+print(f"Tên cột: {', '.join(raw.columns)}")
+print(raw.head(3).to_string(index=False))
+```
+
+Kết quả in ra terminal:
+
+```text
+Tệp sales.csv: 3,851 dòng, 3 cột
+Tên cột: Date, Revenue, COGS
+      Date    Revenue       COGS
+2012-07-04 5123547.94 3982991.19
+2012-07-05 2751773.45 2150580.23
+2012-07-06 3054029.42 2517632.84
+```
+
+---
+
+**Lưu ý quan trọng: Bẫy "biết trước đề thi" (Hindsight Bias)**
+
+Trong thực tế, không một ai vừa mở tệp dữ liệu ra lại đi gõ ngay `dtype=str`. Việc tác giả ép toàn bộ bảng về chuỗi ngay từ cell đầu tiên là biểu hiện rõ nét của việc **"biết trước đề thi"** (*hindsight bias*): nhóm tác giả sau khi đã chạy thử nghiệm toàn bộ dự án và phát hiện ra file bị dính rất nhiều lỗi định dạng, mới quay lại sửa cell đầu tiên thành chuỗi thô để tiện viết các hàm audit.
+
+Bây giờ, hãy thử **làm lại theo đúng luồng tư duy tự nhiên** của một người làm Data Science: đọc file bằng lệnh pandas tiêu chuẩn, in ra 5 dòng đầu và gọi `raw.info()` xem điều gì thực sự xảy ra:
+
+```python
+raw = pd.read_csv("sales.csv")
+print(raw.head(5))
+raw.info()
+```
+
+Kết quả in ra terminal:
+
+```text
+         Date     Revenue        COGS
+0  2012-07-04  5123547.94  3982991.19
+1  2012-07-05  2751773.45  2150580.23
+2  2012-07-06  3054029.42  2517632.84
+3  2012-07-07  2667930.94  2108246.62
+4  2012-07-08   2360851.9  1808622.79
+<class 'pandas.DataFrame'>
+RangeIndex: 3851 entries, 0 to 3850
+Data columns (total 3 columns):
+ #   Column   Non-Null Count  Dtype
+---  ------   --------------  -----
+ 0   Date     3851 non-null   object
+ 1   Revenue  3851 non-null   object
+ 2   COGS     3851 non-null   object
+dtypes: object(3)
+memory usage: 90.4+ KB
+```
+Khi in ra kết quả thấy các cột đều có dạng `object`, điều này cho thấy dữ liệu không sạch và đang bị lẫn nhiều dạng format khác nhau.
+
+</MdxPage>

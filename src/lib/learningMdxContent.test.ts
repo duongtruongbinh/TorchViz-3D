@@ -93,6 +93,56 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });
 
+test('AI Projects final quiz covers the Sales Forecasting workflow without answer-shape leakage', async () => {
+  const file = lessonFiles.find((candidate) => parseLearningMdxPath(candidate)?.lessonId === 'sales-forecasting-quiz');
+  assert.ok(file, 'missing Sales Forecasting quiz MDX');
+  const inspection = await inspectLearningMdx(readFileSync(file, 'utf8'), file);
+  const expectedConceptIds = [
+    'time-horizon-cutoff',
+    'input-data-roles',
+    'mixed-date-parsing',
+    'duplicate-date-cleaning',
+    'tukey-outlier-policy',
+    'eda-to-lag-design',
+    'safe-rolling-window',
+    'feature-groups-warmup',
+    'leakage-probe',
+    'expanding-window-selection',
+    'wape-bias-diagnosis',
+    'treeshap-additivity',
+  ];
+
+  assert.deepEqual(inspection.metadata.conceptIds, expectedConceptIds);
+  assert.deepEqual(inspection.quizQuestionIds, expectedConceptIds);
+  assert.equal(inspection.quizQuestions.length, 12);
+
+  const correctPositions = inspection.quizQuestions.map((question) => {
+    assert.equal(question.mode, 'single');
+    assert.equal(question.optionCount, 4);
+    assert.equal(question.correctOptionIndexes.length, 1);
+    const correctPosition = question.correctOptionIndexes[0];
+    assert.ok(
+      question.optionLabelLengths[correctPosition] < Math.max(...question.optionLabelLengths),
+      `${question.id} correct option must not be the longest`,
+    );
+    return correctPosition;
+  });
+
+  assert.deepEqual(
+    [0, 1, 2, 3].map((position) => correctPositions.filter((candidate) => candidate === position).length),
+    [3, 3, 3, 3],
+  );
+  for (let index = 0; index + 2 < correctPositions.length; index += 1) {
+    const [first, second, third] = correctPositions.slice(index, index + 3);
+    const firstStep = (second - first + 4) % 4;
+    const secondStep = (third - second + 4) % 4;
+    assert.ok(
+      !(firstStep === secondStep && (firstStep === 1 || firstStep === 3)),
+      'correct positions must not expose an ascending or descending A-D cycle',
+    );
+  }
+});
+
 test('published continual-learning pairs map theory concepts to quiz questions exactly', async () => {
   const domainFiles = lessonFiles.filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm');
   const inspectionByLessonId = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();
