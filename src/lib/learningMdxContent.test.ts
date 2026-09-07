@@ -143,6 +143,51 @@ test('AI Projects final quiz covers the Sales Forecasting workflow without answe
   }
 });
 
+test('NCA Pre-Pre-Training quiz covers the theory without answer-shape leakage', async () => {
+  const ncaFiles = lessonFiles
+    .filter((file) => file.includes('/research-papers/llm/continual-learning/nca/'))
+    .sort();
+  const theoryFiles = ncaFiles.filter((file) => !file.endsWith('nca-ppt-quiz.vi.mdx'));
+  const quizFile = ncaFiles.find((file) => file.endsWith('nca-ppt-quiz.vi.mdx'));
+  assert.equal(theoryFiles.length, 6);
+  assert.ok(quizFile, 'missing NCA Pre-Pre-Training quiz MDX');
+
+  const theoryConceptIds = (
+    await Promise.all(theoryFiles.map((file) => inspectLearningMdx(readFileSync(file, 'utf8'), file)))
+  ).flatMap((inspection) => inspection.metadata.conceptIds ?? []);
+  const quiz = await inspectLearningMdx(readFileSync(quizFile, 'utf8'), quizFile);
+
+  assert.deepEqual(quiz.metadata.conceptIds, theoryConceptIds);
+  assert.deepEqual(quiz.quizQuestionIds, theoryConceptIds);
+  assert.equal(quiz.quizQuestions.length, 12);
+
+  const correctPositions = quiz.quizQuestions.map((question) => {
+    assert.equal(question.mode, 'single');
+    assert.equal(question.optionCount, 4);
+    assert.equal(question.correctOptionIndexes.length, 1);
+    const correctPosition = question.correctOptionIndexes[0]!;
+    assert.ok(
+      question.optionLabelLengths[correctPosition] < Math.max(...question.optionLabelLengths),
+      `${question.id} correct option must not be the longest`,
+    );
+    return correctPosition;
+  });
+
+  assert.deepEqual(
+    [0, 1, 2, 3].map((position) => correctPositions.filter((candidate) => candidate === position).length),
+    [3, 3, 3, 3],
+  );
+  for (let index = 0; index + 2 < correctPositions.length; index += 1) {
+    const [first, second, third] = correctPositions.slice(index, index + 3);
+    const firstStep = (second - first + 4) % 4;
+    const secondStep = (third - second + 4) % 4;
+    assert.ok(
+      !(firstStep === secondStep && (firstStep === 1 || firstStep === 3)),
+      'correct positions must not expose an ascending or descending A-D cycle',
+    );
+  }
+});
+
 test('published continual-learning pairs map theory concepts to quiz questions exactly', async () => {
   const domainFiles = lessonFiles.filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm');
   const inspectionByLessonId = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();

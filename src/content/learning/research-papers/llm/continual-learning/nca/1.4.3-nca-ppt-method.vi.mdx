@@ -1,0 +1,273 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nca-ppt-method',
+  locale: 'vi',
+  title: 'Phần 3: Phương pháp & Cơ chế Động lực học NCA',
+  headings: [
+    'Động lực học Neural Cellular Automata 2D Rời rạc',
+    'Bộ lọc Phức độ Dựa trên Tỷ lệ Nén Gzip',
+    'Mã hóa Patch 2x2 & Chuỗi Tự hồi quy',
+    'Quy trình Tiền huấn luyện Ba Giai đoạn',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Discrete NCA',
+    'Periodic Boundary',
+    'Transition Dynamics',
+    'Gzip Compressibility',
+    'Kolmogorov Complexity',
+    'Patch Tokenization',
+    'Autoregressive Loss',
+    'Three-Stage Paradigm',
+  ],
+  conceptIds: [
+    'nca-dynamics-formula',
+    'gzip-complexity-filtering',
+    'patch-tokenization-encoding',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Để hiện thực hóa chiến lược "rèn tư duy trước, nạp kiến thức sau", nhóm nghiên cứu tại MIT đã xây dựng một đường ống sinh dữ liệu tổng hợp dựa trên Neural Cellular Automata (NCA) 2D rời rạc, kết hợp với bộ lọc nén Kolmogorov và kỹ thuật mã hóa patch thị giác. Toàn bộ quy trình được thiết kế để sinh ra nguồn dữ liệu phi ngôn ngữ vô hạn, với chi phí gần bằng không, chỉ chứa tín hiệu thuần khiết cho việc rèn luyện mạch suy luận trong Attention.
+
+---
+
+### Động lực học Neural Cellular Automata 2D Rời rạc
+
+#### 1. Từ Luật Cứng sang Luật Nơ-ron Học được
+
+Trong trò chơi toán học kinh điển Conway's Game of Life, mỗi ô tế bào sống hoặc chết dựa trên các quy tắc đếm cố định do con người đặt ra (ví dụ: có đúng 3 ô sống xung quanh thì ô chết sống lại). Dù tạo ra được nhiều chuyển động thú vị, các hệ luật cứng này rất hữu hạn và không thể bao quát hết tính phong phú của thế giới tự nhiên.
+
+Neural Cellular Automata (NCA) tạo nên bước đột phá bằng cách thay thế các quy tắc if-else cứng nhắc bằng một mạng nơ-ron tích chập tí hon <InlineMath formula="f_\theta" />. Quá trình cập nhật mỗi tế bào diễn ra qua ba bước:
+
+<ConceptHierarchy
+  ariaLabel="Ba bước chuyển đổi trạng thái cục bộ trong Neural Cellular Automata"
+  root={{
+    title: 'Chu trình Cập nhật Một Bước Thời gian',
+    detail: 'Mỗi tế bào thực hiện ba bước liên tiếp để quyết định trạng thái kế tiếp',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Thu thập Lân cận 3x3',
+      detail: 'Mỗi tế bào quan sát trạng thái của chính nó và 8 ô xung quanh (vùng lân cận Moore) để thu thập ngữ cảnh không gian cục bộ — tổng cộng 9 giá trị đầu vào.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Xử lý qua Mạng Nơ-ron $f_\\theta$',
+      detail: 'Mạng tích chập Conv2D siêu nhỏ kết hợp MLP (16 chiều ẩn) phân tích cụm 9 ô và tính điểm logits cho mỗi trạng thái khả dĩ từ 0 đến 9.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Cập nhật Đồng loạt Toàn Lưới',
+      detail: 'Toàn bộ 144 tế bào trên lưới $12 \\times 12$ đồng loạt cập nhật giá trị mới tại cùng một nhịp thời gian, tạo nên một bước tiến hóa toàn cục.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+#### 2. Thao tác Trực quan: Một Bước Cập nhật Tế bào trên Lưới
+
+Để hiểu cặn kẽ cách một tế bào biến đổi, công cụ tương tác dưới đây minh họa chu trình 6 bước trên lưới <InlineMath formula="12 \times 12" />. Các logits và trạng thái đầu ra là ví dụ sư phạm, không phải số liệu được trích từ một rollout của bài báo:
+
+<MatrixTransformStepper />
+
+Hãy cùng phân tích diễn biến thực tế diễn ra qua 6 bước tương tác trên:
+
+1. **Bước 1 — Vùng quan sát 3x3:** Hãy chú ý vào ô trung tâm ở hàng 5, cột 5 đang mang giá trị **3** (ô đích màu xanh đậm). Nó không nhìn toàn bộ lưới mà chỉ "zoom" vào 8 ô láng giềng trực tiếp bao quanh nó, tạo thành cụm ma trận <InlineMath formula="3 \times 3" />:
+   <BlockMath formula="\begin{bmatrix} 0 & 7 & 2 \\ 1 & \mathbf{3} & 5 \\ 8 & 0 & 4 \end{bmatrix}" />
+
+2. **Bước 2 — Dàn phẳng (Flatten):** 9 giá trị trong cụm ma trận 2D được duỗi thẳng thành một vector 1 chiều gồm 9 phần tử: <InlineMath formula="[0, 7, 2, 1, 3, 5, 8, 0, 4]" /> để sẵn sàng đưa vào mạng nơ-ron.
+
+3. **Bước 3 — Mạng nơ-ron chấm điểm ($f_\theta$ Logits):** Vector 9 số này đi qua mạng nơ-ron cục bộ <InlineMath formula="f_\theta" />. Mạng nơ-ron hoạt động như một ban giám khảo: nó tính điểm tự tin (logits) cho 10 chữ số khả dĩ từ 0 đến 9. Trong ví dụ này, chữ số **8** nhận được điểm số áp đảo (+5.8 logits) trong khi các số còn lại nhận điểm âm hoặc rất thấp (số 3 chỉ đạt +1.5, số 4 bị -2.1).
+
+4. **Bước 4 — Cập nhật cục bộ ô đích:** Nhờ điểm số vượt trội, ô trung tâm quyết định chuyển đổi giá trị dứt khoát: **từ 3 nhảy sang 8**. Ở bước này, 143 ô còn lại trên lưới tạm thời giữ nguyên để bạn quan sát rõ ràng sự biến đổi cục bộ của một tế bào đơn lẻ.
+
+5. **Bước 5 — Áp dụng song song toàn bộ:** Trong thực tế vận hành, không có ô nào phải ngồi chờ ô khác. Toàn bộ 144 tế bào trên lưới đều chạy mạng nơ-ron <InlineMath formula="f_\theta" /> song song cùng một lúc trên một nhịp xung đồng hồ duy nhất. Toàn bộ lưới biến đổi đồng loạt sang trạng thái mới <InlineMath formula="X^{(t+1)}" />.
+
+6. **Bước 6 — Tích lũy qua nhiều bước:** Màn hình một hạt giống chỉ là trực quan hóa cách ảnh hưởng cục bộ lan rộng khi lặp update. Trong thí nghiệm chính, trạng thái ban đầu được lấy mẫu i.i.d. uniform trên 10 trạng thái, không khởi đầu từ một hạt giống giữa nền số 0.
+
+---
+
+#### 3. Khung Toán học Tổng quát
+
+##### Lý do Kỹ thuật của Biên xuyến Pac-Man (Biên Tuần hoàn)
+
+Lưới động lực học <InlineMath formula="12 \times 12" /> sử dụng điều kiện biên xuyến tuần hoàn (Periodic Torus Boundary). Hãy hình dung bạn đang chơi trò chơi kinh điển Pac-Man: khi nhân vật đi chạm mép tường bên phải, nó không bị đâm sầm vào tường mà lập tức xuất hiện trở lại từ mép bên trái; khi đi vọt lên trần trên, nó vòng ngược trở lại từ đáy sàn phía dưới.
+
+Tại sao bài báo bắt buộc phải dùng hình học xuyến (bánh donut) thay vì để một lưới phẳng thông thường?
+
+- **Nếu dùng lưới phẳng thông thường:** 4 ô ở góc lưới chỉ có đúng 3 ô hàng xóm, các ô nằm dọc mép viền chỉ có 5 ô hàng xóm. Để áp dụng vùng quan sát <InlineMath formula="3 \times 3" />, ta bắt buộc phải chèn thêm các số 0 nhân tạo ở viền ngoài (zero-padding). Việc này tạo ra hai hậu quả tai hại: (1) các ô mép bị đối xử bất bình đẳng so với các ô ở giữa, và (2) viền số 0 nhân tạo tạo ra hiệu ứng méo mó quy luật động lực học ở rìa.
+- **Khi dùng biên xuyến tuần hoàn:** Toàn bộ 144 ô (kể cả 4 góc và viền ngoài cùng) đều có đúng 8 ô láng giềng bao quanh một cách đối xứng và bình đẳng 100%. Không có bất kỳ ô nào bị thiệt thòi, triệt tiêu hoàn toàn các hiệu ứng biên giả tạo.
+
+##### Giải phẫu Công thức Chuyển đổi Trạng thái
+
+Tại mỗi bước thời gian <InlineMath formula="t" />, giá trị mới của tế bào <InlineMath formula="i" /> được xác định qua công thức xác suất:
+
+<BlockMath formula="c_i^{(t+1)} \sim \text{softmax}\left(\frac{f_\theta\left(c_{\mathcal{N}(i)}^{(t)}\right)}{\tau}\right)" />
+
+Ý nghĩa của từng thành phần trong công thức:
+- <InlineMath formula="c_i^{(t+1)}" />: Giá trị số nguyên mới của tế bào <InlineMath formula="i" /> ở bước tiếp theo (nhận một trong các giá trị từ 0 đến 9).
+- <InlineMath formula="c_{\mathcal{N}(i)}^{(t)}" />: Cụm 9 giá trị của vùng lân cận <InlineMath formula="3 \times 3" /> (gồm chính ô <InlineMath formula="i" /> và 8 ô hàng xóm) ở bước thời gian hiện tại <InlineMath formula="t" />.
+- <InlineMath formula="f_\theta" />: Mạng nơ-ron tí hon gồm tầng tích chập Conv2D <InlineMath formula="3 \times 3" /> kết hợp MLP 16 chiều ẩn, tính điểm logits cho 10 trạng thái khả dĩ.
+- <InlineMath formula="\tau = 10^{-3} = 0.001" />: Nhiệt độ thấp làm phân phối lấy mẫu rất sắc nhưng vẫn giữ một mức ngẫu nhiên nhỏ.
+
+##### Nhiệt độ Thấp $\tau = 0.001$: Gần Tất định nhưng Vẫn Ngẫu nhiên
+
+Mỗi ô nhận một trạng thái rời rạc bằng cách lấy mẫu từ phân phối Softmax. Khi chia logits cho <InlineMath formula="\tau = 0.001" />, phân phối trở nên rất sắc: trạng thái có logit cao nhất nhận gần như toàn bộ xác suất, trong khi phần xác suất nhỏ còn lại tạo stochasticity nhẹ như paper mô tả.
+
+Hãy xem điều gì xảy ra với các con số cụ thể từ ví dụ thực tế ở Bước 3:
+- Giả sử mạng tính ra điểm logits của số 8 là <InlineMath formula="+5.8" /> và số 3 là <InlineMath formula="+1.5" />.
+- Khi chia cho <InlineMath formula="\tau = 0.001" />, các điểm số này bị phóng đại lên 1000 lần:
+  <BlockMath formula="\frac{5.8}{0.001} = 5800, \quad \frac{1.5}{0.001} = 1500" />
+- Khi đưa vào hàm mũ Softmax, <InlineMath formula="e^{5800}" /> lớn gấp lũy thừa hàng ngàn lần so với <InlineMath formula="e^{1500}" />. Sự chênh lệch khổng lồ này ép xác suất chọn số 8 tiệm cận <InlineMath formula="99.9999\%" />!
+
+Kết quả: update gần tất định nhưng không đồng nhất với `argmax`. Các tham số <InlineMath formula="\theta" /> của transition rule được lấy mẫu ngẫu nhiên để sinh dữ liệu; paper không dùng gradient xuyên qua rollout để tối ưu từng rule NCA.
+
+##### Sinh Vô hạn các Thế giới Số Độc nhất
+
+Nhờ khung toán học này, việc sinh dữ liệu trở thành một quy trình tự động hóa hoàn toàn:
+1. **Tạo luật vật lý mới:** Lấy mẫu ngẫu nhiên bộ trọng số <InlineMath formula="\theta \sim p(\theta)" /> cho mạng nơ-ron <InlineMath formula="f_\theta" />.
+2. **Tạo điều kiện ban đầu:** Khởi tạo ngẫu nhiên trạng thái lưới <InlineMath formula="X^{(0)} \in \{0,\dots,9\}^{12 \times 12}" />.
+3. **Chạy mô phỏng:** Giữ nguyên quy luật <InlineMath formula="\theta" /> và cho lưới tiến hóa tự do qua <InlineMath formula="T" /> bước thời gian: <InlineMath formula="X^{(0)} \to X^{(1)} \to \cdots \to X^{(T)}" />.
+
+Mỗi lần chạy sinh ra một thế giới số độc nhất vô nhị tuân theo một bộ luật vật lý riêng. Chính sự biến hóa vô hạn này ép mô hình ngôn ngữ phải học cách giải mã quy luật ẩn từ ngữ cảnh thay vì học vẹt.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Bộ lọc Phức độ Dựa trên Tỷ lệ Nén Gzip
+
+Vì bộ tham số <InlineMath formula="\theta" /> và trạng thái ban đầu <InlineMath formula="X^{(0)}" /> được lấy mẫu ngẫu nhiên, các quỹ đạo trải dài từ fixed point dễ nén đến dynamics khó nén và khó dự đoán. Paper không gán nhãn Edge of Chaos cho từng quỹ đạo; thay vào đó, nhóm tác giả dùng gzip để chọn một dải complexity có thể đo được.
+
+- **Thế giới quá đơn điệu:** Toàn bộ lưới nhanh chóng đông cứng thành một màu duy nhất (toàn số 0) hoặc dao động lặp đi lặp lại giữa 2 trạng thái — giống như một bài tập quá dễ mà đứa trẻ nào cũng làm được mà không cần suy nghĩ.
+- **Thế giới khó nén:** Quỹ đạo đa dạng và khó dự đoán hơn, có thể chứa cấu trúc không gian thời gian phong phú nhưng cũng tiến gần hành vi hỗn loạn.
+
+Để điều khiển phổ này, nhóm tác giả dùng tỷ lệ nén Gzip như một thước đo thực dụng cho độ phức tạp chuỗi. Lempel-Ziv cung cấp một cận trên tính được cho Kolmogorov Complexity; gzip không đo trực tiếp Epiplexity và cũng không chứng nhận một quỹ đạo là hữu ích:
+
+<BlockMath formula="r = \frac{\text{Kích thước tệp đã nén (compressed bytes)}}{\text{Kích thước tệp thô ban đầu (raw bytes)}} \times 100\%" />
+
+<ConceptHierarchy
+  ariaLabel="Phân loại Độ Phức tạp Quỹ đạo qua Tỷ lệ Nén Gzip"
+  root={{
+    title: 'Phổ Phức độ Động lực học (Gzip Ratio r)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Miền Đơn giản ($r < 30\\%$)',
+      detail: 'Các hệ có nhiều lặp lại, như fixed point hoặc chu kỳ ngắn, nên gzip nén mạnh và tỷ lệ r thấp.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Miền Trung bình ($30\\% \\le r \\le 50\\%$)',
+      detail: 'Dải trung gian cân bằng hơn giữa tính lặp lại và biến thiên; paper dùng dải này trong thí nghiệm Complexity Matching.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Miền Phức độ Cao Được Lựa chọn ($r > 50\\%$)',
+      detail: 'Các trajectory khó nén hơn, đa dạng và khó dự đoán hơn. Đây là dải mặc định của pipeline chính, không phải bảo đảm mọi mẫu đều ở Edge of Chaos.',
+      tone: 'teal',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1, 2],
+      children: [
+        {
+          title: 'Tiêu chuẩn Chọn lọc: Chỉ Giữ Quỹ đạo $r > 50\\%$',
+          detail: 'Ngưỡng loại phần lớn trajectory dễ nén và chọn dải complexity cao. Nó không loại trừ tuyệt đối dynamics hỗn loạn hoặc chứng minh giá trị của từng mẫu.',
+          tone: 'teal',
+        },
+      ],
+    },
+  ]}
+/>
+
+Nguyên lý đằng sau khá trực quan: chuỗi lặp lại nhiều có tỷ lệ <InlineMath formula="r" /> thấp, còn chuỗi ít nén được có <InlineMath formula="r" /> cao. Pipeline chính giữ <InlineMath formula="r > 50\%" />, còn ablation sau đó cho thấy dải tối ưu phụ thuộc miền đích: CodeParrot hợp 30–40%, trong khi web text và math hợp complexity cao hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Mã hóa Patch 2x2 & Chuỗi Tự hồi quy
+
+Để đưa các lưới số 2D vào kiến trúc Transformer 1D mà không làm bùng nổ độ dài ngữ cảnh, bài báo áp dụng kỹ thuật chia mảnh không chồng lấn (Non-overlapping Patch Tokenization), tương tự cách Vision Transformer (ViT) xử lý ảnh:
+
+<ConceptHierarchy
+  ariaLabel="Quy trình biến đổi lưới 2D thành chuỗi token tự hồi quy cho LLM"
+  root={{
+    title: 'Mã hóa Lưới 2D thành Chuỗi Token 1D',
+    detail: 'Biến đổi trạng thái lưới tế bào thành đầu vào cho mô hình ngôn ngữ tự hồi quy',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Phân rã Mảnh $2 \\times 2$',
+      detail: 'Lưới $12 \\times 12$ (144 ô) được chia thành 36 mảnh nhỏ kích thước $2 \\times 2$, xếp thành lưới $6 \\times 6$ mảnh.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Ánh xạ thành Token ID duy nhất',
+      detail: 'Mỗi mảnh gồm 4 ô số $[a, b; c, d]$ được mã hóa thành 1 số nguyên: Token ID = $a \\times 1000 + b \\times 100 + c \\times 10 + d$. Với 10 trạng thái mỗi ô, bảng từ vựng gồm chính xác $10^4 = 10{,}000$ tokens.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Ghép Chuỗi Tự hồi quy',
+      detail: 'Các mảnh được quét theo thứ tự hàng (raster scan), bọc trong các nhãn phân cách bước thời gian, và nối các bước liên tiếp thành chuỗi dài tối đa 1024 tokens.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Phép biến đổi này có hai ưu điểm quan trọng. Thứ nhất, nó nén lưới 144 ô xuống còn 36 tokens mỗi bước thời gian, cho phép nhồi nhiều bước vào cửa sổ ngữ cảnh 1024 tokens — mô hình nhìn được đủ lịch sử để suy luận quy luật ẩn. Thứ hai, mỗi token patch <InlineMath formula="2 \times 2" /> mã hóa cục bộ cả thông tin không gian (4 ô liền kề) trong một đơn vị, bảo toàn tương quan không gian cục bộ mà không cần thêm cơ chế vị trí 2D phức tạp.
+
+#### Huấn luyện Dự đoán Trạng thái Kế tiếp
+
+Mô hình Transformer được huấn luyện bằng mục tiêu tự hồi quy (Next-Token Prediction) chuẩn tắc:
+
+<BlockMath formula="\mathcal{L}_{\text{PPT}} = -\sum_{i=1}^{N} \log p_\phi(x_i \mid x_{<i})" />
+
+Tại sao mục tiêu huấn luyện đơn giản này lại ép mô hình phải rèn luyện tư duy logic? Lý do nằm ở bản chất dữ liệu: mỗi chuỗi trong tập huấn luyện được sinh ra từ một bộ trọng số <InlineMath formula="\theta" /> ngẫu nhiên khác nhau. Cùng một trạng thái lưới ban đầu nhưng nếu <InlineMath formula="\theta" /> khác nhau thì bước tiếp theo sẽ hoàn toàn khác biệt — mô hình không thể ghi nhớ đáp án vì đáp án thay đổi theo từng quy luật. Cách duy nhất để dự đoán đúng: mô hình phải dùng các tầng Attention để đối chiếu các bước lịch sử trong chuỗi hiện tại, suy luận ra quy luật <InlineMath formula="f_\theta" /> đang chi phối chuỗi, rồi áp dụng quy luật đó để tính toán trạng thái tiếp theo.
+
+Đây chính là bản chất của Suy diễn Bayes trong Ngữ cảnh (Bayesian In-Context Inference) mà Phần 2 đã phân tích: bước 1 suy ra <InlineMath formula="\theta" /> từ lịch sử, bước 2 áp dụng <InlineMath formula="\theta" /> để dự đoán tương lai.
+
+---
+
+### Quy trình Tiền huấn luyện Ba Giai đoạn
+
+Toàn bộ phương pháp được đúc kết thành một quy trình chuẩn tắc ba giai đoạn, mỗi giai đoạn phục vụ một mục đích phân biệt rõ ràng:
+
+<ConceptHierarchy
+  ariaLabel="Sơ đồ quy trình thực nghiệm ba giai đoạn chuẩn tắc"
+  root={{
+    title: 'Quy trình Thực nghiệm Ba Giai đoạn (Three-Stage Paradigm)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: 'Giai đoạn 1: Pre-Pre-Training (Dữ liệu Số NCA)',
+      detail: 'Huấn luyện sơ khởi mô hình LLaMA 1.6B trên 164 triệu tokens chuỗi số NCA để tôi luyện các mạch suy luận quy nạp (Induction Heads) trong tầng Attention. Tầng MLP trong giai đoạn này chỉ lưu trữ thống kê bề mặt của ô vuông — hoàn toàn để trắng tri thức con người.',
+      tone: 'teal',
+    },
+    {
+      title: 'Giai đoạn 2: Pre-Training (Văn bản Tự nhiên Thật)',
+      detail: 'Xóa hoàn toàn ma trận embedding cũ (vốn ánh xạ các ô số), thay bằng embedding từ vựng tiếng Anh. Giữ nguyên 100% trọng số Attention và MLP bên trong, rồi nạp văn bản tự nhiên quy mô lớn (OpenWebText, Math, Code).',
+      tone: 'violet',
+    },
+    {
+      title: 'Giai đoạn 3: Downstream Tasks & Đánh giá',
+      detail: 'Đo lường độ giảm perplexity và năng lực giải quyết bài toán suy luận thực tế trên ba bộ kiểm chuẩn tiêu chuẩn: GSM8K (Toán), HumanEval (Lập trình) và BigBench-Lite (Suy luận logic).',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+Việc khởi tạo lại ma trận embedding ở đầu Giai đoạn 2 loại trừ lời giải thích rằng lợi ích chỉ đến từ embedding của các token số. Thí nghiệm bóc tách tiếp theo cho thấy Attention giữ phần lớn lợi ích chuyển giao, nhưng không chứng minh rằng toàn bộ cơ chế chỉ nằm trong Attention.
+
+Ở bài học tiếp theo, chúng ta sẽ bước vào khám phá chi tiết các kết quả thực nghiệm: vì sao 164M tokens số NCA lại đánh bại 1.6 tỷ tokens văn bản thật C4, và tốc độ hội tụ gia tốc 1.6× diễn ra như thế nào.
+
+</MdxPage>

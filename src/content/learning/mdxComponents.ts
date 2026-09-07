@@ -115,6 +115,8 @@ export const AI_PROJECTS_MDX_COMPONENT_NAMES = [
   'CogsLeakageVisualizer',
 ] as const;
 
+export const RESEARCH_PAPERS_MDX_COMPONENT_NAMES = ['MatrixTransformStepper'] as const;
+
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,
   'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
@@ -122,6 +124,7 @@ const domainMdxComponentNames = {
   'linear-algebra': LINEAR_ALGEBRA_MDX_COMPONENT_NAMES,
   'evolutionary-algorithms': EVOLUTIONARY_ALGORITHMS_MDX_COMPONENT_NAMES,
   'ai-projects': AI_PROJECTS_MDX_COMPONENT_NAMES,
+  'research-papers': RESEARCH_PAPERS_MDX_COMPONENT_NAMES,
 } as const;
 
 export function getLearningDomainMdxComponentNames(domainId: string): readonly string[] {

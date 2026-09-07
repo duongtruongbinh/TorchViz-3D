@@ -143,6 +143,84 @@ const chapters: LearningTocTrackSeed[] = [
     ],
   },
   {
+    id: 'nca-ppt-paper',
+    text: {
+      title: {
+        en: 'LLM > Continual Learning > (2026) NCA Pre-Pre-Training',
+        vi: 'LLM > Continual Learning > (2026) NCA Pre-Pre-Training',
+      },
+      description: {
+        en: 'Training Language Models via Neural Cellular Automata (MIT & Improbable AI Lab, 2026).',
+        vi: 'Huấn luyện Mô hình Ngôn ngữ qua Neural Cellular Automata (MIT & Improbable AI Lab, 2026).',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'nca-ppt-abstract',
+        title: {
+          en: 'Part 1: Abstract',
+          vi: 'Phần 1: Tóm tắt (Abstract)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-introduction',
+        title: {
+          en: 'Part 2: Introduction & Theoretical Motivation',
+          vi: 'Phần 2: Giới thiệu & Động lực Lý thuyết',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-method',
+        title: {
+          en: 'Part 3: Methodology & Discrete Dynamics',
+          vi: 'Phần 3: Phương pháp & Cơ chế Động lực học NCA',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-experiments',
+        title: {
+          en: 'Part 4: Experiments & Cross-Domain Transfer',
+          vi: 'Phần 4: Kết quả Thực nghiệm & Đánh giá',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-conclusion',
+        title: {
+          en: 'Part 5: Mechanistic Analysis & Complexity Matching',
+          vi: 'Phần 5: Phân tích Cơ chế & Quy luật Phức độ',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-debate',
+        title: {
+          en: 'Part 6: Academic Debates & Continual Learning',
+          vi: 'Phần 6: Tranh luận Học thuật & Góc nhìn Continual Learning',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'nca-ppt-quiz',
+        title: {
+          en: 'Quiz: NCA Pre-Pre-Training (2026)',
+          vi: 'Quiz: NCA Pre-Pre-Training (2026)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
+  {
     id: 'meta-nca-paper',
     text: {
       title: {

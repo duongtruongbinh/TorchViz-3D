@@ -1,0 +1,174 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nca-ppt-experiments',
+  locale: 'vi',
+  title: 'Phần 4: Kết quả Thực nghiệm & Đánh giá',
+  headings: [
+    'Thiết lập Thực nghiệm & Các Mô hình Cơ sở',
+    'Cải thiện Perplexity & Tăng tốc Hội tụ Đa miền',
+    'NCA Đánh bại Dữ liệu Tự nhiên C4: Nghịch lý 164M vs 1.6B',
+    'Chuyển giao Năng lực Suy luận Hạ nguồn',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Empirical Results',
+    'Validation Perplexity',
+    'Convergence Speedup',
+    'Token Efficiency Gain',
+    'OpenWebText',
+    'OpenWebMath',
+    'CodeParrot',
+    'GSM8K',
+    'HumanEval',
+    'BigBench-Lite',
+  ],
+  conceptIds: [
+    'empirical-nca-vs-c4',
+    'token-efficiency-metric',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+Để kiểm chứng nghiêm ngặt xem liệu các mạch suy luận được tôi luyện từ lưới ô vuông số có thực sự chuyển giao thành công sang ngôn ngữ con người hay không, nhóm nghiên cứu tại MIT đã triển khai một loạt chiến dịch huấn luyện quy mô lớn. Câu hỏi trung tâm không chỉ là "NCA có tốt hơn không?" mà là "NCA tốt hơn bao nhiêu, trên bao nhiêu miền dữ liệu, và liệu có đánh bại cả nguồn dữ liệu vốn được coi là tối ưu — văn bản tự nhiên thật?"
+
+---
+
+### Thiết lập Thực nghiệm & Các Mô hình Cơ sở
+
+Mô hình nền tảng được xây dựng dựa trên kiến trúc LLaMA Transformer chuẩn với quy mô chính là 1.6B tham số (24 tầng Transformer, 32 attention heads, hidden dimension 2048, áp dụng weight-tying), đồng thời kiểm chứng mở rộng trên các phiên bản 400M và 600M tham số.
+
+Mô hình NCA Pre-Pre-Training (NCA PPT) được huấn luyện trên 164M tokens NCA thuộc dải độ nén <InlineMath formula="r > 50\%" /> và được so sánh đối đầu trực tiếp với ba mô hình cơ sở:
+
+<ConceptHierarchy
+  ariaLabel="Bốn mô hình được so sánh trong thực nghiệm"
+  root={{
+    title: 'Bốn Nhánh Huấn luyện So sánh Trực tiếp',
+    detail: 'Cùng kiến trúc LLaMA 1.6B, chỉ khác nhau ở giai đoạn tiền-tiền-huấn luyện (PPT)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Scratch Baseline (Không PPT)',
+      detail: 'Mô hình được khởi tạo trọng số ngẫu nhiên từ đầu và huấn luyện trực tiếp trên văn bản đích. Đây là đường cơ sở (baseline) thấp nhất.',
+      tone: 'amber',
+    },
+    {
+      title: '2. K-Dyck PPT (Ngữ pháp Hình thức)',
+      detail: 'Huấn luyện sơ bộ trên ngôn ngữ ngoặc hình thức K-Dyck ($k=128$, độ sâu không giới hạn) — một dạng ngữ pháp cấu trúc lồng nhau theo phương pháp của Hu et al. (2025b).',
+      tone: 'violet',
+    },
+    {
+      title: '3. C4 PPT (Văn bản Tự nhiên Thật)',
+      detail: 'Huấn luyện sơ bộ trên văn bản web thực tế C4 (Common Crawl) với hai ngân sách token: 164M tokens (tương đương NCA) và 1.6B tokens (gấp gần 10 lần).',
+      tone: 'amber',
+    },
+    {
+      title: '4. NCA PPT (Thí sinh — 164M tokens)',
+      detail: 'Huấn luyện sơ bộ trên 164 triệu tokens chuỗi số NCA phi ngôn ngữ, qua bộ lọc gzip $r > 50\\%$. Đây là phương pháp chính cần kiểm chứng.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Sau giai đoạn PPT, tất cả bốn nhánh cùng bước vào tiền huấn luyện chính (Giai đoạn 2) — huấn luyện 1 epoch trên ba tập ngữ liệu lớn độc lập:
+
+- **OpenWebText:** 9 tỷ tokens văn bản web đa dạng — đại diện cho ngôn ngữ tự nhiên thông thường.
+- **OpenWebMath:** 4 tỷ tokens tài liệu toán học, bài báo và diễn đàn kỹ thuật — miền có logic hình thức chặt chẽ.
+- **CodeParrot:** 13 tỷ tokens mã nguồn Python — miền có cú pháp cấu trúc nghiêm ngặt nhất.
+
+---
+
+### Cải thiện Perplexity & Tăng tốc Hội tụ Đa miền
+
+Kết quả thực nghiệm trên mô hình 1.6B tham số cho thấy NCA PPT đem lại sự vượt trội đồng nhất trên toàn bộ ba miền dữ liệu. Bảng dưới đây tổng hợp ba chỉ số chính so với mô hình Scratch Baseline:
+
+| Tập dữ liệu Hạ nguồn | Quy mô Tokens | Độ Giảm Perplexity so với Scratch | Tốc độ Hội tụ (Convergence) | Token Efficiency Gain |
+| :--- | :--- | :--- | :--- | :--- |
+| **OpenWebText** (Văn bản) | 9 Tỷ tokens | **-5.7% đến -6.0%** | **1.5× nhanh hơn** | **+31%** |
+| **OpenWebMath** (Toán) | 4 Tỷ tokens | **-4.5% đến -5.0%** | **1.4× nhanh hơn** | **+27%** |
+| **CodeParrot** (Lập trình) | 13 Tỷ tokens | **-4.0% đến -4.5%** | **1.6× nhanh hơn** | **+49%** |
+
+Các con số này cần được hiểu đúng tầm vóc:
+
+- Giảm 5–6% perplexity ở quy mô 1.6B tham số là một bước nhảy đáng kể — ở mức quy mô này, mỗi phần trăm perplexity tương đương hàng tỷ tokens huấn luyện bổ sung theo Scaling Laws.
+- Tốc độ hội tụ 1.4–1.6× nhanh hơn nghĩa là mô hình đạt cùng mức chất lượng với ít bước gradient hơn — tiết kiệm trực tiếp thời gian GPU và chi phí điện năng.
+- Token Efficiency Gain lên tới 49% trên CodeParrot đặc biệt ấn tượng: mô hình tiết kiệm gần nửa tổng ngân sách token huấn luyện cần thiết.
+
+Chỉ số hiệu quả token (Token Efficiency Gain) được định nghĩa theo công thức:
+
+<BlockMath formula="\text{Token Efficiency Gain} = 1 - \frac{T_{\text{PPT}}^{\text{NCA}} + T_{\text{PT}}^{\text{NCA}}}{T_{\text{PPT}}^{\text{base}} + T_{\text{PT}}^{\text{base}}}" />
+
+Trong đó <InlineMath formula="T_{\text{PPT}}" /> và <InlineMath formula="T_{\text{PT}}" /> lần lượt là số lượng token ở pha tiền tiền huấn luyện và tiền huấn luyện cần thiết để mô hình đạt tới mức loss cuối cùng của mô hình Scratch (<InlineMath formula="T_{\text{PPT}}^{\text{base}} = 0" /> vì baseline không có pha PPT).
+
+Mức tiết kiệm cao nhất trên CodeParrot (49%) tương thích với giả thuyết rằng cấu trúc cú pháp và các phụ thuộc trong mã nguồn hưởng lợi từ cơ chế học trên NCA. Tuy vậy, kết quả benchmark này không tự xác định Induction Heads hay chứng minh quan hệ nhân quả cụ thể.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### NCA Đánh bại Dữ liệu Tự nhiên C4: Nghịch lý 164M vs 1.6B
+
+Phát hiện gây bất ngờ nhất trong toàn bộ công trình là: huấn luyện sơ bộ trên 164M tokens NCA phi ngôn ngữ vượt trội hơn hẳn so với huấn luyện sơ bộ trên 1.6 tỷ tokens văn bản tự nhiên từ C4 — một nguồn dữ liệu có dung lượng gấp gần 10 lần.
+
+Kết quả so sánh trực tiếp cho thấy: ngay cả khi C4 PPT được ưu ái giữ nguyên toàn bộ tầng embedding đã học (thay vì phải khởi tạo lại như NCA), mô hình C4 PPT 1.6B vẫn có perplexity cao hơn 5% và tốc độ hội tụ chậm hơn 1.4× so với mô hình chỉ học 164M tokens từ các lưới tế bào NCA.
+
+Tại sao lại như vậy? Nhóm tác giả đưa ra một giả thuyết gồm ba mảnh ghép; thí nghiệm đo chênh lệch hiệu năng nhưng chưa xác lập quan hệ nhân quả cho lời giải thích này:
+
+<ConceptHierarchy
+  ariaLabel="Giải thích Nghịch lý 164M Tokens NCA vượt qua 1.6B Tokens C4"
+  root={{
+    title: 'Tại sao 164M NCA lại Tốt hơn 1.6B C4?',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: '1. Giai đoạn Huấn luyện Sơ khai (Under-trained Regime)',
+      detail: 'Mô hình 1.6B tham số cần khoảng 32B tokens để đạt mức tối ưu theo quy tắc Chinchilla. Tại mốc 1.6B tokens (chỉ 5% ngân sách tối ưu), mô hình văn bản vẫn đang chìm trong việc ghi nhớ từ khóa cục bộ và mẫu bề mặt — chưa kịp hình thành các mạch suy luận sâu.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Bẫy Lối tắt Ngữ nghĩa Bề mặt',
+      detail: 'Văn bản C4 dạy mô hình các thói quen kết hợp từ ngữ (word collocations) bề mặt — \"bóng đá\" hay đi với \"sân vận động\", \"bệnh viện\" hay đi với \"bác sĩ\". Các mẹo cú pháp nông cạn này dễ bị lỗi thời khi chuyển miền và chiếm dung lượng biểu diễn của các mạch suy luận trừu tượng.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Tín hiệu Huấn luyện Thuần khiết cho Suy luận Quy tắc',
+      detail: 'Mỗi chuỗi NCA có một transition rule $f_\\theta$ riêng. Không có từ vựng quen thuộc để dựa vào, next-token prediction trực tiếp tạo áp lực theo dõi phụ thuộc và suy ra latent rule từ ngữ cảnh.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Trong thiết lập được khảo sát, 164 triệu NCA tokens là tín hiệu Pre-Pre-Training hiệu quả hơn 1.6 tỷ C4 tokens. Kết quả ủng hộ giả thuyết rằng cấu trúc của dữ liệu quan trọng bên cạnh số lượng, nhưng không đo tỷ lệ "tín hiệu suy luận" trong từng corpus.
+
+---
+
+### Chuyển giao Năng lực Suy luận Hạ nguồn
+
+Perplexity trên tập kiểm định đo lường khả năng mô hình hóa phân phối từ vựng, nhưng mục tiêu cốt lõi của LLM là năng lực giải quyết bài toán suy luận thực tế. Bảng dưới đây tổng hợp kết quả đánh giá pass@k (trung bình và độ lệch chuẩn qua 4 random seeds) trên ba bộ kiểm chuẩn tiêu chuẩn:
+
+| Benchmark | Độ đo | Scratch Baseline | C4 Pre-Pre-Train | Dyck Pre-Pre-Train | NCA Pre-Pre-Train |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Toán học: GSM8K** | pass@1 | 3.8% ± 0.1% | 3.8% ± 0.2% | 4.1% ± 0.4% | **4.4% ± 0.3%** |
+| | pass@8 | 17.9% ± 0.3% | 17.8% ± 0.5% | 18.6% ± 0.9% | **19.2% ± 0.3%** |
+| | pass@32 | 36.6% ± 0.6% | 36.2% ± 0.9% | 37.4% ± 0.7% | **37.9% ± 0.3%** |
+| **Lập trình: HumanEval** | pass@1 | 6.8% ± 0.6% | 6.3% ± 0.3% | 6.9% ± 0.1% | **7.5% ± 0.4%** |
+| | pass@8 | 11.2% ± 0.6% | 10.5% ± 0.5% | 11.3% ± 0.2% | **11.4% ± 0.8%** |
+| | pass@32 | 13.9% ± 0.5% | 12.6% ± 0.7% | **14.3% ± 0.4%** | 13.8% ± 1.0% |
+| **Suy luận Logic: BigBench-Lite** | pass@1 | 15.4% ± 1.1% | 15.9% ± 0.9% | 13.4% ± 2.8% | 15.0% ± 1.2% |
+| | pass@2 | 20.9% ± 2.5% | 22.8% ± 1.2% | 18.1% ± 2.3% | **26.5% ± 1.0%** |
+| | pass@4 | 25.9% ± 3.9% | 29.7% ± 1.3% | 22.7% ± 2.1% | **36.5% ± 2.1%** |
+
+Những phát hiện chuyên sâu đáng chú ý nhất từ bảng dữ liệu:
+
+- **GSM8K (Toán học):** NCA PPT cải thiện từ pass@1 đến pass@32. Kết quả phù hợp với giả thuyết về transfer của khả năng theo dõi phụ thuộc, nhưng benchmark không tự nó chứng minh cơ chế Chain-of-Thought nằm trong Attention.
+
+- **HumanEval (Lập trình):** Ở pass@1, NCA vượt trội rõ rệt (7.5% vs 6.8%). Tuy nhiên ở pass@32, mô hình Dyck nhỉnh hơn một chút (14.3% vs 13.8%). Điều này hợp lý về mặt cấu trúc: ngôn ngữ Dyck được xây dựng từ các cặp ngoặc lồng nhau vô hạn, tương thích tự nhiên với các khối lệnh lồng nhau trong mã nguồn — khi lấy mẫu rất nhiều lần (32 lần), lợi thế cấu trúc ngoặc của Dyck bộc lộ.
+
+- **BigBench-Lite (Suy luận logic):** Khoảng cách lớn nhất xuất hiện ở pass@4: NCA PPT đạt 36.5%, so với C4 29.7% và Scratch 25.9%. Chỉ số pass@k cho thấy xác suất có ít nhất một đáp án đúng tăng khi lấy mẫu; nó không trực tiếp đo độ đa dạng của không gian lời giải.
+
+Ở bài học kế tiếp, chúng ta sẽ xem thí nghiệm re-initialization xếp hạng thành phần nào mang tín hiệu chuyển giao mạnh nhất và cách dải complexity tối ưu thay đổi theo miền.
+
+</MdxPage>

@@ -95,6 +95,11 @@ test('learningMdxRegistry enforces lazy boundaries for references and domain ada
   // Reference components and continual learning adapter are dynamically imported
   assert.match(registrySource, /import\('\.\/learningMdxReferences'\)/);
   assert.match(registrySource, /import\('\.\/domains\/continual-learning-llm\/mdxComponents'\)/);
+  assert.match(registrySource, /import\('\.\/domains\/research-papers\/mdxComponents'\)/);
+  assert.doesNotMatch(
+    readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8'),
+    /MatrixTransformStepper/,
+  );
 });
 
 test('linear-algebra mdxComponents enforces module-level lazy boundaries without static renderers', () => {
