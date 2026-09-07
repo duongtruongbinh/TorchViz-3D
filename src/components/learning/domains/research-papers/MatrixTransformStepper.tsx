@@ -1,192 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, RotateCcw, ArrowRight, Sparkles } from 'lucide-react';
 import { InlineMath } from '../../math';
-
-const INITIAL_GRID_12X12: number[][] = [
-  [5, 2, 8, 1, 4, 0, 3, 7, 9, 2, 6, 1],
-  [1, 9, 0, 7, 2, 5, 8, 1, 0, 4, 3, 7],
-  [6, 4, 1, 3, 5, 2, 9, 0, 6, 8, 2, 5],
-  [0, 3, 8, 0, 4, 7, 1, 6, 3, 9, 0, 4],
-  [7, 5, 2, 6, 0, 7, 2, 4, 8, 1, 5, 2], // row 4: cols 4, 5, 6 = [0, 7, 2]
-  [2, 8, 4, 0, 1, 3, 5, 9, 2, 6, 3, 8], // row 5: cols 4, 5, 6 = [1, 3, 5] (center cell is 3)
-  [9, 1, 7, 3, 8, 0, 4, 0, 4, 5, 1, 9], // row 6: cols 4, 5, 6 = [8, 0, 4]
-  [3, 6, 0, 9, 5, 4, 2, 8, 7, 0, 4, 6],
-  [8, 0, 5, 2, 7, 1, 4, 3, 9, 6, 8, 0],
-  [4, 7, 3, 8, 0, 9, 1, 5, 2, 7, 4, 3],
-  [0, 2, 9, 5, 6, 8, 3, 1, 0, 4, 9, 2],
-  [6, 3, 1, 4, 2, 0, 7, 9, 5, 8, 1, 6],
-];
-
-// Target center cell is at row 5, col 5 (0-indexed center of 12x12 grid) => number 3 -> 8
-const TARGET_ROW = 5;
-const TARGET_COL = 5;
-
-// Grid after ONLY the target cell updates (other 143 cells stay 100% identical)
-const SINGLE_CELL_UPDATED_GRID_12X12: number[][] = INITIAL_GRID_12X12.map((row, r) =>
-  row.map((val, c) => (r === TARGET_ROW && c === TARGET_COL ? 8 : val))
-);
-
-// Grid after synchronous parallel NCA update: all 144 cells update simultaneously via f_θ
-const PARALLEL_UPDATED_GRID_12X12: number[][] = [
-  [2, 7, 3, 6, 1, 8, 0, 4, 5, 9, 1, 8],
-  [8, 3, 6, 2, 9, 1, 4, 7, 5, 0, 8, 2],
-  [3, 8, 7, 0, 2, 9, 4, 6, 1, 3, 7, 0],
-  [7, 0, 2, 8, 1, 3, 7, 2, 8, 4, 6, 1],
-  [4, 1, 9, 0, 4, 8, 8, 1, 3, 6, 0, 7],
-  [6, 2, 0, 7, 6, 8, 2, 4, 7, 1, 8, 3], // target cell (5, 5) evolves from 3 to 8
-  [1, 6, 3, 8, 7, 8, 9, 7, 1, 2, 6, 0],
-  [8, 1, 7, 4, 0, 9, 6, 3, 2, 5, 1, 0],
-  [1, 7, 2, 9, 3, 8, 0, 5, 4, 1, 2, 6],
-  [9, 2, 8, 1, 6, 3, 7, 0, 8, 4, 9, 7],
-  [5, 8, 4, 1, 2, 0, 7, 6, 3, 9, 1, 7],
-  [2, 9, 5, 0, 8, 6, 1, 3, 0, 2, 7, 1],
-];
-
-// Pedagogical propagation sequence; this is not a sampled rollout from the paper.
-const SEED_ROW = TARGET_ROW;
-const SEED_COL = TARGET_COL;
-
-const GROWTH_STAGES: number[][][] = [0, 1, 2, 3, 4, 5].map((radius) => {
-  const baseGrid = radius === 5 ? PARALLEL_UPDATED_GRID_12X12 : INITIAL_GRID_12X12;
-  return baseGrid.map((row, r) =>
-    row.map((val, c) => {
-      const dist = Math.max(Math.abs(r - SEED_ROW), Math.abs(c - SEED_COL));
-      if (dist === 0) return radius === 0 ? 3 : 8;
-      if (dist <= radius) return val;
-      return 0; // Dormant cell (zero)
-    })
-  );
-});
-
-
-const PATCH_3X3 = [
-  [0, 7, 2],
-  [1, 3, 5],
-  [8, 0, 4],
-];
-
-const FLATTENED_PATCH = [0, 7, 2, 1, 3, 5, 8, 0, 4];
-
-const LOGITS_DATA = [
-  { digit: 0, logit: -1.2, prob: 0.0 },
-  { digit: 1, logit: 0.4, prob: 0.0 },
-  { digit: 2, logit: -0.8, prob: 0.0 },
-  { digit: 3, logit: 1.5, prob: 0.0 },
-  { digit: 4, logit: -2.1, prob: 0.0 },
-  { digit: 5, logit: 0.1, prob: 0.0 },
-  { digit: 6, logit: -0.5, prob: 0.0 },
-  { digit: 7, logit: 0.3, prob: 0.0 },
-  { digit: 8, logit: 5.8, prob: 100.0 },
-  { digit: 9, logit: -1.0, prob: 0.0 },
-];
-
-// Reusable component to render the global 12x12 grid with highlighted target and neighborhood
-function GlobalGrid12x12({
-  grid,
-  targetRow = TARGET_ROW,
-  targetCol = TARGET_COL,
-  showNeighbors = true,
-}: {
-  grid: number[][];
-  targetRow?: number;
-  targetCol?: number;
-  showNeighbors?: boolean;
-}) {
-  return (
-    <div className="flex flex-col items-center shrink-0">
-      <div className="mb-2 text-xs font-bold text-[#475569]">
-        Ma trận toàn cục <InlineMath formula="C^{(t)} \in \{0, \dots, 9\}^{12 \times 12}" />
-      </div>
-      <div className="grid grid-cols-12 gap-0.5 rounded-xl border border-[#B8C8DA]/70 bg-slate-100 p-2 shadow-inner sm:gap-1">
-        {grid.map((row, rIdx) =>
-          row.map((val, cIdx) => {
-            const isCenter = rIdx === targetRow && cIdx === targetCol;
-            const isNeighbor =
-              showNeighbors &&
-              Math.abs(rIdx - targetRow) <= 1 &&
-              Math.abs(cIdx - targetCol) <= 1;
-
-            return (
-              <div
-                key={`cell-${rIdx}-${cIdx}`}
-                className={`flex size-5 items-center justify-center rounded font-mono text-[10px] transition-all sm:size-7 sm:text-xs ${
-                  isCenter
-                    ? 'scale-110 bg-[#205089] font-black text-white shadow-md ring-2 ring-[#205089]'
-                    : isNeighbor
-                    ? 'bg-[#DCE7F5] font-bold text-[#1E3A8A] ring-1 ring-[#205089]/50'
-                    : 'bg-white/60 text-slate-400 opacity-40'
-                }`}
-              >
-                {val}
-              </div>
-            );
-          })
-        )}
-      </div>
-      <div className="mt-2 flex items-center gap-3 text-xs text-[#64748B]">
-        <span className="flex items-center gap-1">
-          <span className="inline-block size-3 rounded bg-[#205089]" /> Ô đích ({grid[targetRow][targetCol]})
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block size-3 rounded bg-[#DCE7F5] border border-[#205089]/40" /> 8 ô láng giềng
-        </span>
-      </div>
-    </div>
-  );
-}
+import { MatrixGrid } from './MatrixGrid';
+import {
+  CELL_COUNT,
+  FLATTENED_PATCH,
+  INITIAL_GRID,
+  LOGITS_DATA,
+  PARALLEL_UPDATED_GRID,
+  PATCH_3X3,
+  PROPAGATION_STAGES,
+  SINGLE_CELL_UPDATED_GRID,
+  STEP_LABELS,
+  TARGET_CELL,
+} from './matrixTransformData';
 
 export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước biến đổi ma trận NCA' }: { ariaLabel?: string }) {
   const [step, setStep] = useState<number>(0);
   const [inspectedCell, setInspectedCell] = useState<{ r: number; c: number }>({
-    r: TARGET_ROW,
-    c: TARGET_COL,
+    ...TARGET_CELL,
   });
-  const [growthT, setGrowthT] = useState<number>(0);
-
-  const steps = [
-    '1. Vùng quan sát 3x3',
-    '2. Dàn phẳng (Flatten)',
-    '3. Mạng nơ-ron chấm điểm',
-    '4. Cập nhật cục bộ ô đích',
-    '5. Áp dụng song song toàn bộ',
-    '6. Minh họa lan truyền',
-  ];
+  const [propagationStep, setPropagationStep] = useState(0);
 
   // Auto-play the illustrative propagation sequence.
   useEffect(() => {
     if (step !== 5) {
-      setGrowthT(0);
+      setPropagationStep(0);
       return;
     }
     const timer = setTimeout(() => {
-      setGrowthT((prev) => (prev >= 5 ? 0 : prev + 1));
-    }, growthT === 5 ? 2500 : 1000);
+      setPropagationStep((current) => (current >= PROPAGATION_STAGES.length - 1 ? 0 : current + 1));
+    }, propagationStep === PROPAGATION_STAGES.length - 1 ? 2500 : 1000);
 
     return () => clearTimeout(timer);
-  }, [step, growthT]);
+  }, [step, propagationStep]);
 
   // Reset inspectedCell to canonical target cell when leaving Step 5
   useEffect(() => {
     if (step !== 4) {
-      setInspectedCell({ r: TARGET_ROW, c: TARGET_COL });
+      setInspectedCell({ ...TARGET_CELL });
     }
   }, [step]);
 
   const handleReset = () => {
     setStep(0);
-    setInspectedCell({ r: TARGET_ROW, c: TARGET_COL });
-    setGrowthT(0);
+    setInspectedCell({ ...TARGET_CELL });
+    setPropagationStep(0);
   };
 
   const inspR = inspectedCell.r;
   const inspC = inspectedCell.c;
-  const valBefore = INITIAL_GRID_12X12[inspR][inspC];
-  const valAfter = PARALLEL_UPDATED_GRID_12X12[inspR][inspC];
+  const valBefore = INITIAL_GRID[inspR][inspC];
+  const valAfter = PARALLEL_UPDATED_GRID[inspR][inspC];
 
-  // Step 6 calculation
-  const currentGrowthGrid = GROWTH_STAGES[growthT];
-  const aliveCount = currentGrowthGrid.flat().filter((v) => v !== 0).length;
-  const alivePercent = Math.round((aliveCount / 144) * 100);
+  const currentPropagationGrid = PROPAGATION_STAGES[propagationStep];
+  const activeCellCount = currentPropagationGrid.flat().filter((value) => value !== 0).length;
+  const activeCellPercent = Math.round((activeCellCount / CELL_COUNT) * 100);
 
   return (
     <div className="my-6 overflow-hidden rounded-2xl border border-[#B8C8DA]/70 bg-white shadow-sm" aria-label={ariaLabel}>
@@ -195,10 +64,10 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="flex size-7 items-center justify-center rounded-lg bg-[#205089] text-xs font-black text-white">
-              {step + 1}/6
+              {step + 1}/{STEP_LABELS.length}
             </span>
             <h4 className="text-sm font-bold text-[#0F172A] sm:text-base">
-              {steps[step]}
+              {STEP_LABELS[step]}
             </h4>
           </div>
 
@@ -215,8 +84,8 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
             </button>
             <button
               type="button"
-              onClick={() => setStep((s) => Math.min(5, s + 1))}
-              disabled={step === 5}
+              onClick={() => setStep((s) => Math.min(STEP_LABELS.length - 1, s + 1))}
+              disabled={step === STEP_LABELS.length - 1}
               className="inline-flex items-center gap-1 rounded-lg bg-[#205089] px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-[#183F6C] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Tiếp
@@ -236,9 +105,9 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
 
         {/* Step indicator pills */}
         <div className="mt-3 grid grid-cols-3 gap-1 sm:grid-cols-6 sm:gap-1.5">
-          {steps.map((s, idx) => (
+          {STEP_LABELS.map((label, idx) => (
             <button
-              key={s}
+              key={label}
               type="button"
               onClick={() => setStep(idx)}
               className={`rounded-md py-1 text-center text-[10px] font-bold transition sm:text-xs ${
@@ -260,8 +129,20 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
         {/* Steps 1, 2, 3: Ma trận 12x12 giữ nguyên liên tục bên trái, nội dung chi tiết biến đổi bên phải */}
         {step < 3 && (
           <div className="flex flex-col items-center justify-center gap-6 lg:flex-row lg:items-start lg:justify-around">
-            {/* Ma trận 12x12 giữ nguyên */}
-            <GlobalGrid12x12 grid={INITIAL_GRID_12X12} />
+            <div className="flex shrink-0 flex-col items-center">
+              <div className="mb-2 text-xs font-bold text-[#475569]">
+                Ma trận toàn cục <InlineMath formula="C^{(t)} \in \{0, \dots, 9\}^{12 \times 12}" />
+              </div>
+              <MatrixGrid grid={INITIAL_GRID} focus={TARGET_CELL} variant="overview" showNeighborhood />
+              <div className="mt-2 flex items-center gap-3 text-xs text-[#64748B]">
+                <span className="flex items-center gap-1">
+                  <span className="inline-block size-3 rounded bg-[#205089]" /> Ô đích ({INITIAL_GRID[TARGET_CELL.r][TARGET_CELL.c]})
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="inline-block size-3 rounded border border-[#205089]/40 bg-[#DCE7F5]" /> 8 ô láng giềng
+                </span>
+              </div>
+            </div>
 
             {/* Cột chi tiết bên phải */}
             <div className="flex flex-1 flex-col items-center justify-center w-full max-w-md pt-2">
@@ -410,12 +291,12 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
                                   className={`h-full transition-all duration-500 ${
                                     isWinner ? 'bg-[#059669]' : 'bg-slate-300'
                                   }`}
-                                  style={{ width: `${Math.max(item.prob, 2)}%` }}
+                                  style={{ width: `${Math.max(item.probability, 2)}%` }}
                                 />
                               </div>
 
                               <span className="w-8 text-right font-mono text-[10px] font-bold">
-                                {item.prob > 0 ? `${item.prob.toFixed(0)}%` : '0%'}
+                                {item.probability > 0 ? `${item.probability.toFixed(0)}%` : '0%'}
                               </span>
                             </div>
                           );
@@ -446,37 +327,12 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
               Giá trị tại ô đó thay đổi từ <span className="line-through text-rose-500 font-bold">3</span> sang <span className="text-[#059669] font-black text-sm">8</span>:
             </div>
 
-            {/* Before vs After Grid Transition (Single Cell Update) */}
             <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-              {/* Before Grid */}
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-bold text-[#64748B]">
-                  Trước: Bước t (Ô ({TARGET_ROW}, {TARGET_COL}) = {INITIAL_GRID_12X12[TARGET_ROW][TARGET_COL]})
+                  Trước: Bước t (Ô ({TARGET_CELL.r}, {TARGET_CELL.c}) = {INITIAL_GRID[TARGET_CELL.r][TARGET_CELL.c]})
                 </span>
-                <div className="grid grid-cols-12 gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:gap-1">
-                  {INITIAL_GRID_12X12.map((row, rIdx) =>
-                    row.map((val, cIdx) => {
-                      const isTarget = rIdx === TARGET_ROW && cIdx === TARGET_COL;
-                      const isNeighbor =
-                        Math.abs(rIdx - TARGET_ROW) <= 1 && Math.abs(cIdx - TARGET_COL) <= 1;
-
-                      return (
-                        <div
-                          key={`before-${rIdx}-${cIdx}`}
-                          className={`flex size-5 items-center justify-center rounded font-mono text-[10px] transition-all sm:size-6 sm:text-xs ${
-                            isTarget
-                              ? 'scale-110 bg-[#205089] font-black text-white shadow-md ring-2 ring-[#205089]'
-                              : isNeighbor
-                              ? 'bg-[#DCE7F5] font-bold text-[#1E3A8A] ring-1 ring-[#205089]/50'
-                              : 'bg-white/60 text-slate-400 opacity-40'
-                          }`}
-                        >
-                          {val}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                <MatrixGrid grid={INITIAL_GRID} focus={TARGET_CELL} variant="before" showNeighborhood />
               </div>
 
               <div className="flex flex-col items-center">
@@ -484,35 +340,11 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
                 <span className="text-xs font-black text-[#059669]">TIẾN HÓA</span>
               </div>
 
-              {/* After Grid (Only Target Cell Changes) */}
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-bold text-[#065F46]">
-                  Sau: Bước t+1 cục bộ (Ô ({TARGET_ROW}, {TARGET_COL}) = 8)
+                  Sau: Bước t+1 cục bộ (Ô ({TARGET_CELL.r}, {TARGET_CELL.c}) = 8)
                 </span>
-                <div className="grid grid-cols-12 gap-0.5 rounded-xl border-2 border-[#10B981]/40 bg-[#F0FDF4] p-2 sm:gap-1">
-                  {SINGLE_CELL_UPDATED_GRID_12X12.map((row, rIdx) =>
-                    row.map((val, cIdx) => {
-                      const isTarget = rIdx === TARGET_ROW && cIdx === TARGET_COL;
-                      const isNeighbor =
-                        Math.abs(rIdx - TARGET_ROW) <= 1 && Math.abs(cIdx - TARGET_COL) <= 1;
-
-                      return (
-                        <div
-                          key={`after-single-${rIdx}-${cIdx}`}
-                          className={`flex size-5 items-center justify-center rounded font-mono text-[10px] transition-all sm:size-6 sm:text-xs ${
-                            isTarget
-                              ? 'scale-125 bg-[#059669] font-black text-white shadow-lg ring-3 ring-[#10B981]/70'
-                              : isNeighbor
-                              ? 'bg-[#DCE7F5] font-bold text-[#1E3A8A] ring-1 ring-[#205089]/30'
-                              : 'bg-white/60 text-slate-400 opacity-40'
-                          }`}
-                        >
-                          {val}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                <MatrixGrid grid={SINGLE_CELL_UPDATED_GRID} focus={TARGET_CELL} variant="after" showNeighborhood />
               </div>
             </div>
           </div>
@@ -532,40 +364,12 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
               </div>
             </div>
 
-            {/* Before vs After Grid Transition (Parallel Update) */}
             <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-              {/* Before Grid */}
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-bold text-[#64748B]">
                   Trước: Bước t (Ô ({inspR}, {inspC}) = {valBefore})
                 </span>
-                <div className="grid grid-cols-12 gap-0.5 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:gap-1">
-                  {INITIAL_GRID_12X12.map((row, rIdx) =>
-                    row.map((val, cIdx) => {
-                      const isInspected = rIdx === inspR && cIdx === inspC;
-                      const isInspectedNeighbor =
-                        Math.abs(rIdx - inspR) <= 1 && Math.abs(cIdx - inspC) <= 1;
-
-                      return (
-                        <button
-                          key={`before-p-${rIdx}-${cIdx}`}
-                          type="button"
-                          onClick={() => setInspectedCell({ r: rIdx, c: cIdx })}
-                          title={`Ô (${rIdx}, ${cIdx}) = ${val}. Nhấn để soi`}
-                          className={`flex size-5 items-center justify-center rounded font-mono text-[10px] sm:size-6 sm:text-xs cursor-pointer transition-all ${
-                            isInspected
-                              ? 'scale-110 bg-[#205089] font-bold text-white shadow ring-2 ring-[#205089] z-20'
-                              : isInspectedNeighbor
-                              ? 'bg-[#DCE7F5] font-semibold text-[#1E3A8A] ring-1 ring-[#205089]/40 z-10'
-                              : 'bg-white/80 text-slate-500 hover:bg-slate-200'
-                          }`}
-                        >
-                          {val}
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
+                <MatrixGrid grid={INITIAL_GRID} focus={inspectedCell} variant="before" showNeighborhood onCellSelect={setInspectedCell} />
               </div>
 
               <div className="flex flex-col items-center">
@@ -573,40 +377,16 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
                 <span className="text-xs font-black text-[#059669]">SONG SONG</span>
               </div>
 
-              {/* After Grid (All 144 cells updated simultaneously, inspected cell highlighted) */}
               <div className="flex flex-col items-center">
                 <span className="mb-2 text-xs font-bold text-[#065F46]">
                   Sau: Bước t+1 (Ô ({inspR}, {inspC}) = {valAfter})
                 </span>
-                <div className="grid grid-cols-12 gap-0.5 rounded-xl border-2 border-[#10B981]/40 bg-[#F0FDF4] p-2 sm:gap-1">
-                  {PARALLEL_UPDATED_GRID_12X12.map((row, rIdx) =>
-                    row.map((val, cIdx) => {
-                      const isInspected = rIdx === inspR && cIdx === inspC;
-
-                      return (
-                        <button
-                          key={`after-parallel-${rIdx}-${cIdx}`}
-                          type="button"
-                          onClick={() => setInspectedCell({ r: rIdx, c: cIdx })}
-                          title={`Ô (${rIdx}, ${cIdx}) = ${val}. Nhấn để soi`}
-                          className={`flex size-5 items-center justify-center rounded font-mono text-[10px] transition-all duration-200 sm:size-6 sm:text-xs cursor-pointer ${
-                            isInspected
-                              ? 'scale-125 bg-[#059669] font-black text-white shadow-lg ring-3 ring-[#10B981]/70 z-20'
-                              : 'bg-white text-slate-600 hover:bg-slate-100'
-                          }`}
-                        >
-                          {val}
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
+                <MatrixGrid grid={PARALLEL_UPDATED_GRID} focus={inspectedCell} variant="after" onCellSelect={setInspectedCell} />
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 6: pedagogical propagation illustration */}
         {step === 5 && (
           <div className="flex flex-col items-center justify-center gap-5">
             <div className="text-center max-w-xl">
@@ -615,44 +395,17 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
               </div>
             </div>
 
-            {/* 12x12 Growing Grid Display (Auto-running Loop) */}
             <div className="flex flex-col items-center">
               <div className="mb-2 flex items-center justify-between w-full max-w-xs text-xs">
                 <span className="font-bold text-slate-700">
-                  Bước thời gian: <span className="font-mono text-[#205089]">t = {growthT}</span>
+                  Bước thời gian: <span className="font-mono text-[#205089]">t = {propagationStep}</span>
                 </span>
                 <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  {aliveCount} / 144 tế bào ({alivePercent}%)
+                  {activeCellCount} / {CELL_COUNT} tế bào ({activeCellPercent}%)
                 </span>
               </div>
 
-              <div className="grid grid-cols-12 gap-0.5 rounded-2xl border-2 border-[#B8C8DA] bg-slate-100 p-2.5 shadow-md sm:gap-1">
-                {currentGrowthGrid.map((row, rIdx) =>
-                  row.map((val, cIdx) => {
-                    const isZero = val === 0;
-                    const isSeed = rIdx === SEED_ROW && cIdx === SEED_COL;
-                    const dist = Math.max(Math.abs(rIdx - SEED_ROW), Math.abs(cIdx - SEED_COL));
-                    const isWaveFront = dist === growthT && growthT > 0 && !isZero;
-
-                    return (
-                      <div
-                        key={`growth-${rIdx}-${cIdx}`}
-                        className={`flex size-5 items-center justify-center rounded font-mono text-[10px] sm:size-7 sm:text-xs transition-all duration-300 ${
-                          isSeed
-                            ? 'scale-110 bg-[#205089] font-black text-white shadow-md ring-2 ring-[#205089] z-10'
-                            : isWaveFront
-                            ? 'scale-105 bg-amber-100 font-black text-amber-900 ring-1 ring-amber-400 shadow-xs'
-                            : !isZero
-                            ? 'bg-[#ECFDF5] font-bold text-[#065F46] border border-[#10B981]/40'
-                            : 'bg-slate-50 text-slate-300 border border-slate-200/40 opacity-40 font-normal'
-                        }`}
-                      >
-                        {val}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+              <MatrixGrid grid={currentPropagationGrid} focus={TARGET_CELL} variant="propagation" waveRadius={propagationStep} />
             </div>
           </div>
         )}
