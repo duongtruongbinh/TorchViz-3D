@@ -559,7 +559,8 @@ type ConceptVisual =
     | 'decode'
     | 'real-vector'
     | 'permutation'
-    | 'tree-graph';
+    | 'tree-graph'
+    | 'cellular-neighborhood';
 
 type ConceptFlowItem = {
   title: string;
@@ -568,6 +569,7 @@ type ConceptFlowItem = {
   math?: string;
   visual?: ConceptVisual;
   tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
+  example?: string;
 };
 
 export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: ConceptFlowItem[] }) {
@@ -612,6 +614,15 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
                 <p className={cx('mt-2.5 whitespace-pre-line text-xs leading-relaxed sm:text-sm', themeClasses.bodyText)}>
                   {renderContentWithMath(item.detail)}
                 </p>
+              ) : null}
+              {item.example ? (
+                <div className="mt-auto">
+                  <div className={cx('my-3.5 border-t-2', themeClasses.semantic.neutral.border)} />
+                  <div className={cx('text-xs leading-relaxed sm:text-sm', themeClasses.semantic.neutral.text)}>
+                    <span className={cx('font-bold', themeClasses.semantic.neutral.strongText)}>Ví dụ:</span>{' '}
+                    {renderContentWithMath(item.example)}
+                  </div>
+                </div>
               ) : null}
               {formula ? (
                 <div className={cx(
@@ -765,6 +776,7 @@ type SemanticConceptVisual = Extract<ConceptVisual,
   | 'optimization-landscape'
   | 'genetic-algorithm'
   | 'genetic-programming'
+  | 'cellular-neighborhood'
 >;
 
 const SEMANTIC_CONCEPT_VISUALS = new Set<ConceptVisual>([
@@ -778,6 +790,7 @@ const SEMANTIC_CONCEPT_VISUALS = new Set<ConceptVisual>([
   'optimization-landscape',
   'genetic-algorithm',
   'genetic-programming',
+  'cellular-neighborhood',
 ]);
 
 function isSemanticConceptVisual(visual: ConceptVisual): visual is SemanticConceptVisual {
@@ -949,6 +962,69 @@ function SemanticConceptSvg({ visual }: { visual: SemanticConceptVisual }) {
         {cells.map((index) => (
           <rect key={`bottom-${index}`} x={18 + index * 13} y="50" width="9" height="11" rx="1.5" fill="currentColor" opacity={0.82} />
         ))}
+      </svg>
+    );
+  }
+
+  if (visual === 'cellular-neighborhood') {
+    const colX = [33, 49, 65];
+    const rowY = [9, 25, 41];
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        {/* Scanning focus viewfinder brackets */}
+        <path
+          d="M26 15 V8 H33 M79 8 H86 V15 M26 49 V56 H33 M79 56 H86 V49"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.45"
+        />
+        {/* Sensory lines from diagonal neighbors to center */}
+        <g stroke="currentColor" strokeWidth="1.2" strokeDasharray="2 2" opacity="0.4">
+          <line x1="41" y1="17" x2="51" y2="27" />
+          <line x1="71" y1="17" x2="61" y2="27" />
+          <line x1="41" y1="47" x2="51" y2="37" />
+          <line x1="71" y1="47" x2="61" y2="37" />
+        </g>
+        {/* 3x3 Grid Cells */}
+        {rowY.flatMap((y, rIdx) =>
+          colX.map((x, cIdx) => {
+            const isCenter = rIdx === 1 && cIdx === 1;
+            if (isCenter) {
+              return (
+                <g key={`cell-${rIdx}-${cIdx}`}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width="14"
+                    height="14"
+                    rx="3"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <circle cx={x + 7} cy={y + 7} r="2.5" fill="white" />
+                </g>
+              );
+            }
+            return (
+              <rect
+                key={`cell-${rIdx}-${cIdx}`}
+                x={x}
+                y={y}
+                width="14"
+                height="14"
+                rx="3"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                fill="currentColor"
+                fillOpacity="0.12"
+                opacity="0.75"
+              />
+            );
+          })
+        )}
       </svg>
     );
   }
@@ -1215,30 +1291,79 @@ function ConceptHierarchyConnections({
         />
         <div className={density === 'compact' ? 'pt-5' : 'pt-7'}>
           <span className={cx('mx-auto block w-px sm:hidden', density === 'compact' ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
-          <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(connection.children.length)} aria-hidden="true" />
-          <ul
-            className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
-            style={conceptHierarchyGridStyle(connection.children.length)}
-          >
-            {connection.children.map((child, childIndex) => (
-              <li key={childIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', density === 'compact' ? 'sm:px-1' : 'sm:px-2')}>
-                <span className={cx('mx-auto block w-px', density === 'compact' ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
-                <ConceptHierarchyNodeCard
-                  node={child}
-                  fallbackTone={fallbackTone}
-                  level="deep"
-                  density={density}
-                  toneClasses={toneClasses}
-                  bodyText={bodyText}
-                  isLight={isLight}
-                />
-              </li>
-            ))}
-          </ul>
+          <ConceptHierarchyChildList
+            nodes={connection.children}
+            fallbackTone={fallbackTone}
+            density={density}
+            connector={connector}
+            toneClasses={toneClasses}
+            bodyText={bodyText}
+            isLight={isLight}
+          />
         </div>
       </div>
     );
   });
+}
+
+function ConceptHierarchyChildList({
+  nodes,
+  fallbackTone,
+  density,
+  connector,
+  toneClasses,
+  bodyText,
+  isLight,
+}: {
+  nodes: ConceptHierarchyNode[];
+  fallbackTone: ConceptHierarchyTone;
+  density: ConceptHierarchyDensity;
+  connector: string;
+  toneClasses: ConceptHierarchyToneClasses;
+  bodyText: string;
+  isLight: boolean;
+}) {
+  return (
+    <>
+      <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(nodes.length)} aria-hidden="true" />
+      <ul
+        className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+        style={conceptHierarchyGridStyle(nodes.length)}
+      >
+        {nodes.map((node, index) => {
+          const children = node.children ?? node.nodes ?? [];
+          return (
+            <li key={`${node.title}-${index}`} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', density === 'compact' ? 'sm:px-1' : 'sm:px-2')}>
+              <span className={cx('mx-auto block w-px', density === 'compact' ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
+              <ConceptHierarchyNodeCard
+                node={node}
+                fallbackTone={fallbackTone}
+                level="deep"
+                density={density}
+                toneClasses={toneClasses}
+                bodyText={bodyText}
+                isLight={isLight}
+              />
+              {children.length ? (
+                <div className={cx('w-full', density === 'compact' ? 'mt-1' : 'mt-2')}>
+                  <span className={cx('mx-auto block w-px', density === 'compact' ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
+                  <ConceptHierarchyChildList
+                    nodes={children}
+                    fallbackTone={node.tone ?? fallbackTone}
+                    density={density}
+                    connector={connector}
+                    toneClasses={toneClasses}
+                    bodyText={bodyText}
+                    isLight={isLight}
+                  />
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
 }
 
 export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections, density = 'default' }: {
