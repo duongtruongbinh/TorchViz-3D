@@ -429,6 +429,8 @@ const LESSON_IMAGE_LOADERS = import.meta.glob('../../assets/learning/**/*.{png,j
   query: '?url',
 }) as Record<string, () => Promise<string>>;
 
+const CDN_BASE_URL = (import.meta.env.VITE_ASSETS_CDN_URL as string | undefined)?.trim()?.replace(/\/+$/, '');
+
 export function LessonImage({
   assetPath,
   alt,
@@ -443,32 +445,62 @@ export function LessonImage({
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
   const strings = getStrings(language).learningLab;
-  const normalizedPath = assetPath.replace(/^\/+/, '');
+  const cleanPath = assetPath.replace(/^\/+/, '').replace(/^assets\/learning\//, '');
   const [loadState, setLoadState] = useState<{ key: string; status: 'loading' | 'success' | 'error'; src?: string } | null>(null);
   const [retryVersion, setRetryVersion] = useState(0);
   const loadImage = Object.entries(LESSON_IMAGE_LOADERS)
-    .find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1];
-  const requestKey = `${normalizedPath}/${retryVersion}`;
+    .find(([modulePath]) => modulePath.endsWith(`/assets/learning/${cleanPath}`))?.[1];
+  const requestKey = `${cleanPath}/${retryVersion}`;
 
   useEffect(() => {
+    let isActive = true;
+    setLoadState({ key: requestKey, status: 'loading' });
+
+    if (CDN_BASE_URL) {
+      const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
+      const img = new Image();
+      img.onload = () => {
+        if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
+      };
+      img.onerror = () => {
+        if (loadImage) {
+          void loadImage()
+            .then((imageUrl) => {
+              if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
+            })
+            .catch((error: unknown) => {
+              console.error(`Learning Lab image failed to load from CDN and local fallback: ${cleanPath}`, error);
+              if (isActive) setLoadState({ key: requestKey, status: 'error' });
+            });
+        } else {
+          console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
+          if (isActive) setLoadState({ key: requestKey, status: 'error' });
+        }
+      };
+      img.src = cdnUrl;
+      return () => {
+        isActive = false;
+        img.onload = null;
+        img.onerror = null;
+      };
+    }
+
     if (!loadImage) {
       setLoadState({ key: requestKey, status: 'error' });
       return;
     }
-    let isActive = true;
-    setLoadState({ key: requestKey, status: 'loading' });
     void loadImage()
       .then((imageUrl) => {
         if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
       })
       .catch((error: unknown) => {
-        console.error(`Learning Lab image failed to load: ${normalizedPath}`, error);
+        console.error(`Learning Lab image failed to load: ${cleanPath}`, error);
         if (isActive) setLoadState({ key: requestKey, status: 'error' });
       });
     return () => {
       isActive = false;
     };
-  }, [loadImage, normalizedPath, requestKey]);
+  }, [loadImage, cleanPath, requestKey]);
 
   const currentState = loadState?.key === requestKey ? loadState : null;
   if (!currentState || currentState.status === 'loading') {
