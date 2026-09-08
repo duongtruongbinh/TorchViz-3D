@@ -16,7 +16,7 @@ export const lessonMetadata = {
 Khảo sát phân loại distribution shift trong Continual Pre-training thành ba nhóm dựa trên **phần nào của dữ liệu thay đổi giữa các stage** <Cite paper="shi2024continualSurvey" evidence="cpt-distribution-shifts-01-shi2024continualSurvey" />:
 
 <LessonImage
-  assetPath="continual-learning-llm/01-cpt-distribution-shifts-doodle.png"
+  assetPath="continual-learning-llm/01-cpt-distribution-shifts-doodle.webp"
   alt="Ba doodle card minh họa ba dạng distribution shift trong CPT: Language Shift từ tiếng Anh sang tiếng Trung, Content Shift từ Hóa học sang Sinh học, và Temporal Shift từ năm 2021 sang 2022"
   caption="Ba dạng distribution shift trong Continual Pre-training: Language Shift, Content Shift và Temporal Shift."
 />
@@ -90,7 +90,7 @@ Nghiên cứu này mở rộng continual pre-training tới chuỗi 159 domain <
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/02-cpt-content-shift-yildiz-doodle.png"
+  assetPath="continual-learning-llm/02-cpt-content-shift-yildiz-doodle.webp"
   alt="Ba doodle card minh họa thí nghiệm 159 domain của Yıldız et al.: chuỗi 159 domain, ảnh hưởng của thứ tự xuất hiện domain, và câu hỏi về scaling ở các model lớn"
   caption="Thí nghiệm 159 domain của Yıldız et al. cho thấy việc học tuần tự có thể tốt hơn DAP riêng lẻ, nhưng hiệu quả phụ thuộc thứ tự domain và độ tương đồng."
 />
@@ -114,7 +114,7 @@ Thí nghiệm cho thấy learning-rate re-warming ảnh hưởng đáng kể t�
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/03-cpt-content-shift-gupta-doodle.png"
+  assetPath="continual-learning-llm/03-cpt-content-shift-gupta-doodle.webp"
   alt="Ba doodle card minh họa learning-rate re-warming của Gupta et al.: re-warm learning rate khi đổi corpus, loss tạm thời tăng vọt trước khi giảm sâu, và khả năng thích nghi dài hạn tốt hơn"
   caption="Re-warming learning rate giúp model mở khóa khả năng thích nghi khi tiếp tục pre-train trên corpus mới mà chưa cần thuật toán CL phức tạp."
 />
@@ -136,7 +136,7 @@ Trong các setup được kiểm tra, re-warming, re-decay và replay tạo mộ
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/04-cpt-content-shift-ibrahim-doodle.png"
+  assetPath="continual-learning-llm/04-cpt-content-shift-ibrahim-doodle.webp"
   alt="Ba doodle card minh họa recipe của Ibrahim et al.: chu kỳ re-warm và re-decay learning rate, trộn replay dữ liệu cũ với dữ liệu mới, và cân bằng hiệu năng với full retraining ở chi phí compute thấp"
   caption="Kết hợp re-warming, re-decay và replay dữ liệu cũ tạo một recipe CPT hiệu quả cạnh tranh với full retraining."
 />
@@ -158,7 +158,7 @@ LLPT đánh giá đồng thời acquisition, retention và transfer trên các d
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/05-cpt-content-shift-llpt-doodle.png"
+  assetPath="continual-learning-llm/05-cpt-content-shift-llpt-doodle.webp"
   alt="Ba doodle card minh họa LLPT của Jin et al.: luồng dữ liệu bài báo và tweet tuần tự, distillation giúp bảo vệ tri thức cũ, và nguy cơ overfitting khi dùng replay buffer"
   caption="LLPT đánh giá toàn diện acquisition, retention và transfer trên data stream tuần tự, cho thấy distillation bảo vệ downstream task tốt nhất."
 />
@@ -182,7 +182,7 @@ Recyclable Tuning tái sử dụng adapted weights khi supplier phát hành chec
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/06-cpt-content-shift-recyclable-tuning-doodle.png"
+  assetPath="continual-learning-llm/06-cpt-content-shift-recyclable-tuning-doodle.webp"
   alt="Ba doodle card minh họa Recyclable Tuning: nhà cung cấp phát hành checkpoint mới, tái sử dụng adapter đã học thay vì bỏ đi, và tăng tốc hội tụ cho consumer"
   caption="Recyclable Tuning giúp consumer tái sử dụng adapted weights khi upstream model nâng cấp checkpoint, giảm mạnh chi phí thích nghi."
 />
@@ -206,7 +206,7 @@ DEMix dùng các expert theo domain để cô lập và kết hợp tri thức t
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/07-cpt-content-shift-demix-doodle.png"
+  assetPath="continual-learning-llm/07-cpt-content-shift-demix-doodle.webp"
   alt="Ba doodle card minh họa DEMix: các module expert chuyên biệt cho từng domain, khả năng thêm gỡ domain mà không cần full retraining, và cơ chế định tuyến hỗn hợp theo trọng số"
   caption="DEMix sử dụng kiến trúc MoE theo domain để cô lập tri thức từng chuyên ngành và linh hoạt kết hợp khi gặp domain mới."
 />
@@ -228,7 +228,7 @@ Lifelong-MoE mở rộng các expert chuyên biệt cho distribution mới trong
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/08-cpt-content-shift-lifelong-moe-doodle.png"
+  assetPath="continual-learning-llm/08-cpt-content-shift-lifelong-moe-doodle.webp"
   alt="Ba doodle card minh họa Lifelong-MoE: mở rộng expert mới đồng thời khóa expert cũ, duy trì chi phí compute cố định mỗi token nhờ token-level gating, và bảo vệ 19 downstream task bằng distillation"
   caption="Lifelong-MoE mở rộng capacity cho distribution mới nhưng giữ compute mỗi token ổn định nhờ routing và đóng băng expert cũ."
 />
@@ -250,7 +250,7 @@ Trong protocol được khảo sát, self-supervised continual pre-training gi�
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/09-cpt-content-shift-cossu-doodle.png"
+  assetPath="continual-learning-llm/09-cpt-content-shift-cossu-doodle.webp"
   alt="Ba doodle card minh họa Cossu et al.: chuỗi 5 tập dữ liệu khoa học, biểu diễn nội tại được neo giữ ổn định, và các downstream task được bảo toàn mà không cần thuật toán phức tạp"
   caption="Self-supervised continual pre-training cho thấy trong một số điều kiện, objective tự giám sát cơ bản đã đủ duy trì tính ổn định của representation."
 />
@@ -305,7 +305,7 @@ CKL tách việc đo retention, acquisition và update của factual knowledge t
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/10-cpt-temporal-shift-ckl-doodle.png"
+  assetPath="continual-learning-llm/10-cpt-temporal-shift-ckl-doodle.webp"
   alt="Ba doodle card minh họa benchmark CKL của Jang et al.: ba thước đo tri thức (retention, acquisition, update), mở rộng tham số để tăng capacity, và hạn chế của replay khi cập nhật fact mới"
   caption="CKL phân tách việc đo lường thành 3 mục tiêu độc lập: duy trì fact bất biến, tiếp thu fact mới và cập nhật fact đã thay đổi theo thời gian."
 />

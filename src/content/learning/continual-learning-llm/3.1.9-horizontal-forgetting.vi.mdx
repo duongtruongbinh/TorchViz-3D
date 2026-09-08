@@ -15,7 +15,7 @@ export const lessonMetadata = {
 Trong lifelong pretraining, <Cite paper="jin2022lifelong" evidence="horizontal-forgetting-02-jin2022lifelong" /> đánh giá trực tiếp hai phía này: thích nghi với emerging corpora và giữ downstream performance trên các domain đã học trước đó.
 
 <LessonImage
-  assetPath="continual-learning-llm/01-horizontal-forgetting-overview.png"
+  assetPath="continual-learning-llm/01-horizontal-forgetting-overview.webp"
   alt="Model lần lượt học các stage S1, S2 và S3; khi ưu tiên stage mới, hệ thống phải cân bằng việc giữ năng lực cũ, nếu không hiệu năng S1 và S2 giảm sau cập nhật"
   caption="Horizontal CL phải cân bằng học stage mới và giữ các stage cũ. Nếu update nghiêng quá mạnh về dữ liệu mới, hiệu năng lịch sử có thể giảm dù stage hiện tại được cải thiện."
 />
@@ -47,7 +47,7 @@ Mỗi lần cập nhật đều có thể làm hiệu năng trên lịch sử gi
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/02-horizontal-long-task-sequence.png"
+  assetPath="continual-learning-llm/02-horizontal-long-task-sequence.webp"
   alt="Ba hệ quả của chuỗi task dài: model được cập nhật nhiều lần, hiệu năng các stage cũ giảm tích lũy theo thời gian, và continual ensemble đánh đổi thêm memory cùng compute để kết hợp nhiều checkpoint"
   caption="Chuỗi càng dài càng có nhiều lần update và forgetting có thể tích lũy. Continual ensemble giữ nhiều checkpoint để bảo toàn lịch sử nhưng làm tăng memory và compute."
 />
@@ -66,7 +66,7 @@ Trong Vertical CL, hướng chuyển đổi thường đã biết trước: từ
 ]} />
 
 <LessonImage
-  assetPath="continual-learning-llm/03-horizontal-gradual-abrupt-shift.png"
+  assetPath="continual-learning-llm/03-horizontal-gradual-abrupt-shift.webp"
   alt="So sánh gradual shift với dữ liệu thay đổi nhẹ qua nhiều thời điểm và còn chồng lấn, với abrupt shift chuyển đột ngột sang domain pháp lý khiến distribution mới cách xa distribution cũ"
   caption="Gradual shift giữ nhiều overlap giữa các stage liền kề; abrupt shift tạo khoảng cách distribution lớn hơn nên tín hiệu học mới dễ xung đột với knowledge cũ."
 />

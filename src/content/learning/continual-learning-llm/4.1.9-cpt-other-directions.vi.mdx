@@ -13,7 +13,7 @@ CPT không chỉ dùng để thích nghi với distribution shift. Nó còn có 
 CEM bắt đầu bằng việc đánh giá model, thu thập các câu model trả lời sai, rồi bổ sung knowledge liên quan đến những lỗi đó vào dữ liệu train tiếp. Đơn vị được ưu tiên ở đây là **example**: model sai ở đâu thì tập trung cải thiện ở đó. <Cite paper="zhao2024large" evidence="cpt-other-directions-01-zhao2024large" />
 
 <LessonImage
-  assetPath="continual-learning-llm/03-cpt-cem-tradeoff.png"
+  assetPath="continual-learning-llm/03-cpt-cem-tradeoff.webp"
   alt="Hai card ưu điểm và hạn chế của CEM: tập trung vào knowledge gap để cải thiện QA đa domain, nhưng cần bước đánh giá, dữ liệu bổ sung và bằng chứng hiện chủ yếu đến từ QA"
   caption="CEM tập trung compute vào lỗi đã quan sát được, đổi lại pipeline phải phát hiện đúng lỗi và tìm được knowledge bổ sung phù hợp."
 />
@@ -23,7 +23,7 @@ CEM bắt đầu bằng việc đánh giá model, thu thập các câu model tr�
 RHO-1 đề xuất **Selective Language Modeling (SLM)**. Một reference model đã học từ dữ liệu chất lượng cao giúp chấm từng token; model đang train chỉ nhận loss từ những token có **excess loss** cao, tức là còn khó với model hiện tại nhưng phù hợp với distribution mục tiêu. Vì vậy, phương pháp không đơn giản giữ mọi token có perplexity cao: token khó do nhiễu vẫn có thể bị loại. <Cite paper="lin2024rho" evidence="cpt-other-directions-02-lin2024rho" />
 
 <LessonImage
-  assetPath="continual-learning-llm/04-cpt-rho1-tradeoff.png"
+  assetPath="continual-learning-llm/04-cpt-rho1-tradeoff.webp"
   alt="Hai card ưu điểm và hạn chế của RHO-1: chọn token đáng học để tăng hiệu quả token, nhưng cần reference model và phụ thuộc distribution tham chiếu"
   caption="RHO-1 lọc loss ở token level; chất lượng lựa chọn phụ thuộc mạnh vào reference model và corpus chất lượng cao dùng để huấn luyện nó."
 />
@@ -33,7 +33,7 @@ RHO-1 đề xuất **Selective Language Modeling (SLM)**. Một reference model 
 IR-DRO chuyển mức focus từ token sang **sequence**. Phương pháp gán trọng số lớn hơn cho các đoạn có loss cao vừa phải vì chúng thường còn chứa tín hiệu hữu ích; những sequence có loss cao nhất có thể là dữ liệu nhiễu hoặc quá phức tạp nên không được ưu tiên vô điều kiện. <Cite paper="chen2024take" evidence="cpt-other-directions-03-chen2024take" />
 
 <LessonImage
-  assetPath="continual-learning-llm/05-cpt-ir-dro-tradeoff.png"
+  assetPath="continual-learning-llm/05-cpt-ir-dro-tradeoff.webp"
   alt="Hai card ưu điểm và hạn chế của IR-DRO: reweight sequence giàu thông tin để cải thiện nhiều benchmark, nhưng loss cao có thể đến từ nhiễu và kết quả chưa bao phủ mọi data stream"
   caption="IR-DRO ưu tiên sequence có tín hiệu hữu ích thay vì mặc định sequence loss cao nhất luôn tốt; khả năng tổng quát sang data stream mới vẫn cần kiểm chứng."
 />
@@ -43,7 +43,7 @@ IR-DRO chuyển mức focus từ token sang **sequence**. Phương pháp gán tr
 Với dữ liệu biến đổi nhanh như tweet, <Cite paper="amba2021dynamic" evidence="cpt-other-directions-04-amba2021dynamic" /> cập nhật BERT bằng dynamic vocabulary expansion và subsampling để ưu tiên phần dữ liệu mới hữu ích. <Cite paper="loureiro2022timelms" evidence="cpt-other-directions-05-loureiro2022timelms" /> chọn một recipe đơn giản hơn: phát hành các model dựa trên RoBERTa được train tiếp mỗi ba tháng trên tweet mới, không thêm ràng buộc đặc biệt để giữ model gần checkpoint cũ.
 
 <LessonImage
-  assetPath="continual-learning-llm/06-cpt-industrial-updates-tradeoff.png"
+  assetPath="continual-learning-llm/06-cpt-industrial-updates-tradeoff.webp"
   alt="Hai card ưu điểm và hạn chế của cập nhật công nghiệp: CPT định kỳ rẻ hơn train lại từ đầu, nhưng bằng chứng chủ yếu đến từ Twitter với BERT hoặc RoBERTa và vẫn cần compute cùng đánh giá lại"
   caption="Cập nhật định kỳ giảm nhu cầu rebuild model, nhưng không loại bỏ chi phí training và kiểm tra lại knowledge cũ sau mỗi đợt."
 />
@@ -53,7 +53,7 @@ Với dữ liệu biến đổi nhanh như tweet, <Cite paper="amba2021dynamic" 
 Không phải mọi data stream đều cần cập nhật model liên tục. Attanasio et al. không tìm thấy lợi ích downstream ổn định khi temporal adaptation các model tiếng Anh trên dữ liệu social media, trong khi continuous training tạo thêm phát thải $\text{CO}_2$. Finding này đặt ra câu hỏi **khi nào lợi ích cập nhật đủ lớn để bù chi phí**, chứ không chứng minh CPT luôn không cần thiết. <Cite paper="attanasio2023worth" evidence="cpt-other-directions-06-attanasio2023worth" />
 
 <LessonImage
-  assetPath="continual-learning-llm/07-cpt-sustainability-tradeoff.png"
+  assetPath="continual-learning-llm/07-cpt-sustainability-tradeoff.webp"
   alt="Hai card ưu điểm và hạn chế khi đánh giá sustainability của CPT: cân bằng hiệu quả task, compute và CO2 qua nhiều thời điểm, model và task, nhưng phạm vi hiện chủ yếu là English social media và benchmark temporal còn thiếu"
   caption="Quyết định CPT cần cân bằng lợi ích task với compute và phát thải; bằng chứng hiện tại vẫn bị giới hạn bởi phạm vi dữ liệu và benchmark temporal."
 />

@@ -58,5 +58,7 @@ Important:
 
 ## Generation Parameters
 - **AspectRatio**: `16:9`
-- **Output naming**: all lowercase with underscores, e.g. `mlops_batch_vs_realtime.png`
-- **Placement**: Save in `public/assets/learning/[domain-id]/` or appropriate asset folder.
+- **Format**: Always **WebP** (`.webp`). The `generate_image` tool outputs a PNG artifact by default. The agent must convert the generated PNG artifact to WebP (`quality=85, method=6` using Pillow/Python) before storing it in the repository, and delete the temporary PNG. Never save or commit raw uncompressed `.png` files in `src/assets/`.
+- **Output naming**: all lowercase with kebab-case or underscores, e.g. `01-mlops-batch-vs-realtime.webp`
+- **Placement**: Save in `src/assets/learning/[domain-id]/` (or the appropriate domain subfolder).
+- **Referencing**: Reference in MDX via `<LessonImage assetPath="[domain-id]/[file-name].webp" alt="..." caption="..." />`.

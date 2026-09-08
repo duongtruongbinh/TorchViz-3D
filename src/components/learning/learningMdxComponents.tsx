@@ -444,10 +444,16 @@ export function LessonImage({
   const { language } = useLearningMdxLesson();
   const strings = getStrings(language).learningLab;
   const normalizedPath = assetPath.replace(/^\/+/, '');
+  const webpFallbackPath = normalizedPath.endsWith('.png')
+    ? normalizedPath.replace(/\.png$/, '.webp')
+    : null;
   const [loadState, setLoadState] = useState<{ key: string; status: 'loading' | 'success' | 'error'; src?: string } | null>(null);
   const [retryVersion, setRetryVersion] = useState(0);
   const loadImage = Object.entries(LESSON_IMAGE_LOADERS)
-    .find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1];
+    .find(([modulePath]) => (
+      modulePath.endsWith(`/assets/learning/${normalizedPath}`)
+      || (webpFallbackPath ? modulePath.endsWith(`/assets/learning/${webpFallbackPath}`) : false)
+    ))?.[1];
   const requestKey = `${normalizedPath}/${retryVersion}`;
 
   useEffect(() => {

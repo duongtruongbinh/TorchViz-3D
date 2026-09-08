@@ -15,7 +15,7 @@ export const lessonMetadata = {
 Trong Vertical CL, distribution upstream thường bao phủ một phần distribution downstream <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-02-shi2024continualSurvey" />. Vì vậy, model không bắt đầu từ số 0: checkpoint tổng quát đã cung cấp representation và knowledge hữu ích cho stage tiếp theo.
 
 <LessonImage
-  assetPath="continual-learning-llm/01-vertical-forgetting-overview.png"
+  assetPath="continual-learning-llm/01-vertical-forgetting-overview.webp"
   alt="Bốn bước của vertical forgetting: model nhận knowledge upstream, thích nghi xuống các tầng chuyên biệt, một phần năng lực cũ suy giảm, nhưng mỗi tầng vẫn kế thừa checkpoint trước thay vì học lại từ đầu"
   caption="Model đi xuống vertical pipeline bằng cách kế thừa knowledge từ tầng trước. Quá trình thích nghi tạo năng lực chuyên biệt mới nhưng có thể làm suy giảm một phần năng lực upstream."
 />
@@ -50,7 +50,7 @@ Fine-tune mạnh cho hai nhãn `Positive/Negative` có thể thay đổi represe
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/02-vertical-task-heterogeneity-mitigation.png"
+  assetPath="continual-learning-llm/02-vertical-task-heterogeneity-mitigation.webp"
   alt="Hai cách giảm task heterogeneity: đóng băng backbone và chỉ cập nhật head hoặc adapter; hoặc đưa classification và generation về cùng dạng input-output bằng văn bản"
   caption="Có thể giảm task heterogeneity bằng cách hạn chế phần tham số được cập nhật hoặc đồng nhất cách biểu diễn task giữa upstream và downstream."
 />

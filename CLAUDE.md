@@ -68,7 +68,7 @@ For Learning Lab UI/component ownership and reuse rules, consult [wiki/concepts/
 
 ## Learning Lab Image Generation
 
-When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
+When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors. Always convert generated assets to `.webp` format before placing in `src/assets/learning/`.
 
 ## Gotchas
 

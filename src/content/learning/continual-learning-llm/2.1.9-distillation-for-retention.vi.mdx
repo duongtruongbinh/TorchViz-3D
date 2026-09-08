@@ -71,7 +71,7 @@ Trang tiếp theo triển khai ý tưởng này bằng **knowledge distillation*
 **Knowledge distillation** bắt nguồn từ một motivation đơn giản: một model đã học tốt chứa nhiều thông tin hơn những gì nhãn đúng/sai thể hiện. Thay vì để model mới chỉ học lại từ nhãn cứng, ta cho nó quan sát cách model cũ phản hồi trên cùng input.
 
 <LessonImage
-  assetPath="continual-learning-llm/01-knowledge-distillation-teacher-student-overview.png"
+  assetPath="continual-learning-llm/01-knowledge-distillation-teacher-student-overview.webp"
   alt="Minh họa motivation của distillation, cách teacher truyền cách phản hồi cho student và cách áp dụng trong continual learning"
 />
 
@@ -91,7 +91,7 @@ Trong continual learning, ta thiết lập hai vai trò như sau:
    - **Student:** tiếp tục được fine-tune trên Task B.
 
 <LessonImage
-  assetPath="continual-learning-llm/02-knowledge-distillation-teacher-student-checkpoint.png"
+  assetPath="continual-learning-llm/02-knowledge-distillation-teacher-student-checkpoint.webp"
   alt="Ba bước thiết lập teacher và student từ cùng checkpoint: học xong Task A, tách hai bản giống nhau, rồi đóng băng teacher và fine-tune student trên Task B"
 />
 
@@ -120,7 +120,7 @@ Khi học Task B, cùng một input <InlineMath formula="x" /> được đưa qu
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/03-knowledge-distillation-teacher-student-loss-flow.png"
+  assetPath="continual-learning-llm/03-knowledge-distillation-teacher-student-loss-flow.webp"
   alt="Bốn bước distillation: đưa cùng input qua teacher và student, lấy kết quả teacher làm mốc, so với kết quả student và chỉ cập nhật student bằng distillation loss"
 />
 
@@ -156,7 +156,7 @@ Khi học Task B, cùng một input <InlineMath formula="x" /> được đưa qu
 Trong đó idea mở rộng ý tưởng distillation từ output sang các intermediate representations là của FitNets <Cite paper="romero2014fitnets" evidence="distillation-retention-02-romero2014fitnets" />.
 
 <LessonImage
-  assetPath="continual-learning-llm/04-knowledge-distillation-signal-types.png"
+  assetPath="continual-learning-llm/04-knowledge-distillation-signal-types.webp"
   alt="So sánh ba loại tín hiệu để match teacher: logits trước softmax, probabilities sau softmax có temperature và intermediate representations cần căn chỉnh shape"
 />
 

@@ -22,7 +22,7 @@ export const lessonMetadata = {
 
 Large Language Model thường được tiền huấn luyện (pre-training) trên một lượng dữ liệu cố định. Sau khi huấn luyện kết thúc, tham số và tri thức của mô hình không được tự động cập nhật trong khi dữ liệu, tính chất bài toán và nhu cầu sử dụng tiếp tục thay đổi.
 
-<LessonImage assetPath="continual-learning-llm/01-static-pretraining-world-changes.png" alt="Bốn bước: chụp snapshot dữ liệu, pre-train, đóng băng mô hình và thế giới tiếp tục thay đổi" caption="Mô hình chỉ học từ snapshot tại thời điểm pre-training; khi dữ liệu, xu hướng và task thay đổi, checkpoint đóng băng không tự cập nhật." />
+<LessonImage assetPath="continual-learning-llm/01-static-pretraining-world-changes.webp" alt="Bốn bước: chụp snapshot dữ liệu, pre-train, đóng băng mô hình và thế giới tiếp tục thay đổi" caption="Mô hình chỉ học từ snapshot tại thời điểm pre-training; khi dữ liệu, xu hướng và task thay đổi, checkpoint đóng băng không tự cập nhật." />
 
 </MdxPage>
 
@@ -32,7 +32,7 @@ Large Language Model thường được tiền huấn luyện (pre-training) tr�
 
 Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Theo các quy luật Scaling Laws, chi phí tính toán tăng theo quy luật lũy thừa (power-law) với dung lượng dữ liệu và số lượng tham số <Cite paper="kaplan2020scaling" evidence="overview-retrain-scaling-kaplan" />, đồng thời để huấn luyện tối ưu về mặt compute, quy mô mô hình và số lượng token huấn luyện cần được mở rộng tương đương nhau <Cite paper="hoffmann2022chinchilla" evidence="overview-retrain-scaling-hoffmann" />. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning.
 
-<LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
+<LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.webp" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
 
 </MdxPage>
 
@@ -47,7 +47,7 @@ Nếu toàn bộ dữ liệu lịch sử vẫn còn hợp lệ, có thể truy c
 
 Hai baseline này cho biết mô hình có thể học mới và giữ cũ tốt đến đâu khi không bị giới hạn bởi quyền truy cập dữ liệu lịch sử hoặc ngân sách tính toán. Các phương pháp Continual Learning khác trở nên quan trọng khi ít nhất một trong các điều kiện được nhắc đến bên trên không còn khả thi. Khi đó, mỗi lần model cập nhật phiên bản mới phải cân bằng giữa **tiếp thu năng lực mới (acquisition)**, **giữ lại năng lực cũ (retention)** và **chi phí tính toán (cost)**.
 
-<LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.webp" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
 
 </MdxPage>
 
@@ -76,7 +76,7 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
 />
 
 <LessonImage
-  assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
+  assetPath="continual-learning-llm/01-rag-vs-continual-learning.webp"
   alt="So sánh RAG truy xuất tài liệu vào context nhưng giữ nguyên model với Continual Learning cập nhật model để hình thành kỹ năng mới có thể sử dụng khi không truy xuất"
   caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
 />
@@ -101,7 +101,7 @@ Khóa học này tập trung vào trường hợp thứ hai: model phải thay �
 
 Thay vì retrain từ đầu, lựa chọn hợp lý hơn là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách làm này tiết kiệm hơn nhiều, nhưng khi hàm mục tiêu chỉ tập trung vào dữ liệu mới, mô hình sẽ thiếu đi cơ sở để giữ lại tri thức cũ.
 
-<LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
+<LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.webp" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
 
 <LessonNote>
   Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Hiện tượng nền tảng này được McCloskey và Cohen mô tả dưới tên **catastrophic interference** trong các connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" evidence="overview-catastrophic-interference" />. Chúng ta sẽ phân tích kỹ hơn biểu hiện của nó trong LLM ở các phần tiếp theo.
@@ -115,6 +115,6 @@ Thay vì retrain từ đầu, lựa chọn hợp lý hơn là lấy checkpoint h
 
 Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị <Cite paper="shi2024continualSurvey" evidence="overview-cl-goal" />. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
 
-<LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.png" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.webp" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
 
 </MdxPage>

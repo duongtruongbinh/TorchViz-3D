@@ -35,7 +35,7 @@ Giới hạn thực tế của replay nằm ở 2 thứ:
 Trong thiết lập Domain-Incremental Learning có memory, paper UDIL chứng minh rằng tối ưu ERM trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **generalization bound lỏng hơn** vì sai số trên các domain cũ khó được ước lượng chính xác khi chỉ còn ít mẫu <Cite paper="shi2024unified" evidence="replay-generalization-limit-01-shi2024unified" />. Đây là cảnh báo về độ bảo đảm lý thuyết của objective replay cơ bản, không phải bằng chứng rằng replay luôn thua full retraining về kết quả thực nghiệm.
 
 <LessonImage
-  assetPath="continual-learning-llm/01-replay-buffer-tradeoff.png"
+  assetPath="continual-learning-llm/01-replay-buffer-tradeoff.webp"
   alt="So sánh fine-tune chỉ bằng dữ liệu mới làm năng lực cũ suy giảm với replay trộn dữ liệu mới và một buffer mẫu cũ để giữ cả năng lực cũ lẫn mới"
   caption="Replay đưa một tập mẫu cũ có chọn lọc trở lại batch. Cách này cải thiện retention, nhưng buffer vẫn bị giới hạn bởi quyền dữ liệu, dung lượng lưu trữ, I/O, compute và độ bao phủ phân phối cũ."
 />

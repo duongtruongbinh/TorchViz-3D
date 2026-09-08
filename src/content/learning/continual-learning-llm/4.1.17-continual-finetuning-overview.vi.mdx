@@ -63,7 +63,7 @@ Cùng một mục tiêu kép được áp lên **năm đối tượng thích ngh
 Ở node [**Phân loại kịch bản CL**](/learning/continual-learning-llm/cl-llm-fundamentals?lesson=cl-settings-til-dil-cil), ta đã phân biệt ba kịch bản bằng hai câu hỏi: **phần nào thay đổi sau mỗi stage** và **model có được báo task hiện tại khi inference hay không**.
 
 <LessonImage
-  assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.png"
+  assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.webp"
   alt="Task-Incremental Learning đổi task và dùng task ID, Domain-Incremental Learning giữ task nhưng đổi domain dữ liệu, còn Class-Incremental Learning mở rộng bộ class cần nhận diện"
   caption="Nhắc lại: đổi task, đổi domain và mở rộng class là ba kịch bản khác nhau."
 />
@@ -141,7 +141,7 @@ Một nghiên cứu thực nghiệm quan sát model pre-trained quên ít hơn m
 Nhìn chung, **pre-training có thể giúp model giữ lại nhiều thông tin cũ hơn ta tưởng**, nhưng kết quả mới chỉ được xác nhận trong các setting của hai paper. Survey lưu ý rằng mức quên rất thấp chủ yếu được quan sát ở **representation** — phần biểu diễn thông tin bên trong model. Điều đó chưa bảo đảm model vẫn biến thông tin này thành output đúng.
 
 <LessonImage
-  assetPath="continual-learning-llm/02-cft-representation-vs-output-doodle.png"
+  assetPath="continual-learning-llm/02-cft-representation-vs-output-doodle.webp"
   alt="Ba doodle card cho thấy model trả lời sai task cũ, probe vẫn tách đúng hai nhóm biểu diễn màu xanh và vàng, rồi kết luận các nhóm vẫn còn bên trong nhưng công tắc output đã định tuyến sai"
   caption="Output có thể sai dù probe vẫn đọc được thông tin cũ trong representation."
 />
@@ -161,7 +161,7 @@ Không phải mọi CFT pipeline đều cần một CL architecture phức tạp
 Sau khi liên hệ khả năng chống quên với vùng nghiệm rộng, Mehta et al. đề xuất tối ưu đồng thời **loss của task hiện tại** và **độ sắc của loss basin** để chủ động hướng model tới vùng nghiệm phẳng hơn. <Cite paper="mehta2023empirical" evidence="cft-overview-09-mehta2023empirical" />
 
 <LessonImage
-  assetPath="continual-learning-llm/02-cft-wide-loss-basin-doodle.png"
+  assetPath="continual-learning-llm/02-cft-wide-loss-basin-doodle.webp"
   alt="Hai doodle card so sánh model dễ bị task mới đẩy khỏi một hố nghiệm hẹp với model vẫn ổn định khi nằm trong vùng nghiệm rộng"
   caption="Vùng nghiệm rộng cho update mới nhiều khoảng trống hơn mà không rời khỏi nghiệm tốt."
 />
@@ -178,7 +178,7 @@ Sau khi liên hệ khả năng chống quên với vùng nghiệm rộng, Mehta 
 LR ADJUST điều chỉnh learning rate động để knowledge của ngôn ngữ mới không ghi đè quá mạnh lên các ngôn ngữ đã học. <Cite paper="winata2023overcoming" evidence="cft-overview-10-winata2023overcoming" />
 
 <LessonImage
-  assetPath="continual-learning-llm/02-cft-lr-adjust-doodle.png"
+  assetPath="continual-learning-llm/02-cft-lr-adjust-doodle.webp"
   alt="Hai doodle card cho thấy bước cập nhật quá lớn làm các khối ngôn ngữ cũ đổ, còn learning rate động đưa khối ngôn ngữ mới vào mà giữ các khối cũ đứng vững"
   caption="Điều chỉnh learning rate kiểm soát mức độ mỗi update mới thay đổi model."
 />
@@ -195,7 +195,7 @@ LR ADJUST điều chỉnh learning rate động để knowledge của ngôn ng�
 SEQ* warm-up model rồi freeze PLM và classifier cũ khi học task mới <Cite paper="zheng2023learn" evidence="cft-overview-11-zheng2023learn" />.
 
 <LessonImage
-  assetPath="continual-learning-llm/02-cft-seq-star-doodle.png"
+  assetPath="continual-learning-llm/02-cft-seq-star-doodle.webp"
   alt="Ba doodle card mô tả SEQ star lần lượt warm-up model, đóng băng backbone cùng classifier cũ, rồi đặt task mới vào classifier slot đã chuẩn bị sẵn"
   caption="SEQ*: chuẩn bị representation, khóa phần đã học và dành sẵn capacity cho task mới."
 />
@@ -216,7 +216,7 @@ SEQ* warm-up model rồi freeze PLM và classifier cũ khi học task mới <Cit
 Nhóm giải pháp thứ hai thay đổi cách biểu diễn task hoặc tách capacity để model vừa giữ knowledge riêng vừa chia sẻ knowledge hữu ích.
 
 <LessonImage
-  assetPath="continual-learning-llm/03-cft-format-module-paper-map-doodle.png"
+  assetPath="continual-learning-llm/03-cft-format-module-paper-map-doodle.webp"
   alt="Ba doodle card minh họa CTR tách module riêng và module chia sẻ, LFPT5 đổi nhiều task về text-to-text rồi replay dữ liệu tổng hợp, và C3 dùng teacher cùng student để truyền contextual information vào prompt"
   caption="CTR đổi module sharing, LFPT5 đổi task format, C3 kết hợp teacher–student và prompt."
 />

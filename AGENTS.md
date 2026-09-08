@@ -59,7 +59,7 @@ substantially different in scope or needs its own long-lived reference surface.
 ## Learning Lab Content Authoring & Image Generation
 
 - When authoring lessons, blog posts, or deep-dives for Learning Lab, always follow the universal guidelines defined in [.agents/rules/learning-lab-authoring.md](.agents/rules/learning-lab-authoring.md) (or skill [.agents/skills/learning-lab-authoring/SKILL.md](.agents/skills/learning-lab-authoring/SKILL.md)): minimize italics, selective and concise bold keywords (1–4 words), standard English terms, explicit formula shapes with concrete numbers, 3-tier pedagogical pacing, and catalog sync.
-- When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
+- When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors. Always convert generated assets to `.webp` format before placing in `src/assets/learning/`.
 
 ## Verification
 

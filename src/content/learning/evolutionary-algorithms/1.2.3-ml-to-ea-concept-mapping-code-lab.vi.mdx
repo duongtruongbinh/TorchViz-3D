@@ -85,7 +85,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/07-linear-regression-sample-data.png"
+  assetPath="evolutionary-algorithms/07-linear-regression-sample-data.webp"
   alt="Tập dữ liệu hồi quy tuyến tính mẫu 100 điểm kèm đường Ground Truth"
   caption="Dữ liệu hồi quy mẫu: 100 điểm dữ liệu phân tán quanh đường Ground Truth y = 3.5x + 1.2 với độ nhiễu Gauss sigma = 0.4."
 />
@@ -160,7 +160,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/08-initial-random-population-lines.png"
+  assetPath="evolutionary-algorithms/08-initial-random-population-lines.webp"
   alt="Quần thể ngẫu nhiên ban đầu gồm 60 đường thẳng xiên xẹo khắp mặt phẳng tọa độ"
   caption="Quần thể thế hệ 0: 60 cá thể là 60 đường thẳng ngẫu nhiên (nét xám mờ). Đa số nằm lệch rất xa so với đường thực tế (Ground truth màu xanh lá)."
 />
@@ -251,7 +251,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/09-selection-top10-elites.png"
+  assetPath="evolutionary-algorithms/09-selection-top10-elites.webp"
   alt="Top 10 đường Elite màu cam nổi bật và cá thể tốt nhất màu đỏ so với 50 đường bị loại bỏ"
   caption="Chọn lọc cá thể ưu tú: 50 đường dốc ngược hoặc quá lệch (nét xám mờ) bị loại bỏ; Top 10 đường có xu hướng dốc lên thuận chiều dữ liệu (màu cam) được giữ lại!"
 />
@@ -368,7 +368,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/10-reproduction-mutation-comparison.png"
+  assetPath="evolutionary-algorithms/10-reproduction-mutation-comparison.webp"
   alt="So sánh 2 cột trực quan trước ngẫu nhiên và sau khi đột biến tạo thế hệ con"
   caption="So sánh 2 cột trực quan: Cột trái (Gen 0) là 60 đường ngẫu nhiên xiên xẹo khắp nơi (MSE trung bình 42.26). Cột phải (Gen 1) gồm 10 Elites (màu cam) và 50 con đột biến (màu xanh dương) đã đồng loạt co cụm và bám sát đám mây dữ liệu (MSE trung bình giảm còn 13.38)."
 />
@@ -471,7 +471,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/06-ea-convergence-history.png"
+  assetPath="evolutionary-algorithms/06-ea-convergence-history.webp"
   alt="Đường cong hội tụ MSE qua 50 thế hệ của thuật toán tiến hóa tối giản"
   caption="Đường cong hội tụ MSE: Quần thể giảm mạnh sai số từ 5.77 xuống 0.13 chỉ sau khoảng 10 thế hệ đầu tiên và ổn định ở mức tối ưu."
 />
@@ -542,7 +542,7 @@ plt.show()
 ```
 
 <LessonImage
-  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.png"
+  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.webp"
   alt="Đường hồi quy tìm được bằng thuật toán tiến hóa so với dữ liệu thực tế và đường Ground Truth"
   caption="Với seed của lab, đường EA fitted gần đường least-squares và Ground Truth; sai khác còn lại đến từ nhiễu dữ liệu và ngân sách tìm kiếm."
 />
@@ -561,7 +561,7 @@ plt.show()
 Ở Lab 1, các điểm ngẫu nhiên độc lập không dùng lại kết quả trước. Trong lab này, **Elitism** giữ Top 10 cá thể có MSE thấp, nhờ đó quần thể sau không mất nghiệm tốt nhất đã quan sát. Cơ chế này vẫn có thể làm giảm đa dạng nếu giữ quá nhiều elite.
 
 <LessonImage
-  assetPath="evolutionary-algorithms/09-selection-top10-elites.png"
+  assetPath="evolutionary-algorithms/09-selection-top10-elites.webp"
   alt="Top 10 Elites màu cam được bảo tồn làm cha mẹ thay vì loại bỏ lãng phí"
   caption="Bảo tồn tri thức bằng Elitism: Giữ lại nguyên vẹn Top 10 đường có xu hướng tốt nhất (màu cam), loại bỏ 50 đường sai hướng (nét mờ) nhưng không làm mất đi các tọa độ tiềm năng đã khám phá được."
 />
@@ -572,7 +572,7 @@ plt.show()
 Gaussian Mutation với <InlineMath formula="\sigma = 0.1" /> lấy mẫu cục bộ quanh các elite. Với seed này, sau 50 thế hệ nghiệm đạt <InlineMath formula="w = 3.468, b = 1.194" />, lệch hệ số góc so với baseline Scikit-Learn khoảng **0.0016**; kết quả khác có thể xuất hiện khi đổi seed hoặc hyperparameter.
 
 <LessonImage
-  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.png"
+  assetPath="evolutionary-algorithms/05-ea-linear-regression-fit.webp"
   alt="Nghiệm tìm được bằng thuật toán tiến hóa trùng khít với đường Ground Truth"
   caption="Gaussian mutation thăm dò quanh vùng elite; trong lần chạy này, đường EA fitted gần baseline least-squares."
 />
