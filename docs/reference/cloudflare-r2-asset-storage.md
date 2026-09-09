@@ -55,19 +55,13 @@ Trên giao diện mới của Cloudflare, trong tab **Settings** của bucket (n
 
 ## 3. Cấu Hình Biến Môi Trường
 
-### Trên Vercel Dashboard (Production)
-
-Thêm biến môi trường trong **Vercel Dashboard → Settings → Environment Variables**:
+Thêm biến môi trường trong **Vercel Dashboard → Settings → Environment Variables** (hoặc file `.env` khi dev local):
 
 | Key | Value |
 |-----|-------|
 | `ASSETS_CDN_URL` | `https://pub-xxxx.r2.dev` hoặc custom domain |
 
-> **Lưu ý:** Vercel đọc `ASSETS_CDN_URL` tại build time và `vite.config.ts` sẽ inject vào bundle client qua `define`. **Không dùng tiền tố `VITE_` trên Vercel.**
-
-### Tại máy local (file `.env`)
-
-Tạo hoặc cập nhật file `.env` ở thư mục gốc (đã được `.gitignore`):
+> `vite.config.ts` đọc `ASSETS_CDN_URL` tại build time và inject vào client bundle qua `define`. Cùng một key dùng cho cả Vercel lẫn file `.env` local — không cần tiền tố `VITE_`.
 
 ```env
 # Cloudflare R2 S3 Credentials
@@ -79,9 +73,8 @@ R2_BUCKET_NAME=torchviz-assets
 # Public URL hoặc Custom Domain phục vụ CDN
 R2_PUBLIC_URL=https://assets.yourdomain.com
 
-# Client-side CDN Base URL cho local dev (dùng VITE_ prefix để Vite đọc được)
-# Trên Vercel dùng ASSETS_CDN_URL thay thế (không cần prefix VITE_)
-VITE_ASSETS_CDN_URL=https://pub-xxxxxxxxxxxxxxxx.r2.dev
+# Client-side CDN URL (Vercel env var + local .env đều dùng cùng key này)
+ASSETS_CDN_URL=https://pub-xxxxxxxxxxxxxxxx.r2.dev
 ```
 
 ---
@@ -113,6 +106,6 @@ node scripts/syncR2Assets.ts --force
 ## 5. Cơ Chế Fallback Khi Tải Ảnh
 
 Trong `LessonImage` component (`src/components/learning/learningMdxComponents.tsx`):
-- Biến `ASSETS_CDN_URL` (Vercel) hoặc `VITE_ASSETS_CDN_URL` (local) được resolve tại build time bởi `vite.config.ts` thành hằng số `__ASSETS_CDN_URL__` và inject vào bundle.
-- Khi `__ASSETS_CDN_URL__` có giá trị: Component tải ảnh từ Cloudflare CDN. Nếu gặp lỗi mạng hoặc ảnh chưa sync, hệ thống tự động fallback về bản bundle cục bộ.
-- Khi `__ASSETS_CDN_URL__` rỗng: Component nạp từ bundle cục bộ như thông thường, đảm bảo môi trường dev offline hoạt động mượt mà.
+- `ASSETS_CDN_URL` được `vite.config.ts` đọc lúc build và inject thành hằng `__ASSETS_CDN_URL__` vào bundle.
+- Khi `__ASSETS_CDN_URL__` có giá trị: Component tải ảnh từ Cloudflare CDN. Nếu gặp lỗi, tự động fallback về bundle cục bộ.
+- Khi `__ASSETS_CDN_URL__` rỗng: Nạp từ bundle cục bộ (offline dev vẫn hoạt động bình thường).

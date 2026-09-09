@@ -186,11 +186,8 @@ function pyodideAssetsPlugin(): Plugin {
   };
 }
 
-// Resolve CDN base URL: prefer ASSETS_CDN_URL (used on Vercel / CI) then
-// fall back to VITE_ASSETS_CDN_URL (used for local .env development).
-const resolvedAssetsCdnUrl = (
-  process.env.ASSETS_CDN_URL ?? process.env.VITE_ASSETS_CDN_URL ?? ''
-).trim().replace(/\/+$/, '');
+// Resolve CDN base URL from ASSETS_CDN_URL env var (set on Vercel and in local .env).
+const resolvedAssetsCdnUrl = (process.env.ASSETS_CDN_URL ?? '').trim().replace(/\/+$/, '');
 
 export default defineConfig({
   server: {
