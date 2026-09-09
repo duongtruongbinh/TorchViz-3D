@@ -186,10 +186,18 @@ function pyodideAssetsPlugin(): Plugin {
   };
 }
 
+// Resolve CDN base URL from ASSETS_CDN_URL env var (set on Vercel and in local .env).
+const resolvedAssetsCdnUrl = (process.env.ASSETS_CDN_URL ?? '').trim().replace(/\/+$/, '');
+
 export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
+  },
+  define: {
+    // Injected at build time into the client bundle so both ASSETS_CDN_URL
+    // (Vercel env var) and VITE_ASSETS_CDN_URL (.env) are handled uniformly.
+    __ASSETS_CDN_URL__: JSON.stringify(resolvedAssetsCdnUrl),
   },
   plugins: [
     learningHomeCatalogPlugin(learningCatalog, learningContentRoot),
