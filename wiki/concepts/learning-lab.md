@@ -527,8 +527,10 @@ without horizontal overflow.
 
 `LessonDetail` owns one outer panel. Markdown, formulas, visual components, and
 quizzes use spacing and dividers rather than nested decorative panels. Runtime
-lesson media belongs under `src/assets/learning/<domain>/`; `docs/assets/` is
-only for documentation artifacts.
+lesson media is served exclusively from the configured Cloudflare R2 CDN under
+`assets/learning/<domain>/`; it is not bundled from a local
+`src/assets/learning/` fallback. `docs/assets/` is only for documentation
+artifacts.
 
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
 ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
@@ -543,9 +545,10 @@ illustration band without changing the layout of cards that omit it. They live
 in `learningMdxComponents.tsx`,
 are registered in the global MDX allowlist, and accept only static MDX data.
 Domain lessons must reuse these grammars instead of shipping look-alike local
-card grids. `LessonImage` resolves a relative path
-under `src/assets/learning/` through a generic asset glob, so the shared renderer
-does not contain domain-specific asset keys.
+card grids. `LessonImage` resolves a relative `assets/learning/` path against
+the build-time CDN base URL and owns the common loading, error, and retry states.
+Domain renderers that need authored raster media reuse `LessonImage` rather than
+constructing CDN URLs or raw image loading behavior locally.
 
 System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow

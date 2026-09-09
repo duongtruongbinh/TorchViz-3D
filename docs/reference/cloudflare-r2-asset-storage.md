@@ -103,9 +103,10 @@ node scripts/syncR2Assets.ts --force
 
 ---
 
-## 5. Cơ Chế Fallback Khi Tải Ảnh
+## 5. Cơ Chế Tải Ảnh
 
 Trong `LessonImage` component (`src/components/learning/learningMdxComponents.tsx`):
 - `ASSETS_CDN_URL` được `vite.config.ts` đọc lúc build và inject thành hằng `__ASSETS_CDN_URL__` vào bundle.
-- Khi `__ASSETS_CDN_URL__` có giá trị: Component tải ảnh từ Cloudflare CDN. Nếu gặp lỗi, tự động fallback về bundle cục bộ.
-- Khi `__ASSETS_CDN_URL__` rỗng: Nạp từ bundle cục bộ (offline dev vẫn hoạt động bình thường).
+- Component chỉ tải ảnh từ Cloudflare CDN; không bundle hoặc fallback về asset cục bộ.
+- Nếu CDN chưa được cấu hình hoặc request thất bại, component hiển thị trạng thái lỗi có nút thử lại.
+- Khi chạy local, Vite nạp `ASSETS_CDN_URL` từ file `.env` bằng `loadEnv`; trên Vercel/CI, biến môi trường của tiến trình được ưu tiên.
