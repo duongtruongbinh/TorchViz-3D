@@ -12,16 +12,25 @@ import type {
   LlmTrainingComponentsContent,
 } from './rendererTypes';
 
+// __ASSETS_CDN_URL__ is injected at build time by vite.config.ts (see ASSETS_CDN_URL env var).
+declare const __ASSETS_CDN_URL__: string;
+const _CDN = (__ASSETS_CDN_URL__ ?? '').replace(/\/+$/, '');
+
+function cdnAsset(relativePath: string): string {
+  return _CDN ? `${_CDN}/assets/learning/${relativePath}` : '';
+}
+
 const LLM_LEARNING_ASSETS: Record<string, string> = {
-  'llm-from-scratch-roadmap.ai-hierarchy': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png', import.meta.url).href,
-  'llm-from-scratch-roadmap.next-token-loop': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png', import.meta.url).href,
-  'llm-from-scratch-roadmap.why-llms-popular-product': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png', import.meta.url).href,
-  'llm-from-scratch-roadmap.why-llms-popular-technical': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.ai-hierarchy': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png'),
+  'llm-from-scratch-roadmap.next-token-loop': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png'),
+  'llm-from-scratch-roadmap.why-llms-popular-product': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png'),
+  'llm-from-scratch-roadmap.why-llms-popular-technical': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png'),
 };
 
 function getLlmLearningAssetUrl(assetId: string): string {
   return LLM_LEARNING_ASSETS[assetId] ?? '';
 }
+
 
 const TRAINING_COMPONENT_ICONS: LucideIcon[] = [Braces, SlidersHorizontal, Database, CheckCircle2, Cpu];
 const TRAINING_COMPONENT_PALETTES = [

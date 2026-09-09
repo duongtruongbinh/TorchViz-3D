@@ -94,10 +94,11 @@ const ASSET_PATH_RE = /assetPath=["']([^"']+)["']/g;
 
 function extractAssetPaths(content: string): string[] {
   const paths: string[] = [];
-  let match: RegExpExecArray | null;
   ASSET_PATH_RE.lastIndex = 0;
-  while ((match = ASSET_PATH_RE.exec(content)) !== null) {
+  let match = ASSET_PATH_RE.exec(content);
+  while (match !== null) {
     paths.push(match[1]);
+    match = ASSET_PATH_RE.exec(content);
   }
   return paths;
 }
