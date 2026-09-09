@@ -17,7 +17,7 @@
  *   1 — one or more images are missing or unreachable
  */
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 
 // ---------------------------------------------------------------------------

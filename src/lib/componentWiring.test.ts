@@ -151,6 +151,7 @@ test('Learning Home stays outside Workspace and full-catalog dependency graphs',
   const learningCatalogLoader = readSource('src/components/learning/learningCatalogLoader.ts');
   const learningMdxComponents = readSource('src/components/learning/learningMdxComponents.tsx');
   const learningMdxRegistry = readSource('src/components/learning/learningMdxRegistry.tsx');
+  const llmConceptRenderers = readSource('src/components/learning/domains/llm-ai-engineering/conceptRenderers.tsx');
   const cvMdxComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
   const preferencesStore = readSource('src/store/usePreferencesStore.ts');
   const workspaceStore = readSource('src/store/useStore.ts');
@@ -178,12 +179,14 @@ test('Learning Home stays outside Workspace and full-catalog dependency graphs',
   assert.match(learningMdxRegistry, /loadLessonModule\(selectedModule\.filePath\)/);
   assert.match(learningMdxRegistry, /import\(['"]\.\/domains\/cv\/mdxComponents['"]\)/);
   assert.match(learningMdxRegistry, /domainId !== ['"]continual-learning-llm['"]/);
-  assert.match(learningMdxComponents, /LESSON_IMAGE_LOADERS\s*=\s*import\.meta\.glob/);
   assert.doesNotMatch(
     learningMdxComponents,
-    /LESSON_IMAGE_LOADERS\s*=\s*import\.meta\.glob[\s\S]{0,240}eager:\s*true/,
-    'authored lesson images should load only when their LessonImage renders',
+    /import\.meta\.glob\([^)]*assets\/learning/,
+    'Learning Lab images should load exclusively from the configured CDN',
   );
+  assert.match(learningMdxComponents, /Learning Lab image failed to load from CDN/);
+  assert.match(llmConceptRenderers, /import\s+\{[^}]*LessonImage[^}]*\}\s+from\s+['"]\.\.\/\.\.\/learningMdxComponents['"]/);
+  assert.doesNotMatch(llmConceptRenderers, /__ASSETS_CDN_URL__|getLlmLearningAssetUrl|<img\b/);
   assert.doesNotMatch(cvMdxComponents, /content\/learning\/index/);
   assert.match(learningLabView, /!routeDomainId \|\| !lessonSearchQuery\.trim\(\)/);
 });

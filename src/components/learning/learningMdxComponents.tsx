@@ -423,14 +423,7 @@ export function LessonNote({
   );
 }
 
-// Auto-glob all lesson image assets in src/assets/learning/
-const LESSON_IMAGE_LOADERS = import.meta.glob('../../assets/learning/**/*.{png,jpg,jpeg,webp,svg}', {
-  import: 'default',
-  query: '?url',
-}) as Record<string, () => Promise<string>>;
-
-// __ASSETS_CDN_URL__ is injected at build time by vite.config.ts from either
-// the ASSETS_CDN_URL env var (Vercel / CI) or VITE_ASSETS_CDN_URL (.env local dev).
+// __ASSETS_CDN_URL__ is injected at build time by vite.config.ts.
 declare const __ASSETS_CDN_URL__: string;
 const CDN_BASE_URL = __ASSETS_CDN_URL__ || undefined;
 
@@ -451,59 +444,34 @@ export function LessonImage({
   const cleanPath = assetPath.replace(/^\/+/, '').replace(/^assets\/learning\//, '');
   const [loadState, setLoadState] = useState<{ key: string; status: 'loading' | 'success' | 'error'; src?: string } | null>(null);
   const [retryVersion, setRetryVersion] = useState(0);
-  const loadImage = Object.entries(LESSON_IMAGE_LOADERS)
-    .find(([modulePath]) => modulePath.endsWith(`/assets/learning/${cleanPath}`))?.[1];
   const requestKey = `${cleanPath}/${retryVersion}`;
 
   useEffect(() => {
     let isActive = true;
     setLoadState({ key: requestKey, status: 'loading' });
 
-    if (CDN_BASE_URL) {
-      const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
-      const img = new Image();
-      img.onload = () => {
-        if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
-      };
-      img.onerror = () => {
-        if (loadImage) {
-          void loadImage()
-            .then((imageUrl) => {
-              if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
-            })
-            .catch((error: unknown) => {
-              console.error(`Learning Lab image failed to load from CDN and local fallback: ${cleanPath}`, error);
-              if (isActive) setLoadState({ key: requestKey, status: 'error' });
-            });
-        } else {
-          console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
-          if (isActive) setLoadState({ key: requestKey, status: 'error' });
-        }
-      };
-      img.src = cdnUrl;
-      return () => {
-        isActive = false;
-        img.onload = null;
-        img.onerror = null;
-      };
-    }
-
-    if (!loadImage) {
+    if (!CDN_BASE_URL) {
+      console.error(`Learning Lab image CDN is not configured: ${cleanPath}`);
       setLoadState({ key: requestKey, status: 'error' });
       return;
     }
-    void loadImage()
-      .then((imageUrl) => {
-        if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
-      })
-      .catch((error: unknown) => {
-        console.error(`Learning Lab image failed to load: ${cleanPath}`, error);
-        if (isActive) setLoadState({ key: requestKey, status: 'error' });
-      });
+
+    const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
+    const img = new Image();
+    img.onload = () => {
+      if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
+    };
+    img.onerror = () => {
+      console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
+      if (isActive) setLoadState({ key: requestKey, status: 'error' });
+    };
+    img.src = cdnUrl;
     return () => {
       isActive = false;
+      img.onload = null;
+      img.onerror = null;
     };
-  }, [loadImage, cleanPath, requestKey]);
+  }, [cleanPath, requestKey]);
 
   const currentState = loadState?.key === requestKey ? loadState : null;
   if (!currentState || currentState.status === 'loading') {
@@ -529,11 +497,9 @@ export function LessonImage({
         style={{ aspectRatio }}
       >
         <p className="text-sm font-bold">{strings.imageLoadError}</p>
-        {loadImage ? (
-          <button type="button" onClick={() => setRetryVersion((current) => current + 1)} className={cx('min-h-10 px-4 text-xs font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
-            {strings.retry}
-          </button>
-        ) : null}
+        <button type="button" onClick={() => setRetryVersion((current) => current + 1)} className={cx('min-h-10 px-4 text-xs font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
+          {strings.retry}
+        </button>
       </div>
     );
   }

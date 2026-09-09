@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin, type ResolvedConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 import react from '@vitejs/plugin-react';
@@ -186,17 +186,19 @@ function pyodideAssetsPlugin(): Plugin {
   };
 }
 
-// Resolve CDN base URL from ASSETS_CDN_URL env var (set on Vercel and in local .env).
-const resolvedAssetsCdnUrl = (process.env.ASSETS_CDN_URL ?? '').trim().replace(/\/+$/, '');
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, configDir, '');
+  const resolvedAssetsCdnUrl = (process.env.ASSETS_CDN_URL ?? env.ASSETS_CDN_URL ?? '')
+    .trim()
+    .replace(/\/+$/, '');
 
-export default defineConfig({
+  return {
   server: {
     port: 3000,
     host: '0.0.0.0',
   },
   define: {
-    // Injected at build time into the client bundle so both ASSETS_CDN_URL
-    // (Vercel env var) and VITE_ASSETS_CDN_URL (.env) are handled uniformly.
+    // Inject only the public CDN base URL, resolved from Vercel/CI or local .env.
     __ASSETS_CDN_URL__: JSON.stringify(resolvedAssetsCdnUrl),
   },
   plugins: [
@@ -231,4 +233,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearningLessonExtra, LearningTokenExample } from '../../authoredTypes';
 import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, type getLearningLabTheme } from '../../theme';
-import { ExtraFrame } from '../../learningMdxComponents';
+import { ExtraFrame, LessonImage } from '../../learningMdxComponents';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 import type {
@@ -12,22 +12,14 @@ import type {
   LlmTrainingComponentsContent,
 } from './rendererTypes';
 
-// __ASSETS_CDN_URL__ is injected at build time by vite.config.ts (see ASSETS_CDN_URL env var).
-declare const __ASSETS_CDN_URL__: string;
-const _CDN = (__ASSETS_CDN_URL__ ?? '').replace(/\/+$/, '');
-
-function cdnAsset(relativePath: string): string {
-  return _CDN ? `${_CDN}/assets/learning/${relativePath}` : '';
-}
-
 const LLM_LEARNING_ASSETS: Record<string, string> = {
-  'llm-from-scratch-roadmap.ai-hierarchy': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png'),
-  'llm-from-scratch-roadmap.next-token-loop': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png'),
-  'llm-from-scratch-roadmap.why-llms-popular-product': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png'),
-  'llm-from-scratch-roadmap.why-llms-popular-technical': cdnAsset('llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png'),
+  'llm-from-scratch-roadmap.ai-hierarchy': 'llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png',
+  'llm-from-scratch-roadmap.next-token-loop': 'llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png',
+  'llm-from-scratch-roadmap.why-llms-popular-product': 'llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png',
+  'llm-from-scratch-roadmap.why-llms-popular-technical': 'llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png',
 };
 
-function getLlmLearningAssetUrl(assetId: string): string {
+function getLlmLearningAssetPath(assetId: string): string {
   return LLM_LEARNING_ASSETS[assetId] ?? '';
 }
 
@@ -134,14 +126,13 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
             })}
           </div>
 
-          <figure className="flex min-w-0 items-center justify-center">
-            <img
-              src={getLlmLearningAssetUrl(extra.image)}
+          <div className="min-w-0">
+            <LessonImage
+              assetPath={getLlmLearningAssetPath(extra.image)}
               alt={text(extra.imageAlt, language)}
-              className="aspect-[1672/941] w-full object-contain"
-              loading="lazy"
+              aspectRatio="1672 / 941"
             />
-          </figure>
+          </div>
         </div>
 
         <div
@@ -474,14 +465,13 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <section className="grid min-h-[15rem] p-0">
-        <figure className="flex min-h-full min-w-0 items-center justify-center overflow-hidden">
-          <img
-            src={getLlmLearningAssetUrl(extra.image)}
+        <div className="min-w-0">
+          <LessonImage
+            assetPath={getLlmLearningAssetPath(extra.image)}
             alt={text(extra.imageAlt, language)}
-            className={cx('aspect-[1672/941] w-full max-w-[34rem] object-contain', themeClasses.radius.card)}
-            loading="lazy"
+            aspectRatio="1672 / 941"
           />
-        </figure>
+        </div>
       </section>
 
       <section className={getTheoryTileClass(themeClasses)}>
@@ -778,22 +768,20 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
           </div>
         ) : extra.highlights && extra.id === 'why-llms-are-popular-now' ? (
           <>
-            <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
-              <img
-                src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-product')}
+            <div className="mx-auto w-full max-w-4xl">
+              <LessonImage
+                assetPath={getLlmLearningAssetPath('llm-from-scratch-roadmap.why-llms-popular-product')}
                 alt="Ba lý do LLM dễ ứng dụng trong doanh nghiệp: dễ dùng, đa nhiệm và dễ tích hợp."
-                className="aspect-[1672/941] w-full object-contain"
-                loading="lazy"
+                aspectRatio="1672 / 941"
               />
-            </figure>
-            <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
-              <img
-                src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-technical')}
+            </div>
+            <div className="mx-auto w-full max-w-4xl">
+              <LessonImage
+                assetPath={getLlmLearningAssetPath('llm-from-scratch-roadmap.why-llms-popular-technical')}
                 alt="Ba lý do kỹ thuật giúp AI hiện đại phát triển mạnh: Transformer, big data và GPU compute."
-                className="aspect-[1672/941] w-full object-contain"
-                loading="lazy"
+                aspectRatio="1672 / 941"
               />
-            </figure>
+            </div>
           </>
         ) : extra.highlights ? (
           <div className="learning-lab-focus-group grid gap-3">
