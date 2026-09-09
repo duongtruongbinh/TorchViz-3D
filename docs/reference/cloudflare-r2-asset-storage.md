@@ -53,9 +53,21 @@ Trên giao diện mới của Cloudflare, trong tab **Settings** của bucket (n
 
 ---
 
-## 3. Cấu Hình Biến Môi Trường (.env)
+## 3. Cấu Hình Biến Môi Trường
 
-Tạo hoặc cập nhật file `.env` ở thư mục gốc của dự án (file này đã được cấu hình trong `.gitignore`):
+### Trên Vercel Dashboard (Production)
+
+Thêm biến môi trường trong **Vercel Dashboard → Settings → Environment Variables**:
+
+| Key | Value |
+|-----|-------|
+| `ASSETS_CDN_URL` | `https://pub-xxxx.r2.dev` hoặc custom domain |
+
+> **Lưu ý:** Vercel đọc `ASSETS_CDN_URL` tại build time và `vite.config.ts` sẽ inject vào bundle client qua `define`. **Không dùng tiền tố `VITE_` trên Vercel.**
+
+### Tại máy local (file `.env`)
+
+Tạo hoặc cập nhật file `.env` ở thư mục gốc (đã được `.gitignore`):
 
 ```env
 # Cloudflare R2 S3 Credentials
@@ -67,9 +79,9 @@ R2_BUCKET_NAME=torchviz-assets
 # Public URL hoặc Custom Domain phục vụ CDN
 R2_PUBLIC_URL=https://assets.yourdomain.com
 
-# Client-side CDN Base URL cho TorchViz UI
-# Khi cấu hình URL này, LessonImage sẽ ưu tiên load từ Cloudflare CDN
-VITE_ASSETS_CDN_URL=https://assets.yourdomain.com
+# Client-side CDN Base URL cho local dev (dùng VITE_ prefix để Vite đọc được)
+# Trên Vercel dùng ASSETS_CDN_URL thay thế (không cần prefix VITE_)
+VITE_ASSETS_CDN_URL=https://pub-xxxxxxxxxxxxxxxx.r2.dev
 ```
 
 ---
@@ -101,5 +113,6 @@ node scripts/syncR2Assets.ts --force
 ## 5. Cơ Chế Fallback Khi Tải Ảnh
 
 Trong `LessonImage` component (`src/components/learning/learningMdxComponents.tsx`):
-- Khi có `VITE_ASSETS_CDN_URL`: Component tải ảnh từ Cloudflare CDN. Nếu gặp lỗi mạng hoặc ảnh chưa sync, hệ thống tự động fallback về bản bundle cục bộ.
-- Khi không có `VITE_ASSETS_CDN_URL`: Component nạp từ bundle cục bộ như thông thường, đảm bảo môi trường dev offline hoạt động mượt mà.
+- Biến `ASSETS_CDN_URL` (Vercel) hoặc `VITE_ASSETS_CDN_URL` (local) được resolve tại build time bởi `vite.config.ts` thành hằng số `__ASSETS_CDN_URL__` và inject vào bundle.
+- Khi `__ASSETS_CDN_URL__` có giá trị: Component tải ảnh từ Cloudflare CDN. Nếu gặp lỗi mạng hoặc ảnh chưa sync, hệ thống tự động fallback về bản bundle cục bộ.
+- Khi `__ASSETS_CDN_URL__` rỗng: Component nạp từ bundle cục bộ như thông thường, đảm bảo môi trường dev offline hoạt động mượt mà.

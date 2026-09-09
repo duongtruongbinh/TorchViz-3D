@@ -429,7 +429,10 @@ const LESSON_IMAGE_LOADERS = import.meta.glob('../../assets/learning/**/*.{png,j
   query: '?url',
 }) as Record<string, () => Promise<string>>;
 
-const CDN_BASE_URL = (import.meta.env.VITE_ASSETS_CDN_URL as string | undefined)?.trim()?.replace(/\/+$/, '');
+// __ASSETS_CDN_URL__ is injected at build time by vite.config.ts from either
+// the ASSETS_CDN_URL env var (Vercel / CI) or VITE_ASSETS_CDN_URL (.env local dev).
+declare const __ASSETS_CDN_URL__: string;
+const CDN_BASE_URL = __ASSETS_CDN_URL__ || undefined;
 
 export function LessonImage({
   assetPath,
