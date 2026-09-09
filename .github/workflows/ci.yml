@@ -45,5 +45,12 @@ jobs:
       - name: Catalog stats drift check
         run: npm run check:catalog-stats
 
+      - name: R2 asset CDN check
+        run: npm run check:r2-assets
+        env:
+          ASSETS_CDN_URL: ${{ secrets.ASSETS_CDN_URL }}
+
       - name: Production build
         run: npm run build
+        env:
+          ASSETS_CDN_URL: ${{ secrets.ASSETS_CDN_URL }}

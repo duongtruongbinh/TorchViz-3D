@@ -25,6 +25,7 @@
     "check:catalog-stats": "node scripts/generateCatalogStats.ts --check",
     "sync:r2": "node scripts/syncR2Assets.ts",
     "sync:r2:dry-run": "node scripts/syncR2Assets.ts --dry-run",
+    "check:r2-assets": "node scripts/checkR2Assets.ts",
     "preview": "vite preview"
   },
   "engines": {
