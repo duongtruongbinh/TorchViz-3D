@@ -2,130 +2,130 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'cl-settings-til-dil-cil-quiz',
   locale: 'vi',
-  title: "Quiz",
+  title: 'Quiz',
   headings: [
-  "Task-Incremental Learning",
-  "Domain-Incremental Learning",
-  "Class-Incremental Learning",
-  "Chọn đúng thiết lập"
-],
+    'Tín hiệu chọn task',
+    'Cùng task, đổi domain',
+    'Mở rộng tập lớp',
+    'Đối chiếu ba thiết lập',
+  ],
   keywords: ['Continual Learning', 'LLM', 'Quiz'],
   conceptIds: [
-  "til-setting",
-  "dil-setting",
-  "cil-setting",
-  "setting-comparison"
-],
+    'til-setting',
+    'dil-setting',
+    'cil-setting',
+    'setting-comparison',
+  ],
   pageCount: 4,
 }
 
 <MdxQuiz id="cl-settings-til-dil-cil-quiz" questions={[
   {
     "id": "til-setting",
-    "title": "Task-Incremental Learning",
-    "prompt": "Dấu hiệu nhận biết TIL là gì?",
+    "title": "Tín hiệu chọn task",
+    "prompt": "Cùng câu `The service was slow`, hệ thống có thể phân loại cảm xúc hoặc dịch sang tiếng Việt. API luôn gửi thêm tín hiệu cho biết cần thực hiện việc nào. Chi tiết nào xác định đây là TIL?",
     "mode": "single",
     "options": [
       {
         "id": "opt1",
-        "label": "Một output space chung mở rộng khi lớp mới xuất hiện."
-      },
-      {
-        "id": "opt3",
-        "label": "Task giữ nguyên nhưng input distribution thay đổi mà không có domain ID."
+        "label": "Cả hai yêu cầu dùng cùng một câu đầu vào nên task không thay đổi."
       },
       {
         "id": "opt2",
-        "label": "Task ID được cung cấp khi inference để chọn task hoặc head phù hợp.",
+        "label": "Hệ thống bổ sung một nhãn mới vào cùng bộ phân loại sau mỗi stage."
+      },
+      {
+        "id": "opt3",
+        "label": "Tín hiệu task được cung cấp khi suy luận để chọn hành vi hoặc bộ đầu ra phù hợp.",
         "isCorrect": true
       },
       {
         "id": "opt4",
-        "label": "Nhãn mới được thêm dần nhưng inference không nhận task ID."
+        "label": "Phân phối đầu vào đổi domain nhưng task và bộ nhãn luôn giữ nguyên."
       }
     ],
-    "success": "TIL cho mô hình biết task hiện tại khi suy luận.",
-    "error": "Hãy kiểm tra thông tin routing có sẵn lúc inference."
+    "success": "Đúng. Dấu hiệu cốt lõi của TIL là hệ thống biết task hiện tại khi suy luận; tín hiệu đó có thể là task ID, control token hoặc instruction.",
+    "error": "Hãy tìm thông tin cho mô hình biết nó phải thực hiện task nào khi suy luận."
   },
   {
     "id": "dil-setting",
-    "title": "Domain-Incremental Learning",
-    "prompt": "Thiết lập nào giữ task formulation nhưng thay đổi phân phối domain?",
+    "title": "Cùng task, đổi domain",
+    "prompt": "Một bộ phân loại cảm xúc học review sách trước rồi học review điện tử. Cả hai stage đều dùng hai nhãn `positive/negative`, và khi suy luận model chỉ nhận nội dung review. Vì sao đây là DIL?",
     "mode": "single",
     "options": [
       {
-        "id": "opt3",
-        "label": "DIL, vì task formulation giữ nguyên còn phân phối đầu vào thay đổi.",
+        "id": "opt1",
+        "label": "Task và nhãn giữ nguyên, đầu vào đổi theo loại sản phẩm, và khi suy luận model không nhận domain ID.",
         "isCorrect": true
       },
       {
-        "id": "opt1",
-        "label": "TIL, vì task ID quyết định head ở inference."
+        "id": "opt2",
+        "label": "Mỗi loại sản phẩm có task ID riêng để chọn một bộ phân loại chuyên biệt khi suy luận."
       },
       {
-        "id": "opt2",
-        "label": "CIL, vì output space được mở rộng bằng lớp mới."
+        "id": "opt3",
+        "label": "Review điện tử bổ sung các nhãn cảm xúc mới vào output space chung sau mỗi stage."
       },
       {
         "id": "opt4",
-        "label": "Joint learning, vì mọi domain được trộn và học đồng thời."
+        "label": "Dữ liệu sách và điện tử được trộn từ đầu rồi huấn luyện đồng thời trong một stage duy nhất."
       }
     ],
-    "success": "DIL thay đổi domain mà không cung cấp task ID lúc inference.",
-    "error": "Hãy phân biệt thay đổi domain với mở rộng tập lớp."
+    "success": "Đúng. DIL giữ nguyên câu hỏi và không gian nhãn, nhưng dữ liệu chuyển sang một domain có cách dùng từ hoặc phân phối khác.",
+    "error": "Hãy kiểm tra ba yếu tố: task có đổi không, bộ nhãn có đổi không và model có nhận domain ID khi suy luận không."
   },
   {
     "id": "cil-setting",
-    "title": "Class-Incremental Learning",
-    "prompt": "Trong CIL, yếu tố nào mở rộng qua thời gian?",
+    "title": "Mở rộng tập lớp",
+    "prompt": "Một bộ phân loại ý định ban đầu nhận diện `billing` và `shipping`. Stage tiếp theo thêm `refund`; khi suy luận model phải chọn trong cả ba nhãn mà không có task ID. Thách thức đặc trưng của CIL là gì?",
     "mode": "single",
     "options": [
       {
         "id": "opt1",
-        "label": "Số domain đầu vào trong cùng một task formulation."
+        "label": "Nhận ra domain mới nhưng vẫn chỉ chọn giữa hai nhãn cố định."
       },
       {
         "id": "opt2",
-        "label": "Số task-specific head được chọn bằng task ID."
+        "label": "Dùng task ID để chọn một head chỉ chứa các lớp của stage hiện tại."
       },
       {
         "id": "opt3",
-        "label": "Số stage có cùng output space cố định."
+        "label": "Nhận thêm mẫu mới cho đúng các lớp cũ mà không đổi output space."
       },
       {
         "id": "opt4",
-        "label": "Tập lớp cần nhận diện trong một output space chung.",
+        "label": "Mở rộng tập lớp trong một output space chung và phân biệt lớp mới với tất cả lớp cũ.",
         "isCorrect": true
       }
     ],
-    "success": "CIL bổ sung lớp mới vào output space chung.",
-    "error": "Hãy nhìn vào không gian nhãn."
+    "success": "Đúng. CIL thêm lớp mới theo thời gian nhưng vẫn yêu cầu một dự đoán toàn cục trên mọi lớp đã học.",
+    "error": "Hãy xác định model phải chọn trong bao nhiêu lớp sau stage mới."
   },
   {
     "id": "setting-comparison",
-    "title": "Chọn đúng thiết lập",
-    "prompt": "Một LLM phân loại cùng loại đầu vào qua nhiều domain và không nhận domain ID khi inference gần với thiết lập nào nhất?",
+    "title": "Đối chiếu ba thiết lập",
+    "prompt": "Ba hệ thống lần lượt: (1) nhận instruction cho biết cần dịch hay phân loại; (2) giữ nhãn cảm xúc nhưng chuyển từ review phim sang nhà hàng mà không có domain ID; (3) thêm ý định `refund` vào bộ nhãn chung. Ánh xạ nào đúng?",
     "mode": "single",
     "options": [
       {
-        "id": "opt2",
-        "label": "TIL, vì mỗi domain tương ứng với một task ID được cung cấp khi inference."
+        "id": "opt1",
+        "label": "(1) DIL, (2) TIL, (3) CIL."
       },
       {
-        "id": "opt1",
-        "label": "DIL, vì formulation giữ nguyên, domain thay đổi và inference không có domain ID.",
+        "id": "opt2",
+        "label": "(1) TIL, (2) DIL, (3) CIL.",
         "isCorrect": true
       },
       {
         "id": "opt3",
-        "label": "CIL, vì mỗi domain nhất thiết bổ sung một tập lớp output mới."
+        "label": "(1) CIL, (2) DIL, (3) TIL."
       },
       {
         "id": "opt4",
-        "label": "Joint learning, vì dữ liệu của mọi domain luôn có sẵn đồng thời."
+        "label": "Cả ba đều là DIL vì dữ liệu đều xuất hiện theo nhiều stage."
       }
     ],
-    "success": "Cùng formulation, domain shift và không có task ID là đặc trưng DIL.",
-    "error": "Xác định điều thay đổi và thông tin có ở inference."
+    "success": "Đúng. TIL có tín hiệu chọn task, DIL giữ task và nhãn nhưng đổi domain, còn CIL mở rộng tập lớp trong đầu ra chung.",
+    "error": "Với mỗi hệ thống, hãy hỏi điều gì thay đổi qua stage và model biết thông tin nào khi suy luận."
   }
 ]} />

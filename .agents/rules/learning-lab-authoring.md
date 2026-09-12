@@ -115,6 +115,7 @@ While general algebraic formulas ensure rigor, **always assume abstract formulas
 For any section containing extended theoretical prose, multi-step proofs, or abstract reasoning:
 - **Mandate a Summary Illustration (Visual Anchor)** at the top of the section to crystallize the core mental model.
 - **80/20 Rule:** The illustration must enable readers to grasp **80% of the underlying mechanism and narrative flow** at a glance. The accompanying text serves as concise supplementary commentary rather than repetitive prose.
+- **Placement:** Position visual blocks (`<LessonImage ... />` or `<Flowchart />`) immediately after the high-level overview and before component breakdown — establishes a mental model before readers process granular formulas.
 
 ### B. Visual Replacement Matrix
 
@@ -128,22 +129,14 @@ For any section containing extended theoretical prose, multi-step proofs, or abs
 | **Energy & Distribution** | Verbal percentages | **Stacked Energy Bar / Balance Scale:** Segmented bar charts ($99\%$ vs $1\%$) or balance scale depicting weight shifts. |
 | **Cause & Effect** | Descriptive error text | **Cause-and-Effect Card / Mermaid:** Cause node $\xrightarrow{\text{triggers}}$ Effect node with visual flow. |
 
-### C. Visual Placement
-- Position visual blocks (`<LessonImage ... />` or `<Flowchart />`) immediately after the high-level overview and before component breakdown.
-- Establishes a mental model before readers process granular formulas.
-
-### D. Educational Doodle Style (16:9)
+### C. Educational Doodle Style (16:9)
 - **Aspect Ratio:** 16:9 Landscape.
 - **Layout:** 2 to 4 side-by-side rounded panels on white or soft pastel backgrounds.
 - **Drawing Style:** Bold black hand-drawn outlines, elegant pastel accent colors, friendly stick-figure mascot demonstrating actions.
 - **Visual-First Principle:** Illustrations must explain the concept via objects, arrows, boxes, balance scales, and data streams with minimal text (1–3 word labels).
 
-### E. Component Selection Priority & Constraints
-- **Restrict Callout Notes (`<LessonNote>`):** ONLY use callout notes (`<LessonNote>`) when explicitly requested by the user. By default, present all notes, warnings, insights, and takeaways as clean regular markdown prose or standard lists.
-- **Restrict `<ConceptFlow>` and `<CourseCards>`:** Do NOT use `<ConceptFlow>` or `<CourseCards>` unless explicitly requested by the user.
-- **Prioritize `<ConceptHierarchy>` and Hero Cards:**
-  - For structured taxonomies, branching breakdowns, and multi-step architectures, prioritize `<ConceptHierarchy>`.
-  - For standalone key properties, performance metrics, or comparisons, prioritize Hero Cards (`<MetricBars>` or concise spotlight metric cards).
+### D. Component Selection Logic
+→ See **§6C** for the full trigger-question routing table and hard restraint rules.
 
 ---
 
@@ -154,3 +147,82 @@ Each lesson MDX file must maintain strict system contract compliance:
 1. **`lessonMetadata.title`:** Must match 100% character-by-character with the corresponding locale `title` in the domain's `table-of-contents.ts`.
 2. **`lessonMetadata.headings`:** Must contain the exact list of `### Heading` sections present in the lesson content.
 3. **Locale Consistency:** Ensure published content matches catalog registration and passes `npm run verify`.
+
+---
+
+## 6. Pedagogical Judgment Checklist
+
+Before finalizing any section or lesson, run through these three live editorial checks. They surface judgment calls that no style rule can fully automate.
+
+---
+
+### A. Terminology Familiarity Audit
+
+For every domain-specific or multi-syllable technical term introduced in a section, ask:
+
+1. **Has this term appeared earlier in the curriculum?**
+   - If yes → use it without explanation (trust the learner's memory from prior lessons).
+   - If no → this is its **first-exposure point**: define it inline within 1–2 sentences immediately after first use.
+
+2. **Is this term likely familiar to the target learner profile?**
+   - *Beginner lesson* (Lesson 1–3 in a domain): Assume zero prior exposure. Provide a one-line plain-language definition AND a concrete analogy before using the term technically.
+   - *Intermediate lesson* (Lesson 4–8): Define only if the term sits outside the domain's established prerequisite list.
+   - *Advanced lesson / Research Paper deep-dive*: Assume familiarity with all core terms; introduce only newly coined or paper-specific terminology.
+
+3. **Is the term an abbreviation or acronym?**
+   - Always expand on first use within the lesson: `Singular Value Decomposition (SVD)`, `Low-Rank Adaptation (LoRA)`.
+   - After expansion, the short form may be used freely within the same lesson.
+
+4. **Escalation actions when a term feels too distant:**
+   - Add a **1-sentence intuition bridge** (e.g., *"Think of this as…"*) — never exceed one sentence.
+   - Add a **concrete real-world analogy** that doesn't require domain knowledge (e.g., compare gradient flow to water pressure in pipes).
+   - If the gap is too large, consider splitting the content into a prerequisite sub-section or linking to the prerequisite lesson in the catalog.
+
+---
+
+### B. Concept Retention & Recall Audit
+
+At every major section boundary, pause and ask: *"If a learner has read from the beginning of this lesson (or lesson series) up to this exact point, what do they reliably hold in working memory?"*
+
+**Retention decay model — apply these heuristics:**
+
+| Distance from Concept's First Introduction | Learner Retention Assumption | Action |
+| :--- | :--- | :--- |
+| Same paragraph or section | High — concept is still active | No reminder needed |
+| Same lesson, 2+ sections away | Medium — may be fading | Drop a brief inline parenthetical: *(recall: SVD decomposes W into U Σ Vᵀ)* |
+| Different lesson in the same domain | Low — likely forgotten | Add a 1–2 sentence recap at the top of the section where it re-appears |
+| Cross-domain reference | Very low | Provide a self-contained micro-definition + link to the source lesson |
+
+**Specific triggers that mandate a recap:**
+- Reusing a formula introduced 3+ sections ago without restating what each variable means.
+- Referencing a named result (e.g., *"the rank-deficiency property we established"*) without restating the property in 1 sentence.
+- Chaining two abstractions (e.g., using eigenvalues inside a LoRA explanation) without restating what eigenvalues measure.
+
+**Re-explanation variants (choose based on cognitive distance):**
+- **Inline parenthetical** — for minor refreshers: *(where $\Sigma$ holds singular values — the "energy" of each direction)*.
+- **One-sentence recap** — for medium distance: *"Recall that SVD expresses any matrix as three components: $U$, $\Sigma$, $V^T$."*
+- **Mini review block** — for cross-domain references: a short unnumbered sub-section titled *"Quick Review: [Concept]"* with 2–3 bullet points restating the essentials.
+
+---
+
+### C. Design Component Selection Logic
+
+Before placing any UI component, answer these decision questions. Use the table as a routing guide:
+
+| Trigger Question | Best Component | Avoid |
+| :--- | :--- | :--- |
+| Is this a **sequential, step-by-step process** (pipeline, data flow, training loop)? | `<Flowchart />` (horizontal conveyor cards + arrows) | Numbered prose list |
+| Is this a **taxonomy or multi-level classification** (architecture families, loss function types, PEFT variants)? | `<ConceptHierarchy />` (tree, root → branches → leaves) | Deep nested bullet lists |
+| Is this a **navigational overview** of lessons or topic clusters within a domain? | `<CourseCards />` | Inline links or flat list |
+| Does the content spotlight a **single concept with a visual metaphor** (one keyword + image)? | Spotlight Concept Card (pastel border, icon, 1-sentence definition) | Plain bold text heading |
+| Is this a **key numerical result** (parameter count, speedup ratio, accuracy delta)? | `<MetricBars />` or Stat Hero Card | Inline sentence |
+| Is there a **before-vs-after or standard-vs-proposed** contrast? | Dual Side-by-Side Panels | A prose paragraph with "whereas" constructions |
+| Is the content a **narrative concept bridge** (abstract idea → concrete analogy)? | `<ConceptFlow />` (left card = abstract, right card = analogy, connector arrow) | A paragraph of metaphors |
+| Is this a **long theory section** needing an upfront mental model? | `<LessonImage />` doodle (16:9, 2–4 panels) at section top | Opening the section with dense formula prose |
+
+**Hard rules for component restraint:**
+- Never place two `<ConceptHierarchy />` trees within the same lesson section — merge or flatten.
+- `<CourseCards />` belongs at lesson-end or domain-overview pages only; never mid-lesson.
+- `<ConceptFlow />` is for concept bridging (abstract → concrete), not for step sequences; use `<Flowchart />` for steps.
+- If in doubt between two components, choose the simpler one. Complexity must earn its place.
+- Always ask: *"Does adding this component replace a weaker prose explanation, or is it decorative?"* — only add if it replaces.

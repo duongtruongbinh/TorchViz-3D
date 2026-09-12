@@ -1,0 +1,679 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-settings-code-lab',
+  locale: 'vi',
+  title: 'Lab TIL, DIL và CIL',
+  headings: [
+    'Lab TIL, DIL và CIL',
+    '1. Thiết lập và nạp dữ liệu',
+    '2. Biến câu lệnh thành vector',
+    '3. TIL: task ID chọn bộ phân loại',
+    '4. DIL: cùng nhãn, đổi loại sản phẩm',
+    '5. CIL: không gian đầu ra mở rộng',
+    'Đọc kết quả của ba thiết lập',
+  ],
+  pageCount: 7,
+  keywords: ['Continual Learning', 'TIL', 'DIL', 'CIL', 'MASSIVE', 'Amazon Reviews Multi', 'Multilingual MiniLM', 'Code Lab'],
+  conceptIds: [
+    'til-routing-observation',
+    'til-within-head-error-observation',
+    'dil-domain-shift-observation',
+    'dil-transfer-interpretation',
+    'cil-new-class-bias-observation',
+    'cil-class-competition-observation',
+  ],
+}
+
+<MdxPage page={0}>
+
+## Lab TIL, DIL và CIL
+
+Trong lab này, chúng ta sẽ thiết lập một hệ thống phân loại yêu cầu cho trợ lý ảo. Mô hình nhận một câu của người dùng và dự đoán **ý định**, tức hành động cụ thể cần thực hiện. Ví dụ, `Set an alarm for 7 AM` mang nhãn `alarm_set`, còn `Remove my morning alarm` mang nhãn `alarm_remove`.
+
+TIL và CIL sử dụng bộ dữ liệu [MASSIVE](https://huggingface.co/datasets/AmazonScience/massive). Để lab chạy gọn, ta chỉ lấy sáu ý định thuộc ba nhóm yêu cầu thật: báo thức (`alarm`), âm lượng (`audio`) và calendar. Mỗi nhóm được xem là một tác vụ và có hai ý định cần phân biệt.
+
+DIL sử dụng [Amazon Reviews Multi](https://huggingface.co/datasets/goosmanlei/amazon_reviews_multi) để phân loại đánh giá tiêu cực hoặc tích cực. Mô hình học đánh giá sách trước, sau đó tiếp tục học đánh giá điện tử. Bài toán và hai nhãn giữ nguyên; chỉ loại sản phẩm cùng cách người dùng viết đánh giá thay đổi.
+
+Trước tiên, một mô hình Transformer biến mỗi đoạn văn thành vector biểu diễn. Mô hình ngôn ngữ này được giữ cố định trong suốt lab; chúng ta chỉ huấn luyện bộ phân loại nhỏ ở phía sau. Sau đó, ta chạy ba thí nghiệm độc lập từ cùng một điểm khởi đầu để thấy việc thay đổi task ID, miền nội dung và số nhãn đầu ra tạo ra ba bài toán khác nhau như thế nào.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-til-dil-cil-lab-overview-v2.png"
+  alt="Ba thiết lập Continual Learning: TIL dùng task ID để chọn bộ phân loại, DIL chuyển từ đánh giá sách sang điện tử nhưng giữ hai nhãn cảm xúc, và CIL mở rộng dần số lớp đầu ra"
+/>
+
+Trong TIL, `task_id` biểu thị nhóm yêu cầu và chọn bộ phân loại gồm hai ý định tương ứng. Dù cả ba nhóm đều thuộc hệ thống phân loại ý định, mỗi nhóm là một bài toán con có bộ đầu ra riêng. DIL giữ nguyên hai nhãn cảm xúc nhưng chuyển từ đánh giá sách sang đánh giá điện tử. CIL học dần sáu ý định trong một bộ đầu ra chung mà không nhận `task_id` <Cite paper="van2022three" evidence="cl-settings-lab-boundary-01-van2022three" /> <Cite paper="shi2024continualSurvey" evidence="cl-settings-lab-boundary-02-shi2024continualSurvey" />. Kết quả cuối cùng giúp ta quan sát ưu điểm và giới hạn của từng thiết lập, không dùng để xếp hạng thiết lập nào tốt nhất.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 1. Thiết lập và nạp dữ liệu
+
+Trên Google Colab, chọn T4 GPU hoặc GPU tương đương. Ta dùng `datasets` để tải dữ liệu, `transformers` để tạo vector biểu diễn và `pandas` cùng `matplotlib` để đọc kết quả.
+
+```bash
+pip -q install -U "transformers>=5,<6" "datasets>=4,<5" "pandas==2.2.3" matplotlib
+```
+
+```python
+import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+from datasets import load_dataset
+from torch.utils.data import DataLoader, TensorDataset
+from transformers import AutoModel, AutoTokenizer
+
+SEED = 47
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Device:", device)
+```
+
+MASSIVE dùng cùng một hệ thống nhãn ý định cho nhiều ngôn ngữ. Ta tải trực tiếp bản Parquet để cell tương thích với `datasets` hiện tại.
+
+```python
+PARQUET_ROOT = "https://huggingface.co/datasets/AmazonScience/massive/resolve/refs%2Fconvert%2Fparquet"
+
+def load_massive_locale(locale):
+    files = {
+        "train": f"{PARQUET_ROOT}/{locale}/train/0000.parquet",
+        "validation": f"{PARQUET_ROOT}/{locale}/validation/0000.parquet",
+    }
+    return load_dataset("parquet", data_files=files)
+
+massive_en = load_massive_locale("en-US")
+```
+
+Sáu ý định thuộc ba nhóm yêu cầu. Mỗi nhóm gồm hai hành động gần nhau về mặt nghiệp vụ.
+
+```python
+INTENT_GROUPS = [
+    ["alarm_set", "alarm_remove"],
+    ["audio_volume_up", "audio_volume_down"],
+    ["calendar_set", "calendar_remove"],
+]
+
+SCENARIOS = ["alarm", "audio", "calendar"]
+
+# ID gốc của sáu nhãn ý định trong MASSIVE.
+MASSIVE_INTENT_IDS = {
+    "alarm_set": 48,
+    "alarm_remove": 52,
+    "audio_volume_up": 14,
+    "audio_volume_down": 34,
+    "calendar_set": 50,
+    "calendar_remove": 30,
+}
+
+INTENTS = [name for group in INTENT_GROUPS for name in group]
+TRAIN_PER_CLASS = 64
+EVAL_PER_CLASS = 24
+```
+
+Hàm dưới đây lấy cùng số mẫu cho mỗi ý định. Lab tự ánh xạ ba nhóm yêu cầu thành nhãn cục bộ từ `0` đến `2`, thay vì sử dụng mã nhóm gốc của MASSIVE; ý định cụ thể được ánh xạ thành `y` từ `0` đến `5`.
+
+```python
+def sample_split(dataset, samples_per_class):
+    texts, intent_labels, scenario_labels = [], [], []
+    for scenario_label, intent_group in enumerate(INTENT_GROUPS):
+        for intent_name in intent_group:
+            intent_label = INTENTS.index(intent_name)
+            source_id = MASSIVE_INTENT_IDS[intent_name]
+            rows = dataset.filter(lambda row, target=source_id: row["intent"] == target)
+            rows = rows.shuffle(seed=SEED + intent_label)
+            rows = rows.select(range(min(samples_per_class, len(rows))))
+            texts.extend(rows["utt"])
+            intent_labels.extend([intent_label] * len(rows))
+            scenario_labels.extend([scenario_label] * len(rows))
+    return {
+        "text": texts,
+        "y": torch.tensor(intent_labels, dtype=torch.long),
+        "scenario_y": torch.tensor(scenario_labels, dtype=torch.long),
+    }
+
+raw_train_en = sample_split(massive_en["train"], TRAIN_PER_CLASS)
+raw_eval_en = sample_split(massive_en["validation"], EVAL_PER_CLASS)
+
+print("English:", len(raw_train_en["text"]), "train /", len(raw_eval_en["text"]), "held-out")
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 2. Biến câu lệnh thành vector
+
+Ta dùng một mô hình Transformer đa ngôn ngữ để biến mỗi câu thành vector. Bộ mã hóa được đóng băng và chỉ chạy một lần; ba thiết lập phía sau chỉ huấn luyện các bộ phân loại tuyến tính nhỏ trên cùng loại biểu diễn.
+
+```python
+MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+MAX_LENGTH = 64
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+encoder = AutoModel.from_pretrained(MODEL_NAME).to(device)
+encoder.eval()
+
+for parameter in encoder.parameters():
+    parameter.requires_grad = False
+```
+
+Phép lấy trung bình chỉ tính các token thật, không tính token đệm.
+
+```python
+@torch.inference_mode()
+def embed_texts(texts, batch_size=64):
+    vectors = []
+    for start in range(0, len(texts), batch_size):
+        batch = tokenizer(
+            texts[start:start + batch_size],
+            padding=True,
+            truncation=True,
+            max_length=MAX_LENGTH,
+            return_tensors="pt",
+        ).to(device)
+        hidden = encoder(**batch).last_hidden_state
+        mask = batch["attention_mask"].unsqueeze(-1)
+        pooled = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp_min(1)
+        vectors.append(torch.nn.functional.normalize(pooled, dim=1).cpu())
+    return torch.cat(vectors)
+
+def embed_split(raw_split):
+    return {
+        "x": embed_texts(raw_split["text"]),
+        "y": raw_split["y"],
+        "scenario_y": raw_split["scenario_y"],
+    }
+
+train_en = embed_split(raw_train_en)
+eval_en = embed_split(raw_eval_en)
+```
+
+Từ đây, mỗi câu đi qua hai bước: bộ mã hóa biến câu thành vector `x`, rồi bộ phân loại tuyến tính tạo một điểm số, hay `logit`, cho mỗi nhãn. Nhãn có logit lớn nhất được chọn. Vì bộ mã hóa đã đóng băng, `fit_head` chỉ cập nhật bộ phân loại; `accuracy` luôn chấm trên các mẫu tách khỏi tập huấn luyện.
+
+Các hàm sau được dùng chung. `select_labels` chọn một nhóm ý định, còn `new_head` tạo bộ phân loại với số đầu ra phù hợp.
+
+```python
+HIDDEN_SIZE = train_en["x"].shape[1]
+
+def select_labels(split, label_ids, remap=False):
+    mask = torch.zeros(len(split["y"]), dtype=torch.bool)
+    for label_id in label_ids:
+        mask |= split["y"] == label_id
+    y = split["y"][mask]
+    if remap:
+        y = y - min(label_ids)
+    return {"x": split["x"][mask], "y": y}
+
+def new_head(output_size):
+    return nn.Linear(HIDDEN_SIZE, output_size).to(device)
+
+def fit_head(head, split, epochs=30, learning_rate=3e-3):
+    loader = DataLoader(
+        TensorDataset(split["x"], split["y"]),
+        batch_size=32,
+        shuffle=True,
+    )
+    optimizer = torch.optim.AdamW(head.parameters(), lr=learning_rate)
+    loss_fn = nn.CrossEntropyLoss()
+    head.train()
+    for _ in range(epochs):
+        for x, y in loader:
+            optimizer.zero_grad()
+            loss = loss_fn(head(x.to(device)), y.to(device))
+            loss.backward()
+            optimizer.step()
+    return head
+
+@torch.inference_mode()
+def accuracy(head, split):
+    head.eval()
+    prediction = head(split["x"].to(device)).argmax(dim=1).cpu()
+    return float((prediction == split["y"]).float().mean())
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 3. TIL: task ID chọn bộ phân loại
+
+Ta dùng ba nhóm yêu cầu thật trong MASSIVE làm ba tác vụ. Mỗi tác vụ có một bộ phân loại riêng và chỉ cần phân biệt hai ý định bên trong nhóm đó.
+
+| `task_id` | Bộ phân loại cần huấn luyện | Hai đầu ra |
+| :--- | :--- | :--- |
+| `alarm` | Bộ phân loại báo thức | `alarm_set`, `alarm_remove` |
+| `audio` | Bộ phân loại âm lượng | `audio_volume_up`, `audio_volume_down` |
+| `calendar` | Bộ phân loại calendar | `calendar_set`, `calendar_remove` |
+
+Cell sau huấn luyện lần lượt từng bộ phân loại. Mỗi bộ phân loại chỉ nhìn thấy mẫu thuộc tác vụ của mình; hai bộ đã học trước không bị cập nhật khi tác vụ mới xuất hiện.
+
+```python
+torch.manual_seed(SEED)
+til_heads = []
+
+for task_id in range(len(SCENARIOS)):
+    label_ids = [2 * task_id, 2 * task_id + 1]
+    train_task = select_labels(train_en, label_ids, remap=True)
+    head = fit_head(new_head(2), train_task)
+    til_heads.append(head)
+
+    eval_task = select_labels(eval_en, label_ids, remap=True)
+    print(
+        f"Task {SCENARIOS[task_id]:8s} | "
+        f"held-out accuracy: {accuracy(head, eval_task):.3f}"
+    )
+```
+
+Kết quả của lần chạy tham khảo cho thấy cả ba bộ phân loại đều học tốt bài toán cục bộ của mình:
+
+| Tác vụ | Độ chính xác trên tập đánh giá |
+| :--- | ---: |
+| `alarm` | 0.974 |
+| `audio` | 1.000 |
+| `calendar` | 0.979 |
+
+Khi có `task_id`, hệ thống chọn đúng bộ phân loại rồi đổi đầu ra cục bộ `0` hoặc `1` về ý định tương ứng. Độ chính xác dưới đây được tính trên toàn bộ tập đánh giá, không phải trung bình thủ công từ ba con số phía trên.
+
+```python
+@torch.inference_mode()
+def til_accuracy_with_task_id():
+    correct = 0
+    total = 0
+
+    for task_id, head in enumerate(til_heads):
+        label_ids = [2 * task_id, 2 * task_id + 1]
+        split = select_labels(eval_en, label_ids, remap=True)
+        prediction = head(split["x"].to(device)).argmax(dim=1).cpu()
+        correct += int((prediction == split["y"]).sum())
+        total += len(split["y"])
+
+    return correct / total
+
+with_task_id_accuracy = til_accuracy_with_task_id()
+print(f"With task ID accuracy: {with_task_id_accuracy:.3f}")
+```
+
+Nếu không cung cấp `task_id`, kiến trúc này không biết phải gọi bộ phân loại nào. Để đo phần khó phát sinh khi mất thông tin đó, ta cố ý thử một phương án thay thế: chạy cả ba bộ phân loại, ghép sáu logit rồi chọn ý định có điểm cao nhất. Đây chỉ là phép thử chẩn đoán, không phải cách suy luận chuẩn của TIL.
+
+```python
+@torch.inference_mode()
+def til_accuracy_without_task_id():
+    all_logits = torch.cat(
+        [head(eval_en["x"].to(device)) for head in til_heads],
+        dim=1,
+    )
+    prediction = all_logits.argmax(dim=1).cpu()
+    return float((prediction == eval_en["y"]).float().mean())
+
+without_task_id_accuracy = til_accuracy_without_task_id()
+task_id_gap = with_task_id_accuracy - without_task_id_accuracy
+
+til_results = pd.DataFrame([
+    {"inference": "Có task ID", "accuracy": with_task_id_accuracy},
+    {"inference": "Không có task ID", "accuracy": without_task_id_accuracy},
+])
+display(til_results)
+print(f"Accuracy gap from removing task ID: {task_id_gap:+.3f}")
+```
+
+Kết quả của cùng lần chạy:
+
+| Cách suy luận | Độ chính xác trên tập đánh giá |
+| :--- | ---: |
+| Có `task_id` | 0.983 |
+| Không có `task_id` | 0.863 |
+
+Độ chính xác giảm khoảng **12 điểm phần trăm** khi bỏ `task_id`, dù kết quả riêng của cả ba bộ phân loại đều rất cao. Mỗi bộ chỉ học câu hỏi cục bộ, chẳng hạn “đặt hay xóa báo thức?”. Chúng chưa từng học câu hỏi khó hơn là “câu này thuộc báo thức, âm lượng hay calendar?”. Vì được huấn luyện độc lập, độ lớn logit của ba bộ cũng chưa được hiệu chỉnh để so sánh trực tiếp. Phần giảm trên vì thế cho thấy khó khăn phát sinh khi vừa phải chọn tác vụ, vừa phải so điểm giữa các bộ vốn chỉ học bài toán riêng của mình.
+
+Để biết 12 điểm phần trăm bị mất ở đâu, ta so sánh dự đoán của từng mẫu trong tập đánh giá trước và sau khi cung cấp `task_id`.
+
+```python
+@torch.inference_mode()
+def til_predictions_with_task_id():
+    predictions = torch.empty_like(eval_en["y"])
+
+    for task_id, head in enumerate(til_heads):
+        mask = eval_en["scenario_y"] == task_id
+        local_prediction = head(
+            eval_en["x"][mask].to(device)
+        ).argmax(dim=1).cpu()
+        predictions[mask] = local_prediction + 2 * task_id
+
+    return predictions
+
+@torch.inference_mode()
+def til_predictions_without_task_id():
+    all_logits = torch.cat(
+        [head(eval_en["x"].to(device)) for head in til_heads],
+        dim=1,
+    )
+    return all_logits.argmax(dim=1).cpu()
+
+with_id_predictions = til_predictions_with_task_id()
+without_id_predictions = til_predictions_without_task_id()
+```
+
+Mỗi dòng dưới đây là một câu bị dự đoán sai ở ít nhất một trong hai cách suy luận. Cột cuối phân biệt lỗi chọn nhầm tác vụ với lỗi vẫn xảy ra bên trong đúng bộ phân loại.
+
+```python
+error_rows = []
+
+for index, expected_id in enumerate(eval_en["y"].tolist()):
+    with_id = with_id_predictions[index].item()
+    without_id = without_id_predictions[index].item()
+    with_id_correct = with_id == expected_id
+    without_id_correct = without_id == expected_id
+
+    if with_id_correct and without_id_correct:
+        continue
+
+    if not without_id_correct and with_id_correct:
+        result = "Được sửa nhờ task ID"
+    elif not without_id_correct and not with_id_correct:
+        result = "Vẫn sai trong đúng head"
+    else:
+        result = "Chỉ fallback không task ID dự đoán đúng"
+
+    task_id = eval_en["scenario_y"][index].item()
+    error_rows.append({
+        "Câu lệnh": raw_eval_en["text"][index],
+        "Task ID": SCENARIOS[task_id],
+        "Nhãn đúng": INTENTS[expected_id],
+        "Không task ID": INTENTS[without_id],
+        "Có task ID": INTENTS[with_id],
+        "Phân tích": result,
+    })
+
+error_analysis = pd.DataFrame(error_rows)
+display(
+    error_analysis.groupby("Phân tích", sort=False)
+    .head(6)
+    .reset_index(drop=True)
+)
+```
+
+Trong lần chạy tham khảo, `task_id` sửa được các lỗi sau:
+
+| Câu lệnh | Task ID | Nhãn đúng | Không có task ID | Có task ID |
+| :--- | :--- | :--- | :--- | :--- |
+| `alert me in three hours` | `alarm` | `alarm_set` | `calendar_set` | `alarm_set` |
+| `schedule a meeting with my colleague` | `calendar` | `calendar_set` | `alarm_set` | `calendar_set` |
+| `i want to add something to my calendar` | `calendar` | `calendar_set` | `alarm_set` | `calendar_set` |
+| `ok google schedule a meeting with the v. p. of...` | `calendar` | `calendar_set` | `alarm_set` | `calendar_set` |
+| `add the following date and time to my calendar` | `calendar` | `calendar_set` | `alarm_set` | `calendar_set` |
+| `add an event starting at three p. m. in goshen...` | `calendar` | `calendar_set` | `alarm_set` | `calendar_set` |
+
+Đây là lỗi điều phối: bộ phân loại nội bộ đã biết đáp án, nhưng phương án thay thế lấy đầu ra có điểm cao hơn từ một tác vụ khác. Trong các câu thuộc nhóm calendar, phương án này liên tục chọn `alarm_set`; `task_id=calendar` loại hẳn hai đầu ra của bộ phân loại báo thức nên `calendar_set` được chọn đúng.
+
+Hai lỗi dưới đây vẫn còn ngay cả khi đã chọn đúng bộ phân loại:
+
+| Câu lệnh | Task ID | Nhãn đúng | Không có task ID | Có task ID |
+| :--- | :--- | :--- | :--- | :--- |
+| `phones` | `alarm` | `alarm_remove` | `calendar_set` | `alarm_set` |
+| `hey siri make sure my calendar is completely c...` | `calendar` | `calendar_remove` | `alarm_set` | `calendar_set` |
+
+Đây là lỗi phân loại nội bộ giữa hai ý định trong cùng tác vụ. `task_id` chỉ giúp chọn đúng bộ phân loại, không thể quyết định thay bộ phân loại rằng câu mang nghĩa thêm hay xóa. Riêng câu `phones` quá ngắn và thiếu ngữ cảnh, nên kết quả cũng cho thấy chất lượng hoặc độ rõ ràng của mẫu vẫn ảnh hưởng tới mô hình.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 4. DIL: cùng nhãn, đổi loại sản phẩm
+
+Trong DIL, mô hình vẫn trả về hai nhãn tiêu cực và tích cực. Miền đầu tiên gồm đánh giá sách; miền thứ hai gồm đánh giá điện tử. Khi suy luận, mô hình chỉ nhận nội dung đánh giá và không được cung cấp loại sản phẩm.
+
+Ta tải cấu hình tiếng Anh của Amazon Reviews Multi, sau đó lấy số mẫu cân bằng cho hai nhãn. Đánh giá 1–2 sao được xem là tiêu cực, 4–5 sao được xem là tích cực; đánh giá 3 sao không được dùng vì khó xác định rõ một trong hai phía.
+
+```python
+amazon_reviews = load_dataset("goosmanlei/amazon_reviews_multi", "en")
+
+REVIEW_DOMAINS = ["book", "electronics"]
+REVIEW_LABELS = ["tiêu cực", "tích cực"]
+
+def sample_review_split(dataset, product_category, samples_per_class):
+    texts, labels = [], []
+    star_groups = [[1, 2], [4, 5]]
+
+    for label, stars in enumerate(star_groups):
+        rows = dataset.filter(
+            lambda row, category=product_category, allowed=stars:
+                row["product_category"] == category and row["stars"] in allowed
+        )
+        rows = rows.shuffle(seed=SEED + label)
+        rows = rows.select(range(min(samples_per_class, len(rows))))
+        texts.extend([
+            f"{title}. {body}"
+            for title, body in zip(rows["review_title"], rows["review_body"])
+        ])
+        labels.extend([label] * len(rows))
+
+    return {"text": texts, "y": torch.tensor(labels, dtype=torch.long)}
+
+raw_train_books = sample_review_split(
+    amazon_reviews["train"], "book", TRAIN_PER_CLASS
+)
+raw_eval_books = sample_review_split(
+    amazon_reviews["validation"], "book", EVAL_PER_CLASS
+)
+raw_train_electronics = sample_review_split(
+    amazon_reviews["train"], "electronics", TRAIN_PER_CLASS
+)
+raw_eval_electronics = sample_review_split(
+    amazon_reviews["validation"], "electronics", EVAL_PER_CLASS
+)
+```
+
+Hai miền dùng cùng bộ mã hóa và cùng một bộ phân loại hai nhãn. Bộ phân loại học sách trước, sau đó tiếp tục được cập nhật chỉ bằng đánh giá điện tử. Ngay sau giai đoạn sách, ta chấm cả hai miền: điểm điện tử lúc này đo khả năng chuyển sang miền chưa học, chưa phải kết quả sau khi huấn luyện trên điện tử.
+
+```python
+def embed_review_split(raw_split):
+    return {"x": embed_texts(raw_split["text"]), "y": raw_split["y"]}
+
+train_books = embed_review_split(raw_train_books)
+eval_books = embed_review_split(raw_eval_books)
+train_electronics = embed_review_split(raw_train_electronics)
+eval_electronics = embed_review_split(raw_eval_electronics)
+
+torch.manual_seed(SEED)
+dil_head = new_head(len(REVIEW_LABELS))
+dil_rows = []
+
+fit_head(dil_head, train_books)
+dil_rows.append({
+    "giai đoạn": "Sau sách",
+    "sách": accuracy(dil_head, eval_books),
+    "điện tử": accuracy(dil_head, eval_electronics),
+})
+
+fit_head(dil_head, train_electronics)
+dil_rows.append({
+    "giai đoạn": "Sau sách → điện tử",
+    "sách": accuracy(dil_head, eval_books),
+    "điện tử": accuracy(dil_head, eval_electronics),
+})
+
+dil_results = pd.DataFrame(dil_rows)
+dil_results
+```
+
+Kết quả tham khảo của lần chạy trong bài:
+
+| Giai đoạn | Sách | Điện tử |
+| --- | ---: | ---: |
+| Sau sách | 0.911 | 0.854 |
+| Sau sách → điện tử | 0.889 | 0.896 |
+
+Đọc riêng mức thay đổi của miền cũ và miền mới:
+
+```python
+books_change = dil_results.loc[1, "sách"] - dil_results.loc[0, "sách"]
+electronics_change = (
+    dil_results.loc[1, "điện tử"]
+    - dil_results.loc[0, "điện tử"]
+)
+
+print(f"Thay đổi miền cũ (sách): {books_change:+.3f}")
+print(f"Thay đổi miền mới (điện tử): {electronics_change:+.3f}")
+
+if books_change < 0:
+    print("Miền sách giảm: mô hình thích nghi với điện tử nhưng quên một phần miền cũ.")
+else:
+    print("Miền sách không giảm: lần chạy này có chuyển giao tích cực.")
+```
+
+Trong kết quả tham khảo, accuracy trên miền sách giảm từ 0.911 xuống 0.889, tương đương khoảng 2.2 điểm phần trăm. Cùng lúc đó, accuracy trên miền điện tử tăng từ mức chuyển giao ban đầu 0.854 lên 0.896, tương đương khoảng 4.2 điểm phần trăm. Mô hình đã thích nghi với miền mới nhưng quên một phần cách phân loại miền cũ. Nếu điểm sách không giảm trong một lần chạy khác, thí nghiệm vẫn là DIL; khi đó hai miền đang có chuyển giao tích cực.
+
+DIL giữ nguyên bài toán và không gian đầu ra, nhưng một bộ phân loại phải phục vụ các cách dùng từ khác nhau mà không được biết loại sản phẩm.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 5. CIL: không gian đầu ra mở rộng
+
+CIL học lần lượt ba nhóm ý định báo thức, âm lượng và calendar nhưng không nhận `task_id`. Sau mỗi giai đoạn, bộ phân loại có thêm hai đầu ra và phải chọn trong tất cả ý định đã thấy.
+
+Trong code, `expand_head` giữ lại các hàng trọng số của lớp cũ và thêm hai hàng mới cho hai lớp vừa xuất hiện. Sau đó, mô hình chỉ nhận mẫu của hai lớp mới để huấn luyện, nhưng loss vẫn được tính trên toàn bộ đầu ra đang có. Vì vậy, lớp mới có thể được ưu tiên hơn lớp cũ.
+
+```python
+def expand_head(old_head, output_size):
+    expanded = new_head(output_size)
+    if old_head is not None:
+        with torch.no_grad():
+            old_size = old_head.out_features
+            expanded.weight[:old_size].copy_(old_head.weight)
+            expanded.bias[:old_size].copy_(old_head.bias)
+    return expanded
+
+torch.manual_seed(SEED)
+cil_head = None
+cil_rows = []
+
+for task_id in range(len(INTENT_GROUPS)):
+    first_new_label = 2 * task_id
+    seen_label_ids = list(range(first_new_label + 2))
+    new_label_ids = [first_new_label, first_new_label + 1]
+
+    cil_head = expand_head(cil_head, len(seen_label_ids))
+    train_new_classes = select_labels(train_en, new_label_ids)
+    fit_head(cil_head, train_new_classes)
+
+    eval_seen = select_labels(eval_en, seen_label_ids)
+    eval_new = select_labels(eval_en, new_label_ids)
+    old_accuracy = np.nan
+    if first_new_label > 0:
+        eval_old = select_labels(eval_en, list(range(first_new_label)))
+        old_accuracy = accuracy(cil_head, eval_old)
+
+    cil_rows.append({
+        "stage": f"{len(seen_label_ids)} lớp",
+        "old_classes": old_accuracy,
+        "new_classes": accuracy(cil_head, eval_new),
+        "all_seen_classes": accuracy(cil_head, eval_seen),
+    })
+
+cil_results = pd.DataFrame(cil_rows)
+cil_results
+```
+
+Kết quả tham khảo của lần chạy trong bài:
+
+| Giai đoạn | Các lớp cũ | Các lớp mới | Tất cả lớp đã học |
+| --- | ---: | ---: | ---: |
+| 2 lớp | — | 0.974 | 0.974 |
+| 4 lớp | 0.026 | 1.000 | 0.464 |
+| 6 lớp | 0.333 | 0.979 | 0.598 |
+
+Sau khi mở rộng từ hai lên bốn lớp, mô hình gần như không còn chọn đúng các lớp cũ: accuracy chỉ còn 0.026. Ở giai đoạn sáu lớp, accuracy trên các lớp cũ phục hồi lên 0.333 nhưng vẫn thấp hơn nhiều so với 0.979 trên hai lớp vừa học. Đây là dấu hiệu mô hình đang ưu tiên các lớp mới.
+
+Cuối cùng, chấm cùng bộ phân loại CIL theo hai cách. Cách toàn cục là suy luận CIL bình thường và phải chọn trong cả sáu lớp. Cách dùng oracle task mask là phép chẩn đoán: giả sử ta biết mẫu thuộc nhóm nào, rồi tạm loại bốn lớp ngoài nhóm để chỉ còn hai lựa chọn.
+
+```python
+@torch.inference_mode()
+def oracle_task_mask_accuracy(head):
+    correct, total = 0, 0
+    head.eval()
+    for task_id in range(len(INTENT_GROUPS)):
+        start = 2 * task_id
+        split = select_labels(eval_en, [start, start + 1])
+        logits = head(split["x"].to(device))[:, start:start + 2]
+        prediction = logits.argmax(dim=1).cpu() + start
+        correct += int((prediction == split["y"]).sum())
+        total += len(split["y"])
+    return correct / total
+
+global_accuracy = accuracy(cil_head, eval_en)
+oracle_accuracy = oracle_task_mask_accuracy(cil_head)
+
+print(f"CIL global accuracy:       {global_accuracy:.3f}")
+print(f"With oracle task mask:     {oracle_accuracy:.3f}")
+```
+
+Trong kết quả tham khảo, accuracy toàn cục là 0.598, còn accuracy khi biết trước đúng nhóm tác vụ đạt 0.991. Hai số này không mâu thuẫn: trong từng cặp, lớp đúng thường vẫn có logit cao hơn lớp còn lại; nhưng khi cả sáu lớp cùng xuất hiện, một lớp thuộc nhóm khác có thể đạt logit cao hơn cả hai. Mask loại các lớp ngoài nhóm nên cho thấy mô hình vẫn phân biệt tốt hai ý định bên trong từng nhóm.
+
+TIL được cấp task ID để loại bốn lớp không liên quan. CIL không có thông tin này nên phải tự giải quyết cả việc nhận ra nhóm tác vụ lẫn chọn lớp trong nhóm đó.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Đọc kết quả của ba thiết lập
+
+Vẽ ba biểu đồ phân tích cạnh nhau. Mỗi biểu đồ trả lời một câu hỏi khác nhau, vì vậy không dùng chúng như bảng xếp hạng độ chính xác giữa các thiết lập.
+
+```python
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+axes[0].bar(
+    til_results["inference"],
+    til_results["accuracy"],
+    color=["#205089", "#D97706"],
+)
+axes[0].set_title("TIL: có/không có task ID")
+axes[0].set_ylim(0, 1)
+
+dil_results.set_index("giai đoạn")[["sách", "điện tử"]].plot(marker="o", ax=axes[1])
+axes[1].set_title("DIL: đổi loại sản phẩm")
+axes[1].set_ylim(0, 1)
+
+cil_results.set_index("stage")[["old_classes", "new_classes", "all_seen_classes"]].rename(
+    columns={
+        "old_classes": "lớp cũ",
+        "new_classes": "lớp mới",
+        "all_seen_classes": "tất cả lớp đã học",
+    }
+).plot(marker="o", ax=axes[2])
+axes[2].set_title("CIL: không gian đầu ra mở rộng")
+axes[2].set_ylim(0, 1)
+
+for ax in axes:
+    ax.set_ylabel("Độ chính xác trên tập đánh giá")
+    ax.grid(alpha=0.25)
+
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="continual-learning-llm/02-til-dil-cil-lab-results.png"
+  alt="Ba biểu đồ kết quả: TIL giảm accuracy khi bỏ task ID, DIL tăng trên điện tử nhưng giảm nhẹ trên sách, và CIL ưu tiên lớp mới khiến accuracy trên toàn bộ lớp đã học giảm"
+/>
+
+Ba biểu đồ cho thấy ba nguồn khó khăn khác nhau. TIL phụ thuộc vào thông tin định tuyến, DIL phải giữ miền cũ khi thích nghi với miền mới, còn CIL phải xử lý sự cạnh tranh giữa toàn bộ lớp đã học.
+
+| Thiết lập | Ưu điểm quan sát được | Hạn chế quan sát được |
+| :--- | :--- | :--- |
+| TIL | Task ID đưa mẫu thẳng tới bộ phân loại chuyên biệt; các bộ phân loại có thể được cô lập. | Không có task ID, các bộ phân loại chưa học cách cạnh tranh giữa nhiều tác vụ. |
+| DIL | Một giao diện và một không gian đầu ra phục vụ nhiều miền dữ liệu. | Bộ phân loại dùng chung phải thích nghi mà không có mã miền; miền cũ có thể giảm hiệu năng. |
+| CIL | Một bộ phân loại thống nhất, không cần task ID. | Lớp mới cạnh tranh trực tiếp với lớp cũ và không gian đầu ra tăng theo thời gian. |
+
+Kết luận quan trọng nhất không phải TIL luôn tốt hơn DIL hay CIL. TIL được cung cấp nhiều thông tin hơn khi suy luận, còn CIL phải giải quyết bài toán mở hơn. Thiết lập phù hợp được quyết định bởi dữ liệu đến theo cách nào và hệ thống thực tế biết gì khi nhận yêu cầu.
+
+</MdxPage>

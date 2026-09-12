@@ -18,7 +18,7 @@ export function Flowchart({
   caption?: string;
 }) {
   return (
-    <figure className="my-6 w-full max-w-full">
+    <figure className="my-6 w-full max-w-full min-w-0">
       <div className="w-full overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 min-w-max">
           {nodes.map((node, index) => {

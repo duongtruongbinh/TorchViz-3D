@@ -14,7 +14,7 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 | `cv` | placeholder | 1 | 9 | 4 |
 | `nlp` | placeholder | 9 | 65 | 0 |
 | `llm-ai-engineering` | active | 12 | 158 | 49 |
-| `continual-learning-llm` | active | 7 | 81 | 81 |
+| `continual-learning-llm` | active | 7 | 85 | 85 |
 | `mlops-llmops-production-systems` | partial | 8 | 63 | 63 |
 | `ai-system-design` | placeholder | 6 | 31 | 0 |
 | `reinforcement-learning` | placeholder | 5 | 27 | 0 |
@@ -24,4 +24,4 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 | `research-papers` | active | 4 | 26 | 26 |
 | `ai-projects` | active | 4 | 11 | 8 |
 
-**Totals:** 16 domains · 103 tracks · 773 lesson nodes · 305 published · 468 placeholders.
+**Totals:** 16 domains · 103 tracks · 777 lesson nodes · 309 published · 468 placeholders.

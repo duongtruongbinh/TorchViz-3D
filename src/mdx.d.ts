@@ -14,6 +14,7 @@ declare module '*.mdx' {
     pageCount?: number;
   };
   export const lessonRuntime: LearningMdxRuntimeCapabilities;
+  export const lessonPageHeadings: Array<string | null>;
 
   const MdxContent: ComponentType<{
     components?: Record<string, ComponentType<Record<string, unknown>>>;

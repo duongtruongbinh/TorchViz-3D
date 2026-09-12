@@ -19,9 +19,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 16 domains, 103 tracks, and 773 lesson nodes. Three hundred
-five Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, eighty-one in `continual-learning-llm`, sixty-three in
+The catalog contains 16 domains, 103 tracks, and 777 lesson nodes. Three hundred
+nine Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
@@ -89,9 +89,11 @@ inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
 
-The Continual Learning course contains 40 adjacent Theory/Quiz pairs across its
+The Continual Learning course contains 42 adjacent Theory/Quiz pairs across its
 first six chapters, followed by one standalone Chapter 7 self-check lesson.
-Content through the Replay lab is the approved foundation;
+Content through the two Replay labs is the approved foundation. The second lab
+adapts O-LoRA task order 1 into a four-task, small-LLM Colab baseline and keeps
+one stage-by-task evaluation contract for SeqFT, Replay, and later CL methods;
 later chapters follow the Shi et al. (2025) survey notes covering regularization,
 architecture expansion, distillation, evaluation, vertical/horizontal continuity, CPT/DAP/CFT,
 discussion, and a final cross-course synthesis. The synthesis uses one persisted,

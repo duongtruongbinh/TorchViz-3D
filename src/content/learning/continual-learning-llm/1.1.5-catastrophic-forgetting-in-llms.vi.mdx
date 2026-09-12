@@ -14,12 +14,16 @@ Khi được fine-tune cho một nhiệm vụ hoặc domain dữ liệu cụ th�
 
 Nền tảng lịch sử của khái niệm này là **catastrophic interference** trong connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" evidence="catastrophic-forgetting-foundation-01-mccloskey1989catastrophic" />. Citation này chứng minh hiện tượng nền tảng, không tự nó chứng minh mọi biểu hiện forgetting ở LLM; các phần sau sẽ dùng nghiên cứu trên pretrained language model và LLM cho những claim cụ thể hơn.
 
-Nguyên nhân trực tiếp là objective của stage mới chỉ nhìn thấy dữ liệu hiện tại. Khi dữ liệu cũ vắng mặt, gradient không còn ràng buộc model phải giữ những lời giải đã đúng ở stage trước.
+<LessonNote tone="fact">
+  Nguyên nhân trực tiếp là objective của stage mới chỉ nhìn thấy dữ liệu hiện tại, hay nói cách khác, việc chỉ tập trung cải thiện loss trên downstream task khiến model không nhận được tín hiệu nào để bảo vệ hiệu năng trên các task đã học trước đó. Khi dữ liệu cũ vắng mặt, gradient không còn ràng buộc model phải giữ những lời giải đã đúng ở stage trước.
+</LessonNote>
 
 ## Thách thức đặc thù ở Large Language Models
 
 Mặc dù catastrophic forgetting đã được nghiên cứu rộng rãi trong cộng đồng Continual Learning (CL), việc áp dụng CL cho LLM vẫn đặt ra nhiều thách thức mới. Nguyên nhân là LLM có kích thước lớn, phạm vi kiến thức rộng, trải qua nhiều giai đoạn huấn luyện khác nhau và yêu cầu chi phí tính toán cao <Cite paper="shi2024continualSurvey" evidence="catastrophic-forgetting-foundation-02-shi2024continualSurvey" />.
 
 <LessonImage assetPath="continual-learning-llm/01-catastrophic-forgetting-pattern-preservation.png" alt="Biến đổi tín hiệu pattern qua các giai đoạn học" caption="Mô hình tuần tự làm suy giảm pattern cũ; phương pháp Continual Learning cố giữ chúng trong các giai đoạn sau." />
+
+Đọc đồng thời hai đường: năng lực mới tăng nhưng năng lực cũ không được phép giảm mạnh. Khi **không có catastrophic forgetting**, accuracy trên new task tăng còn accuracy trên old task giữ gần ổn định hoặc chỉ giảm trong ngưỡng chấp nhận. Khi **có catastrophic forgetting**, accuracy trên new task vẫn có thể tăng, nhưng accuracy trên old task giảm mạnh ngay sau các lần update.
 
 <LessonImage assetPath="continual-learning-llm/01-catastrophic-forgetting-accuracy-curves.png" alt="Biểu đồ biến thiên độ chính xác" caption="Đọc đồng thời hai đường: năng lực mới tăng nhưng năng lực cũ không được phép giảm mạnh." />

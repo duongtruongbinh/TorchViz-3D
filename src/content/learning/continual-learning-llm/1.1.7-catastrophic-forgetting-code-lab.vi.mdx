@@ -2,727 +2,358 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'catastrophic-forgetting-code-lab',
   locale: 'vi',
-  title: "Lab đo Forgetting",
+  title: 'Lab đo Forgetting',
   headings: [
     'Tổng quan Bài lab & Phương pháp Đánh giá',
-    'Bối cảnh & Ý tưởng Bài toán',
-    'Quy trình Thực nghiệm (5 Bước)',
-    '1. Thiết lập Môi trường & Khởi tạo Thực nghiệm',
-    '2. Sinh Dữ liệu Tiểu sử Giả lập',
-    '3. Nạp Mô hình Pythia-160M & Hàm Đánh giá NLL',
-    '4. Tóm tắt kết quả hiện tại',
-    '5. Huấn luyện Task A & Đánh giá Giai đoạn 1',
-    '6. Huấn luyện Continual Task B & Phân tích Forgetting',
+    'Bối cảnh: hai năng lực ngôn ngữ học nối tiếp',
+    'Quy trình Thực nghiệm',
+    '1. Thiết lập môi trường',
+    '2. Tạo train/held-out split cho hai task',
+    '3. Nạp model và đo accuracy trên held-out set',
+    '4. Fine-tune Task A',
+    '5. Fine-tune Task B và quan sát forgetting',
   ],
-  keywords: ['Pythia-160M', 'Catastrophic Forgetting', 'Hands-on Lab', 'Python', 'HuggingFace', 'Answer NLL', 'Continual Learning'],
+  keywords: ['DistilGPT-2', 'Catastrophic Forgetting', 'Held-out Accuracy', 'Python', 'HuggingFace', 'Continual Learning'],
   conceptIds: ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
-  pageCount: 9,
+  pageCount: 8,
 }
 
 <MdxPage page={0}>
 
 ## Tổng quan Bài lab & Phương pháp Đánh giá
 
-Bài lab thực hành này giúp bạn kiểm chứng hiện tượng **Catastrophic Forgetting** (Thảm họa quên tri thức) trên mô hình ngôn ngữ thực tế (**Pythia-160M**), được truyền cảm hứng từ thiết lập thực nghiệm Biography trong công trình nghiên cứu <Cite paper="zheng2025spurious" evidence="lab-forgetting-interpretation-01-zheng2025spurious" />.
+Lab này trả lời một câu hỏi đơn giản: sau khi model học Task B, nó còn làm được Task A không?
 
-<LessonNote>
-  **Bạn sẽ được:**
-  - Tự tay chạy từng khối mã nguồn Python trên Google Colab để quan sát hiện tượng này.
-  - Thấy rõ sự thay đổi từ lúc AI nhớ hoàn hảo 100% cho đến khi sụt giảm về 0% sau khi học nhiệm vụ mới.
-</LessonNote>
+Ta cho DistilGPT-2 học Task A trước, rồi tiếp tục fine-tune cùng model đó trên Task B. Trong lúc học B, model không được xem lại dữ liệu A.
 
-<LessonNote tone="warning">
-  **Lưu ý:** Đây chỉ là setup tình huống được đơn giản hóa để minh họa hiện tượng, không phải reproduction chính thức của paper. Model, dữ liệu, hyperparameter và môi trường chạy có khác biệt, nên các con số thu được có thể không trùng khớp hoàn toàn với kết quả được báo cáo trong paper.
+Sau mỗi giai đoạn, ta kiểm tra cả hai task bằng các câu **held-out** — những câu không nằm trong tập train. Nhờ vậy, ta đo được model còn thực hiện task cũ tốt đến đâu, thay vì chỉ kiểm tra nó nhớ các câu đã thấy.
+
+<LessonNote tone="fact">
+  Nếu accuracy B tăng còn accuracy A giảm sau khi fine-tune B, model đã học điều mới nhưng quên một phần năng lực cũ. Đó là Catastrophic Forgetting.
 </LessonNote>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Bối cảnh & Ý tưởng Bài toán
+## Bối cảnh: hai năng lực ngôn ngữ học nối tiếp
 
-Hãy tưởng tượng bạn dạy cho một mô hình AI học thuộc lòng lý lịch của một nhóm người (gọi là **Nhiệm vụ A**): tên tuổi, ngày sinh, quê quán, trường đại học và nơi làm việc. Sau quá trình học, bạn đặt câu hỏi kiểm tra và AI trả lời chính xác **100%**.
+**Task A — Sentiment.** Model đọc một nhận xét ngắn và trả về `positive` hoặc `negative`.
 
-**Bảng dữ liệu lý lịch nhân vật mẫu (Nhiệm vụ A):**
-
-| Họ và tên | Ngày sinh | Quê quán | Trường đại học | Chuyên ngành | Nơi làm việc |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Avery Alden** | `1960-01-01` | `A-BirthCity-00` | `A-University-00` | `A-Major-00` | `A-Company-00` |
-| **Blake Bennett** | `1961-02-08` | `A-BirthCity-01` | `A-University-01` | `A-Major-01` | `A-Company-01` |
-| **Cameron Corwin** | `1962-03-15` | `A-BirthCity-02` | `A-University-02` | `A-Major-02` | `A-Company-02` |
-
-Sau đó, bạn tiếp tục yêu cầu con AI đó học thêm lý lịch của một nhóm người hoàn toàn mới (**Nhiệm vụ B**).
-
-**Bảng dữ liệu lý lịch nhân vật mẫu (Nhiệm vụ B):**
-
-| Họ và tên | Ngày sinh | Quê quán | Trường đại học | Chuyên ngành | Nơi làm việc |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Sawyer Sinclair** | `2000-01-01` | `B-BirthCity-00` | `B-University-00` | `B-Major-00` | `B-Company-00` |
-| **Taylor Thayer** | `2001-02-08` | `B-BirthCity-01` | `B-University-01` | `B-Major-01` | `B-Company-01` |
-| **Harper Winslow** | `2002-03-15` | `B-BirthCity-02` | `B-University-02` | `B-Major-02` | `B-Company-02` |
-
-Điều gì sẽ xảy ra? Khi bạn quay lại hỏi câu hỏi về nhóm người A ban đầu:
-
-```console
-Where was Avery Alden born?
-Answer:
+```text
+Instruction: Classify the sentiment as positive or negative.
+Text: The battery lasts all day and the camera is sharp.
+Label: positive
 ```
 
-Mô hình AI đã hoàn toàn **"quên sạch"** tri thức cũ và trả lời sai hết. Ví dụ:
+**Task B — Topic.** Cùng model đó tiếp tục đọc mẩu tin và trả về `world`, `sports`, `business`, hoặc `technology`.
 
-```output
-Model answer: B-BirthCity-00
-Expected:     A-BirthCity-00
-Result:       Incorrect
+```text
+Instruction: Classify the news topic.
+Text: The team scored twice in the final minutes of the match.
+Label: sports
 ```
 
-Trong trí tuệ nhân tạo, đây gọi là hiện tượng **Catastrophic Forgetting (Thảm họa quên tri thức)**: khi học tri thức mới mà không có phương pháp bảo vệ, các cập nhật mô hình sẽ ghi đè toàn bộ tri thức cũ đã tích lũy.
+Hai task đều dùng dữ liệu thật và có prompt cùng nhãn text ngắn, nhưng đòi hỏi hai quy tắc phân loại khác nhau. Task A dùng SST-2, gồm các câu nhận xét phim có nhãn cảm xúc. Task B dùng AG News, gồm các mẩu tin có nhãn chủ đề. Các câu đánh giá lấy từ split riêng, không xuất hiện trong train.
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Quy trình Thực nghiệm (5 Bước)
+## Quy trình Thực nghiệm
 
-| Bước (Step) | Tên bước (Step Name) |
-| :---: | :--- |
-| **Bước 1** | Thiết lập Môi trường & Khởi tạo Seed |
-| **Bước 2** | Sinh Dữ liệu Tiểu sử Giả lập (Synthetic Biography Data) |
-| **Bước 3** | Nạp Mô hình Pythia-160M & Hàm Đánh giá Answer NLL |
-| **Bước 4** | Huấn luyện Task A & Đánh giá Giai đoạn 1 |
-| **Bước 5** | Huấn luyện Continual Task B & Phân tích Forgetting |
-
-<LessonNote>
-  **Kết quả kỳ vọng:**
-  1. Mô hình ghi nhớ thuộc lòng 100% dữ liệu Nhiệm vụ A.
-  2. Mô hình học tốt Nhiệm vụ B, nhưng **quên hoàn toàn** Nhiệm vụ A.
-</LessonNote>
+| Phương pháp | Giải thích |
+| :--- | :--- |
+| Dạy Task A | Cho model học phân loại cảm xúc: câu nhận xét này là `positive` hay `negative`? |
+| Dạy tiếp Task B | Không khởi tạo lại model. Dùng chính model vừa học A để học phân loại chủ đề tin tức. Trong lúc này, model không được xem lại dữ liệu A. |
+| Kiểm tra lại | Dùng các câu mới, không có trong dữ liệu train, để hỏi lại cả Task A lẫn Task B. Nếu model làm B tốt hơn nhưng làm A kém đi, nó đã quên một phần Task A. |
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## 1. Thiết lập Môi trường & Khởi tạo Thực nghiệm
+## 1. Thiết lập môi trường
 
-Nếu chạy trên **Google Colab**, hãy đảm bảo bạn đã bật GPU trước khi thực thi mã nguồn: vào menu **Runtime** ➔ **Change runtime type** ➔ chọn **T4 GPU** (hoặc GPU tương đương).
+Trên Google Colab, chọn T4 GPU hoặc GPU tương đương. Trong phần này, ta dùng `datasets` để tải benchmark, `transformers` để nạp và fine-tune language model, còn `pandas` và `matplotlib` để xem kết quả.
 
 ```bash
-pip -q install "transformers>=4.44,<5" "datasets>=2.20,<4" "accelerate>=0.33,<2" pandas
+pip -q install -U "transformers>=5,<6" "datasets>=4,<5" "accelerate>=1.1,<2" "pandas==2.2.3" matplotlib
 ```
 
-### Import các thư viện phụ thuộc
-
 ```python
-import math
-import random
-
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
-
-from datasets import Dataset
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    DataCollatorForLanguageModeling,
-    Trainer,
-    TrainingArguments,
-    set_seed,
-)
-```
-
-Các thư viện sử dụng khác khá phổ biến, chúng ta chỉ cần chú ý vào các thành phần của `transformers`:
-
-| Thành phần | Vai trò trong bài lab |
-| :--- | :--- |
-| **`AutoTokenizer`** | Tải tokenizer của Pythia-160M để mã hóa văn bản thành token ID và giải mã token trở lại văn bản. |
-| **`AutoModelForCausalLM`** | Nạp mô hình ngôn ngữ tự hồi quy để dự đoán phân phối xác suất của token tiếp theo. |
-| **`DataCollatorForLanguageModeling`** | Ghép các chuỗi thành batch, thêm padding và chuẩn bị `labels`. Với `mlm=False`, mô hình học dự đoán token tiếp theo thay vì đoán các token bị che như BERT. |
-| **`Trainer` và `TrainingArguments`** | Cấu hình và quản lý vòng lặp huấn luyện, gồm tính loss, cập nhật gradient, `fp16` và GPU dataloader. |
-
-### Cố định Random Seed & Cấu hình Tham số Thực nghiệm
-
-```python
-# Cố định random seed để đảm bảo kết quả thực nghiệm có thể tái lập
-SEED = 47
-set_seed(SEED)
-
-# Mô hình Causal LM nhỏ thuộc họ GPT-NeoX
-MODEL_NAME = "EleutherAI/pythia-160m-deduped"
-
-# Chế độ kiểm tra nhanh (False để chạy thực nghiệm đầy đủ)
-FAST_DEV_RUN = False
-
-# Chế độ Stress mode: tăng áp lực để hiện tượng forgetting hiển thị rõ ràng
-STRESS_FORGETTING = True
-
-N_PEOPLE_PER_TASK = 24 if not FAST_DEV_RUN else 8
-REPEATS_A = 18 if STRESS_FORGETTING else 8
-REPEATS_B = 28 if STRESS_FORGETTING else 8
-
-EPOCHS_A = 3 if not FAST_DEV_RUN else 1
-EPOCHS_B = 5 if STRESS_FORGETTING and not FAST_DEV_RUN else 2
-
-LR = 8e-5 if STRESS_FORGETTING else 3e-5
-BATCH_SIZE = 8
-MAX_LENGTH = 128
-MAX_NEW_TOKENS = 16
+from datasets import Dataset, load_dataset
+from transformers import AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling, Trainer, TrainingArguments, set_seed
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Device:", device)
-print("Model:", MODEL_NAME)
-print("Stress Mode:", STRESS_FORGETTING)
 ```
 
-```output
-Device: cuda
-Model: EleutherAI/pythia-160m-deduped
-Stress Mode: True
-```
-
-### Bảng cấu hình siêu tham số (Hyperparameters):
-
-| Cấu hình | Giá trị và ý nghĩa trong bài lab |
-| :--- | :--- |
-| **`SEED`** | `47` — cố định các thao tác ngẫu nhiên như sinh và đảo dữ liệu để những lần chạy cùng setup dễ cho kết quả tương tự. Bản thân số `47` không có ý nghĩa đặc biệt. |
-| **`MODEL_NAME`** | `"EleutherAI/pythia-160m-deduped"` — mô hình 162M tham số thuộc họ GPT-NeoX, đủ nhỏ để chạy nhanh trên GPU Colab. |
-| **`FAST_DEV_RUN`** | `False` — chạy đầy đủ dữ liệu và số epoch. Đổi thành `True` để thử nhanh xem pipeline có hoạt động hay không; kết quả khi đó không phù hợp để phân tích forgetting. |
-| **`STRESS_FORGETTING`** | `True` — cố ý làm lần học Task B tác động mạnh hơn để hiện tượng quên dễ quan sát. Đây là chế độ minh họa, không phải một cấu hình chuẩn cho mọi thí nghiệm. |
-| **`N_PEOPLE_PER_TASK`** | `24` — mỗi task chứa tiểu sử của 24 người khác nhau. Khi `FAST_DEV_RUN=True`, con số này giảm còn `8` để chạy nhanh hơn. |
-| **`REPEATS_A` / `REPEATS_B`** | `18` / `28` — số lần mỗi tiểu sử được lặp lại khi tạo tập train. Task B được lặp nhiều hơn để mô hình tiếp xúc với dữ liệu mới mạnh hơn. |
-| **`EPOCHS_A` / `EPOCHS_B`** | `3` / `5` — số lượt mô hình đi qua toàn bộ tập train của Task A và Task B. Khác với `REPEATS`, epoch lặp lại cả tập dữ liệu sau khi tập đó đã được tạo xong. |
-| **`LR`** | `8e-5` — learning rate, tức độ lớn của mỗi bước cập nhật tham số. Giá trị lớn giúp model thay đổi nhanh hơn nhưng cũng có thể làm tri thức cũ bị ghi đè mạnh hơn. |
-| **`BATCH_SIZE`** | `8` — mỗi bước huấn luyện xử lý 8 mẫu trên một thiết bị trước khi cập nhật tham số. Batch lớn hơn thường cần nhiều GPU memory hơn. |
-| **`MAX_LENGTH`** | `128` — mỗi mẫu train được giữ tối đa 128 token; phần dài hơn bị cắt. Các chuỗi ngắn hơn chỉ được thêm padding khi ghép thành batch. |
-| **`MAX_NEW_TOKENS`** | `16` — khi kiểm tra bằng câu hỏi, model chỉ được sinh tối đa 16 token mới cho phần trả lời. Tham số này không thay đổi quá trình huấn luyện. |
+`device` tự dùng GPU khi Colab cung cấp GPU, hoặc chuyển về CPU nếu không có.
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## 2. Sinh Dữ liệu Tiểu sử Giả lập (Synthetic Biography Data)
+## 2. Tạo train/held-out split cho hai task
 
-Mỗi nhân vật giả lập sở hữu 6 thuộc tính thực tế: `birth_city`, `birthday`, `university`, `major`, `company`, `company_city`.
-
-### Định nghĩa danh sách nhân vật & Hàm sinh dữ liệu
+Ta tải hai benchmark công khai từ Hugging Face Datasets. SST-2 có sẵn split `train` và `validation`; AG News có sẵn split `train` và `test`. Seed được cố định để một lần chạy có thể tái lập; nếu muốn kiểm tra hiện tượng có ổn định không, hãy chạy lại với nhiều giá trị `SEED` rồi so sánh các đường accuracy.
 
 ```python
-FIRST_NAMES = [
-    "Avery","Blake","Cameron","Dakota","Elliot","Finley","Harper","Jordan",
-    "Kai","Logan","Morgan","Nico","Parker","Quinn","Riley","Sawyer",
-    "Taylor","Uma","Val","Wren","Xander","Yael","Zion","Casey",
-    "Devon","Emery","Frankie","Gray","Hayden","Indigo","Jules","Kendall"
-]
-LAST_NAMES = [
-    "Alden","Bennett","Corwin","Darrow","Everett","Foster","Gaines","Harlow",
-    "Iverson","Jensen","Keaton","Langley","Merrick","Nolan","Orwell","Prescott",
-    "Rowan","Sinclair","Thayer","Ulrich","Vaughn","Winslow","York","Zephyr"
-]
-
-def make_people(n, task, offset=0):
-    assert task in {"A", "B"}
-    people = []
-    year_base = 1960 if task == "A" else 2000
-
-    for i in range(n):
-        idx = offset + i
-        first = FIRST_NAMES[idx % len(FIRST_NAMES)]
-        last = LAST_NAMES[(idx * 7 + 3) % len(LAST_NAMES)]
-        name = f"{first} {last}"
-
-        # Đáp án mang tiền tố riêng cho từng Task (A- hoặc B-)
-        birth_city = f"{task}-BirthCity-{i:02d}"
-        company_city = f"{task}-WorkCity-{i:02d}"
-        university = f"{task}-University-{i:02d}"
-        major = f"{task}-Major-{i:02d}"
-        company = f"{task}-Company-{i:02d}"
-
-        year = year_base + i
-        month = 1 + (i % 12)
-        day = 1 + ((i * 7) % 27)
-        birthday = f"{year:04d}-{month:02d}-{day:02d}"
-
-        people.append({
-            "id": idx,
-            "name": name,
-            "birth_city": birth_city,
-            "birthday": birthday,
-            "university": university,
-            "major": major,
-            "company": company,
-            "company_city": company_city,
-        })
-    return people
+SEED = 47
+set_seed(SEED)
 ```
 
-### Sinh dữ liệu & Kiểm tra tính ngắt kết nối (Disjoint Check)
+Seed cố định giúp lần chạy sau lấy cùng dữ liệu và khởi tạo ngẫu nhiên theo cùng cách. Khi muốn kiểm tra kết quả có ổn định không, hãy đổi `SEED` và chạy lại.
 
-Để đảm bảo kết quả đánh giá không bị nhiễu bởi sự trùng lặp ngẫu nhiên giữa các đáp án (*chance overlap*), dữ liệu **Task A** và **Task B** được thiết kế có **tập từ vựng đáp án tách biệt hoàn toàn** (<InlineMath formula="A \cap B = \emptyset" />).
+Hai dataset dùng mã nhãn số. Ta đổi chúng thành nhãn text để causal language model có thể sinh trực tiếp câu trả lời.
 
 ```python
-task_a_people = make_people(N_PEOPLE_PER_TASK, task="A", offset=0)
-task_b_people = make_people(N_PEOPLE_PER_TASK, task="B", offset=100)
-
-# Kiểm tra sự tách biệt đáp án giữa Task A và Task B
-FACT_FIELDS = ["birth_city", "birthday", "university", "major", "company", "company_city"]
-a_answers = {p[field] for p in task_a_people for field in FACT_FIELDS}
-b_answers = {p[field] for p in task_b_people for field in FACT_FIELDS}
-overlap = a_answers & b_answers
-assert not overlap, f"Phát hiện trùng lặp đáp án: {overlap}"
-
-print(f"Số lượng đáp án trùng lặp giữa A và B: {len(overlap)}")
-```
-
-```output
-Số lượng đáp án trùng lặp giữa A và B: 0
-```
-
-**Bảng dữ liệu mẫu nhân vật được sinh ra (`task_a_people` và `task_b_people`):**
-
-| Nhiệm vụ | Họ và tên | Ngày sinh | Quê quán | Trường đại học | Chuyên ngành | Nơi làm việc |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Task A** | **Avery Alden** | `1960-01-01` | `A-BirthCity-00` | `A-University-00` | `A-Major-00` | `A-Company-00` |
-| **Task A** | **Blake Bennett** | `1961-02-08` | `A-BirthCity-01` | `A-University-01` | `A-Major-01` | `A-Company-01` |
-| **Task B** | **Sawyer Sinclair** | `2000-01-01` | `B-BirthCity-00` | `B-University-00` | `B-Major-00` | `B-Company-00` |
-| **Task B** | **Taylor Thayer** | `2001-02-08` | `B-BirthCity-01` | `B-University-01` | `B-Major-01` | `B-Company-01` |
-
-### Mẫu văn bản tiểu sử & Bộ câu hỏi QA Probes
-
-```python
-def biography_text(p):
-    return (
-        f"{p['name']} was born in {p['birth_city']} on {p['birthday']}. "
-        f"{p['name']} studied {p['major']} at {p['university']}. "
-        f"{p['name']} worked for {p['company']} in {p['company_city']}."
-    )
-
-QUESTION_TEMPLATES = {
-    "birth_city": "Where was {name} born?\nAnswer:",
-    "birthday": "What is {name}'s birth date?\nAnswer:",
-    "university": "Which university did {name} attend?\nAnswer:",
-    "major": "What did {name} study?\nAnswer:",
-    "company": "Which company did {name} work for?\nAnswer:",
-    "company_city": "In which city did {name} work?\nAnswer:",
+SENTIMENT_LABELS = {
+    0: "negative",
+    1: "positive",
 }
 
-def qa_pairs(people):
-    rows = []
-    for p in people:
-        for attr, template in QUESTION_TEMPLATES.items():
-            rows.append({
-                "person_id": p["id"],
-                "name": p["name"],
-                "attribute": attr,
-                "prompt": template.format(name=p["name"]),
-                "answer": " " + p[attr],
-            })
-    return rows
+TOPIC_LABELS = {
+    0: "world",
+    1: "sports",
+    2: "business",
+    3: "technology",
+}
 ```
 
-**Ví dụ chuỗi đầu ra từ `biography_text` và `qa_pairs`:**
-
-```output
-[biography_text]
-Avery Alden was born in A-BirthCity-00 on 1960-01-01. Avery Alden studied A-Major-00 at A-University-00. Avery Alden worked for A-Company-00 in A-WorkCity-00.
-
-[qa_pairs.prompt]
-Where was Avery Alden born?
-Answer:
-
-[qa_pairs.answer]
- A-BirthCity-00
-```
-
-### Đóng gói tập dữ liệu huấn luyện & Đảo ngẫu nhiên
+Hàm dưới đây lấy một sample cố định từ một split của dataset, rồi đổi mỗi example thành cặp `prompt` và `answer` cho language model.
 
 ```python
-def training_texts(people, repeats, qa_repeats=6):
-    texts = []
-    biographies = [biography_text(p) for p in people]
-    qa_examples = [row["prompt"] + row["answer"] for row in qa_pairs(people)]
-
-    for _ in range(repeats):
-        texts.extend(biographies)
-    for _ in range(qa_repeats):
-        texts.extend(qa_examples)
-
-    random.Random(SEED).shuffle(texts)
-    return texts
-
-train_a_texts = training_texts(task_a_people, repeats=REPEATS_A, qa_repeats=6)
-train_b_texts = training_texts(task_b_people, repeats=REPEATS_B, qa_repeats=6)
-
-qa_a = qa_pairs(task_a_people)
-qa_b = qa_pairs(task_b_people)
-
-print(f"Task A train texts: {len(train_a_texts)} | QA probes: {len(qa_a)}")
-print(f"Task B train texts: {len(train_b_texts)} | QA probes: {len(qa_b)}")
+def make_rows(dataset, text_key, labels, instruction, n):
+    subset = dataset.shuffle(seed=SEED).select(range(min(n, len(dataset))))
+    return [
+        {"prompt": f"Instruction: {instruction}\nText: {row[text_key]}\nLabel:", "answer": f" {labels[row['label']]}"}
+        for row in subset
+    ]
 ```
 
-```output
-Task A train texts: 1296 | QA probes: 144
-Task B train texts: 2016 | QA probes: 144
+Trước khi tải, hãy tạo tài khoản Hugging Face và một **read token**, rồi đăng nhập trong Colab. Token giúp các request tải dữ liệu được xác thực và hạn chế bị rate limit. Xem [hướng dẫn tạo và đăng nhập bằng token](https://huggingface.co/docs/huggingface_hub/en/quick-start#authentication) và [tài liệu rate limit](https://huggingface.co/docs/hub/main/rate-limits).
+
+```python
+from huggingface_hub import login
+
+login()
 ```
 
-<LessonNote>
-  **Lý do thiết kế dữ liệu đặc biệt:**
-  - **Kết hợp Văn xuôi & Hỏi-Đáp:** Giúp mô hình vừa tiếp thu kiến thức tự nhiên, vừa rèn phản xạ sinh đáp án chuẩn xác khi trả lời câu hỏi.
-  - **Tách biệt từ vựng 2 Task:** Gán tiền tố riêng cho đáp án (`A-` và `B-`) để loại bỏ nguy cơ đoán mò, đảm bảo đo lường chính xác xem mô hình thực sự còn nhớ hay đã quên.
-</LessonNote>
+Tải SST-2 và AG News:
+
+```python
+sst2 = load_dataset("stanfordnlp/sst2")
+ag_news = load_dataset("fancyzhx/ag_news")
+```
+
+Mỗi task chỉ lấy 512 câu train và 256 câu để đánh giá, để lab chạy được trên Colab. Các câu đánh giá vẫn lấy từ split độc lập của dataset.
+
+```python
+TRAIN_SAMPLES = 512
+EVAL_SAMPLES = 256
+
+train_a = make_rows(sst2["train"], "sentence", SENTIMENT_LABELS, "Classify the sentiment as positive or negative.", TRAIN_SAMPLES)
+eval_a = make_rows(sst2["validation"], "sentence", SENTIMENT_LABELS, "Classify the sentiment as positive or negative.", EVAL_SAMPLES)
+train_b = make_rows(ag_news["train"], "text", TOPIC_LABELS, "Classify the news topic.", TRAIN_SAMPLES)
+eval_b = make_rows(ag_news["test"], "text", TOPIC_LABELS, "Classify the news topic.", EVAL_SAMPLES)
+
+print(f"SST-2: {len(train_a)} train / {len(eval_a)} validation")
+print(f"AG News: {len(train_b)} train / {len(eval_b)} test")
+```
 
 </MdxPage>
 
 <MdxPage page={5}>
 
-## 3. Nạp Mô hình Pythia-160M & Hàm Đánh giá Answer NLL
+## 3. Nạp model và đo accuracy trên held-out set
 
-### Load Tokenizer và Model Pythia-160M
+Ta dùng DistilGPT-2, một causal language model nhỏ đủ để fine-tune trong Colab. `MAX_LENGTH` giới hạn số token của mỗi câu train; `MAX_NEW_TOKENS` giới hạn độ dài nhãn model sinh ra.
+
+```python
+MODEL_NAME = "distilgpt2"
+MAX_LENGTH = 96
+MAX_NEW_TOKENS = 4
+```
+
+Nạp tokenizer và model. DistilGPT-2 chưa có padding token riêng, nên dùng token kết thúc câu làm padding token.
 
 ```python
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
-
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+tokenizer.pad_token = tokenizer.pad_token or tokenizer.eos_token
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME).to(device)
+model = model.float()
 model.config.pad_token_id = tokenizer.pad_token_id
-model.to(device)
 
-n_params = sum(p.numel() for p in model.parameters())
-print(f"Tổng số tham số mô hình: {n_params / 1e6:.1f}M")
+# Giữ trọng số pretrained trên CPU để cell Base luôn đánh giá đúng trạng thái ban đầu.
+base_model_state = {name: value.detach().cpu().clone() for name, value in model.state_dict().items()}
 ```
 
-```output
-Tổng số tham số mô hình: 162.3M
-```
-
-### Tokenize dữ liệu huấn luyện & Khởi tạo Collator
+`Trainer` cần mỗi example là một chuỗi gồm prompt và nhãn đúng. `DataCollatorForLanguageModeling` tự padding các chuỗi trong cùng batch.
 
 ```python
-def tokenize_training_texts(texts):
+def to_train_dataset(rows):
+    texts = [row["prompt"] + row["answer"] for row in rows]
     ds = Dataset.from_dict({"text": texts})
-    def tok(batch):
-        return tokenizer(
-            batch["text"],
-            truncation=True,
-            max_length=MAX_LENGTH,
-            padding=False,
-        )
-    return ds.map(tok, batched=True, remove_columns=["text"])
+    return ds.map(
+        lambda x: tokenizer(x["text"], truncation=True, max_length=MAX_LENGTH),
+        batched=True,
+        remove_columns=["text"],
+    )
 
-train_a_ds = tokenize_training_texts(train_a_texts)
-train_b_ds = tokenize_training_texts(train_b_texts)
-
+train_a_ds, train_b_ds = to_train_dataset(train_a), to_train_dataset(train_b)
 collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 ```
 
-| Tham số | Mô tả |
-| :--- | :--- |
-| **`truncation=True`** | Cho phép cắt phần vượt quá giới hạn token thay vì để mẫu quá dài làm tăng chi phí huấn luyện. |
-| **`max_length=MAX_LENGTH`** | Giới hạn mỗi mẫu ở 128 token, đủ cho các tiểu sử ngắn trong dữ liệu giả lập. |
-| **`padding=False`** | Ta chưa padding tại bước tokenize vì `Trainer` ở phần sau sẽ tự động padding từng batch trước khi đưa vào model, giúp giảm token đệm và GPU memory. |
-| **`mlm=False`** | Cho Pythia học dự đoán token tiếp theo theo Causal Language Modeling, không đoán token bị che như BERT. |
-
-### Hàm tính Answer NLL (Chỉ tính loss trên phần đáp án)
-
-Metric chính để đo lường mức độ ghi nhớ tri thức là **Answer Negative Log-Likelihood (NLL)**. Ta tính loss **chỉ trên các token của đáp án** (bằng cách gán nhãn `-100` cho phần prompt câu hỏi).
+Hàm dưới đây chấm một tập câu hỏi theo hai cách. `accuracy` kiểm tra model có sinh đúng nhãn không. `nll` đo model có đặt xác suất cao cho nhãn đúng không, ngay cả khi output chưa hoàn toàn khớp. Ví dụ, nhãn đúng là `positive`, nhưng model gán `P(positive)=0.42` và `P(negative)=0.45`. Greedy decoding sẽ chọn `negative`, nên accuracy là sai; tuy vậy NLL vẫn cho thấy model đã đặt xác suất đáng kể cho `positive`.
 
 ```python
 @torch.no_grad()
-def answer_nll(model, rows, max_rows=None):
+def task_metrics(rows):
     model.eval()
-    if max_rows is not None:
-        rows = rows[:max_rows]
-    losses = []
+    nlls, correct = [], 0
     for row in rows:
-        prompt_ids = tokenizer(
-            row["prompt"],
-            add_special_tokens=False,
-            return_tensors="pt",
-        )["input_ids"].to(device)
-
-        answer_ids = tokenizer(
-            row["answer"],
-            add_special_tokens=False,
-            return_tensors="pt",
-        )["input_ids"].to(device)
-
+        prompt_ids = tokenizer(row["prompt"], add_special_tokens=False, return_tensors="pt")["input_ids"].to(device)
+        answer_ids = tokenizer(row["answer"], add_special_tokens=False, return_tensors="pt")["input_ids"].to(device)
         input_ids = torch.cat([prompt_ids, answer_ids], dim=1)
         labels = input_ids.clone()
-        # Che nhãn phần prompt bằng -100 để PyTorch chỉ tính loss trên phần answer
         labels[:, :prompt_ids.shape[1]] = -100
-
-        out = model(input_ids=input_ids, labels=labels)
-        losses.append(float(out.loss.detach().cpu()))
-    return float(np.mean(losses))
-```
-
-### Hàm tính Prefix Match Accuracy (%)
-
-Hàm này cho mô hình sinh văn bản bằng Greedy Search rồi kiểm tra output có bắt đầu bằng đáp án chuẩn hay không.
-
-```python
-@torch.no_grad()
-def greedy_prefix_match(model, rows, max_rows=48):
-    model.eval()
-    rows = rows[:max_rows]
-    correct = 0
-
-    for row in rows:
-        inputs = tokenizer(row["prompt"], return_tensors="pt").to(device)
+        nlls.append(float(model(input_ids=input_ids, labels=labels).loss.cpu()))
         output = model.generate(
-            **inputs,
+            prompt_ids,
             max_new_tokens=MAX_NEW_TOKENS,
             do_sample=False,
             pad_token_id=tokenizer.pad_token_id,
-            eos_token_id=tokenizer.eos_token_id,
         )
-        new_tokens = output[0, inputs["input_ids"].shape[1]:]
-        predicted_answer = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
-        expected_answer = row["answer"].strip()
-
-        is_correct = predicted_answer.lower().startswith(expected_answer.lower())
-        correct += int(is_correct)
-
-    return correct / len(rows)
+        prediction = tokenizer.decode(output[0, prompt_ids.shape[1]:], skip_special_tokens=True).strip().lower()
+        correct += prediction.startswith(row["answer"].strip().lower())
+    return {"accuracy": correct / len(rows), "nll": float(np.mean(nlls))}
 ```
 
-| Tham số / thiết lập | Ý nghĩa trong hàm |
-| :--- | :--- |
-| **`max_rows=48`** | Chỉ chấm tối đa 48 câu để giảm thời gian sinh đáp án. Đây là giới hạn chi phí đánh giá, không phải độ dài câu trả lời. |
-| **`return_tensors="pt"`** | Yêu cầu tokenizer trả về tensor PyTorch để có thể đưa trực tiếp vào Pythia. |
-| **`max_new_tokens=MAX_NEW_TOKENS`** | Cho model sinh tối đa 16 token mới sau prompt, tránh câu trả lời kéo dài không cần thiết. |
-| **`do_sample=False`** | Không lấy mẫu ngẫu nhiên; ở cấu hình mặc định, model luôn chọn token có xác suất cao nhất theo Greedy Search. |
-| **`pad_token_id` / `eos_token_id`** | Cho `generate` biết token nào dùng để padding và token nào báo hiệu câu trả lời đã kết thúc. |
-| **`skip_special_tokens=True`** | Loại các token điều khiển như padding hoặc kết thúc câu trước khi so sánh đáp án. |
-| **`predicted_answer.lower().startswith(expected_answer.lower())`** | Chấm đúng khi output bắt đầu bằng đáp án chuẩn, không phân biệt hoa thường. Quy tắc này cho phép model viết thêm phía sau nên nhẹ hơn strict exact match. |
-
-### Hàm Đánh giá Tổng hợp Đa Nhiệm vụ (Task A & Task B)
+Cuối cùng, khôi phục trọng số pretrained rồi chấm cả train set lẫn held-out set của Task A và Task B. Vì vậy, chạy lại cell này luôn đưa model về đúng mốc Base trước khi bắt đầu thí nghiệm mới.
 
 ```python
-def evaluate_tasks(model, stage):
-    eval_cap = 24 if FAST_DEV_RUN else None
-    prefix_match_cap = 24 if FAST_DEV_RUN else 48
-
-    nll_a = answer_nll(model, qa_a, max_rows=eval_cap)
-    nll_b = answer_nll(model, qa_b, max_rows=eval_cap)
-    prefix_match_a = greedy_prefix_match(model, qa_a, max_rows=prefix_match_cap)
-    prefix_match_b = greedy_prefix_match(model, qa_b, max_rows=prefix_match_cap)
-
-    row = {
+def evaluate_all(stage):
+    a_train, a_eval = task_metrics(train_a[:EVAL_SAMPLES]), task_metrics(eval_a)
+    b_train, b_eval = task_metrics(train_b[:EVAL_SAMPLES]), task_metrics(eval_b)
+    return {
         "stage": stage,
-        "A_nll": nll_a,
-        "B_nll": nll_b,
-        "A_ppl": math.exp(min(nll_a, 20)),
-        "B_ppl": math.exp(min(nll_b, 20)),
-        "A_prefix_match": prefix_match_a,
-        "B_prefix_match": prefix_match_b,
+        "A_train_accuracy": a_train["accuracy"],
+        "A_heldout_accuracy": a_eval["accuracy"],
+        "B_train_accuracy": b_train["accuracy"],
+        "B_heldout_accuracy": b_eval["accuracy"],
+        "A_answer_nll": a_eval["nll"],
+        "B_answer_nll": b_eval["nll"],
     }
-    return row
 
-results = []
+def show_results(rows):
+    for row in rows:
+        print(f"\n{row['stage']}")
+        print(f"  Task A | train: {row['A_train_accuracy']:.3f} | held-out: {row['A_heldout_accuracy']:.3f} | Answer NLL: {row['A_answer_nll']:.3f}")
+        print(f"  Task B | train: {row['B_train_accuracy']:.3f} | held-out: {row['B_heldout_accuracy']:.3f} | Answer NLL: {row['B_answer_nll']:.3f}")
 
-base_metrics = evaluate_tasks(model, "Base")
-results.append(base_metrics)
+model.load_state_dict(base_model_state)
+model.to(device)
 
-pd.DataFrame(results)
+results = [evaluate_all("Base")]
+show_results(results)
 ```
 
 ```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  A_prefix_match  B_prefix_match
-0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
+Base
+  Task A | train: 0.000 | held-out: 0.000 | Answer NLL: 8.211
+  Task B | train: 0.000 | held-out: 0.004 | Answer NLL: 11.118
 ```
 
-Đến bước này chúng ta vẫn chưa training gì hết, chỉ mới khởi tạo model và hàm đánh giá.
+<LessonNote tone="fact">
+  Ở mốc Base, accuracy của cả hai task gần bằng 0. Điều này rất tốt, chứng tỏ model chưa từng học dạng prompt–nhãn này trước đây. Vì vậy, ta có một mốc xuất phát rõ ràng để so sánh sau khi model lần lượt học Task A và Task B.
+</LessonNote>
 
 </MdxPage>
 
 <MdxPage page={6}>
 
-## 4. Tóm tắt kết quả hiện tại
+## 4. Fine-tune Task A
 
-Chúng ta vừa thiết lập **điểm tham chiếu (Baseline Anchor)** cho toàn bộ thí nghiệm Continual Learning. Đây là trạng thái khi mô hình Pythia-160M ban đầu chưa được huấn luyện hay tinh chỉnh trên bất kỳ tập dữ liệu tiểu sử nào (Task A hay Task B).
+```python
+EPOCHS_A, EPOCHS_B = 5, 3
+LR = 1e-5
+BATCH_SIZE = 8
 
-```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  A_prefix_match  B_prefix_match
-0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
+def show_results(rows):
+    for row in rows:
+        print(f"\n{row['stage']}")
+        print(f"  Task A | train: {row['A_train_accuracy']:.3f} | held-out: {row['A_heldout_accuracy']:.3f} | Answer NLL: {row['A_answer_nll']:.3f}")
+        print(f"  Task B | train: {row['B_train_accuracy']:.3f} | held-out: {row['B_heldout_accuracy']:.3f} | Answer NLL: {row['B_answer_nll']:.3f}")
+
+def train_stage(train_ds, stage_name, epochs):
+    args = TrainingArguments(
+        output_dir=f"./tmp_{stage_name}",
+        num_train_epochs=epochs, per_device_train_batch_size=BATCH_SIZE,
+        learning_rate=LR, optim="adamw_torch", max_grad_norm=0.5, logging_steps=20,
+        save_strategy="no", report_to="none", fp16=False, seed=SEED,
+    )
+    Trainer(model=model, args=args, train_dataset=train_ds, data_collator=collator).train()
+
+train_stage(train_a_ds, "task_a", EPOCHS_A)
+results.append(evaluate_all("After A"))
+show_results(results)
 ```
 
----
-
-### Các Chỉ số Đánh giá
-
-#### 1. Answer NLL (Negative Log-Likelihood) — Mức độ "bất ngờ" của mô hình
-
-Công thức toán học của NLL cho một chuỗi đáp án chuẩn:
-
-<BlockMath formula="\text{NLL} = -\frac{1}{T} \sum_{t=1}^T \ln P(y_t \mid x, y_{<t})" />
-
 ```output
-  stage     ==A_nll     B_nll==     A_ppl     B_ppl  A_prefix_match  B_prefix_match
-0  Base  ==5.666800  5.678300==  289.1200  292.4500            0.0            0.0
+After A
+  Task A | train: 0.645 | held-out: 0.695 | Answer NLL: 0.614
+  Task B | train: 0.000 | held-out: 0.000 | Answer NLL: 10.202
 ```
 
-* Task A và B đều có NLL `>5.0` khá cao, sau khi training tốt thì nó sẽ giảm về `~0.0`.
-
-> **Nhận xét:** NLL đo lường mức độ "ngạc nhiên" khi nhìn thấy đáp án đúng. Hiện tại NLL cao đúng như chúng ta mong muốn, nó chứng minh dữ liệu hoàn toàn chưa được model biết tới.
-
----
-
-#### 2. Perplexity (PPL) — Số lượng lựa chọn mô hình đang "lưỡng lự"
-
-Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
-
-<BlockMath formula="\text{Perplexity} = e^{\text{NLL}} \implies e^{5.6668} \approx 289.12" />
-
-```output
-  stage     A_nll     B_nll     ==A_ppl     B_ppl==  A_prefix_match  B_prefix_match
-0  Base  5.666800  5.678300  ==289.1200  292.4500==            0.0            0.0
-```
-
-* Task A và B đều có PPL (`>280`): Mô hình phân vân gần 300 token ứng viên có xác suất ngang nhau khi sinh từ tiếp theo.
-
-> **Nhận xét:** Perplexity càng thấp càng tốt, tốt nhất là `1.0`. Ở mức hiện tại mô hình ở trạng thái hoàn toàn "lưỡng lự" và không nghiêng về đáp án đúng nào.
-
----
-
-#### 3. Prefix Match Accuracy — Tỷ lệ output bắt đầu đúng
-
-<BlockMath formula="\text{Prefix Match} = \frac{N_{\text{correct}}}{N_{\text{total}}}" />
-
-```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  ==A_prefix_match  B_prefix_match==
-0  Base  5.666800  5.678300  289.1200  292.4500            ==0.0            0.0==
-```
-
-* **Task A Prefix Match (`0.0`):** Chưa output nào trong Task A bắt đầu bằng đáp án chuẩn.
-* **Task B Prefix Match (`0.0`):** 0 trên 48 output được chấm bắt đầu bằng đáp án chuẩn.
+Sau Stage A, held-out accuracy của A tăng từ `0.000` lên `0.695`. Model làm tốt cả câu train lẫn câu held-out, nên đã học được quy tắc sentiment thay vì chỉ ghi nhớ tập train. Task B vẫn gần như chưa làm được.
 
 </MdxPage>
 
 <MdxPage page={7}>
 
-## 5. Huấn luyện Task A & Đánh giá Giai đoạn 1
+## 5. Fine-tune Task B và quan sát forgetting
 
-### Hàm Helper cho Giai đoạn Huấn luyện
-
-```python
-def train_stage(model, train_ds, stage_name, epochs, lr):
-    args = TrainingArguments(
-        output_dir=f"./tmp_{stage_name}",
-        overwrite_output_dir=True,
-        num_train_epochs=epochs,
-        per_device_train_batch_size=BATCH_SIZE,
-        gradient_accumulation_steps=1,
-        learning_rate=lr,
-        weight_decay=0.0,
-        warmup_ratio=0.05,
-        logging_steps=10,
-        save_strategy="no",
-        report_to="none",
-        fp16=torch.cuda.is_available(),
-        dataloader_num_workers=2,
-        seed=SEED,
-    )
-
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=train_ds,
-        data_collator=collator,
-    )
-    trainer.train()
-    return model
-```
-
-| Tham số / thành phần | Ý nghĩa trong hàm `train_stage` |
-| :--- | :--- |
-| **`gradient_accumulation_steps=1`** | Cập nhật tham số sau mỗi batch. Nếu đặt lớn hơn `1`, Trainer sẽ cộng gradient của nhiều batch trước khi cập nhật để mô phỏng batch hiệu dụng lớn hơn. |
-| **`weight_decay=0.0`** | Không áp dụng weight decay, tức không thêm lực kéo các trọng số về gần `0`. Chỉ đặt giá trị lớn hơn `0` khi muốn regularize model, hạn chế trọng số tăng quá lớn và giảm nguy cơ overfitting. |
-| **`warmup_ratio=0.05`** | Trong 5% bước train đầu tiên, learning rate tăng dần từ mức nhỏ để tránh cập nhật quá mạnh ngay khi bắt đầu. |
-| **`logging_steps=10`** | In thông tin như training loss sau mỗi 10 bước cập nhật để theo dõi quá trình học. |
-| **`save_strategy="no"`** | Không lưu checkpoint trung gian, giúp giảm thời gian và dung lượng lưu trữ trong bài lab ngắn. |
-| **`report_to="none"`** | Không gửi metric sang dịch vụ theo dõi bên ngoài như Weights & Biases. Kết quả chỉ hiển thị trong notebook. |
-| **`fp16=torch.cuda.is_available()`** | Nếu có GPU CUDA, dùng số thực 16-bit để giảm GPU memory và thường train nhanh hơn; khi không có CUDA thì tự động tắt. |
-| **`dataloader_num_workers=2`** | Dùng hai worker để chuẩn bị dữ liệu song song trong khi model đang train. |
-| **`data_collator=collator`** | Truyền collator cho Trainer để tự động padding từng batch và tạo `labels` ngay trước khi batch được đưa vào model. |
-
-### Huấn luyện Task A & Kiểm tra khả năng tiếp thu tri thức
+Ta giữ nguyên checkpoint vừa học Task A, rồi chỉ đưa dữ liệu B vào objective mới.
 
 ```python
-# Huấn luyện mô hình trên Task A (3 Epochs)
-model = train_stage(model, train_a_ds, "task_a", EPOCHS_A, LR)
-
-# Đánh giá sau khi huấn luyện Task A
-after_a_metrics = evaluate_tasks(model, "After A")
-results.append(after_a_metrics)
-
-pd.DataFrame(results)
-```
-
-```output
-[Trainer] Epoch 3/3 | Training Loss: 0.0042 | Grad Norm: 0.0812 | Finished in 14.2s
-
-     stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
-0     Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
-1  After A  ==0.000085==  8.296200    ==1.0001==  4008.6600            ==1.0==            0.0
-```
-
-* **Answer NLL (`0.000085`):** Giảm sâu từ `5.6668` ➔ `0.000085` (tiếp thu hoàn hảo đáp án Task A).
-* **Perplexity (`1.0001`):** Giảm về `1.0001` (khẳng định chắc chắn từ vựng cần sinh).
-* **Prefix Match (`1.0`):** Cả 48 output được chấm đều bắt đầu bằng đáp án chuẩn.
-
-<LessonNote>
-  **Nhận xét Giai đoạn 1:**
-  - Mô hình tiếp thu và ghi nhớ thuộc lòng hoàn hảo toàn bộ dữ liệu tiểu sử Nhiệm vụ A sau 3 epochs huấn luyện.
-</LessonNote>
-
-</MdxPage>
-
-<MdxPage page={8}>
-
-## 6. Huấn luyện Continual Task B & Phân tích Forgetting
-
-Bây giờ ta thực hiện bước can thiệp cốt lõi của **Continual Learning**:
-- Tiếp tục huấn luyện **chính mô hình đó** trên tập dữ liệu **Task B**.
-- **Không reset** tham số mô hình về trạng thái ban đầu.
-- **Không thực hiện replay** (tái sử dụng) bất kỳ ví dụ nào từ Task A.
-
-### Fine-tune nối tiếp Task B
-
-```python
-# Tiếp tục fine-tune mô hình trên Task B (5 Epochs)
-model = train_stage(model, train_b_ds, "task_b", EPOCHS_B, LR)
-
-# Đánh giá sau khi huấn luyện Task B
-after_b_metrics = evaluate_tasks(model, "After A->B")
-results.append(after_b_metrics)
+train_stage(train_b_ds, "task_b", EPOCHS_B)
+results.append(evaluate_all("After A → B"))
 
 results_df = pd.DataFrame(results)
-results_df
+show_results(results)
+
+ax = results_df.plot(
+    x="stage", y=["A_heldout_accuracy", "B_heldout_accuracy"],
+    marker="o", ylim=(0, 1), ylabel="Held-out accuracy", xlabel="Training stage", figsize=(8, 4),
+)
+ax.set_title("New-task acquisition and old-task retention")
+ax.grid(axis="y", alpha=0.25)
+plt.show()
 ```
+
+<LessonImage
+  assetPath="continual-learning-llm/01-catastrophic-forgetting-heldout-accuracy.png"
+  alt="Biểu đồ held-out accuracy: Task A tăng lên 0.695 sau khi học A rồi giảm còn 0.152 sau khi học B, trong khi Task B tăng lên 0.789"
+  caption="Kết quả run này: model tiếp thu tốt Task B, nhưng chỉ còn giữ một phần năng lực Task A."
+/>
 
 ```output
-        stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
-0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
-1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
-2  After A->B  5.817800  ==0.000024==  336.2300     1.0000            0.0            ==1.0==
+After A → B
+  Task A | train: 0.258 | held-out: 0.152 | Answer NLL: 3.163
+  Task B | train: 0.777 | held-out: 0.789 | Answer NLL: 0.798
 ```
 
-🟢 **Nhiệm vụ B (Vừa học xong):** Mô hình tiếp thu thuộc lòng Nhiệm vụ B với **`B_nll = 0.000024`** và **`B_prefix_match = 1.0` (100%)**.
+Đọc hai đường cùng lúc. Held-out accuracy của B tăng từ `0.000` lên `0.789`, cho thấy model học task mới và vẫn tổng quát hóa tốt vì train accuracy (`0.777`) gần với held-out accuracy (`0.789`). Ngược lại, A giảm từ `0.695` xuống `0.152`: đây là **Catastrophic Forgetting** trên cả câu train lẫn held-out. Phép đo cho thấy model không còn truy xuất đúng Task A ở checkpoint này; nó chưa chứng minh tri thức A đã bị xóa vĩnh viễn <Cite paper="zheng2025spurious" evidence="lab-forgetting-interpretation-01-zheng2025spurious" />.
 
-```output
-        stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
-0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
-1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
-2  After A->B  ==5.817800==  0.000024  336.2300     1.0000            ==0.0==            1.0
-```
-
-🔴 **Nhiệm vụ A (Quên thảm khốc):** **`A_nll`** tăng vọt từ `0.000085` ➔ **`5.8178`**, kéo **`A_prefix_match`** sụt thẳng từ **`1.0` (100%) ➔ `0.0` (0%)**.
-
-<LessonNote>
-  **Nhận xét Giai đoạn 2 (Catastrophic Forgetting):**
-  - Mô hình tiếp thu hoàn hảo Nhiệm vụ B, nhưng **quên triệt để** Nhiệm vụ A (Prefix Match sụt từ 100% về 0%).
-  - Kết quả này khẳng định fine-tune tham số trực tiếp không có giải pháp bảo tồn tri thức sẽ dẫn đến thảm họa quên tri thức.
+<LessonNote tone="danger">
+  Chỉ nhìn training loss của Task B có thể dẫn tới kết luận sai rằng update thành công hoàn toàn. Một baseline Continual Learning phải theo dõi metric held-out của các task cũ sau mọi stage, không chỉ metric task hiện tại.
 </LessonNote>
+
+Trong chương sau, ta sẽ thêm replay hoặc ràng buộc bảo tồn để xem liệu có thể giữ đường accuracy A ổn định hơn mà vẫn cho B tăng hay không.
 
 </MdxPage>

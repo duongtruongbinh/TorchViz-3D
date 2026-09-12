@@ -138,6 +138,7 @@ function assertConceptHierarchyData(value: unknown, filePath: string): void {
 export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
   authoredHeadings: string[];
+  pageHeadings: Array<string | null>;
   pageIndexes: number[];
   quizQuestionIds: string[];
   quizQuestions: LearningMdxQuizQuestionInspection[];
@@ -147,6 +148,44 @@ export type LearningMdxInspection = {
   citationReferences: LearningMdxCitationInspection[];
   searchText: string;
 };
+
+function getMdxPageIndex(node: Node): number | null {
+  const pageAttribute = node.attributes?.find((attribute) => attribute.name === 'page');
+  if (!pageAttribute) return null;
+  if (typeof pageAttribute.value === 'string') {
+    const parsed = Number(pageAttribute.value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  }
+  const expression = typeof pageAttribute.value === 'object'
+    ? (pageAttribute.value as Node).data?.estree?.body?.[0]?.expression
+    : undefined;
+  const value = staticValue(expression);
+  return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : null;
+}
+
+function findFirstPageHeading(node: Node): string | null {
+  if (node.type === 'heading' && typeof node.depth === 'number' && node.depth >= 2 && node.depth <= 6) {
+    return mdastText(node).trim() || null;
+  }
+  for (const child of node.children ?? []) {
+    const heading = findFirstPageHeading(child);
+    if (heading) return heading;
+  }
+  return null;
+}
+
+function getPageHeadings(tree: Node): Array<string | null> {
+  const pages: Array<{ index: number; heading: string | null }> = [];
+  walk(tree, (node) => {
+    if (node.type !== 'mdxJsxFlowElement' || node.name !== 'MdxPage') return;
+    const index = getMdxPageIndex(node);
+    if (index !== null) pages.push({ index, heading: findFirstPageHeading(node) });
+  });
+  if (!pages.length) return [findFirstPageHeading(tree)];
+  const headings = Array<string | null>(Math.max(...pages.map((page) => page.index)) + 1).fill(null);
+  for (const page of pages) headings[page.index] = page.heading;
+  return headings;
+}
 
 export type LearningMdxCitationInspection = {
   paperId: string;
@@ -179,6 +218,7 @@ export async function inspectLearningMdx(
   let metadata: Record<string, unknown> = {};
   const levelTwoHeadings: string[] = [];
   const levelThreeHeadings: string[] = [];
+  let pageHeadings: Array<string | null> = [];
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
   const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
@@ -188,6 +228,7 @@ export async function inspectLearningMdx(
   const citationReferences: LearningMdxCitationInspection[] = [];
   await compile(source, {
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
+      pageHeadings = getPageHeadings(tree);
       walk(tree, (node) => {
         if (node.type === 'text' && typeof node.value === 'string') searchParts.push(node.value);
         if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
@@ -313,6 +354,7 @@ export async function inspectLearningMdx(
   return {
     metadata,
     authoredHeadings: levelThreeHeadings.length ? levelThreeHeadings : levelTwoHeadings,
+    pageHeadings,
     pageIndexes,
     quizQuestionIds,
     quizQuestions,
@@ -381,7 +423,7 @@ export function learningMdxRuntimePlugin(referenceLessonKeys: ReadonlySet<string
   return {
     name: 'torchviz-learning-mdx-runtime-capabilities',
     enforce: 'pre',
-    transform(source, id) {
+    async transform(source, id) {
       const filePath = id.split('?')[0];
       const parsed = parseLearningMdxPath(filePath);
       if (!parsed) return null;
@@ -391,7 +433,8 @@ export function learningMdxRuntimePlugin(referenceLessonKeys: ReadonlySet<string
         parsed.lessonId,
         referenceLessonKeys,
       );
-      return `${source}\nexport const lessonRuntime = ${JSON.stringify(capabilities)};\n`;
+      const { pageHeadings } = await inspectLearningMdx(source, filePath, parsed.domainId);
+      return `${source}\nexport const lessonRuntime = ${JSON.stringify(capabilities)};\nexport const lessonPageHeadings = ${JSON.stringify(pageHeadings)};\n`;
     },
   };
 }

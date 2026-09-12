@@ -225,7 +225,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     .map((file) => parseLearningMdxPath(file)?.lessonId)
     .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
     .sort();
-  assert.equal(theoryIds.length, 41);
+  assert.equal(theoryIds.length, 43);
   assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
   assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
   const claimIds = new Set<string>();
@@ -387,13 +387,13 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 });
 
 test('continual-learning references assemble as one dedicated final runtime page', () => {
-  assert.equal(continualLearningLessonReferenceCoverage.length, 41);
+  assert.equal(continualLearningLessonReferenceCoverage.length, 43);
   const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
   assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
   assert.match(registry, /const referencePage = referenceCoverage \? \(/);
   assert.match(registry, /pageIndex=\{lesson\.pageCount\}/);
   assert.match(registry, /const pages = referencePage \? \[\.\.\.authoredPages, referencePage\] : authoredPages/);
-  assert.match(registry, /return \{ pageCount: pages\.length, pages \}/);
+  assert.match(registry, /return \{ pageCount: pages\.length, pages, pageHeadings \}/);
   assert.doesNotMatch(registry, /pageIndex === lesson\.pageCount - 1.*<LessonReferences/);
   const referencePageAssembly = registry.slice(registry.indexOf('const referencePage ='), registry.indexOf('const pages ='));
   assert.doesNotMatch(referencePageAssembly, /citationEvidence=/, 'the final paper-map page must remain preview-free');
@@ -444,8 +444,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 167);
-  assert.equal(singleQuestions.length, 166);
+  assert.equal(questions.length, 192);
+  assert.equal(singleQuestions.length, 191);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -483,8 +483,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [40, 41, 42, 43]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [41, 41, 43, 43]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [44, 47, 47, 53]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [45, 47, 48, 53]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
@@ -501,6 +501,18 @@ test('generic MDX contract rejects imports, executable expressions, and unknown 
   await assert.rejects(() => inspectLearningMdx(`import X from './x'\n\nexport const lessonMetadata = ${metadata}\n\n<X />`, 'fixture.mdx', 'cv'), /imports|unexpected|parse import/i);
   await assert.rejects(() => inspectLearningMdx("export const lessonMetadata = { domainId: 'cv', id: 'x', locale: 'vi', title: run(), headings: ['x'], keywords: ['x'] }", 'fixture.mdx', 'cv'), /executable|unsupported/i);
   await assert.rejects(() => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Unknown />`, 'fixture.mdx', 'cv'), /unexpected MDX component/i);
+});
+
+test('MDX inspection derives each page title from its first section or subsection heading', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'Fallback', headings: ['First', 'Second'], keywords: ['x'], pageCount: 3 }";
+  const inspection = await inspectLearningMdx(`export const lessonMetadata = ${metadata}
+
+<MdxPage page={0}>\n\n### First\n\nText\n\n## Later\n</MdxPage>
+
+<MdxPage page={1}>\n\n## Second\n</MdxPage>
+
+<MdxPage page={2}>\n\nNo heading\n</MdxPage>`, 'fixture.mdx', 'cv');
+  assert.deepEqual(inspection.pageHeadings, ['First', 'Second', null]);
 });
 
 test('generic MDX contract rejects metadata heading drift', async () => {

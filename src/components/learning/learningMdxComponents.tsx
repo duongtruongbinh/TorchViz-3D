@@ -1,13 +1,17 @@
 import {
   Check,
+  CircleHelp,
   Code2,
   DatabaseBackup,
   Dna,
   ExternalLink,
   GitFork,
+  Info,
+  Lightbulb,
   ListFilter,
   Monitor,
   Terminal,
+  TriangleAlert,
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
@@ -17,6 +21,8 @@ import {
   isValidElement,
   useContext,
   useEffect,
+  useId,
+  useLayoutEffect,
   useMemo,
   useState,
   type ComponentType,
@@ -59,6 +65,9 @@ const LearningMdxLessonContext = createContext<{
   lessonId: string;
   language: Language;
   pageIndex: number;
+  pageHeading: string | null;
+  hiddenHeadingId: string | null;
+  registerHeading: (headingId: string) => void;
   entryPoints: readonly LearningLessonEntryPoint[];
   referencePapers?: readonly LearningReferencePaper[];
   referenceIndexByPaperId: ReadonlyMap<string, number>;
@@ -82,6 +91,7 @@ export function LearningMdxLessonProvider({
   lessonId,
   language,
   pageIndex,
+  pageHeading = null,
   entryPoints = [],
   referencePapers,
   citationEvidence,
@@ -96,6 +106,7 @@ export function LearningMdxLessonProvider({
   lessonId: string;
   language: Language;
   pageIndex: number;
+  pageHeading?: string | null;
   entryPoints?: readonly LearningLessonEntryPoint[];
   referencePapers?: readonly LearningReferencePaper[];
   citationEvidence?: readonly LearningCitationEvidence[];
@@ -106,6 +117,7 @@ export function LearningMdxLessonProvider({
   onQuizQuestionStateChange?: (questionId: string, state: QuizQuestionState) => void;
 }) {
   const [activeCitationEvidenceId, setActiveCitationEvidenceId] = useState<string | null>(null);
+  const [hiddenHeadingId, setHiddenHeadingId] = useState<string | null>(null);
   const indexedReferences = useMemo(
     () => indexLearningReferences(referencePapers ?? [], featuredReferenceIds ?? []),
     [featuredReferenceIds, referencePapers],
@@ -117,6 +129,11 @@ export function LearningMdxLessonProvider({
         lessonId,
         language,
         pageIndex,
+        pageHeading,
+        hiddenHeadingId,
+        registerHeading: (headingId) => {
+          if (pageHeading) setHiddenHeadingId((current) => current ?? headingId);
+        },
         entryPoints,
         referencePapers: indexedReferences.ordered,
         referenceIndexByPaperId: indexedReferences.indexById,
@@ -285,7 +302,7 @@ export function CourseCards({ ariaLabel, exampleLabel = '', takeawayLabel = '', 
             key={item.title}
             onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
             className={cx(
-              'grid h-full overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none',
+              'grid h-full overflow-hidden rounded-xl border',
               item.visual ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]',
               featureFirst && index === 0 && 'sm:row-span-2',
               featureFirst && index === items.length - 1 && 'sm:col-span-2',
@@ -390,36 +407,44 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
   );
 }
 
+const defaultNoteTone = { label: 'Note', Icon: Info, border: 'border-l-[#2E8A5A]', header: 'bg-[#EAF7EE] text-[#226B45]' };
+
+const LESSON_NOTE_TONES = {
+  default: defaultNoteTone,
+  note: defaultNoteTone,
+  fact: defaultNoteTone,
+  info: { label: 'Thông tin', Icon: Info, border: 'border-l-[#2E7BC4]', header: 'bg-[#EAF2FA] text-[#205089]' },
+  tip: { label: 'Mẹo', Icon: Lightbulb, border: 'border-l-[#56B92A]', header: 'bg-[#EEF8EA] text-[#3D7A24]' },
+  warning: { label: 'Lưu ý', Icon: TriangleAlert, border: 'border-l-[#D5962F]', header: 'bg-[#FFF5DD] text-[#80520D]' },
+  danger: { label: 'Question', Icon: CircleHelp, border: 'border-l-[#F43F5E]', header: 'bg-[#FDE9EE] text-[#B4233D]' },
+  success: { label: 'Điểm chính', Icon: Check, border: 'border-l-[#2E8A5A]', header: 'bg-[#EAF7EE] text-[#226B45]' },
+} satisfies Record<string, { label: string; Icon: LucideIcon; border: string; header: string }>;
+
 export function LessonNote({
   children,
   tone = 'default',
 }: {
   children?: ReactNode;
-  tone?: 'default' | 'warning' | 'tip' | 'info' | 'success';
+  tone?: keyof typeof LESSON_NOTE_TONES;
 }) {
-  const themeClasses = useLearningMdxTheme();
-  const isWarning = tone === 'warning';
-  const isSuccess = tone === 'success';
-
-  const toneClasses = isWarning
-    ? cx(themeClasses.semantic.warning.border, themeClasses.semantic.warning.surface)
-    : isSuccess
-      ? cx(themeClasses.semantic.success.border, themeClasses.semantic.success.surface)
-      : cx(
-        themeClasses.isLight ? 'border-[#2F6B55]/18 bg-[#F1F8F4]' : 'border-[#A8D4FF]/25 bg-[#A8D4FF]/10',
-      );
+  const presentation = LESSON_NOTE_TONES[tone] ?? defaultNoteTone;
+  const { Icon } = presentation;
 
   return (
-    <div
+    <aside
       className={cx(
-        'mt-5 grid rounded-lg border px-4 py-3 text-sm leading-6 font-normal',
-        themeClasses.bodyText,
-        '[&_p]:!text-inherit [&_li]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
-        toneClasses,
+        'mt-5 overflow-hidden rounded-md border border-[#205089]/14 border-l-4 bg-white text-sm leading-6 text-[#334155]',
+        presentation.border,
       )}
     >
-      {children}
-    </div>
+      <header className={cx('flex items-center gap-1.5 px-3 py-1.5 text-[0.8125rem] font-black leading-5', presentation.header)}>
+        <Icon className="h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
+        {presentation.label}
+      </header>
+      <div className="px-3 py-2.5 [&_p]:!text-inherit [&_li]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5">
+        {children}
+      </div>
+    </aside>
   );
 }
 
@@ -1953,7 +1978,7 @@ export function ExtraFrame({ title, children, themeClasses, customTitle }: {
 
 function MdxParagraph({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <p className={cx('text-base leading-[1.625rem]', themeClasses.bodyText)}>{children}</p>;
+  return <p className={cx('text-base leading-[1.625rem] text-pretty break-words', themeClasses.bodyText)}>{children}</p>;
 }
 
 function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
@@ -1997,6 +2022,17 @@ export function MdxQuiz({ id, questions }: { id: string; questions: AuthoredQuiz
 
 export function MdxPage({ children, page }: { children?: ReactNode; page: number }) {
   return useLearningMdxLesson().pageIndex === page ? children : null;
+}
+
+function MdxHeading({ children, level }: { children?: ReactNode; level: 2 | 3 | 4 | 5 | 6 }) {
+  const { hiddenHeadingId, pageHeading, registerHeading } = useLearningMdxLesson();
+  const headingId = useId();
+  useLayoutEffect(() => {
+    registerHeading(headingId);
+  }, [headingId, registerHeading]);
+  const className = pageHeading && hiddenHeadingId === headingId ? 'sr-only' : undefined;
+  const Tag = `h${level}` as const;
+  return <Tag className={className}>{children}</Tag>;
 }
 
 export { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout };
@@ -2088,6 +2124,11 @@ export { Mermaid, MermaidDiagram, Flowchart };
 export const sharedLearningMdxComponents = {
   a: MdxLink,
   code: MdxCode,
+  h2: (props: { children?: ReactNode }) => <MdxHeading {...props} level={2} />,
+  h3: (props: { children?: ReactNode }) => <MdxHeading {...props} level={3} />,
+  h4: (props: { children?: ReactNode }) => <MdxHeading {...props} level={4} />,
+  h5: (props: { children?: ReactNode }) => <MdxHeading {...props} level={5} />,
+  h6: (props: { children?: ReactNode }) => <MdxHeading {...props} level={6} />,
   p: MdxParagraph,
   pre: MdxPre,
   ...sharedAuthoredMdxComponents,
