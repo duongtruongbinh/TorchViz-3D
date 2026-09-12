@@ -4,10 +4,10 @@ export const lessonMetadata = {
   locale: 'vi',
   title: "Tổng quan",
   headings: [
-    'LLM luôn cố định trong khi thế giới liên tục thay đổi',
+    'Thế giới liên tục thay đổi, LLM thì không',
+    'Vì sao không chỉ dùng RAG?',
     'Có nên huấn luyện lại từ đầu? (1)',
     'Có nên huấn luyện lại từ đầu? (2)',
-    'Vì sao không chỉ dùng RAG?',
     'Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?',
     'Mục tiêu của Continual Learning',
   ],
@@ -18,62 +18,76 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## LLM luôn cố định trong khi thế giới liên tục thay đổi
+## Thế giới liên tục thay đổi, LLM thì không
 
-Large Language Model thường được tiền huấn luyện (pre-training) trên một lượng dữ liệu cố định. Sau khi huấn luyện kết thúc, tham số và tri thức của mô hình không được tự động cập nhật trong khi dữ liệu, tính chất bài toán và nhu cầu sử dụng tiếp tục thay đổi.
+Large Language Model thường được tiền huấn luyện (pre-training) trên một tập dữ liệu được thu thập trong một giai đoạn nhất định. Từ lúc dữ liệu được chuẩn bị đến khi model được đưa vào sử dụng, quá trình này có thể hình dung qua bốn bước:
 
-<LessonImage assetPath="continual-learning-llm/01-static-pretraining-world-changes.png" alt="Bốn bước: chụp snapshot dữ liệu, pre-train, đóng băng mô hình và thế giới tiếp tục thay đổi" caption="Mô hình chỉ học từ snapshot tại thời điểm pre-training; khi dữ liệu, xu hướng và task thay đổi, checkpoint đóng băng không tự cập nhật." />
+<ConceptFlow
+  ariaLabel="Bốn bước từ thu thập dữ liệu đến khi thế giới thay đổi sau khi model được phát hành"
+  items={[
+    {
+      title: 'Thu thập dữ liệu',
+      detail: 'Tập dữ liệu phản ánh thông tin, ngôn ngữ và nhu cầu trong một giai đoạn nhất định.',
+      tone: 'blue',
+    },
+    {
+      title: 'Pre-training',
+      detail: 'Model học các pattern, thông tin và kỹ năng từ dữ liệu bằng cách điều chỉnh các trọng số.',
+      tone: 'violet',
+    },
+    {
+      title: 'Phát hành model',
+      detail: 'Quá trình huấn luyện kết thúc. Trọng số của phiên bản model được đưa vào sử dụng không tự thay đổi.',
+      tone: 'teal',
+    },
+    {
+      title: 'Thế giới thay đổi',
+      detail: 'Sự kiện, domain dữ liệu và nhu cầu mới tiếp tục xuất hiện sau thời điểm model được huấn luyện.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+<LessonImage assetPath="continual-learning-llm/01-static-pretraining-world-changes.png" alt="Bốn bước: chụp snapshot dữ liệu, pre-train, giữ nguyên mô hình và thế giới tiếp tục thay đổi" caption="Mô hình chỉ học từ snapshot tại thời điểm pre-training; khi dữ liệu, xu hướng và task thay đổi, các trọng số của mô hình không tự cập nhật." />
+
+<LessonNote tone="fact">
+  Đây là lý do các phiên bản ChatGPT trước đây thường hiển thị cảnh báo rằng dữ liệu dùng để huấn luyện model chỉ được cập nhật đến một thời điểm nhất định. Nếu không được cung cấp thêm nguồn thông tin bên ngoài, model có thể không biết những sự kiện xảy ra sau thời điểm đó.
+</LessonNote>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Có nên huấn luyện lại từ đầu? (1)
-
-Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Theo các quy luật Scaling Laws, chi phí tính toán tăng theo quy luật lũy thừa (power-law) với dung lượng dữ liệu và số lượng tham số <Cite paper="kaplan2020scaling" evidence="overview-retrain-scaling-kaplan" />, đồng thời để huấn luyện tối ưu về mặt compute, quy mô mô hình và số lượng token huấn luyện cần được mở rộng tương đương nhau <Cite paper="hoffmann2022chinchilla" evidence="overview-retrain-scaling-hoffmann" />. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning.
-
-<LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
-
-</MdxPage>
-
-<MdxPage page={2}>
-
-## Có nên huấn luyện lại từ đầu? (2)
-
-Nếu toàn bộ dữ liệu lịch sử vẫn còn hợp lệ, có thể truy cập với chi phí chấp nhận được và ngân sách tính toán đủ lớn, báo cáo nên bắt đầu với hai baseline mạnh:
-
-- **Huấn luyện lại từ đầu trên dữ liệu hợp nhất (joint retraining):** gộp toàn bộ dữ liệu cũ và mới, rồi huấn luyện một mô hình mới trên tập dữ liệu đó.
-- **Phát lại toàn bộ dữ liệu cũ (full replay):** khi cập nhật checkpoint hiện tại bằng dữ liệu mới, đồng thời đưa toàn bộ dữ liệu cũ trở lại quá trình huấn luyện.
-
-Hai baseline này cho biết mô hình có thể học mới và giữ cũ tốt đến đâu khi không bị giới hạn bởi quyền truy cập dữ liệu lịch sử hoặc ngân sách tính toán. Các phương pháp Continual Learning khác trở nên quan trọng khi ít nhất một trong các điều kiện được nhắc đến bên trên không còn khả thi. Khi đó, mỗi lần model cập nhật phiên bản mới phải cân bằng giữa **tiếp thu năng lực mới (acquisition)**, **giữ lại năng lực cũ (retention)** và **chi phí tính toán (cost)**.
-
-<LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
-
-</MdxPage>
-
-<MdxPage page={3}>
-
 ## Vì sao không chỉ dùng RAG?
 
-Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời <Cite paper="thulke2024climategpt" evidence="overview-rag-external-context" />. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
+Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời <Cite paper="thulke2024climategpt" evidence="overview-rag-external-context" />. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không phải cập nhật trọng số của model cho mỗi tài liệu.
 
-<CourseCards
+<ConceptHierarchy
   ariaLabel="RAG và Continual Learning thay đổi hai phần khác nhau của hệ thống"
-  exampleLabel="Thứ được thay đổi"
-  takeawayLabel="Phù hợp khi"
-  items={[
+  root={{ title: 'Hai cách đưa tri thức mới vào hệ thống' }}
+  children={[
     {
       title: 'RAG',
-      example: 'Context được bổ sung bằng tài liệu truy xuất; backbone giữ nguyên.',
-      takeaway: 'Model cần đọc nguồn mới tại thời điểm suy luận.',
+      tone: 'blue',
+      visual: 'database',
+      detail: 'Context được bổ sung bằng tài liệu truy xuất; backbone giữ nguyên.',
+      examplePrefix: 'Phù hợp khi',
+      example: 'Model cần đọc nguồn mới tại thời điểm suy luận.',
     },
     {
       title: 'Continual Learning',
-      example: 'Quá trình thích nghi cập nhật model để học năng lực hoặc hành vi mới.',
-      takeaway: 'Model phải dùng được năng lực mới ngay cả khi không có tài liệu để truy xuất.',
+      tone: 'teal',
+      visual: 'neural-network',
+      detail: 'Quá trình thích nghi cập nhật model để học năng lực hoặc hành vi mới.',
+      examplePrefix: 'Phù hợp khi',
+      example: 'Model phải dùng được năng lực mới ngay cả khi không có tài liệu để truy xuất.',
     },
   ]}
 />
+
+<LessonNote tone="warning">
+  Điều gì xảy ra nếu bạn đã cung cấp đầy đủ tài liệu tiếng Việt qua RAG, nhưng backbone của chatbot chỉ được train trên tiếng Anh? Model có thể nhìn thấy nội dung cần thiết trong context, nhưng liệu nó có đủ năng lực để hiểu sắc thái và tạo tiếng Việt một cách ổn định không? Lúc này, vấn đề không còn là thiếu tài liệu để truy xuất mà là năng lực ngôn ngữ chưa được học vào model. Năng lực đó cần được hình thành qua quá trình tiếp tục huấn luyện hoặc thích nghi phù hợp <Cite paper="dou2024sailor" evidence="overview-vietnamese-adaptation-sailor" /> <Cite paper="vo2024vimistralx" evidence="overview-vietnamese-adaptation-vimistral" />.
+</LessonNote>
 
 <LessonImage
   assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
@@ -81,17 +95,97 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
   caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
 />
 
-<LessonNote tone="warning">
-  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt** từ mô hình chỉ được train trên tiếng Anh, việc cung cấp tài liệu tiếng Việt qua RAG thôi là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi phù hợp <Cite paper="dou2024sailor" evidence="overview-vietnamese-adaptation-sailor" /> <Cite paper="vo2024vimistralx" evidence="overview-vietnamese-adaptation-vimistral" />.
+Tham vọng dài hạn của Continual Learning là giúp chính foundation model tiếp tục phát triển: học thêm kiến thức, kỹ năng và hành vi mới mà không đánh mất những gì đã học. Mục tiêu này khác với việc giữ nguyên backbone rồi gắn thêm RAG, plugin hoặc tool để mở rộng những gì model có thể truy cập.
+
+Vì vậy, khóa học này tập trung vào cách cập nhật model để nó thực sự học cách hiểu một domain, thực hiện task, làm theo instruction hoặc hình thành behavior mới. Mục tiêu không chỉ là cung cấp thêm một fact trong prompt cho từng lần trả lời.
+
+<LessonNote tone="fact">
+  Trong thực tế, hai hướng có thể kết hợp. ClimateGPT vừa dùng continued pre-training để thích nghi với climate domain <Cite paper="thulke2024climategpt" evidence="overview-climategpt-cpt" />, vừa bổ sung khả năng làm theo instruction <Cite paper="thulke2024climategpt" evidence="overview-climategpt-ift" />, rồi dùng RAG khi suy luận để tiếp cận tri thức mới <Cite paper="thulke2024climategpt" evidence="overview-climategpt-rag" />. Một số phương pháp model editing cũng dùng retrieval như một phần của cơ chế cập nhật model <Cite paper="shi2024continualSurvey" evidence="overview-retrieval-model-editing" />. Ở phần tổng quan này, RAG được hiểu theo nghĩa thông thường: bổ sung context nhưng không cập nhật backbone. Những trường hợp retrieval tham gia trực tiếp vào cơ chế cập nhật model sẽ được nhắc đến ở các chương sau về nhóm phương pháp Continual Learning.
 </LessonNote>
 
-Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt.
+</MdxPage>
 
-<LessonNote>
-  Cần lưu ý rằng Retrieval cũng không đồng nghĩa với một cơ chế duy nhất: survey ghi nhận một số memory-based model-editing approaches thực hiện editing thông qua retrieval <Cite paper="shi2024continualSurvey" evidence="overview-retrieval-model-editing" />. Vì vậy, khi đọc một hệ thống “có retrieval”, cần hỏi retrieval chỉ thêm context hay còn tham gia vào cơ chế cập nhật/chỉnh sửa model.
+<MdxPage page={2}>
 
-  Hai hướng RAG + Continual Learning cũng có thể bổ sung cho nhau. ClimateGPT thích nghi model cho climate domain bằng continued pre-training <Cite paper="thulke2024climategpt" evidence="overview-climategpt-cpt" />. Model tiếp tục được bổ sung năng lực làm theo instruction bằng instruction fine-tuning <Cite paper="thulke2024climategpt" evidence="overview-climategpt-ift" />. Ở tầng suy luận, hệ thống dùng RAG để tăng factuality và mở rộng bằng tri thức mới <Cite paper="thulke2024climategpt" evidence="overview-climategpt-rag" />.
+## Có nên huấn luyện lại từ đầu? (1)
+
+Huấn luyện lại từ đầu nghĩa là khởi tạo một model mới, gộp dữ liệu cũ với dữ liệu mới rồi chạy lại toàn bộ quá trình huấn luyện. Về mặt ý tưởng, đây là cách trực tiếp nhất để model học cả hai phần dữ liệu. Trong thực tế, cách làm này thường quá tốn thời gian và tài nguyên tính toán.
+
+Scaling Laws cho thấy khi muốn tiếp tục cải thiện model, ta thường phải tăng đồng thời quy mô model, lượng dữ liệu và compute <Cite paper="kaplan2020scaling" evidence="overview-retrain-scaling-kaplan" />. Nghiên cứu Chinchilla cũng chỉ ra rằng để huấn luyện tối ưu theo compute, khi số tham số tăng gấp đôi thì số token huấn luyện nên tăng gấp đôi <Cite paper="hoffmann2022chinchilla" evidence="overview-retrain-scaling-hoffmann" />.
+
+<LessonNote tone="fact">
+  Để hình dung con số này khủng khiếp như thế nào, Meta báo cáo quá trình huấn luyện Llama 3.1 405B đã sử dụng khoảng 30,84 triệu giờ H100 GPU. Nếu giả định chi phí cho mỗi giờ H100 chỉ là 2 USD, riêng compute đã tương đương khoảng 61,7 triệu USD. Đây chỉ là phép quy đổi minh họa, không phải chi phí thực tế Meta đã trả; nó chưa tính công sức nghiên cứu, xây dựng dữ liệu, lưu trữ, mạng, thử nghiệm thất bại, fine-tuning và evaluation. [Model card của Meta](https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md) cũng báo cáo 8.930 tấn <InlineMath formula="\text{CO}_2" /> tương đương theo vị trí địa lý cho riêng model 405B.
 </LessonNote>
+
+Nếu phải huấn luyện lại một foundation model sau mỗi đợt dữ liệu mới, hệ quả không chỉ là hóa đơn GPU:
+
+- Cụm GPU bị chiếm dụng trong thời gian dài, khiến các thí nghiệm và sản phẩm khác phải chờ.
+- Một lỗi dữ liệu hoặc lỗi huấn luyện xuất hiện muộn có thể buộc đội ngũ chạy lại một phần lớn quá trình.
+- Model mới phải được đánh giá lại về chất lượng, safety và các năng lực cũ trước khi phát hành.
+- Năng lượng tiêu thụ và lượng phát thải tiếp tục lặp lại theo mỗi lần huấn luyện.
+
+Ngoài ra, việc tái sử dụng toàn bộ dữ liệu cũ cũng không phải lúc nào cũng khả thi. Giấy phép có thể hết hạn, dữ liệu riêng tư có thể phải xóa, nguồn thu thập cũ có thể không còn truy cập được, hoặc kho dữ liệu quá lớn để xử lý lại. Ngoài pre-training, đội ngũ còn có thể phải chạy lại các stage phía sau như domain adaptation và fine-tuning.
+
+<LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
+
+<LessonNote tone="danger">
+  Vậy có cách nào giúp model học phần mới mà vẫn không quên những gì đã học trước đó?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Có nên huấn luyện lại từ đầu? (2)
+
+Khi đánh giá một phương pháp Continual Learning, ta cần các **baseline**: những phương án tham chiếu giúp xác định phương pháp mới thực sự cải thiện được bao nhiêu. Nếu toàn bộ dữ liệu lịch sử vẫn còn hợp lệ, có thể truy cập và ngân sách tính toán đủ lớn, hai baseline mạnh nhất là:
+
+<CourseCards
+  ariaLabel="Hai baseline mạnh khi đánh giá Continual Learning"
+  exampleLabel="Cách thực hiện"
+  takeawayLabel="Câu hỏi được trả lời"
+  items={[
+    {
+      title: 'Joint retraining',
+      example: 'Khởi tạo một model mới, gộp toàn bộ dữ liệu cũ và mới, rồi huấn luyện lại từ đầu.',
+      takeaway: 'Nếu không cần giữ model hiện tại và không bị giới hạn tài nguyên, chất lượng tốt nhất có thể đạt được là bao nhiêu?',
+    },
+    {
+      title: 'Full replay',
+      example: 'Bắt đầu từ model hiện tại, rồi tiếp tục huấn luyện bằng dữ liệu mới cùng toàn bộ dữ liệu cũ.',
+      takeaway: 'Nếu được giữ lại toàn bộ dữ liệu lịch sử, model hiện tại có thể học mới và giữ cũ tốt đến đâu?',
+    },
+  ]}
+/>
+
+Full replay vẫn có thể được dùng trong một thiết lập học tuần tự, nhưng thường đóng vai trò baseline đắt đỏ. Nó gần như loại bỏ bài toán thiếu dữ liệu cũ bằng cách lưu và xử lý lại toàn bộ lịch sử sau mỗi lần cập nhật.
+
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
+
+Hai baseline trên cho thấy mức chất lượng model có thể đạt được khi chưa bị giới hạn bởi dữ liệu hoặc ngân sách. Nếu muốn chứng minh một phương pháp Continual Learning là lựa chọn hiệu quả hơn trong điều kiện thực tế, ta không thể chỉ cho thấy model học được dữ liệu mới. Phương pháp đó phải được đánh giá đồng thời trên ba tiêu chí:
+
+<ConceptFlow
+  ariaLabel="Ba tiêu chí đánh giá hiệu quả của một phương pháp Continual Learning"
+  items={[
+    {
+      title: 'Acquisition',
+      detail: 'Model học kiến thức, kỹ năng hoặc hành vi mới tốt đến đâu?',
+      tone: 'blue',
+    },
+    {
+      title: 'Retention',
+      detail: 'Sau khi học phần mới, model còn giữ được những gì đã học trước đó hay không?',
+      tone: 'teal',
+    },
+    {
+      title: 'Cost',
+      detail: 'Phương pháp cần bao nhiêu dữ liệu cũ, dung lượng lưu trữ, thời gian và compute?',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+Một phương pháp tốt không nhất thiết phải vượt joint retraining hoặc full replay về mọi điểm số. Nó cần tạo ra trade-off tốt hơn: tiến gần khả năng học mới và giữ cũ của hai baseline, nhưng sử dụng ít dữ liệu lịch sử và compute hơn đáng kể.
 
 </MdxPage>
 
@@ -99,11 +193,40 @@ Khóa học này tập trung vào trường hợp thứ hai: model phải thay �
 
 ## Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?
 
-Thay vì retrain từ đầu, lựa chọn hợp lý hơn là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách làm này tiết kiệm hơn nhiều, nhưng khi hàm mục tiêu chỉ tập trung vào dữ liệu mới, mô hình sẽ thiếu đi cơ sở để giữ lại tri thức cũ.
+Đến đây, chúng ta đã đi qua ba lựa chọn:
+
+<ConceptFlow
+  ariaLabel="Ba kết luận dẫn đến phương án fine-tune trên dữ liệu mới"
+  items={[
+    {
+      title: 'Model không tự cập nhật',
+      detail: 'Trọng số giữ nguyên sau khi huấn luyện, dù dữ liệu và nhu cầu tiếp tục thay đổi.',
+      tone: 'blue',
+    },
+    {
+      title: 'RAG chỉ thêm context',
+      detail: 'RAG cung cấp tài liệu để tham khảo nhưng không tự cải thiện năng lực hoặc hành vi đã học của model.',
+      tone: 'violet',
+    },
+    {
+      title: 'Huấn luyện toàn bộ quá đắt',
+      detail: 'Joint retraining và full replay là hai baseline mạnh, nhưng đòi hỏi lượng lớn dữ liệu cũ và compute.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+<LessonNote tone="danger">
+  Nếu không thể truy cập toàn bộ dữ liệu cũ, cách đơn giản nhất để cập nhật kiến thức cho model là gì?
+</LessonNote>
+
+Ta chỉ có thể lấy bộ trọng số đã lưu (checkpoint) của model hiện tại rồi fine-tune trên tập dữ liệu mới.
 
 <LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
 
-<LessonNote>
+Cách làm này tiết kiệm hơn nhiều, nhưng khi hàm mục tiêu chỉ tập trung vào dữ liệu mới, model không nhận được tín hiệu nào để giữ lại những gì đã học trước đó.
+
+<LessonNote tone="warning">
   Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Hiện tượng nền tảng này được McCloskey và Cohen mô tả dưới tên **catastrophic interference** trong các connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" evidence="overview-catastrophic-interference" />. Chúng ta sẽ phân tích kỹ hơn biểu hiện của nó trong LLM ở các phần tiếp theo.
 </LessonNote>
 
@@ -113,7 +236,28 @@ Thay vì retrain từ đầu, lựa chọn hợp lý hơn là lấy checkpoint h
 
 ## Mục tiêu của Continual Learning
 
-Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị <Cite paper="shi2024continualSurvey" evidence="overview-cl-goal" />. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
+Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục — học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị <Cite paper="shi2024continualSurvey" evidence="overview-cl-goal" />.
+
+<ConceptFlow
+  ariaLabel="Ba mục tiêu cốt lõi của Continual Learning"
+  items={[
+    {
+      title: 'Học liên tục',
+      detail: 'Nhận dữ liệu hoặc task mới theo từng giai đoạn, không cần toàn bộ dữ liệu có mặt cùng lúc.',
+      tone: 'blue',
+    },
+    {
+      title: 'Giữ năng lực cũ',
+      detail: 'Duy trì hiệu năng trên các kỹ năng đã học — không để catastrophic forgetting xóa sạch kiến thức trước đó.',
+      tone: 'teal',
+    },
+    {
+      title: 'Không retraining từ đầu',
+      detail: 'Loại bỏ vòng full retraining tốn kém; mỗi update chỉ xử lý dữ liệu mới với chi phí compute tối thiểu.',
+      tone: 'amber',
+    },
+  ]}
+/>
 
 <LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.png" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
 

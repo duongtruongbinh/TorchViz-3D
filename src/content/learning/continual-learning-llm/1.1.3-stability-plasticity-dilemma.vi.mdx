@@ -11,7 +11,13 @@ export const lessonMetadata = {
   conceptIds: [
   "stability-definition",
   "plasticity-definition",
-  "stability-plasticity-tradeoff"
+  "stability-plasticity-tradeoff",
+  "overstability-failure",
+  "overplasticity-failure",
+  "distribution-shift-context",
+  "update-sequence-context",
+  "old-data-access-context",
+  "capability-risk-context"
 ],
   pageCount: 2,
 }
@@ -20,13 +26,33 @@ export const lessonMetadata = {
 
 ## Giữ năng lực cũ mà vẫn học được điều mới
 
-**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình thích nghi quá nhanh sẽ ghi đè tri thức cũ <Cite paper="wang2024comprehensive" evidence="stability-plasticity-tradeoff-01-wang2024comprehensive" />.
+Từ các mục tiêu của Continual Learning ở chương trước, các nhà nghiên cứu đặt ra hai thuật ngữ để mô tả sự đánh đổi này:
 
-<BlockMath formula="\mathcal{L}_{\mathrm{CL}}(\theta)=\underbrace{\mathcal{L}_{\mathrm{retain}}(\theta)}_{\text{stability}}+\lambda\,\underbrace{\mathcal{L}_{\mathrm{new}}(\theta)}_{\text{plasticity}}" />
+<ConceptFlow
+  ariaLabel="Hai mặt của bài toán Stability–Plasticity"
+  items={[
+    {
+      title: 'Stability',
+      detail: 'Khả năng giữ hiệu năng trên tri thức đã học.',
+      tone: 'blue',
+    },
+    {
+      title: 'Plasticity',
+      detail: 'Khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới.',
+      tone: 'teal',
+    },
+  ]}
+/>
 
-<LessonNote>
-  Accuracy trên task mới tăng chưa đủ để kết luận hệ thống học tốt. Nếu task cũ giảm mạnh, mô hình chỉ đổi năng lực chứ chưa học liên tục.
-</LessonNote>
+Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình thích nghi quá nhanh sẽ ghi đè tri thức cũ <Cite paper="wang2024comprehensive" evidence="stability-plasticity-tradeoff-01-wang2024comprehensive" />.
+
+<LessonImage
+  assetPath="continual-learning-llm/stability-plasticity-balance.png"
+  alt="Cán cân nghiêng nhẹ giữa Stability với sách và khiên bảo vệ tri thức cũ, và Plasticity với các khối dữ liệu mới cùng mầm cây"
+  caption="Không có một điểm cân bằng cố định: mức ưu tiên giữa giữ năng lực cũ và tiếp thu điều mới phụ thuộc vào dữ liệu, task và rủi ro của hệ thống."
+/>
+
+Điều này có nghĩa: accuracy trên task mới tăng chưa đủ để kết luận hệ thống học tốt — nếu task cũ đồng thời giảm mạnh, mô hình chỉ đổi năng lực chứ chưa thực sự học liên tục.
 
 </MdxPage>
 
@@ -36,26 +62,36 @@ export const lessonMetadata = {
 
 Sự đánh đổi này phụ thuộc vào một số yếu tố trong bối cảnh thực tế:
 
+<ConceptFlow
+  ariaLabel="Bốn yếu tố làm thay đổi trade-off Stability–Plasticity"
+  items={[
+    {
+      title: '1. Độ lệch phân phối',
+      detail: 'Dữ liệu mới càng khác dữ liệu cũ, mô hình càng cần nhiều plasticity để thích nghi — đồng thời phải kiểm tra khả năng duy trì năng lực ngôn ngữ tổng quát.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Độ dài chuỗi cập nhật',
+      detail: 'Chuỗi cập nhật càng dài, catastrophic forgetting càng có thể tích lũy theo thời gian; phải kiểm tra khả năng duy trì sau từng giai đoạn.',
+      tone: 'teal',
+    },
+    {
+      title: '3. Quyền truy cập dữ liệu cũ',
+      detail: 'Nếu chính sách riêng tư cấm lưu lại dữ liệu cũ, hệ thống không thể ôn lại ví dụ cụ thể — phải dùng kỹ thuật không cần raw data để bảo vệ tri thức đã học.',
+      tone: 'violet',
+    },
+    {
+      title: '4. Chi phí sai lệch của năng lực',
+      detail: 'Năng lực có rủi ro cao (safety, refusal) cần ưu tiên stability và đặt ngưỡng retention chặt hơn so với thay đổi văn phong.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
 <LessonImage assetPath="continual-learning-llm/01-stability-plasticity-context-factors.png" alt="Bốn yếu tố làm thay đổi trade-off stability–plasticity: độ lệch phân phối, độ dài chuỗi cập nhật, quyền truy cập dữ liệu cũ và rủi ro của năng lực" caption="Cùng một chiến lược giữ cũ–học mới có thể cần điều chỉnh khi dữ liệu, lịch cập nhật, quyền truy cập hoặc mức rủi ro thay đổi." />
-
-### 1. Độ lệch phân phối
-
-Một LLM ban đầu được pre-train chủ yếu trên trang web phổ thông, sách và văn bản kiểu Wikipedia, sau đó tiếp tục học báo cáo X-quang chuyên ngành. Dữ liệu mới càng khác dữ liệu cũ, mô hình càng cần nhiều plasticity để thích nghi; đồng thời vẫn phải kiểm tra khả năng duy trì năng lực ngôn ngữ tổng quát <Cite paper="gururangan2020dont" evidence="stability-plasticity-factor-01-gururangan" />.
-
-### 2. Độ dài chuỗi cập nhật
-
-Mỗi tháng, model học một lô dữ liệu mới và được cập nhật một lần. Sau 24 tháng, model đã trải qua 24 giai đoạn nối tiếp. Chuỗi cập nhật càng dài, catastrophic forgetting càng có thể tích lũy theo thời gian; vì vậy phải kiểm tra khả năng duy trì sau từng giai đoạn <Cite paper="jin2022lifelong" evidence="stability-plasticity-factor-02-jin" />.
-
-### 3. Quyền truy cập dữ liệu cũ
-
-Replay là trộn một số mẫu dữ liệu cũ vào dữ liệu đang học để model ôn lại. Nếu chính sách riêng tư cấm lưu raw sample sau mỗi giai đoạn, cách replay trực tiếp này không thể dùng; hệ thống phải chuyển sang các kỹ thuật hợp lệ khác như regularization, distillation hoặc memory được kiểm soát <Cite paper="chaudhry2019tiny" evidence="stability-plasticity-factor-03-chaudhry" />.
-
-### 4. Chi phí sai lệch của năng lực
-
-Một thay đổi nhỏ về văn phong có thể chấp nhận, nhưng suy giảm safety hoặc refusal thì không. Năng lực có rủi ro cao cần ưu tiên stability và đặt ngưỡng retention chặt hơn <Cite paper="qi2023fine" evidence="stability-plasticity-factor-04-qi" />.
 
 ---
 
-Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage) <Cite paper="shi2024continualSurvey" evidence="stability-plasticity-tradeoff-06-shi2024continualSurvey" />. Các độ đo cụ thể sẽ được đề cập ở Chương 5.
+Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật — tùy theo bối cảnh phân phối <Cite paper="gururangan2020dont" evidence="stability-plasticity-factor-01-gururangan" />, độ dài chuỗi <Cite paper="jin2022lifelong" evidence="stability-plasticity-factor-02-jin" />, quyền truy cập dữ liệu <Cite paper="chaudhry2019tiny" evidence="stability-plasticity-factor-03-chaudhry" />, và mức rủi ro của từng năng lực <Cite paper="qi2023fine" evidence="stability-plasticity-factor-04-qi" /> <Cite paper="shi2024continualSurvey" evidence="stability-plasticity-tradeoff-06-shi2024continualSurvey" />. Các độ đo cụ thể sẽ được đề cập ở các bài sau.
 
 </MdxPage>

@@ -20,15 +20,38 @@ export const lessonMetadata = {
 
 Trong Continual Learning, các tình huống thay đổi dữ liệu theo thời gian thường được chuẩn hóa thành **3 kịch bản chính** theo hệ thống phân loại của Van de Ven et al. <Cite paper="van2022three" evidence="til-dil-cil-settings-01-van2022three" /> cùng các phân tích lý thuyết từ Kim et al. <Cite paper="kim2022theoretical" evidence="til-dil-cil-settings-02-kim2022theoretical" />:
 
-1. **Task-Incremental Learning (TIL) — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
-2. **Domain-Incremental Learning (DIL) — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
-3. **Class-Incremental Learning (CIL) — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
+<ConceptFlow
+  ariaLabel="Ba kịch bản Continual Learning: TIL, DIL và CIL"
+  items={[
+    {
+      title: 'Task-Incremental Learning (TIL)',
+      detail: 'Đổi việc cần làm: mô hình chuyển sang task mới và được cung cấp task ID.',
+      tone: 'blue',
+    },
+    {
+      title: 'Domain-Incremental Learning (DIL)',
+      detail: 'Đổi nguồn dữ liệu: task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.',
+      tone: 'teal',
+    },
+    {
+      title: 'Class-Incremental Learning (CIL)',
+      detail: 'Thêm nhãn cần nhận diện: mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.',
+      tone: 'violet',
+    },
+  ]}
+/>
 
 <LessonImage
   assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.png"
   alt="TIL đổi task và dùng task ID, DIL giữ task nhưng đổi domain dữ liệu, còn CIL mở rộng bộ class cần nhận diện"
   caption="Ba cách dòng dữ liệu học thay đổi theo thời gian."
 />
+
+<LessonNote tone="warning">
+
+Domain-Incremental Learning nghe khá giống các kỹ thuật Domain Adaptation. Tuy nhiên, một phương pháp Domain Adaptation chỉ được xem xét dưới góc độ Continual Learning khi model được fine-tune qua nhiều giai đoạn hoặc nhiều domain liên tiếp, đồng thời được đánh giá cả khả năng thích nghi với domain mới lẫn khả năng duy trì hiệu năng trên các domain cũ. Nếu model chỉ được fine-tune một lần từ source domain sang target domain mà không đo mức độ quên, đó chỉ là Domain Adaptation thông thường.
+
+</LessonNote>
 
 </MdxPage>
 
@@ -37,6 +60,8 @@ Trong Continual Learning, các tình huống thay đổi dữ liệu theo thời
 ## Task-Incremental Learning (TIL)
 
 Trong **Task-Incremental Learning**, việc cần làm thay đổi và hệ thống phải báo cho mô hình task hiện tại.
+
+Một task không nhất thiết phải đổi hẳn từ phân loại sang dịch thuật. Nó cũng có thể là một bài toán con trong cùng hệ thống, miễn là tín hiệu task cho biết mô hình phải dùng bộ đầu ra hoặc bộ phân loại nào. Lab tiếp theo dùng cách này: báo thức, âm lượng và calendar là ba task, mỗi task có hai ý định riêng.
 
 `task_id` không nhất thiết là một con số.
 
@@ -131,7 +156,7 @@ Trong nhiều trường hợp, model sẽ **không nhận domain ID khi inferenc
 
 ## Class-Incremental Learning (CIL)
 
-Trong **Class-Incremental Learning**, task vẫn là phân loại, nhưng hệ thống bổ sung class mới theo thời gian. Ví dụ, intent classifier ban đầu nhận diện `billing` và `shipping`; stage mới bổ sung `refund`.
+Trong **Class-Incremental Learning**, task vẫn là phân loại, nhưng hệ thống bổ sung class mới theo thời gian. Ví dụ, bộ phân loại ý định của người dùng ban đầu nhận diện `billing` và `shipping`; stage mới bổ sung `refund`. Ở đây, **intent** là điều người dùng muốn hệ thống thực hiện, chẳng hạn hỏi về hóa đơn, kiểm tra giao hàng hoặc yêu cầu hoàn tiền.
 
 Một record huấn luyện cho class mới có thể chỉ cần:
 

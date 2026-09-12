@@ -73,6 +73,12 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   }),
   lessonPair({
     trackId: 'cl-llm-fundamentals',
+    id: 'cl-settings-code-lab',
+    titleEn: 'TIL, DIL, and CIL Lab',
+    titleVi: 'Lab TIL, DIL và CIL',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
     id: 'vertical-horizontal-continuity',
     titleEn: 'Vertical and Horizontal CL',
     titleVi: 'Vertical và Horizontal CL',
@@ -94,6 +100,12 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
     id: 'replay-experience-code-lab',
     titleEn: 'Experience Replay Lab',
     titleVi: 'Lab Experience Replay',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'sequential-cl-baseline-lab',
+    titleEn: 'Sequential CL Baseline Lab',
+    titleVi: 'Lab baseline CL tuần tự',
   }),
   lessonPair({
     trackId: 'cl-llm-methods',

@@ -6,15 +6,27 @@ export const lessonMetadata = {
   headings: [
   "Nhận diện stability",
   "Nhận diện plasticity",
-  "Đọc đúng trade-off"
+  "Đọc đúng trade-off",
+  "Khi stability quá cao",
+  "Khi plasticity quá cao",
+  "Khi dữ liệu mới lệch xa",
+  "Khi chuỗi cập nhật kéo dài",
+  "Khi không giữ được dữ liệu cũ",
+  "Khi năng lực có rủi ro cao"
 ],
   keywords: ['Continual Learning', 'LLM', 'Quiz'],
   conceptIds: [
   "stability-definition",
   "plasticity-definition",
-  "stability-plasticity-tradeoff"
+  "stability-plasticity-tradeoff",
+  "overstability-failure",
+  "overplasticity-failure",
+  "distribution-shift-context",
+  "update-sequence-context",
+  "old-data-access-context",
+  "capability-risk-context"
 ],
-  pageCount: 3,
+  pageCount: 9,
 }
 
 <MdxQuiz id="stability-plasticity-dilemma-quiz" questions={[
@@ -98,5 +110,167 @@ export const lessonMetadata = {
     ],
     "success": "Cần quan sát đồng thời acquisition và retention.",
     "error": "Một phía tốt không đủ; hãy kiểm tra cả task mới lẫn task cũ."
+  },
+  {
+    "id": "overstability-failure",
+    "title": "Khi stability quá cao",
+    "prompt": "Một model giữ điểm trên các task cũ gần như nguyên vẹn, nhưng sau nhiều lần cập nhật vẫn không học được task mới. Điều này cho thấy điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Plasticity quá cao nên model ghi đè tri thức cũ."
+      },
+      {
+        "id": "opt2",
+        "label": "Stability đang quá cao, khiến plasticity không đủ để tiếp thu task mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Model cần bỏ toàn bộ checkpoint cũ rồi train lại từ đầu."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ cần đo accuracy trên task cũ là đủ để kết luận model tốt."
+      }
+    ],
+    "success": "Giữ được cái cũ chưa đủ nếu model không thể tiếp thu điều mới.",
+    "error": "Hãy kiểm tra phía bị thiếu: model đang giữ cũ tốt nhưng không học được task mới."
+  },
+  {
+    "id": "overplasticity-failure",
+    "title": "Khi plasticity quá cao",
+    "prompt": "Sau khi fine-tune trên dữ liệu mới, model làm task mới tốt hơn nhưng hiệu năng trên task cũ giảm mạnh. Trade-off nào đang mất cân bằng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Stability quá cao nên model không thay đổi theo dữ liệu mới."
+      },
+      {
+        "id": "opt2",
+        "label": "Model đang cân bằng tốt vì task mới đã cải thiện."
+      },
+      {
+        "id": "opt3",
+        "label": "Cần bỏ đo retention vì task mới là mục tiêu duy nhất."
+      },
+      {
+        "id": "opt4",
+        "label": "Plasticity đang lấn át stability, nên năng lực cũ không được giữ lại.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Học nhanh điều mới mà mất mạnh năng lực cũ là dấu hiệu stability chưa đủ.",
+    "error": "Hãy quan sát cả hiệu năng cũ: nó giảm mạnh dù task mới được cải thiện."
+  },
+  {
+    "id": "distribution-shift-context",
+    "title": "Khi dữ liệu mới lệch xa",
+    "prompt": "Dữ liệu mới khác xa phân phối cũ. Ưu tiên đánh giá nào phù hợp nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chỉ giữ nguyên mọi trọng số để tránh bất kỳ thay đổi nào."
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ đo task mới vì task cũ không còn liên quan."
+      },
+      {
+        "id": "opt3",
+        "label": "Tăng khả năng thích nghi với dữ liệu mới và vẫn kiểm tra retention của năng lực cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Bỏ qua thay đổi phân phối nếu training loss mới giảm."
+      }
+    ],
+    "success": "Độ lệch phân phối lớn cần plasticity, nhưng retention vẫn phải được kiểm tra.",
+    "error": "Dữ liệu mới khác xa không cho phép bỏ qua năng lực cũ."
+  },
+  {
+    "id": "update-sequence-context",
+    "title": "Khi chuỗi cập nhật kéo dài",
+    "prompt": "Vì sao cần đo retention sau từng giai đoạn khi model trải qua một chuỗi cập nhật dài?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Catastrophic forgetting có thể tích lũy dần qua nhiều lần cập nhật.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Task cũ tự động được cải thiện sau mỗi lần fine-tune."
+      },
+      {
+        "id": "opt3",
+        "label": "Chuỗi cập nhật dài làm checkpoint không còn cần thiết."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ cần đo retention ở lần cập nhật cuối cùng."
+      }
+    ],
+    "success": "Quên có thể tích lũy, nên cần quan sát retention theo từng giai đoạn.",
+    "error": "Hãy nghĩ đến hiệu ứng tích lũy qua nhiều lần cập nhật."
+  },
+  {
+    "id": "old-data-access-context",
+    "title": "Khi không giữ được dữ liệu cũ",
+    "prompt": "Vì chính sách riêng tư, raw data cũ buộc phải xóa. Một mô hình Continual Learning tốt có làm giảm hiệu năng trên các task đã học từ dữ liệu đó không?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Có, vì xóa raw data đồng nghĩa model phải mất năng lực đã học."
+      },
+      {
+        "id": "opt2",
+        "label": "Không, model vẫn cần giữ năng lực cũ dù không còn truy cập raw data để replay.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Có, vì chỉ khi còn raw data cũ thì retention mới có ý nghĩa."
+      },
+      {
+        "id": "opt4",
+        "label": "Không cần kiểm tra, vì task cũ đã không còn raw data."
+      }
+    ],
+    "success": "Xóa raw data không đồng nghĩa phải đánh mất năng lực đã học trong model.",
+    "error": "Hãy phân biệt dữ liệu nguồn đã bị xóa với năng lực model cần tiếp tục giữ lại."
+  },
+  {
+    "id": "capability-risk-context",
+    "title": "Khi năng lực có rủi ro cao",
+    "prompt": "Một update giúp chatbot thân thiện hơn nhưng có nguy cơ làm suy yếu khả năng từ chối trả lời các yêu cầu nguy hiểm. Cách đánh giá nào phù hợp nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chỉ đo mức độ thân thiện của văn phong sau update."
+      },
+      {
+        "id": "opt2",
+        "label": "Cho phép khả năng từ chối trả lời giảm miễn là task mới tốt hơn."
+      },
+      {
+        "id": "opt3",
+        "label": "Đánh giá khả năng từ chối trả lời giống hệt một thay đổi văn phong thông thường."
+      },
+      {
+        "id": "opt4",
+        "label": "Kiểm tra riêng khả năng từ chối trả lời và đặt ngưỡng retention chặt hơn cho năng lực safety.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Khả năng từ chối trả lời là năng lực safety có rủi ro cao, nên cần được kiểm tra riêng với ngưỡng nghiêm ngặt hơn.",
+    "error": "Cải thiện văn phong không bù được cho việc suy yếu khả năng từ chối trả lời các yêu cầu nguy hiểm."
   }
 ]} />

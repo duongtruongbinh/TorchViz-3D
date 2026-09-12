@@ -29,6 +29,7 @@ type MdxModule = {
   default: CompiledMdxComponent;
   lessonMetadata: LearningMdxMetadata;
   lessonRuntime: LearningMdxRuntimeCapabilities;
+  lessonPageHeadings: Array<string | null>;
 };
 
 type LessonModuleDescriptor = {
@@ -51,6 +52,7 @@ export type LoadedLearningMdxLesson = LearningReferenceRuntime & {
   lessonId: string;
   locale: string;
   pageCount: number;
+  pageHeadings: Array<string | null>;
   Content: CompiledMdxComponent;
   components: Record<string, LearningMdxComponent>;
   entryPoints: LearningLesson['entryPoints'];
@@ -59,6 +61,7 @@ export type LoadedLearningMdxLesson = LearningReferenceRuntime & {
 export type LearningMdxLessonDescriptor = {
   pageCount: number;
   pages: ReactElement[];
+  pageHeadings: Array<string | null>;
 };
 
 const LESSON_LOADERS = import.meta.glob<MdxModule>('../../content/learning/**/*.mdx');
@@ -129,6 +132,7 @@ export async function loadLearningMdxLesson({
     lessonId: lesson.id,
     locale: selectedModule.locale,
     pageCount: module.lessonMetadata.pageCount ?? 1,
+    pageHeadings: module.lessonPageHeadings,
     Content: module.default,
     components: { ...sharedLearningMdxComponents, ...referenceComponents, ...domainComponents },
     entryPoints: lesson.entryPoints,
@@ -148,7 +152,7 @@ export function getLearningMdxLesson({ loadedLesson, language, quizQuestionState
   const referenceCoverage = lesson.referenceCoverage;
   const authoredPages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} entryPoints={lesson.entryPoints} referencePapers={lesson.referencePapers} citationEvidence={lesson.citationEvidence} citationLinkOnlyExceptions={lesson.citationLinkOnlyExceptions} featuredReferenceIds={lesson.featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} pageHeading={lesson.pageHeadings[pageIndex] ?? null} entryPoints={lesson.entryPoints} referencePapers={lesson.referencePapers} citationEvidence={lesson.citationEvidence} citationLinkOnlyExceptions={lesson.citationLinkOnlyExceptions} featuredReferenceIds={lesson.featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
           <Content components={components} />
         </div>
@@ -167,7 +171,8 @@ export function getLearningMdxLesson({ loadedLesson, language, quizQuestionState
     </LearningMdxThemeProvider>
   ) : null;
   const pages = referencePage ? [...authoredPages, referencePage] : authoredPages;
-  return { pageCount: pages.length, pages };
+  const pageHeadings = referencePage ? [...lesson.pageHeadings, null] : lesson.pageHeadings;
+  return { pageCount: pages.length, pages, pageHeadings };
 }
 
 function loadLessonModule(filePath: string): Promise<MdxModule> {

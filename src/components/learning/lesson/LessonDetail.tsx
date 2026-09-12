@@ -109,7 +109,9 @@ export default function LessonDetail({
       </SectionShell>,
     ];
   });
+  const sectionPageHeadings = mdxLesson?.pageHeadings ?? [];
   const currentSectionPageIndex = Math.min(sectionPageIndex, Math.max(sectionPages.length - 1, 0));
+  const pageTitle = sectionPageHeadings[currentSectionPageIndex] ?? lessonText.title;
   const canGoBack = currentSectionPageIndex > 0;
   const canGoNext = currentSectionPageIndex < sectionPages.length - 1;
   const hasNextPage = currentSectionPageIndex < sectionPages.length - 1;
@@ -162,11 +164,11 @@ export default function LessonDetail({
       }}
     >
       <header className={cx('border-b px-5 py-5 md:px-6', sectionDivider)}>
-        <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{lessonText.title}</h2>
+        <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{pageTitle}</h2>
       </header>
 
       <div
-        className={cx('learning-lab-reading-content grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
+        className={cx('learning-lab-reading-content grid grid-cols-1 min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
       >
         {sectionPages[currentSectionPageIndex] ?? null}
       </div>

@@ -23,7 +23,7 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
   const isQuiz = lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-');
-  const isLab = !isQuiz && lesson.id.endsWith('-code-lab');
+  const isLab = !isQuiz && (lesson.id.endsWith('-code-lab') || lesson.id.endsWith('-lab'));
   const isDimmedQuiz = isQuiz && !isCompleted && !isSelected;
 
   return (
