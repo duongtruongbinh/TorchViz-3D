@@ -39,8 +39,8 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.equal(learningTableOfContents.length, 16);
   assert.equal(learningCatalog.domains.length, 16);
-  assert.equal(learningCatalog.tracks.length, 104);
-  assert.equal(learningCatalog.lessons.length, 787);
+  assert.equal(learningCatalog.tracks.length, 105);
+  assert.equal(learningCatalog.lessons.length, 794);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -333,6 +333,8 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
+  const researchPapersPublished = publishedLessons.filter((lesson) => lesson.domainId === 'research-papers');
+  assert.equal(researchPapersPublished.length, 33);
   const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
   assert.ok(salesForecastingTrack);
   assert.deepEqual(

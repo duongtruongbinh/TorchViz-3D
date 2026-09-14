@@ -1,0 +1,168 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-debate',
+  locale: 'vi',
+  title: 'Phần 6: Tranh luận Học thuật & Phản biện',
+  headings: [
+    'Zero-shot nghĩa là gì, chính xác?',
+    'Tranh luận thứ nhất: đóng băng hay tiếp tục học encoder',
+    'Tranh luận thứ hai: CEM có đáng tin hơn gradient không',
+    'Tranh luận thứ ba: mượn hệ quy chiếu có luôn tối ưu',
+    'Tranh luận thứ tư: world model không reward có thực sự task-agnostic',
+    'So sánh với video generation: cái giá của sự sinh đẹp',
+    'Phản biện tổng hợp: vị trí của DINO-WM',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'Academic Debate',
+    'Zero-shot Claims',
+    'Frozen vs Learned Encoder',
+    'CEM vs Gradient Descent',
+    'Reward-free World Model',
+    'Video Generation Critique',
+    'Critical Analysis',
+  ],
+  pageCount: 7,
+  conceptIds: [
+    'zero-shot-claim-scrutiny',
+  ],
+};
+
+<MdxPage page={0}>
+
+Đến đây, câu chuyện DINO-WM nghe thuyết phục. Phần này làm nhiệm vụ ngược lại: tìm những chỗ mà kết luận của paper có thể bị đặt câu hỏi — không để phủ nhận, mà để đọc paper như một nhà nghiên cứu.
+
+### Zero-shot nghĩa là gì, chính xác?
+
+Bài báo dùng "zero-shot" cho hành vi: tại test time, agent giải task mà không cần demonstration, reward, hay inverse model cho tác vụ đó. Ba vế kia đúng từng chữ. Nhưng zero-shot ở đây **không có nghĩa là không cần dữ liệu**:
+
+- Mô hình vẫn cần **hàng nghìn trajectory** trong chính môi trường đó (PushT: 18 500; Reach: 3 000; Rope/Granular: 1 000) để học động học.
+- Môi trường test vẫn thuộc **cùng họ cấu hình** với môi trường train trừ các biến thể được chỉ định.
+
+Vậy zero-shot của DINO-WM là zero về **thông tin tác vụ**, không phải zero về **dữ liệu môi trường**. Đọc chính xác thế này, đóng góp vẫn vững — nhưng cụm "zero-shot planning" dễ bị hiểu quá mức, và các hệ quả truyền thông cần được kiểm soát cẩn trọng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Tranh luận thứ nhất: đóng băng hay tiếp tục học encoder
+
+DINO-WM cố tình đóng băng DINOv2. Lập luận ủng hộ: giữ hệ quy chiếu bất biến, tránh gradient tác vụ làm lệch đặc trưng, và hưởng trọn prior không gian của internet.
+
+Nhưng phe phản biện có những lý lẽ đáng trọng:
+
+- **Năng lực biểu diễn của DINOv2 không vô hạn.** Với môi trường có đặc trưng ngoài phân phối ảnh internet — ảnh y tế, cấu trúc hiển vi, hoặc gam màu lạ — patch feature có thể nghèo thông tin phân biệt cho động học cần dự đoán. Khi đó tiếp tục finetune encoder (dù nguy cơ task-specific) có thể là lựa chọn thực dụng.
+- **Phần 4 tự cung bằng chứng hai mặt.** PushObj — hình khối ngoài phân phối — là nơi mọi mô hình đều kém, kể cả DINO-WM. Đó chính là cảnh báo: prior tốt chưa chắc phủ được họ hình học chưa gặp.
+- **Thí nghiệm trung gian còn bỏ ngỏ.** Giữa đóng băng cứng và finetune tự do có các phương án như adapter nhỏ, hoặc finetune có regularize — paper chưa khảo sát, nên câu hỏi "đóng băng tối ưu tới đâu" vẫn mở.
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/06-dinowm-frozen-vs-finetune-debate.jpg"
+  alt="Tranh luận đóng băng so với finetune: một bên giữ hệ quy chiếu bất biến và prior internet, một bên thích nghi đặc trưng môi trường lạ với giá task-specific"
+  caption="Bất biến hay thích nghi: mỗi lựa chọn đổi một thứ gì đó — DINO-WM chọn bất biến và trả giá ở PushObj."
+
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Tranh luận thứ hai: CEM có đáng tin hơn gradient không
+
+Paper báo CEM vượt gradient descent khi plan, dù world model khả vi. Kết quả này thú vị vì nó ngược trực giác phổ biến. Hai cách lý giải:
+
+**Lý giải thuận chiều (ủng hộ CEM):** loss planning <InlineMath formula="\|\hat{z}_T - z_g\|^2" /> trên latent hàm dự đoán dài có phong cảnh không lồi, nhiều cực tiểu cục bộ; lấy mẫu Gaussian + elite selection là tối ưu kiểu tiến hóa, ít kẹt cục bộ hơn gradient qua nhiều bước rollout.
+
+**Lý giải phản biện (thận trọng với CEM):**
+
+- Kết quả CEM > GD được báo cáo như quan sát thực nghiệm, kèm giả thuyết regularize; paper tự nhận để ngỏ. Nó chưa phải định lý — có thể là đặc thù của scale mô hình, horizon, hoặc cách chuẩn hóa loss.
+- CEM lấy mẫu ngẫu nhiên kém hiệu quả theo chiều kích thước action space; tăng số hành động đồng thời (hoặc action phức tạp hơn) làm chi phí lấy mẫu tăng nhanh. Trong không gian lớn, gradient — hoặc hybrid — có thể lật ngược.
+- Tối ưu trong không gian action rời khỏi nghiên cứu landscape thật của loss; mọi kết luận chỉ chắc trong protocol của paper.
+
+Tranh luận này là ví dụ đẹp của một nguyên tắc đọc paper: kết quả thực nghiệm trả lời câu hỏi "điều gì xảy ra ở đây", không phải "điều gì luôn đúng".
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Tranh luận thứ ba: mượn hệ quy chiếu có luôn tối ưu
+
+Phần 5 đã đặt câu hỏi này; phần này mổ rộng. Mượn đặc trưng DINOv2 có ba hệ quả ít được bàn:
+
+- **Chi phí tuân thủ format.** DINOv2 đòi input <InlineMath formula="196 \times 196" /> — quan sát độ phân giải khác phải resize, có thể mất chi tiết mịn quan trọng cho task thao tác chính xác.
+- **Phụ thuộc một bên cung cấp.** Toàn hệ quy chiếu phụ thuộc một mô hình bên ngoài; nâng cấp, deprecate hay thay đổi hành vi DINOv2 đều lay động mọi world model xây trên nó — một dạng rủi ro chuỗi cung ứng của học biểu diễn.
+- **Không tối ưu cho động lực học.** Patch feature giàu thông tin không gian, nhưng không phải mọi chiều của nó đều liên quan đến động lực học. Một không gian biểu diễn học để dự đoán động học (kiểu JEPA cho control) có thể chặt hơn — điều paper để ngỏ như hướng nghiên cứu.
+
+Đối trọng công bằng: tự học không gian động lực học từ đầu đòi dữ liệu và tính toán nhiều hơn nhiều, và có chính rủi ro task-specific mà paper muốn tránh. Tranh luận thực sự không phải "mượn hay tự học" mà là **khi nào mượn rẻ hơn tự học** — và câu hỏi đó chỉ trả lời được theo từng miền môi trường.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Tranh luận thứ tư: world model không reward có thực sự task-agnostic
+
+Tiêu chí "task-agnostic" của DINO-WM được kiểm chứng bằng việc bỏ reward, demo, inverse model. Nhưng định nghĩa task-agnostic có thể được đọc chặt hơn:
+
+- **Bài toán plan vẫn là goal-reaching.** Mọi đánh giá đều biến task thành "đưa quan sát tới một ảnh đích". Các dạng task không tự nhiên tách thành goal image — theo văn lệnh ngữ nghĩa, tối ưu phần thưởng thưa, hoặc giải chuỗi thao tác nhiều chặng — chưa nằm trong thiết lập.
+- **Sinh goal từ ảnh là một giả định mạnh.** Người dùng phải có sẵn (hoặc tạo được) ảnh đích đạt được. Trong thực tế, đặc tả mục tiêu bằng ảnh đôi khi khó hơn đặc tả bằng ngôn ngữ hay phần thưởng.
+- **Protocol loại bỏ reward khỏi baseline cũng là một lựa chọn gây tranh cãi.** TD-MPC2 ghi 0.00 một phần vì bị tước công cụ mà kiến trúc của nó dựa vào. So sánh là công bằng về mặt protocol, nhưng ít nói về giới hạn nội tại của TD-MPC2 trong thiết kế gốc của nó.
+
+Những điểm này không hạ giá trị kết quả — chúng vạch ranh giới: task-agnostic **trong họ các task biểu diễn được bằng goal observation**. Đó là họ rộng, nhưng không phải tất cả.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### So sánh với video generation: cái giá của sự sinh đẹp
+
+Phần 4 đã so LPIPS; phần này xem tranh luận về mặt khái niệm. Lập trường của paper đối với video generation world model có ba mũi nhọn:
+
+1. **Điều kiện ngôn ngữ không đủ chính xác** cho goal thị giác cụ thể.
+2. **Diffusion đắt** cho MPC cần rollout dày.
+3. **Sinh đẹp không đồng nghĩa suy đúng** — AVDC sinh ảnh hợp lý thị giác nhưng động học phi thực trong một bước.
+
+Phản biện có thể đưa ra ba điểm đối trọng:
+
+- Video model đang tiến bộ nhanh cả về tốc độ (distillation, few-step sampling) lẫn điều kiện thị giác — khoảng cách chi phí có thể thu hẹp.
+- Tính "đẹp" của video generation là một dạng kiểm tra khả vi (generative coverage) mạnh hơn dự đoán feature khi cần foresight dài và đa thức.
+- DINO-WM dự đoán một bước (frameskip) rồi rollout chuỗi; video model có thể được huấn luyện trục tiếp cho horizon dài — hai paradigma chưa được so sánh ở cùng một tiêu chí thời gian.
+
+<ComparisonMatrix
+  ariaLabel="Đối chiếu hai paradigma world model"
+  columns={['Tiêu chí', 'DINO-WM (latent)', 'Video generation']}
+  rows={[
+    { label: 'Chi phí mỗi hypothesis', values: ['Rẻ: một forward pass ViT nhỏ', 'Đắt: nhiều bước khử nhiễu diffusion'] },
+    { label: 'Điều kiện mục tiêu', values: ['Ảnh đích chính xác', 'Thường qua ngôn ngữ, đang mở rộng'] },
+    { label: 'Hợp lý vật lý', values: ['Học từ dữ liệu động học thật', 'Có thể sinh biến đổi phi thực'] },
+    { label: 'Horizon dài', values: ['Rollout tuần tự, sai số tích lũy', 'Tiềm năng sinh thẳng chuỗi dài'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Phản biện tổng hợp: vị trí của DINO-WM
+
+<ConceptSpectrum
+  ariaLabel="Phán quyết hỗn hợp theo năm khía cạnh"
+  leftLabel="Kết luận còn tranh cãi"
+  rightLabel="Bằng chứng vững"
+  items={[
+    { label: 'Dự đoán patch > tái tạo pixel (đúng protocol này)', position: 85 },
+    { label: 'Patch > vector toàn cục cho thao tác', position: 90 },
+    { label: 'CEM > gradient (mọi cài đặt)', position: 40 },
+    { label: 'Zero-shot = không cần dữ liệu môi trường', position: 15 },
+    { label: 'Hệ quy chiếu mượn luôn tối ưu', position: 35 },
+  ]}
+/>
+
+Tổng hợp lại, phán quyết hỗn hợp (mixed verdict) của DINO-WM gồm ba phần:
+
+- **Chắc chắn:** với họ task goal-reaching trên sáu môi trường đã thử, dự đoán patch feature đóng băng là công thức hiệu quả hơn hẳn so với tái tạo hoặc reward-anchored latent, và cấu trúc patch là yếu tố quyết định có thể tái lập.
+- **Nguyên vẹn nhưng cần đọc chuẩn:** zero-shot nghĩa là zero thông tin tác vụ, không phải zero dữ liệu; task-agnostic nghĩa là goal-agnostic trong họ task biểu diễn được bằng ảnh đích.
+- **Mở:** đóng băng có phải tối ưu cho mọi môi trường, CEM có giữ ưu thế ở action space lớn, và video generation sẽ đuổi kịp tới đâu — ba câu hỏi chưa khép.
+
+Đọc như vậy, DINO-WM không phải lời tuyên bố "world model đã giải xong", mà là một bằng chứng sạch giá trị: **nguồn thông tin phụ trợ duy nhất không làm giảm tính tổng quát là một observation model mạnh, độc lập tác vụ, và giữ cấu trúc không gian**. Phần 7 sẽ kiểm tra bạn đã nắm được các tranh luận này đến đâu.
+
+</MdxPage>

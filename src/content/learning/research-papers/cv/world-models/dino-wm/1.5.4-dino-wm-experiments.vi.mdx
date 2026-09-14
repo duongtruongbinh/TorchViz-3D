@@ -1,0 +1,296 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-experiments',
+  locale: 'vi',
+  title: 'Phần 4: Kết quả Thực nghiệm',
+  headings: [
+    'Thiết kế thực nghiệm: bốn câu hỏi',
+    'Sáu môi trường và protocol đánh giá',
+    'Kết quả planning tổng thể so với ba baseline',
+    'Vì sao TD-MPC2 thất bại không reward',
+    'Encoder nào cũng được, hay phải patch?',
+    'Tổng quát hóa cấu hình môi trường chưa gặp',
+    'Chất lượng dự đoán: LPIPS và rollout mở latent',
+    'Ba ablation quan trọng: dữ liệu, mask, tái tạo',
+    'Tổng kết Phần 4 bằng bốn câu trả lời',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'PointMaze',
+    'PushT',
+    'Rope',
+    'Granular',
+    'IRIS',
+    'DreamerV3',
+    'TD-MPC2',
+    'AVDC',
+    'LPIPS',
+    'Chamfer Distance',
+    'Scaling Laws',
+    'Ablation',
+  ],
+  pageCount: 9,
+  conceptIds: [
+    'six-environments-protocol',
+    'planning-results-table-interpretation',
+    'tdmpc2-reward-dependence',
+    'encoder-ablation-patch-vs-global',
+    'generalization-to-unseen-configurations',
+  ],
+};
+
+<MdxPage page={0}>
+
+Phần 3 đã dựng xong cơ chế. Phần 4 hỏi cơ chế đó đứng vững trước bao nhiêu bằng chứng. Bốn câu hỏi định hình toàn bộ thực nghiệm:
+
+### Thiết kế thực nghiệm: bốn câu hỏi
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Bốn câu hỏi thực nghiệm của DINO-WM"
+  root={{ title: 'Bốn câu hỏi thực nghiệm', subtitle: 'Mỗi bảng số liệu trả lời một câu hỏi', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Học offline có đủ?',
+      detail: 'DINO-WM có huấn luyện tốt trên bộ trajectory thu sẵn không reward, không task label không?',
+      tone: 'teal',
+    },
+    {
+      title: '2. Plan được không?',
+      detail: 'Mô hình đã học có biến thành hành động đạt goal bằng MPC thuần không?',
+      tone: 'amber',
+    },
+    {
+      title: '3. Đặc trưng tiền huấn luyện quan trọng cỡ nào?',
+      detail: 'Thay encoder, giữ nguyên phần còn lại — hiệu năng thay đổi bao nhiêu?',
+      tone: 'violet',
+    },
+    {
+      title: '4. Tổng quát hóa cấu hình mới?',
+      detail: 'Mô hình có hoạt động trên layout và vật thể chưa từng xuất hiện khi train không?',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Sáu môi trường và protocol đánh giá
+
+Sáu suite môi trường phủ một phổ độ khó động học tăng dần:
+
+<ComparisonMatrix
+  ariaLabel="Sáu môi trường đánh giá của DINO-WM"
+  columns={['Môi trường', 'Động học chính', 'Đo lường']}
+  rows={[
+    { label: 'Maze (PointMaze)', values: ['Quả bóng 2-DoF có quán tính: vận tốc, gia tốc', 'SR trên 50 cặp start-goal'] },
+    { label: 'Wall', values: ['Hai phòng, tường có cửa: phải tìm lối đi', 'SR trên 50 cặp start-goal'] },
+    { label: 'Reach (Reacher)', values: ['Cánh tay 2 khớp: toàn cánh tay phải khớp target pose', 'SR trên 50 cặp start-goal'] },
+    { label: 'PushT', values: ['Pusher + khối T: goal feasible trong 25 bước', 'SR trên 50 cặp start-goal'] },
+    { label: 'Rope', values: ['XArm + dây mềm (Nvidia Flex): biến dạng liên tục', 'Chamfer Distance trên 10 instance'] },
+    { label: 'Granular', values: ['XArm + ~100 hạt: gom hạt thành hình vuông', 'Chamfer Distance trên 10 instance'] },
+  ]}
+/>
+
+Protocol đáng chú ý ở chỗ **task được định nghĩa chỉ bằng cặp ảnh start-goal**: mọi môi trường, goal là một observation đích ngẫu nhiên. Không reward function nào được viết cho bất kỳ môi trường nào — đúng tinh thần task-agnostic đến cùng.
+
+Vì môi trường Rope và Granular tốn thời gian mô phỏng, chúng được đánh giá bằng **Chamfer Distance (CD)** — khoảng cách giữa đám hạt/khung hình dự đoán và goal — thay vì success rate rời rạc.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Kết quả planning tổng thể so với ba baseline
+
+Bảng số liệu chính (success rate ↑ với CD ↓):
+
+<ComparisonMatrix
+  ariaLabel="Kết quả planning trên sáu môi trường: DINO-WM so với IRIS, DreamerV3, TD-MPC2"
+  columns={['Mô hình', 'Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
+  rows={[
+    { label: 'IRIS', values: ['0.74', '0.04', '0.18', '0.32', '1.11', '0.37'] },
+    { label: 'DreamerV3', values: ['1.00', '1.00', '0.64', '0.30', '2.49', '1.05'] },
+    { label: 'TD-MPC2', values: ['0.00', '0.00', '0.00', '0.00', '2.52', '1.21'] },
+    { label: 'DINO-WM (Ours)', values: ['0.98', '0.96', '0.92', '0.90', '0.41', '0.26'] },
+  ]}
+/>
+
+Ba quan sát khi đọc bảng:
+
+- **Trên môi trường đơn giản (Maze, Wall):** DINO-WM ngang DreamerV3 — cả hai đạt gần trọn vẹn. Khoảng cách chỉ nới ra khi động học phức tạp.
+- **Trên môi trường thao tác (Reach, PushT):** DINO-WM 0.92 và 0.90, DreamerV3 tụt xuống 0.64 và 0.30. Chênh lệch lớn nhất nằm đúng chỗ thông tin tiếp xúc vật thể cần được suy ra chính xác.
+- **Trên biến dạng (Rope, Granular):** DINO-WM đạt CD thấp nhất (0.41 và 0.26) — khoảng cách gần bằng nửa các baseline tốt nhất.
+
+Bốn baseline đều được huấn luyện trên cùng dataset offline không reward, và plan bằng MPC trên world model của chính chúng — so sánh là công bằng về protocol.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Vì sao TD-MPC2 thất bại không reward
+
+TD-MPC2 ghi 0.00 trên cả bốn môi trường SR — con số cần được giải thích vì TD-MPC2 là world model mạnh trong thiết kế gốc của nó.
+
+Câu trả lời nằm ở chỗ **latent của TD-MPC2 được định hình bằng reward**: kiến trúc dựa vào tín hiệu thưởng để học latent phục vụ tối ưu. Trong protocol của DINO-WM — gỡ reward khỏi môi trường — latent mất đích học và trở thành không gian dự đoán nghèo thông tin; plan trên latent đó không còn khớp động học thật.
+
+Đây là minh chứng thực nghiệm sắc bén cho luận điểm của bài báo: **task-agnostic không phải thuộc tính mặc định của world model**, mà là hệ quả của việc thiết kế observation model độc lập với task. Nó cũng giải thích vì sao cùng một protocol, IRIS (gắn tái tạo) và DreamerV3 (gắn reward+dự đoán phân loại) chỉ mạnh ở mức vừa.
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/05-dinowm-planning-results-landscape.jpg"
+  alt="Bản đồ kết quả: các cột success rate của DINO-WM và ba baseline trên sáu môi trường, chênh lệch nới rộng theo độ phức tạp thao tác"
+  caption="Success rate tăng dần theo độ khó: khoảng cách giữa DINO-WM và baseline mở rộng đúng ở các môi trường cần suy ra động học tiếp xúc và biến dạng."
+
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Encoder nào cũng được, hay phải patch?
+
+Câu hỏi 3 được trả lời bằng một ablation sạch: giữ nguyên toàn bộ pipeline, chỉ thay observation model:
+
+<ComparisonMatrix
+  ariaLabel="Ablation encoder: cùng world model, khác observation model"
+  columns={['Encoder', 'Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
+  rows={[
+    { label: 'R3M (ResNet-18)', values: ['0.94', '0.34', '0.40', '0.42', '1.13', '0.95'] },
+    { label: 'ResNet-18 (ImageNet)', values: ['0.98', '0.12', '0.06', '0.20', '1.08', '0.90'] },
+    { label: 'DINO CLS (vector toàn cục)', values: ['0.96', '0.58', '0.60', '0.44', '0.84', '0.79'] },
+    { label: 'DINOPatch (DINO-WM)', values: ['0.98', '0.96', '0.92', '0.90', '0.41', '0.26'] },
+  ]}
+/>
+
+Ba phát hiện xếp thành một câu chuyện hoàn chỉnh:
+
+- **Maze dễ đến mức mọi encoder đều đạt 0.94–0.98:** khi động học đơn giản, biểu diễn toàn cục đủ dùng.
+- **DINO CLS > R3M > ResNet trên hầu hết task:** chất lượng của prior thị giác có tác động rõ — encoder tốt hơn cho latent giàu thông tin hơn.
+- **Nhưng bùng nổ chỉ xảy ra khi chuyển sang patch:** cùng họ DINO, chỉ đổi CLS (một vector) sang patch grid (14×14 vector), PushT nhảy từ 0.44 lên 0.90 và Wall từ 0.58 lên 0.96.
+
+Kết luận: **cấu trúc không gian của biểu diễn, chứ không chỉ chất lượng biểu diễn, là yếu tố quyết định** cho world model thao tác. Vector toàn cục "hiểu" ảnh nhưng mất tọa độ — mà tọa độ chính là thứ plan cần.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Tổng quát hóa cấu hình môi trường chưa gặp
+
+Câu hỏi 4 — tổng quát hóa — được kiểm tra trên ba họ môi trường với cấu hình **không xuất hiện khi huấn luyện**:
+
+<ComparisonMatrix
+  ariaLabel="Kết quả tổng quát hóa trên ba họ cấu hình mới"
+  columns={['Mô hình', 'WallRandom SR', 'PushObj SR', 'GranularRandom CD']}
+  rows={[
+    { label: 'IRIS', values: ['0.06', '0.14', '0.86'] },
+    { label: 'DreamerV3', values: ['0.76', '0.18', '1.53'] },
+    { label: 'R3M', values: ['0.40', '0.16', '1.12'] },
+    { label: 'ResNet', values: ['0.40', '0.14', '0.98'] },
+    { label: 'DINO CLS', values: ['0.64', '0.18', '1.36'] },
+    { label: 'DINO-WM (Ours)', values: ['0.82', '0.34', '0.63'] },
+  ]}
+/>
+
+Đọc từng họ:
+
+- **WallRandom (vị trí tường + cửa ngẫu nhiên):** DINO-WM 0.82 so với DreamerV3 0.76 — cả hai học được "khái niệm tường và cửa", nhưng chỉ DINO-WM định vị cửa chưa gặp chính xác đủ để đi qua.
+- **PushObj (hình khối mới: khối Tetris, khối "+"):** task khó nhất bảng — mọi mô hình đều dưới 0.35. DINO-WM 0.34 vẫn dẫn đầu nhưng chênh lệch hẹp, cho thấy giới hạn khi **hình học vật thể** nằm ngoài phân phối hình dạng đã học.
+- **GranularRandom (số hạt khác khi test):** DINO-WM đạt CD 0.63, tốt nhất bảng và gần gấp đôi baseline gần nhất. Tác giả giải thích bằng patch: số hạt thay đổi nhưng mỗi patch cục bộ vẫn "trông quen thuộc" — biến đổi tổng thể được hấp thụ bởi cấu trúc patch.
+
+Cả ba họ cùng khẳng định: tổng quát hóa của DINO-WM không phải phép màu mà là hệ quả của prior không gian từ DINOv2 patch.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Chất lượng dự đoán: LPIPS và rollout mở latent
+
+Đo hành vi là mặt. Mặt kia: **chất lượng dự đoán nội tại** của world model — được đo bằng LPIPS (thấp hơn là tốt hơn) trên các khung rollout được decoder tái tạo:
+
+<ComparisonMatrix
+  ariaLabel="LPIPS trên rollout dự đoán, theo môi trường"
+  columns={['Encoder', 'PushT', 'Wall', 'Rope', 'Granular']}
+  rows={[
+    { label: 'R3M', values: ['0.045', '0.008', '0.023', '0.080'] },
+    { label: 'ResNet', values: ['0.063', '0.002', '0.025', '0.080'] },
+    { label: 'DINO CLS', values: ['0.039', '0.004', '0.029', '0.086'] },
+    { label: 'AVDC (diffusion)', values: ['0.046', '0.030', '0.060', '0.106'] },
+    { label: 'DINO-WM (Ours)', values: ['0.007', '0.0016', '0.009', '0.035'] },
+  ]}
+/>
+
+Hai điểm đáng suy ngẫm:
+
+- DINO-WM **không hề được huấn luyện để tái tạo pixel**, thế mà LPIPS tốt hơn mọi baseline — kể cả các baseline mà encoder được huấn luyện gắn với tái tạo trong chính môi trường đó. Trực giác "muốn ảnh đẹp phải học tái tạo" bị phủ nhận.
+- Trên Granular, task khó nhất, DINO-WM 0.035 so với AVDC 0.106 — đúng vị trí công bố "cải thiện 56%" ở headline.
+
+So sánh định tính với AVDC (diffusion video) còn bổ sung một góc nhìn: AVDC sinh ảnh đẹp nhưng **không hợp lý về vật lý** — vật thể có thể biến đổi phi thực trong một bước, và mô hình khó đạt chính xác trạng thái đích. Sinh đẹp và suy đúng là hai năng lực khác nhau.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+### Ba ablation quan trọng: dữ liệu, mask, tái tạo
+
+Ba ablation trong phụ lục hoàn thiện bức tranh:
+
+**1. Scaling laws (PushT, dữ liệu 200 → 18 500 trajectory):** cả chất lượng dự đoán lẫn success rate plan đều tăng theo lượng dữ liệu, không có dấu hiệu bão hòa sớm. Đây là lời đáp cho câu hỏi "liệu more data có giúp?" — có, và một cách đều đặn.
+
+**2. Causal attention mask (PushT, đổi độ dài lịch sử):** bỏ mask causal ở cấp frame làm hiệu năng plan giảm rõ rệt, đặc biệt khi lịch sử dài. Cấu trúc "khung mới chỉ thấy khung quá khứ" được chứng minh là lựa chọn kiến trúc, không phải chi tiết ngẫu nhiên.
+
+**3. Loss tái tạo truyền ngược về predictor (PushT):** biến thể cho gradient decoder chảy ngược về transition model làm hiệu năng **giảm nhẹ** so với thiết kế tách rời. Nhẹ về số nhưng nặng về ý nghĩa: nó xác nhận chính luận điểm thiết kế — gắn dự đoán với tái tạo pixel làm nhiễu mục tiêu học.
+
+<EvidenceCards
+  ariaLabel="Tóm tắt ba ablation"
+  cards={[
+    {
+      title: 'Dữ liệu: scaling tích cực',
+      points: [
+        'PushT SR tăng đều từ 200 tới 18 500 trajectory.',
+        'Chất lượng rollout song hành với hiệu năng plan.',
+        'Không có dấu hiệu bão hòa — dữ liệu offline vẫn còn dư địa.',
+      ],
+      tone: 'teal',
+    },
+    {
+      title: 'Mask causal cấp frame',
+      points: [
+        'Bỏ mask làm plan giảm trên mọi độ dài lịch sử.',
+        'Tác động lớn hơn khi H dài.',
+        'Xác nhận frame-level autoregression là đúng đắn.',
+      ],
+      tone: 'amber',
+    },
+    {
+      title: 'Tách decoder khỏi predictor',
+      points: [
+        'Biến thể backprop decoder loss làm plan giảm nhẹ.',
+        'Xác nhận triết lý: dự đoán feature, không tái tạo pixel.',
+        'Giữ decoder thuần công cụ trực quan hóa.',
+      ],
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+### Tổng kết Phần 4 bằng bốn câu trả lời
+
+<ExperimentChecklist
+  ariaLabel="Bốn câu hỏi thực nghiệm và câu trả lời"
+  items={[
+    'Học offline không reward/task label: thành công — sáu môi trường, một bộ hyperparameter, không signal phụ trợ nào.',
+    'Plan bằng MPC thuần: thành công — 0.90–0.98 SR trên bốn môi trường rời rạc, CD thấp nhất trên hai môi trường biến dạng.',
+    'Đặc trưng tiền huấn luyện: quyết định — cùng pipeline, chỉ đổi CLS sang patch đã đảo ngược kết quả thao tác (0.44 → 0.90 trên PushT).',
+    'Tổng quát hóa cấu hình mới: một phần — mạnh ở WallRandom và GranularRandom, còn khó ở PushObj với hình học vật thể ngoài phân phối.',
+  ]}
+/>
+
+Phần 5 sẽ nhìn lại toàn bộ bằng chứng này từ góc độ tổng kết: DINO-WM thực sự đã giải được gì, và ba giới hạn được chính tác giả thừa nhận sẽ dẫn ta tới Phần 6 — nơi các kết luận này bị đặt dưới ánh sáng phản biện.
+
+</MdxPage>

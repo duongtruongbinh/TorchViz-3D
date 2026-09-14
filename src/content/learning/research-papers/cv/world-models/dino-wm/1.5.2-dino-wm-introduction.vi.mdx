@@ -1,0 +1,219 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-introduction',
+  locale: 'vi',
+  title: 'Phần 2: Giới thiệu & Tổng quan Nghiên cứu',
+  headings: [
+    'Từ policy feed-forward sang world model',
+    'Bản đồ bối cảnh: ba dòng nghiên cứu liên quan',
+    'Pixel space: chi phí của việc sinh ảnh',
+    'Latent space: cái giá của mục tiêu tái tạo',
+    'Trước sức mạnh của đặc trưng tiền huấn luyện',
+    'Câu hỏi dẫn lối Phần 3',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'Related Work',
+    'IRIS',
+    'DreamerV3',
+    'TD-MPC2',
+    'AVDC',
+    'R3M',
+    'I-JEPA',
+    'DINOv2',
+    'POMDP',
+  ],
+  pageCount: 6,
+  conceptIds: [
+    'pixel-space-prediction-cost',
+    'latent-reconstruction-coupling',
+  ],
+};
+
+<MdxPage page={0}>
+
+Phần 1 đã giới thiệu ba tiêu chí (offline, test-time optimization, task-agnostic) như một khung nhìn. Phần này trả lời câu hỏi tự nhiên kế tiếp: cộng đồng đã đi đến đâu với từng tiêu chí, và khoảng trống nào còn bỏ ngỏ?
+
+### Từ policy feed-forward sang world model
+
+Robotics và embodied AI những năm gần đây đạt tiến bộ lớn nhờ imitation learning và reinforcement learning. Nhưng policy học được thường vận hành **feed-forward**: observation vào, action ra, không suy lý thêm.
+
+<ComparisonMatrix
+  ariaLabel="So sánh policy feed-forward và world model"
+  columns={['Policy feed-forward', 'World model']}
+  rows={[
+    { label: 'Lúc triển khai', values: ['Một lần suy luận, không tối ưu thêm', 'Tối ưu hành vi tại runtime bằng mô hình động học'] },
+    { label: 'Yêu cầu tổng quát hóa', values: ['Phải thấy tình huống tương tự khi train', 'Chỉ cần dữ liệu động học phủ rộng vùng trạng thái'] },
+    { label: 'Đổi tác vụ mới', values: ['Thường phải thu thập và train lại', 'Plan trực tiếp trên cùng mô hình'] },
+    { label: 'Biểu diễn mục tiêu', values: ['Implicit trong trọng số policy', 'Trực tiếp: một observation đích'] },
+  ]}
+/>
+
+Lưu ý cốt lõi: tổng quát hóa của feed-forward policy đòi hỏi "đã gặp", trong khi world model tách bạch giữa học động học và giải tác vụ — chính sự tách bạch này là chất liệu của zero-shot planning.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Bản đồ bối cảnh: ba dòng nghiên cứu liên quan
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ba dòng nghiên cứu liên quan đến DINO-WM"
+  root={{ title: 'Bối cảnh nghiên cứu', subtitle: 'DINO-WM đứng ở giao điểm của ba dòng chính', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Model-based learning',
+      detail: 'Từ PILCO, PETS của control cổ điển đến world model trên ảnh: học mô hình động học rồi plan, không học policy trực tiếp.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Generative models as world models',
+      detail: 'Video generation điều kiện action (GAIA-1, Genie, AVDC): sinh tương lai từ text hoặc hành động, hứa hẹn nhưng đắt và khó điều khiển chính xác.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Pre-trained visual representations',
+      detail: 'ResNet, I-JEPA, DINO/DINOv2, V-JEPA, R3M, MVP: encoder học từ internet mang hiểu biết không gian và vật thể sẵn dùng.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+DINO-WM chính là phép cộng của dòng 1 và dòng 3, đồng thời là phép phủ định có chừng mực của dòng 2: dùng mô hình động học để plan, nhưng không sinh pixel; dùng encoder tiền huấn luyện, nhưng giữ nguyên cấu trúc patch thay vì nén thành một vector toàn cục.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Pixel space: chi phí của việc sinh ảnh
+
+Dự đoán tương lai trực tiếp trong không gian pixel có lịch sử dài: Visual Foresight (Ebert et al., 2018), và gần đây là các mô hình video diffusion điều kiện action như AVDC (Ko et al., 2023).
+
+Vấn đề không nằm ở chất lượng ảnh — mà ở **chi phí tính toán phục vụ lập kế hoạch**:
+
+- Lập kế hoạch kiểu MPC cần **rollout hàng trăm hypothesis** về tương lai để so sánh các chuỗi hành động.
+- Mỗi rollout của diffusion model tiêu tốn nhiều bước khử nhiễu, khiến chi phí plan tăng theo bậc với planning horizon.
+- Nhu cầu "một goal thị giác chính xác" mâu thuẫn với đặc trưng sinh ảnh: các thành phần nhỏ, quan trọng cho thành bại của tác vụ, bị ngập trong chi tiết thị giác không liên quan.
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/02-pixel-vs-latent-cost.jpg"
+  alt="So sánh chi phí: rollout pixel diffusion cần nhiều bước khử nhiễu cho mỗi hypothesis, trong khi rollout latent chỉ cần một forward pass nhỏ"
+  caption="Vì sao MPC yêu cầu rollout rẻ: mỗi lần plan phải thử hàng trăm chuỗi hành động, chi phí mỗi hypothesis quyết định tính khả thi của test-time optimization."
+
+/>
+
+Ở góc độ này, pixel prediction không sai — nó chỉ **lệch bài toán**: cái plan cần không phải là ảnh đẹp, mà là tín hiệu đủ để so sánh hành động.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Latent space: cái giá của mục tiêu tái tạo
+
+Lối thứ hai dự đoán trong không gian latent nhỏ gọn hơn. Nhưng quan sát kỹ ba hệ tiêu biểu:
+
+<EvidenceCards
+  ariaLabel="Ba world model latent tiêu biểu và mục tiêu huấn luyện của chúng"
+  cards={[
+    {
+      title: 'IRIS (Micheli et al., 2023)',
+      points: [
+        'Token hóa ảnh bằng discrete autoencoder rồi dự đoán token tương lai bằng GPT.',
+        'Latent được học gắn với tái tạo observation.',
+        'Kèm reward prediction và termination prediction để học policy trong tưởng tượng.',
+      ],
+      tone: 'blue',
+    },
+    {
+      title: 'DreamerV3 (Hafner et al., 2024)',
+      points: [
+        'Mã hóa thành biểu diễn phân loại, dự đoán state và reward tương lai.',
+        'Actor-critic học từ imagined trajectories.',
+        'Mục tiêu tái tạo và reward gắn mô hình vào từng benchmark cụ thể.',
+      ],
+      tone: 'teal',
+    },
+    {
+      title: 'TD-MPC2 (Hansen et al., 2024)',
+      points: [
+        'World model decoder-free trong latent space.',
+        'Nhưng dùng reward signal để định hình latent phục vụ tối ưu.',
+        'Không reward thì latent mất phương hướng học — thực nghiệm DINO-WM cho thấy TD-MPC2 gần như 0 success khi bỏ reward.',
+      ],
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Ba trường hợp cùng vẽ một chân dung: **latent tự học cần một anchor**. Anchor phổ biến nhất là tái tạo ảnh hoặc reward — cả hai đều kéo world model về phía một tác vụ hoặc một môi trường, mâu thuẫn với tiêu chí task-agnostic.
+
+DINO-WM không phủ nhận latent prediction; nó thay anchor: thay vì tái tạo pixel, dự đoán **patch feature của một encoder froze ngoài môi trường** — tín hiệu tham chiếu độc lập với tác vụ.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Trước sức mạnh của đặc trưng tiền huấn luyện
+
+Dòng thứ ba — visual representation learning — đã tạo ra một kho encoder mạnh mẽ:
+
+<PaperTradeoff
+  ariaLabel="Bảng so sánh các encoder có sẵn"
+  rows={[
+    {
+      method: 'ResNet-18 (ImageNet)',
+      tradeoff: 'Biểu diễn toàn cục, một vector cho cả ảnh; hiểu ngữ nghĩa nhưng mất thông tin không gian mịn.',
+    },
+    {
+      method: 'R3M (Nair et al., 2022)',
+      tradeoff: 'Học từ video thao tác người — giàu prior chuyển động, nhưng vẫn nén thành vector toàn cục.',
+    },
+    {
+      method: 'I-JEPA (Assran et al., 2023)',
+      tradeoff: 'Dự đoán biểu diễn trong không gian latent, không cần pixel; hướng đi triệt để chống tái tạo nhưng cần mask strategy riêng.',
+    },
+    {
+      method: 'DINO/DINOv2',
+      tradeoff: 'Self-distillation cho patch embedding giàu thông tin không gian và hướng vật thể; DINOv2 huấn luyện quy mô lớn, dùng out-of-the-box cho segmentation, depth, detection.',
+    },
+  ]}
+/>
+
+Điểm mấu chốt mà DINO-WM khai thác: ViT cho phép giữ lại **patch grid** — 14×14 vector thay vì một vector duy nhất. Thông tin "vật thể ở đâu, di chuyển ra sao" sống trong cấu trúc không gian này. Phần 4 sẽ chứng minh bằng số: cùng world model, chỉ đổi encoder từ vector toàn cục sang patch grid đã đảo ngược kết quả trên các task thao tác.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Câu hỏi dẫn lối Phần 3
+
+Trước khi bước sang phương pháp, hãy giữ lại ba câu hỏi mà tổng quan đã gợi ra:
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ba câu hỏi chuyển tiếp sang phần phương pháp"
+  root={{ title: 'Ba câu hỏi mở', subtitle: 'Điều Phần 3 phải trả lời bằng cơ chế cụ thể', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Giai đoạn hóa bài toán',
+      detail: 'Bài toán điều khiển thị giác được phát biểu như một POMDP (O, A, p): observation space, action space và phân bố chuyển tiếp. DINO-WM định nghĩa vai trò của từng thành phần ra sao?',
+      tone: 'teal',
+    },
+    {
+      title: '2. Kiến trúc dự đoán patch',
+      detail: 'Một ViT decoder-only nhận lịch sử latent và action phải được thiết kế thế nào để dự đoán khung patch kế tiếp mà không cần tái tạo pixel?',
+      tone: 'amber',
+    },
+    {
+      title: '3. Từ dự đoán đến hành động',
+      detail: 'Đã có mô hình dự đoán, một goal observation biến thành chuỗi hành động cụ thể bằng cách nào — và vì sao không cần reward hay inverse model?',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Phần 3 sẽ đi lần lượt ba câu hỏi: công thức POMDP và ba thành phần observation/transition/decoder, kiến trúc ViT với causal attention ở cấp frame, và vòng lặp MPC tối ưu chuỗi hành động bằng Cross-Entropy Method.
+
+</MdxPage>

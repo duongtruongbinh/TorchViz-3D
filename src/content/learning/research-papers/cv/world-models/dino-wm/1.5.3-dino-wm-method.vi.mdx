@@ -1,0 +1,244 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-method',
+  locale: 'vi',
+  title: 'Phần 3: Phương pháp & Cơ chế',
+  headings: [
+    'Phát biểu bài toán dạng POMDP',
+    'Ba thành phần: observation, transition, decoder',
+    'Observation model: DINOv2 đóng băng',
+    'Transition model: ViT decoder-only với causal attention',
+    'Action proprio conditioning',
+    'Hàm mất mát và huấn luyện teacher forcing',
+    'Decoder: tùy chọn, chỉ để giải thích',
+    'Lập kế hoạch: MPC với Cross-Entropy Method',
+    'Số liệu kiến trúc tổng hợp',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'POMDP',
+    'DINOv2',
+    'ViT',
+    'Causal Attention',
+    'Teacher Forcing',
+    'MSE Loss',
+    'Model Predictive Control',
+    'Cross-Entropy Method',
+    'Decoder',
+  ],
+  pageCount: 8,
+  conceptIds: [
+    'pomdp-three-components',
+    'vit-decoder-only-transition',
+    'latent-consistency-loss',
+    'mpc-cem-planning-loop',
+  ],
+};
+
+<MdxPage page={0}>
+
+Phần 2 kết thúc bằng ba câu hỏi. Phần 3 trả lời từng câu bằng công thức và cơ chế cụ thể, theo trình tự: phát biểu bài toán, ba thành phần mô hình, hàm mất mát, rồi vòng lặp lập kế hoạch.
+
+### Phát biểu bài toán dạng POMDP
+
+DINO-WM phát biểu điều khiển thị giác như một **POMDP** — quá trình quyết định Markov quan sát một phần:
+
+<BlockMath formula="\mathcal{P} = (\mathcal{O}, \mathcal{A}, p)" />
+
+với <InlineMath formula="\mathcal{O}" /> là không gian observation (ảnh RGB), <InlineMath formula="\mathcal{A}" /> là không gian hành động, và phân bố chuyển tiếp:
+
+<BlockMath formula="p(o_{t+1} \mid o_{\le t}, a_{\le t})" />
+
+mô tả ảnh tương lai phụ thuộc toàn bộ lịch sử quan sát và hành động. Yêu cầu runtime: từ một trạng thái bất kỳ và một **goal observation** (một ảnh RGB mô tả đích), sinh chuỗi hành động <InlineMath formula="a_0, \ldots, a_T" /> đưa hệ thống tới trạng thái đích.
+
+Điểm phân biệt với hai họ world model khác: không có reward function trong tuple, và goal được biểu diễn bằng ảnh thay vì text — hai lựa chọn ảnh hưởng trực tiếp đến mọi quyết định thiết kế phía dưới.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Ba thành phần: observation, transition, decoder
+
+Một world model của DINO-WM gồm ba mối quan hệ:
+
+<ConceptFlow
+  ariaLabel="Ba thành phần của world model DINO-WM"
+  steps={[
+    {
+      title: 'Observation model',
+      subtitle: 'z_t ~ enc_theta(o_t)',
+      detail: 'Mã hóa ảnh o_t thành latent z_t. DINO-WM dùng DINOv2 đóng băng.',
+    },
+    {
+      title: 'Transition model',
+      subtitle: 'z_{t+1} ~ p_theta(z_{t+1} | z_{t-H:t}, a_{t-H:t})',
+      detail: 'Dự đoán latent kế tiếp từ lịch sử H bước latent và hành động.',
+    },
+    {
+      title: 'Decoder model',
+      subtitle: 'o_hat_t ~ q_theta(o_t | z_t)',
+      detail: 'Tái tạo ảnh từ latent — tùy chọn, chỉ phục vụ giải thích trực quan.',
+    },
+  ]}
+/>
+
+Ba công thức trên đơn giản, nhưng một chi tiết mang tính quyết định: **decoder tách rời hoàn toàn khỏi phần còn lại**. Mục tiêu huấn luyện decoder độc lập với transition model, nên:
+
+- Decoder không ảnh hưởng khả năng suy lý và plan của world model.
+- Không cần tái tạo pixel khi plan — tiết kiệm chi phí tính toán đáng kể.
+
+Phần 4.3 (ablation) sẽ chứng minh việc tách rời này không những không hại mà còn có lợi so với truyền loss tái tạo ngược về predictor.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Observation model: DINOv2 đóng băng
+
+Với observation model, DINO-WM đưa ra hai nguyên tắc:
+
+1. Observation model phải **độc lập với tác vụ và môi trường**.
+2. Phải **giữ thông tin không gian giàu** — thứ sống còn của điều hướng và thao tác.
+
+Lý do thì phần 2 đã trình bày: perception là bài toán tổng quát có thể học từ internet, học từ đầu cho mỗi môi trường là lãng phí. Do đó:
+
+<BlockMath formula="z_t = \text{enc}_\theta(o_t) \in \mathbb{R}^{N \times E}" />
+
+mỗi ảnh <InlineMath formula="o_t" /> (resize về <InlineMath formula="196 \times 196" /> pixel) được mã hóa thành <InlineMath formula="N" /> patch vector, mỗi vector <InlineMath formula="E" /> chiều. Với DINOv2: grid <InlineMath formula="14 \times 14" /> patch, <InlineMath formula="E = 384" />. Encoder **đóng băng hoàn toàn** trong cả huấn luyện lẫn kiểm tra.
+
+Ý nghĩa của "đóng băng" ở đây sâu hơn việc tiết kiệm: nó bảo đảm không gian dự đoán là **bất biến với tác vụ** — mọi world model của mọi môi trường dự đoán trong cùng một hệ quy chiếu đặc trưng, và không gradient nào từ tác vụ có thể làm lệch hệ quy chiếu đó.
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/03-dinowm-patch-encoding.jpg"
+  alt="Ảnh đầu vào chia thành lưới patch 14x14, DINOv2 đóng băng mã hóa mỗi patch thành vector 384 chiều, tạo thành lưới latent giữ thông tin không gian"
+  caption="DINOv2 đóng băng biến mỗi khung quan sát thành lưới 14×14 patch vector 384 chiều — cấu trúc không gian được bảo toàn thay vì nén thành một vector toàn cục."
+
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Transition model: ViT decoder-only với causal attention
+
+Transition model <InlineMath formula="p_\theta" /> nhận lịch sử <InlineMath formula="z_{t-H:t-1}" /> và <InlineMath formula="a_{t-H:t-1}" />, dự đoán <InlineMath formula="z_t" />. Kiến trúc được chọn là **ViT** với một sửa đổi lớn: **bỏ tokenization layer** vì input đã là patch embedding — mô hình trở thành **decoder-only transformer**.
+
+Quyết định tinh tế nhất nằm ở **masked attention ở cấp frame**. Mỗi patch vector <InlineMath formula="z_t^i" /> của khung đang dự đoán được attends tới các patch cùng vị trí của các khung trong lịch sử:
+
+<BlockMath formula="z_t^i \;\text{attends to}\; \{z_{t-H:t-1}^i\}_{i=1}^{N}" />
+
+Đối sánh với IRIS — mô hình cũng biểu diễn observation bằng chuỗi vector nhưng autoregressive **ở cấp token**, patch <InlineMath formula="k" /> của khung <InlineMath formula="t" /> được nhìn cả các patch trước <InlineMath formula="k" /> của chính khung <InlineMath formula="t" />. DINO-WM cố tình từ bỏ thông tin đó: dự đoán cả khung như một khối, một patch không được "liếc" patch lân cận của chính nó.
+
+Lý do: cấu trúc toàn cục của một observation là một chỉnh thể; coi patch của một khung là khối giúp mô hình nắm **quan hệ thời gian giữa các khung** thay vì mượn thông tin không gian tạm thời. Ablation ở phần 4 sẽ cho thấy mask này là lựa chọn đúng.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Action proprio conditioning
+
+Hành động được đưa vào mô hình qua một **MLP action encoder** <InlineMath formula="\phi" />: vector hành động <InlineMath formula="K" /> chiều được ánh xạ lên không gian cao hơn rồi **concat vào từng patch vector** <InlineMath formula="z_t^i" />, <InlineMath formula="i = 1, \ldots, N" /> — mọi patch cùng nhận một tín hiệu hành động chung.
+
+Thông tin proprioception (nếu môi trường cung cấp, như vị trí robot arm) cũng được concat tương tự vào observation latent. Cơ chế đơn giản này giữ cho kiến trúc thuần ViT: không cần thêm cross-attention riêng cho action.
+
+### Hàm mất mát và huấn luyện teacher forcing
+
+Huấn luyện dùng **teacher forcing**: cắt trajectory thành các đoạn dài <InlineMath formula="H+1" />, với mỗi đoạn tính **latent consistency loss** trên cả <InlineMath formula="H" /> khung dự đoán:
+
+<BlockMath formula="\mathcal{L}_{pred} = \left\| p_\theta\big(\text{enc}_\theta(o_{t-H:t}), \, \phi(a_{t-H:t})\big) - \text{enc}_\theta(o_{t+1}) \right\|^2" />
+
+Đọc kỹ công thức: vế phải là **DINOv2 feature của khung thật kế tiếp**, không phải pixel. Toàn bộ huấn luyện diễn ra trong không gian latent — không bước nào sinh ảnh.
+
+<ExperimentChecklist
+  ariaLabel="Ý nghĩa từng thành phần của hàm mất mát"
+  items={[
+    'p_theta(...) rollout latent từ lịch sử: mỗi khung dự đoán đứng trên khung dự đoán trước đó.',
+    'enc_theta(o_{t+1}) là mục tiêu: DINOv2 đóng băng nên mục tiêu cố định, không bị gradient làm trôi.',
+    'Norm L2 trên không gian patch: sai số định vị vật thể ảnh hưởng trực tiếp đến loss.',
+    'Tổng hợp trên H khung: một đoạn dữ liệu cho H cơ hội học quan hệ thời gian.',
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Decoder: tùy chọn, chỉ để giải thích
+
+Để nhìn thấy latent dự đoán "trông như thế nào", DINO-WM huấn luyện một decoder <InlineMath formula="q_\theta" /> — chồng transposed convolution — tái tạo pixel từ patch feature:
+
+<BlockMath formula="\mathcal{L}_{rec} = \left\| q_\theta(z_t) - o_t \right\|^2" />
+
+Điểm then chốt: loss này **chỉ huấn luyện decoder**, không backpropagate về transition model. Lợi ích kép:
+
+- World model không bị kéo về mục tiêu tái tạo — giữ đúng triết lý tách đặc trưng khỏi tái tạo.
+- Plan không tốn bước giải mã pixel.
+
+Thực nghiệm ablation còn chỉ ra điều ngược với trực giác: truyền loss tái tạo ngược về predictor **giảm** hiệu năng plan, củng cố thiết kế tách rời.
+
+### Lập kế hoạch: MPC với Cross-Entropy Method
+
+Đã có transition model, planning được phát biểu thành bài toán tối ưu thuần túy. Cho observation hiện tại <InlineMath formula="o_0" /> và goal <InlineMath formula="o_g" />:
+
+<BlockMath formula="\mathcal{C} = \left\| \hat{z}_T - z_g \right\|^2" />
+
+với <InlineMath formula="\hat{z}_t = p(\hat{z}_{t-1}, a_{t-1})" /> rollout trong không gian latent, <InlineMath formula="\hat{z}_0 = \text{enc}(o_0)" /> và <InlineMath formula="z_g = \text{enc}(o_g)" />. Tối ưu chuỗi hành động <InlineMath formula="a_{0:T-1}" /> để giảm chi phí này.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+**Cross-Entropy Method** giải bài toán trên qua vòng lặp lấy mẫu — tinh chỉnh:
+
+<ConceptFlow
+  ariaLabel="Vòng lặp CEM tối ưu chuỗi hành động"
+  steps={[
+    { title: 'Khởi tạo phân phối', subtitle: 'Gaussian', detail: 'Phân phối Gaussian trên chuỗi T hành động.' },
+    { title: 'Lấy mẫu N chuỗi', subtitle: 'N hypothesis', detail: 'Mỗi chuỗi được rollout bằng world model trong latent space, tính chi phí C tới goal.' },
+    { title: 'Chọn elite set', subtitle: 'Top chuỗi tốt nhất', detail: 'Giữ lại nhóm hành động dẫn gần goal nhất.' },
+    { title: 'Cập nhật phân phối', subtitle: 'Fit elite', detail: 'Ước lượng lại mean/variance từ elite set rồi lặp lại.' },
+  ]}
+/>
+
+Vì world model **khả vi (differentiable)**, một hướng thay thế là gradient descent trực tiếp trên action:
+
+<BlockMath formula="a_t \leftarrow a_t - \eta \frac{\partial \mathcal{C}}{\partial a_t}" />
+
+Thực nghiệm cho thấy **CEM tốt hơn GD** trên các môi trường của paper — một kết quả đáng để tranh luận ở Phần 6, vì trực giác thường cho rằng gradient qua mô hình khả vi sẽ hiệu quả hơn lấy mẫu ngẫu nhiên.
+
+MPC vận hành theo kiểu **receding horizon**: chỉ thực hiện <InlineMath formula="k" /> hành động đầu, quan sát trạng thái thật, rồi plan lại — sai số tích lũy của rollout được chu kỳ hóa hiệu chỉnh.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+### Số liệu kiến trúc tổng hợp
+
+<ComparisonMatrix
+  ariaLabel="Số liệu kiến trúc và huấn luyện của DINO-WM"
+  columns={['Thành phần', 'Giá trị']}
+  rows={[
+    { label: 'Encoder', values: ['DINOv2, grid 14×14 patch, E = 384', 'đóng băng hoàn toàn'] },
+    { label: 'Transition model', values: ['ViT depth 6, 16 heads, MLP dim 2048', '~19M tham số'] },
+    { label: 'Observation đầu vào', values: ['RGB resize 196×196', 'không gian quan sát gốc 224×224'] },
+    { label: 'Hàm mất mát', values: ['MSE trên patch feature', 'teacher forcing, đoạn dài H+1'] },
+    { label: 'Tối ưu', values: ['AdamW, decoder lr 3e-4', 'hyperparameter chung mọi môi trường'] },
+    { label: 'Frameskip', values: ['1–5 bước tùy môi trường', 'tránh dự đoán khung quá giống nhau'] },
+  ]}
+/>
+
+Ba chi tiết đáng ghi nhớ:
+
+- **Siêu tham số chung mọi môi trường:** từ Maze 2D tới deformable manipulation, một bộ kiến trúc và learning rate duy nhất — bằng chứng cho tính task-agnostic của thiết kế.
+- **~19M tham số** cho transition model: kích thước khiêm tốn so với các video diffusion baseline, là điều kiện để MPC rollout hàng trăm hypothesis mỗi bước.
+- **Frameskip:** vì hai khung liền kề thường gần giống nhau, mô hình được huấn luyện dự đoán cách vài bước — định nghĩa lại "tương lai" theo tốc độ thay đổi của từng môi trường.
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/04-dinowm-architecture-anatomy.jpg"
+  alt="Sơ đồ tổng thể: ảnh qua DINOv2 đóng băng thành lưới patch, ViT decoder-only dự đoán patch tương lai từ lịch sử, CEM chọn chuỗi hành động đưa latent tới goal"
+  caption="Tổng thể cơ chế DINO-WM: dự đoán trong không gian patch của encoder đóng băng, plan bằng CEM trong cùng không gian đó — không pixel nào được sinh ra trong suốt vòng lặp."
+
+/>
+
+</MdxPage>

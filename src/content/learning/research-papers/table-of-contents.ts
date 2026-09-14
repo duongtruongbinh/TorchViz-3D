@@ -298,6 +298,84 @@ const chapters: LearningTocTrackSeed[] = [
       },
     ],
   },
+  {
+    id: 'dino-wm-paper',
+    text: {
+      title: {
+        en: 'Computer Vision > World Models > (2025) DINO-WM',
+        vi: 'Computer Vision > World Models > (2025) DINO-WM',
+      },
+      description: {
+        en: 'World Models on Pre-trained Visual Features enable Zero-shot Planning (NYU & Meta-FAIR, ICML 2025).',
+        vi: 'World Model trên đặc trưng thị giác tiền huấn luyện cho lập kế hoạch Zero-shot (NYU & Meta-FAIR, ICML 2025).',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'dino-wm-abstract',
+        title: {
+          en: 'Part 1: Abstract',
+          vi: 'Phần 1: Tóm tắt (Abstract)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-introduction',
+        title: {
+          en: 'Part 2: Introduction & Related Work',
+          vi: 'Phần 2: Giới thiệu & Tổng quan Nghiên cứu',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-method',
+        title: {
+          en: 'Part 3: Methodology',
+          vi: 'Phần 3: Phương pháp & Cơ chế',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-experiments',
+        title: {
+          en: 'Part 4: Experiments',
+          vi: 'Phần 4: Kết quả Thực nghiệm',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-conclusion',
+        title: {
+          en: 'Part 5: Conclusion & Discussion',
+          vi: 'Phần 5: Kết luận & Hướng phát triển',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-debate',
+        title: {
+          en: 'Part 6: Academic Debates & Critical Analysis',
+          vi: 'Phần 6: Tranh luận Học thuật & Phản biện',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'dino-wm-quiz',
+        title: {
+          en: 'Quiz: DINO-WM (ICML 2025)',
+          vi: 'Quiz: DINO-WM (ICML 2025)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
 ];
 
 export const learningTableOfContents = {

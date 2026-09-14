@@ -1,0 +1,171 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-conclusion',
+  locale: 'vi',
+  title: 'Phần 5: Kết luận & Hướng phát triển',
+  headings: [
+    'Đóng góp theo một câu',
+    'Cơ chế đằng sau sự tổng quát',
+    'Ba giới hạn được thừa nhận',
+    'Tương lai: ba hướng mở',
+    'DINO-WM trong dòng chảy JEPA',
+    'Bài học mang đi',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'Conclusion',
+    'Task-Agnostic World Model',
+    'JEPA',
+    'Latent Prediction',
+    'Offline Data Coverage',
+    'Hierarchical Planning',
+    'Future Work',
+  ],
+  pageCount: 6,
+  conceptIds: [
+    'dinowm-acknowledged-limits',
+  ],
+};
+
+<MdxPage page={0}>
+
+### Đóng góp theo một câu
+
+Nếu phải nén toàn bộ bài báo thành một câu, câu đó sẽ là: DINO-WM chứng minh rằng một world model được huấn luyện **hoàn toàn trong không gian patch feature của encoder đóng băng** — không reward, không demonstration, không inverse model — đủ để plan zero-shot đến các goal quan sát được trên sáu họ môi trường, và hơn thế, tổng quát hóa tốt hơn các world model được gắn với tái tạo hoặc reward.
+
+Đóng góp nên được đọc như **một luận điểm + một cơ chế**, không phải một thư viện kỹ xảo:
+
+- **Luận điểm:** task-agnostic của world model là hệ quả của việc tách observation model khỏi tác vụ — không phải thuộc tính mặc định cần đạt bằng scale.
+- **Cơ chế:** dự đoán patch feature bằng ViT decoder-only, plan bằng CEM trong chính không gian đó, decoder chỉ là công cụ giải thích.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Cơ chế đằng sau sự tổng quát
+
+Vì sao chính xác là đóng băng + patch lại cho tổng quát hóa? Phần 4 đưa số liệu; phần này ghép chúng thành lời giải thích:
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ba lớp cơ chế tạo nên tổng quát hóa"
+  root={{ title: 'Ba lớp cơ chế', subtitle: 'Từ đặc trưng tới hành động, mỗi lớp gộp một bằng chứng', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Prior không gian từ internet',
+      detail: 'DINOv2 học khái niệm vật thể, ranh giới, tường, cửa từ dữ liệu quy mô lớn. World model kế thừa prior này thay vì học lại từ vài nghìn trajectory trong môi trường.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Cấu trúc patch hấp thụ biến đổi',
+      detail: 'GranularRandom: số hạt thay đổi nhưng mỗi patch cục bộ vẫn quen thuộc. Cấu trúc patch biến đổi tổng thể thành nhiễu cục bộ nhỏ — điều vector toàn cục không làm được.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Mục tiêu dự đoán bất biến',
+      detail: 'Vì DINOv2 đóng băng, không có gradient nào từ tác vụ làm lệch hệ quy chiếu. Mọi môi trường, mọi goal đều được đo trong cùng một thước đo.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Ghép lại: tổng quát hóa không nằm ở world model "thông minh hơn", mà ở việc **hệ quy chiếu của nó đã hiểu thế giới trước khi vào môi trường** — và giữ nguyên hiểu biết đó.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Ba giới hạn được thừa nhận
+
+Phần kết luận của paper liệt kê thẳng ba giới hạn, và phần Quiz sẽ kiểm tra đúng các giới hạn này:
+
+<PaperTradeoff
+  ariaLabel="Ba giới hạn của DINO-WM"
+  rows={[
+    {
+      method: 'Phụ thuộc độ phủ dữ liệu offline',
+      tradeoff: 'World model chỉ chính xác trong vùng trạng thái mà dữ liệu phủ. Môi trường phức tạp rất khó thu thập đủ — mở rộng cần kết hợp exploration và cập nhật mô hình dần theo kinh nghiệm mới.',
+    },
+    {
+      method: 'Cần action có nhãn',
+      tradeoff: 'Dữ liệu phải kèm ground-truth action. Video internet — nguồn dữ liệu lớn nhất — thường không có nhãn hành động, chặn đường scale lên theo hướng này.',
+    },
+    {
+      method: 'Plan trong không gian action phẳng',
+      tradeoff: 'Tối ưu chuỗi hành động phẳng khó đáp ứng tác vụ điều khiển mịn; tác giả đề xuất hướng phân cấp: high-level planning kết hợp low-level control policy.',
+    },
+  ]}
+/>
+
+Đáng chú ý: cả ba giới hạn đều là **giới hạn của giả định dữ liệu và không gian tìm kiếm**, không phải lỗi của cơ chế dự đoán. Đây là kiểu khiêm tốn kỹ thuật đáng học: nêu rõ ranh giới để người kế thừa biết đường đi tiếp.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Tương lai: ba hướng mở
+
+Ba giới hạn trên tự nhiên sinh ra ba hướng nghiên cứu kế tiếp:
+
+<ConceptFlow
+  ariaLabel="Ba hướng phát triển từ ba giới hạn"
+  steps={[
+    {
+      title: 'Online hóa dữ liệu',
+      subtitle: 'Exploration + update',
+      detail: 'Kết hợp DINO-WM với chiến lược khám phá; cập nhật world model khi có kinh nghiệm mới thay vì chỉ một lần offline.',
+    },
+    {
+      title: 'Bỏ nhãn action',
+      subtitle: 'Học từ video thô',
+      detail: 'Tìm cách học động học từ video không nhãn — có thể qua inverse dynamics học kèm hoặc giả định hành động ẩn.',
+    },
+    {
+      title: 'Phân cấp hóa',
+      subtitle: 'Plan + control',
+      detail: 'High-level planner chọn mục tiêu trung gian, low-level policy thực thi mịn — mở đường cho tác vụ dài và điều khiển chính xác cao.',
+    },
+  ]}
+/>
+
+Ba hướng này không độc lập: video không nhãn (2) chính là nguồn dữ liệu cho scale (1), và phân cấp (3) là kiến trúc phù hợp để tiêu hóa dữ liệu đó. Câu chuyện hậu-DINO-WM vì thế xoay quanh một trục duy nhất: **làm thế nào giữ được task-agnostic khi mở rộng nguồn dữ liệu và độ mịn của điều khiển**.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### DINO-WM trong dòng chảy JEPA
+
+Yann LeCun — đồng tác giả — đã nhiều năm chủ trương **JEPA** (Joint-Embedding Predictive Architecture): học bằng cách dự đoán trong không gian biểu diễn thay vì tái tạo pixel. DINO-WM đứng gọn ở trong dòng chảy này và mang một đóng góp riêng.
+
+<ConceptSpectrum
+  ariaLabel="Phổ các cách học world model theo mức gắn với tái tạo"
+  leftLabel="Gắn tái tạo pixel"
+  rightLabel="Thuần dự đoán biểu diễn"
+  items={[
+    { label: 'Visual Foresight / AVDC', position: 5 },
+    { label: 'DreamerV3 / IRIS (latent + tái tạo)', position: 35 },
+    { label: 'TD-MPC2 (latent + reward)', position: 45 },
+    { label: 'DINO-WM (dự đoán feature đóng băng)', position: 80 },
+    { label: 'I-JEPA / V-JEPA (dự đoán biểu diễn tự học)', position: 90 },
+  ]}
+/>
+
+Phân biệt tinh tế giữa DINO-WM và JEPA thuần túy: JEPA học chính không gian biểu diễn bằng mục tiêu dự đoán biểu diễn; DINO-WM **mượn sẵn** không gian đó từ DINOv2 và chỉ học phần động học. Sự khác biệt mang tính thực dụng — không cần huấn luyện encoder, và năng lực không gian của DINOv2 (segmentation, depth) được hưởng trọn — nhưng cũng trả giá bằng một câu hỏi sẽ bị phản biện ở Phần 6: liệu hệ quy chiếu mượn có phải luôn là lựa chọn đúng cho mọi môi trường?
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Bài học mang đi
+
+Ba bài học vượt ra ngoài một paper:
+
+- **Anchor quyết định tính chất của world model.** Chọn tái tạo pixel, reward, hay feature đóng băng làm mục tiêu dự đoán là chọn cả họ hành vi tổng quát hóa của mô hình. Đây là quyết định kiến trúc cấp cao nhất, đáng suy nghĩ trước mọi chi tiết khác.
+- **Cấu trúc biểu diễn quan trọng như chất lượng biểu diễn.** Ablation CLS so với patch cho thấy cùng encoder, khác cấu trúc, kết quả đảo ngược. Khi thiết kế hệ thống học từ đặc trưng, hãy hỏi "giữ lại bao nhiêu không gian" chứ không chỉ "encoder tốt đến đâu".
+- **Test-time optimization là một hướng tổng quát hóa riêng.** Thay vì học trước lời giải cho mọi tình huống, học mô hình rồi giải tại chỗ. Hai chiến lược này bổ sung chứ không thay thế nhau — và ranh giới khả thi của chiến lược thứ hai được vạch bởi chi phí mỗi hypothesis, chính là lý do latent rẻ thắng pixel đắt.
+
+Phần 6 sẽ đặt toàn bộ câu chuyện này lên bàn mổ phản biện: zero-shot có thực sự "zero"? CEM hơn gradient là tín hiệu gì? Và điều gì xảy ra khi môi trường không thân thiện với DINOv2?
+
+</MdxPage>

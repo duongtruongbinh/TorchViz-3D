@@ -1,0 +1,173 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'dino-wm-abstract',
+  locale: 'vi',
+  title: 'Phần 1: Tóm tắt (Abstract)',
+  headings: [
+    'Ba tiêu chí cho một World Model thực thụ',
+    'Bài toán mà DINO-WM đặt ra',
+    'Nghịch lý của hai lối đi cũ',
+    'Canh bạc vào đặc trưng DINOv2',
+    'Bốn con số cần nhớ',
+    'Ranh giới của kết quả',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'DINO-WM',
+    'World Model',
+    'Zero-shot Planning',
+    'DINOv2',
+    'Patch Features',
+    'Offline Learning',
+    'Model Predictive Control',
+  ],
+  pageCount: 5,
+  conceptIds: [
+    'wm-three-desiderata',
+    'wm-pixel-vs-latent-paradox',
+    'dino-wm-numbers-to-remember',
+  ],
+};
+
+<MdxPage page={0}>
+
+- **Paper:** [DINO-WM: World Models on Pre-trained Visual Features enable Zero-shot Planning](https://arxiv.org/abs/2411.04983)
+- **Tác giả:** Gaoyue Zhou, Hengkai Pan, Yann LeCun, Lerrel Pinto (Courant Institute, NYU; Meta-FAIR)
+- **Venue:** ICML 2025 (poster)
+- **Mã nguồn:** [gaoyuezhou/dino_wm](https://github.com/gaoyuezhou/dino_wm) | **Project site:** [dino-wm.github.io](https://dino-wm.github.io/)
+
+### Ba tiêu chí cho một World Model thực thụ
+
+Mở đầu bài báo, tác giả nêu một quan điểm rõ ràng: một world model đúng nghĩa phải đồng thời thỏa mãn **ba tiêu chí**:
+
+1. **Huấn luyện offline:** học từ bộ trajectory thu sẵn, không cần tương tác trực tiếp với môi trường.
+2. **Tối ưu hành vi lúc kiểm tra:** hỗ trợ suy luận và lập kế hoạch tại thời điểm chạy (test-time optimization).
+3. **Không phụ thuộc tác vụ:** không gắn cứng với reward, task label hay demonstration của một tác vụ cụ thể.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Bài toán mà DINO-WM đặt ra
+
+Hầu hết policy hiện đại vận hành theo kiểu feed-forward: quan sát rồi xuất hành động ngay, không suy lý thêm lúc triển khai. Để tổng quát hóa, agent buộc phải ghi nhớ sẵn lời giải cho mọi tình huống — điều chỉ khả thi nếu nó gặp tình huống tương tự khi huấn luyện.
+
+Lối thoát là học một **mô hình động học** (dynamics model) từ dữ liệu thu trước, rồi tối ưu hành vi cụ thể lúc runtime. Nhưng world model hiện có vướng một vòng lặp kẹt:
+
+- Học **online** cùng policy: mô hình chỉ chính xác trong vùng phủ của policy đang tối ưu, đổi task là phải train lại.
+- Học **offline** thì lại cần **thông tin phụ trợ mạnh**: expert demonstration, keypoint có cấu trúc, inverse model tiền huấn luyện, hoặc reward dày — tất cả làm giảm tính tổng quát.
+
+Câu hỏi trung tâm của bài báo: liệu có nguồn thông tin phụ trợ nào **không đánh đổi tính tổng quát**?
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Nghịch lý của hai lối đi cũ
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Nghịch lý của hai lối dự đoán world model"
+  root={{ title: 'Hai lối đi cũ đều bế tắc', subtitle: 'Vì sao dự đoán pixel và dự đoán latent tự học đều khó trở thành world model tổng quát', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Dự đoán trong không gian pixel',
+      detail: 'Sinh ảnh tương lai trực tiếp hoặc qua video diffusion rất tốn tính toán, chi phí cao đến mức khó dùng cho tối ưu kiểu MPC tại thời điểm chạy.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Dự đoán trong không gian latent tự học',
+      detail: 'Latent thường bị ràng buộc với mục tiêu tái tạo ảnh (DreamerV3, IRIS), gây nghi ngờ liệu đặc trưng có đủ thông tin cho tác vụ; thêm reward prediction hoặc termination prediction lại làm mô hình gắn chặt vào một tác vụ.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Video generation điều kiện ngôn ngữ',
+      detail: 'Mô hình video quy mô lớn (Genie, AVDC) phụ thuộc điều kiện bằng text — khó chỉ đích danh một mục tiêu thị giác chính xác, và diffusion đắt đỏ cho MPC.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/cv/world-models/dino-wm/01-dino-wm-problem-paradox.jpg"
+  alt="Ba vế của bài toán world model: dự đoán pixel tốn kém, latent tự học gắn với tái tạo, và video diffusion phụ thuộc ngôn ngữ"
+  caption="Ba nhánh bế tắc mà DINO-WM muốn tránh: chi phí tái tạo pixel, latent gắn mục tiêu tái tạo, và điều kiện ngôn ngữ khó chỉ mục tiêu thị giác chính xác."
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Canh bạc vào đặc trưng DINOv2
+
+Đáp án của DINO-WM: thay vì học observation model từ đầu, hãy dùng **DINOv2 đóng băng** — một encoder tiền huấn luyện trên dữ liệu internet quy mô lớn — làm observation model.
+
+<ConceptFlow
+  ariaLabel="Luồng tổng thể của DINO-WM"
+  steps={[
+    { title: 'Ảnh o_t', subtitle: 'RGB 224×224', detail: 'Quan sát môi trường tại mỗi bước thời gian.' },
+    { title: 'DINOv2 đóng băng', subtitle: 'enc theta', detail: 'Mã hóa ảnh thành N patch vector, mỗi vector E chiều, giữ nguyên thông tin không gian.' },
+    { title: 'ViT transition', subtitle: 'p theta', detail: 'Decoder-only transformer dự đoán patch feature tương lai từ lịch sử latent và action.' },
+    { title: 'MPC + CEM', subtitle: 'Lập kế hoạch', detail: 'Tìm chuỗi hành động đưa dự đoán latent tới latent của ảnh mục tiêu, không cần reward hay inverse model.' },
+  ]}
+/>
+
+Ba quyết định thiết kế gắn chặt với ba tiêu chí ban đầu:
+
+- **Offline:** loss huấn luyện chỉ là sai số dự đoán patch feature giữa các bước liền kề trong trajectory thu sẵn.
+- **Test-time optimization:** vì dự đoán đủ chính xác, có thể plan trực tiếp bằng MPC trên không gian latent.
+- **Task-agnostic:** mục tiêu được biểu diễn bằng chính một ảnh đích — goal patch features — thay vì reward function.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Bốn con số cần nhớ
+
+<MetricBars
+  ariaLabel="Bốn con số nổi bật của DINO-WM"
+  columns={2}
+  max={100}
+  items={[
+    {
+      label: 'Success Rate trên PushT',
+      valueLabel: '0.90',
+      value: 90,
+      detail: 'DreamerV3 đạt 0.30, IRIS 0.32, TD-MPC2 0.00 trên cùng protocol',
+      tone: 'primary',
+    },
+    {
+      label: 'Cải thiện LPIPS trên task khó nhất',
+      valueLabel: '−56%',
+      value: 56,
+      detail: 'Chất lượng tái tạo dự đoán tương lai so với SOTA trước đó',
+      tone: 'accent',
+    },
+    {
+      label: 'Cải thiện success trung bình',
+      valueLabel: '+45%',
+      value: 45,
+      detail: 'Trên các task khó nhất so với prior work',
+      tone: 'primary',
+    },
+    {
+      label: 'Số môi trường đánh giá',
+      valueLabel: '6',
+      value: 60,
+      detail: 'Maze, Wall, Reach, PushT, Rope, Granular — không reward, không demo, không inverse model',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+### Ranh giới của kết quả
+
+Bốn số trên cần được đọc cùng ba giới hạn mà chính tác giả công nhận:
+
+- Kết quả phụ thuộc **độ phủ dữ liệu offline** đủ rộng; môi trường phức tạp cao rất khó thu thập.
+- Mô hình cần **action có nhãn** trong dữ liệu — video internet thường không có.
+- Lập kế hoạch diễn ra trong **không gian action phẳng**; tác vụ điều khiển mịn có thể cần cấu trúc phân cấp.
+
+Ba giới hạn này sẽ được mổ xẻ ở Phần 6 (Tranh luận học thuật).
+
+</MdxPage>
