@@ -84,7 +84,8 @@ Sáu suite môi trường phủ một phổ độ khó động học tăng dần
 
 <ComparisonMatrix
   ariaLabel="Sáu môi trường đánh giá của DINO-WM"
-  columns={['Môi trường', 'Động học chính', 'Đo lường']}
+  rowHeaderLabel="Môi trường"
+  columns={['Động học chính', 'Đo lường']}
   rows={[
     { label: 'Maze (PointMaze)', values: ['Quả bóng 2-DoF có quán tính: vận tốc, gia tốc', 'SR trên 50 cặp start-goal'] },
     { label: 'Wall', values: ['Hai phòng, tường có cửa: phải tìm lối đi', 'SR trên 50 cặp start-goal'] },
@@ -109,7 +110,8 @@ Bảng số liệu chính (success rate ↑ với CD ↓):
 
 <ComparisonMatrix
   ariaLabel="Kết quả planning trên sáu môi trường: DINO-WM so với IRIS, DreamerV3, TD-MPC2"
-  columns={['Mô hình', 'Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
+  rowHeaderLabel="Mô hình"
+  columns={['Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
   rows={[
     { label: 'IRIS', values: ['0.74', '0.04', '0.18', '0.32', '1.11', '0.37'] },
     { label: 'DreamerV3', values: ['1.00', '1.00', '0.64', '0.30', '2.49', '1.05'] },
@@ -136,14 +138,7 @@ TD-MPC2 ghi 0.00 trên cả bốn môi trường SR — con số cần được 
 
 Câu trả lời nằm ở chỗ **latent của TD-MPC2 được định hình bằng reward**: kiến trúc dựa vào tín hiệu thưởng để học latent phục vụ tối ưu. Trong protocol của DINO-WM — gỡ reward khỏi môi trường — latent mất đích học và trở thành không gian dự đoán nghèo thông tin; plan trên latent đó không còn khớp động học thật.
 
-Đây là minh chứng thực nghiệm sắc bén cho luận điểm của bài báo: **task-agnostic không phải thuộc tính mặc định của world model**, mà là hệ quả của việc thiết kế observation model độc lập với task. Nó cũng giải thích vì sao cùng một protocol, IRIS (gắn tái tạo) và DreamerV3 (gắn reward+dự đoán phân loại) chỉ mạnh ở mức vừa.
-
-<LessonImage
-  assetPath="research-papers/cv/world-models/dino-wm/05-dinowm-planning-results-landscape.jpg"
-  alt="Bản đồ kết quả: các cột success rate của DINO-WM và ba baseline trên sáu môi trường, chênh lệch nới rộng theo độ phức tạp thao tác"
-  caption="Success rate tăng dần theo độ khó: khoảng cách giữa DINO-WM và baseline mở rộng đúng ở các môi trường cần suy ra động học tiếp xúc và biến dạng."
-
-/>
+Đây là minh chứng thực nghiệm cho luận điểm của bài báo: **task-agnostic không phải thuộc tính mặc định của world model**, mà là hệ quả của việc thiết kế observation model độc lập với task. Nó cũng giải thích vì sao cùng một protocol, IRIS (gắn tái tạo) và DreamerV3 (gắn reward+dự đoán phân loại) chỉ mạnh ở mức vừa.
 
 </MdxPage>
 
@@ -155,7 +150,8 @@ Câu hỏi 3 được trả lời bằng một ablation sạch: giữ nguyên to
 
 <ComparisonMatrix
   ariaLabel="Ablation encoder: cùng world model, khác observation model"
-  columns={['Encoder', 'Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
+  rowHeaderLabel="Encoder"
+  columns={['Maze SR', 'Wall SR', 'Reach SR', 'PushT SR', 'Rope CD', 'Granular CD']}
   rows={[
     { label: 'R3M (ResNet-18)', values: ['0.94', '0.34', '0.40', '0.42', '1.13', '0.95'] },
     { label: 'ResNet-18 (ImageNet)', values: ['0.98', '0.12', '0.06', '0.20', '1.08', '0.90'] },
@@ -182,7 +178,8 @@ Câu hỏi 4 — tổng quát hóa — được kiểm tra trên ba họ môi tr
 
 <ComparisonMatrix
   ariaLabel="Kết quả tổng quát hóa trên ba họ cấu hình mới"
-  columns={['Mô hình', 'WallRandom SR', 'PushObj SR', 'GranularRandom CD']}
+  rowHeaderLabel="Mô hình"
+  columns={['WallRandom SR', 'PushObj SR', 'GranularRandom CD']}
   rows={[
     { label: 'IRIS', values: ['0.06', '0.14', '0.86'] },
     { label: 'DreamerV3', values: ['0.76', '0.18', '1.53'] },
@@ -211,7 +208,8 @@ Cả ba họ cùng khẳng định: tổng quát hóa của DINO-WM không phả
 
 <ComparisonMatrix
   ariaLabel="LPIPS trên rollout dự đoán, theo môi trường"
-  columns={['Encoder', 'PushT', 'Wall', 'Rope', 'Granular']}
+  rowHeaderLabel='Encoder'
+  columns={['PushT', 'Wall', 'Rope', 'Granular']}
   rows={[
     { label: 'R3M', values: ['0.045', '0.008', '0.023', '0.080'] },
     { label: 'ResNet', values: ['0.063', '0.002', '0.025', '0.080'] },
@@ -244,32 +242,26 @@ Ba ablation trong phụ lục hoàn thiện bức tranh:
 
 <EvidenceCards
   ariaLabel="Tóm tắt ba ablation"
-  cards={[
+  items={[
     {
-      title: 'Dữ liệu: scaling tích cực',
-      points: [
-        'PushT SR tăng đều từ 200 tới 18 500 trajectory.',
-        'Chất lượng rollout song hành với hiệu năng plan.',
-        'Không có dấu hiệu bão hòa — dữ liệu offline vẫn còn dư địa.',
-      ],
+      eyebrow: 'Ablation 1',
+      value: 'Scaling laws',
+      label: 'PushT · 200 → 18 500 trajectory',
+      insight: 'PushT SR tăng đều từ 200 tới 18 500 trajectory. Chất lượng rollout song hành với hiệu năng plan. Không có dấu hiệu bão hòa — dữ liệu offline vẫn còn dư địa.',
       tone: 'teal',
     },
     {
-      title: 'Mask causal cấp frame',
-      points: [
-        'Bỏ mask làm plan giảm trên mọi độ dài lịch sử.',
-        'Tác động lớn hơn khi H dài.',
-        'Xác nhận frame-level autoregression là đúng đắn.',
-      ],
+      eyebrow: 'Ablation 2',
+      value: 'Causal mask',
+      label: 'PushT · độ dài lịch sử H',
+      insight: 'Bỏ mask làm plan giảm trên mọi độ dài lịch sử. Tác động lớn hơn khi H dài. Xác nhận frame-level autoregression là đúng đắn.',
       tone: 'amber',
     },
     {
-      title: 'Tách decoder khỏi predictor',
-      points: [
-        'Biến thể backprop decoder loss làm plan giảm nhẹ.',
-        'Xác nhận triết lý: dự đoán feature, không tái tạo pixel.',
-        'Giữ decoder thuần công cụ trực quan hóa.',
-      ],
+      eyebrow: 'Ablation 3',
+      value: 'Tách decoder',
+      label: 'PushT · backprop decoder loss',
+      insight: 'Biến thể backprop decoder loss làm plan giảm nhẹ. Xác nhận triết lý: dự đoán feature, không tái tạo pixel. Giữ decoder thuần công cụ trực quan hóa.',
       tone: 'violet',
     },
   ]}
@@ -284,10 +276,26 @@ Ba ablation trong phụ lục hoàn thiện bức tranh:
 <ExperimentChecklist
   ariaLabel="Bốn câu hỏi thực nghiệm và câu trả lời"
   items={[
-    'Học offline không reward/task label: thành công — sáu môi trường, một bộ hyperparameter, không signal phụ trợ nào.',
-    'Plan bằng MPC thuần: thành công — 0.90–0.98 SR trên bốn môi trường rời rạc, CD thấp nhất trên hai môi trường biến dạng.',
-    'Đặc trưng tiền huấn luyện: quyết định — cùng pipeline, chỉ đổi CLS sang patch đã đảo ngược kết quả thao tác (0.44 → 0.90 trên PushT).',
-    'Tổng quát hóa cấu hình mới: một phần — mạnh ở WallRandom và GranularRandom, còn khó ở PushObj với hình học vật thể ngoài phân phối.',
+    {
+      title: 'Học offline không reward/task label',
+      action: 'Huấn luyện trên trajectory thu sẵn mà không thêm signal phụ trợ.',
+      check: 'Thành công trên sáu môi trường với một bộ hyperparameter.',
+    },
+    {
+      title: 'Plan bằng MPC thuần',
+      action: 'Rollout latent và tối ưu chuỗi action bằng CEM.',
+      check: 'Đạt 0.90–0.98 SR trên bốn môi trường rời rạc, CD thấp nhất trên hai môi trường biến dạng.',
+    },
+    {
+      title: 'Đặc trưng tiền huấn luyện',
+      action: 'Giữ nguyên pipeline và đổi encoder từ CLS sang patch.',
+      check: 'Kết quả thao tác đảo chiều từ 0.44 lên 0.90 trên PushT.',
+    },
+    {
+      title: 'Tổng quát hóa cấu hình mới',
+      action: 'Đánh giá trên WallRandom, PushObj và GranularRandom.',
+      check: 'Mạnh ở WallRandom và GranularRandom, nhưng PushObj với hình học ngoài phân phối vẫn khó.',
+    },
   ]}
 />
 

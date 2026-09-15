@@ -37,10 +37,11 @@ Phần 1 đã giới thiệu ba tiêu chí (offline, test-time optimization, tas
 
 ### Từ policy feed-forward sang world model
 
-Robotics và embodied AI những năm gần đây đạt tiến bộ lớn nhờ imitation learning và reinforcement learning. Nhưng policy học được thường vận hành **feed-forward**: observation vào, action ra, không suy lý thêm.
+Robotics và embodied AI những năm gần đây đạt tiến bộ lớn nhờ imitation learning và reinforcement learning. Nhưng policy học được thường vận hành **feed-forward**: observation vào, action ra, không tối ưu hoặc reasoning thêm.
 
 <ComparisonMatrix
   ariaLabel="So sánh policy feed-forward và world model"
+  rowHeaderLabel="Khía cạnh"
   columns={['Policy feed-forward', 'World model']}
   rows={[
     { label: 'Lúc triển khai', values: ['Một lần suy luận, không tối ưu thêm', 'Tối ưu hành vi tại runtime bằng mô hình động học'] },
@@ -116,32 +117,26 @@ Lối thứ hai dự đoán trong không gian latent nhỏ gọn hơn. Nhưng qu
 
 <EvidenceCards
   ariaLabel="Ba world model latent tiêu biểu và mục tiêu huấn luyện của chúng"
-  cards={[
+  items={[
     {
-      title: 'IRIS (Micheli et al., 2023)',
-      points: [
-        'Token hóa ảnh bằng discrete autoencoder rồi dự đoán token tương lai bằng GPT.',
-        'Latent được học gắn với tái tạo observation.',
-        'Kèm reward prediction và termination prediction để học policy trong tưởng tượng.',
-      ],
+      eyebrow: 'World model',
+      value: 'IRIS',
+      label: 'Micheli et al., 2023',
+      insight: 'Token hóa ảnh bằng discrete autoencoder rồi dự đoán token tương lai bằng GPT. Latent được học gắn với tái tạo observation. Kèm reward prediction và termination prediction để học policy trong tưởng tượng.',
       tone: 'blue',
     },
     {
-      title: 'DreamerV3 (Hafner et al., 2024)',
-      points: [
-        'Mã hóa thành biểu diễn phân loại, dự đoán state và reward tương lai.',
-        'Actor-critic học từ imagined trajectories.',
-        'Mục tiêu tái tạo và reward gắn mô hình vào từng benchmark cụ thể.',
-      ],
+      eyebrow: 'World model',
+      value: 'DreamerV3',
+      label: 'Hafner et al., 2024',
+      insight: 'Mã hóa thành biểu diễn phân loại, dự đoán state và reward tương lai. Actor-critic học từ imagined trajectories. Mục tiêu tái tạo và reward gắn mô hình vào từng benchmark cụ thể.',
       tone: 'teal',
     },
     {
-      title: 'TD-MPC2 (Hansen et al., 2024)',
-      points: [
-        'World model decoder-free trong latent space.',
-        'Nhưng dùng reward signal để định hình latent phục vụ tối ưu.',
-        'Không reward thì latent mất phương hướng học — thực nghiệm DINO-WM cho thấy TD-MPC2 gần như 0 success khi bỏ reward.',
-      ],
+      eyebrow: 'World model',
+      value: 'TD-MPC2',
+      label: 'Hansen et al., 2024',
+      insight: 'World model decoder-free trong latent space, nhưng dùng reward signal để định hình latent phục vụ tối ưu. Không reward thì latent mất phương hướng học — thực nghiệm DINO-WM cho thấy TD-MPC2 gần như 0 success khi bỏ reward.',
       tone: 'violet',
     },
   ]}
@@ -159,24 +154,26 @@ DINO-WM không phủ nhận latent prediction; nó thay anchor: thay vì tái t�
 
 Dòng thứ ba — visual representation learning — đã tạo ra một kho encoder mạnh mẽ:
 
-<PaperTradeoff
+<ComparisonMatrix
   ariaLabel="Bảng so sánh các encoder có sẵn"
+  rowHeaderLabel="Encoder"
+  columns={['Trade-off']}
   rows={[
     {
-      method: 'ResNet-18 (ImageNet)',
-      tradeoff: 'Biểu diễn toàn cục, một vector cho cả ảnh; hiểu ngữ nghĩa nhưng mất thông tin không gian mịn.',
+      label: 'ResNet-18 (ImageNet)',
+      values: ['Ngữ nghĩa mạnh, rẻ, quen thuộc — nhưng pooling nén cả ảnh thành một vector: còn "vật gì", mất "ở đâu".'],
     },
     {
-      method: 'R3M (Nair et al., 2022)',
-      tradeoff: 'Học từ video thao tác người — giàu prior chuyển động, nhưng vẫn nén thành vector toàn cục.',
+      label: 'R3M (Nair et al., 2022)',
+      values: ['Prior thao tác người giàu nhất về domain — nhưng vẫn là vector toàn cục sau pooling: chuyển động có, bố cục mất.'],
     },
     {
-      method: 'I-JEPA (Assran et al., 2023)',
-      tradeoff: 'Dự đoán biểu diễn trong không gian latent, không cần pixel; hướng đi triệt để chống tái tạo nhưng cần mask strategy riêng.',
+      label: 'I-JEPA (Assran et al., 2023)',
+      values: ['Dự đoán thuần latent, không pixel — triệt để chống tái tạo, nhưng cần mask strategy riêng; chỉ là hướng liên quan, không nằm trong ablation của DINO-WM.'],
     },
     {
-      method: 'DINO/DINOv2',
-      tradeoff: 'Self-distillation cho patch embedding giàu thông tin không gian và hướng vật thể; DINOv2 huấn luyện quy mô lớn, dùng out-of-the-box cho segmentation, depth, detection.',
+      label: 'DINO/DINOv2',
+      values: ['Self-distillation quy mô lớn giữ nguyên patch grid 14×14: còn cả ngữ nghĩa lẫn bố cục; dùng đóng băng out-of-the-box nhưng latent không ý thức về động học — transition model phải tự học hết.'],
     },
   ]}
 />
@@ -198,7 +195,7 @@ Trước khi bước sang phương pháp, hãy giữ lại ba câu hỏi mà t�
   nodes={[
     {
       title: '1. Giai đoạn hóa bài toán',
-      detail: 'Bài toán điều khiển thị giác được phát biểu như một POMDP (O, A, p): observation space, action space và phân bố chuyển tiếp. DINO-WM định nghĩa vai trò của từng thành phần ra sao?',
+      detail: 'Bài toán điều khiển thị giác được phát biểu như một POMDP $(O, A, p)$: observation space, action space và phân bố chuyển tiếp. DINO-WM định nghĩa vai trò của từng thành phần ra sao?',
       tone: 'teal',
     },
     {

@@ -65,7 +65,7 @@ export const lessonMetadata = {
       { id: 'opt4', label: 'Suy lý không phụ thuộc vào đặc thù của một tác vụ.', isCorrect: true },
     ],
     success: 'Đúng. Offline training, test-time optimization và task-agnostic reasoning là ba tiêu chí mở đường cho toàn bộ thiết kế.',
-    error: 'Ba tiêu chí nằm ở khía cạnh dữ liệu, suy lý runtime và tính độc lập tác vụ — không có tiêu chí nào đòi tái tạo pixel.',
+    error: 'Ba tiêu chí nằm ở khía cạnh dữ liệu, test-time behavior optimization và task-agnostic reasoning — không có tiêu chí nào đòi tái tạo pixel.',
   },
   {
     id: 'wm-pixel-vs-latent-paradox',
@@ -283,7 +283,7 @@ export const lessonMetadata = {
     options: [
       { id: 'coverage', label: 'Phụ thuộc độ phủ dữ liệu offline đủ rộng.', categoryId: 'stated' },
       { id: 'actions', label: 'Cần ground-truth action trong dữ liệu, khó với video internet.', categoryId: 'stated' },
-      { id: 'flat', label: 'Plan trong không gian action phẳng, chưa phân cấp cho điều khiển mịn.', categoryId: 'stated' },
+      { id: 'flat', label: 'Plan trong không gian action phẳng, chưa phân cấp cho fine-grained control.', categoryId: 'stated' },
       { id: 'impossible', label: 'DINO-WM không thể nào mở rộng sang môi trường thật.', categoryId: 'inferred' },
       { id: 'no-generalize', label: 'Tổng quát hóa cấu hình mới là kết quả ngẫu nhiên không tái lập.', categoryId: 'inferred' },
       { id: 'encoder-broken', label: 'DINOv2 đóng băng làm hỏng toàn bộ năng lực học của transition model.', categoryId: 'inferred' },

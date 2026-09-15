@@ -591,6 +591,7 @@ type ConceptVisual =
 
 type ConceptFlowItem = {
   title: string;
+  subtitle?: string;
   detail?: string;
   formula?: string;
   math?: string;
@@ -637,6 +638,11 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
               <strong className={cx('block text-sm font-bold leading-snug sm:text-base', themeClasses.titleText)}>
                 {renderContentWithMath(cleanTitle)}
               </strong>
+              {item.subtitle ? (
+                <span className={cx('mt-1 block text-xs font-semibold leading-5', themeClasses.mutedText)}>
+                  {renderContentWithMath(item.subtitle)}
+                </span>
+              ) : null}
               {item.detail ? (
                 <p className={cx('mt-2.5 whitespace-pre-line text-xs leading-relaxed sm:text-sm', themeClasses.bodyText)}>
                   {renderContentWithMath(item.detail)}
@@ -1602,16 +1608,16 @@ export function ExperimentChecklist({ ariaLabel, items }: {
           </span>
           <div className="min-w-0 pt-0.5">
             <span className={cx('block text-[0.68rem] font-black uppercase tracking-[0.12em]', label)}>Bước {index + 1}</span>
-            <strong className={cx('mt-1 block text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</strong>
+            <strong className={cx('mt-1 block text-base font-black leading-6 text-balance', themeClasses.titleText)}>{renderContentWithMath(item.title)}</strong>
           </div>
           <dl className="col-start-2 grid min-w-0 gap-2 text-sm leading-5 sm:col-start-3 sm:grid-cols-2 sm:gap-4">
             <div>
               <dt className={cx('font-black', label)}>Thực hiện</dt>
-              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{item.action}</dd>
+              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{renderContentWithMath(item.action)}</dd>
             </div>
             <div>
               <dt className={cx('font-black', label)}>Kiểm tra</dt>
-              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{item.check}</dd>
+              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{renderContentWithMath(item.check)}</dd>
             </div>
           </dl>
         </li>

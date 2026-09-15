@@ -50,12 +50,12 @@ Mở đầu bài báo, tác giả nêu một quan điểm rõ ràng: một world
 
 ### Bài toán mà DINO-WM đặt ra
 
-Hầu hết policy hiện đại vận hành theo kiểu feed-forward: quan sát rồi xuất hành động ngay, không suy lý thêm lúc triển khai. Để tổng quát hóa, agent buộc phải ghi nhớ sẵn lời giải cho mọi tình huống — điều chỉ khả thi nếu nó gặp tình huống tương tự khi huấn luyện.
+Hầu hết policy hiện đại vận hành theo kiểu feed-forward: quan sát rồi xuất hành động ngay, không tối ưu hoặc reasoning thêm lúc triển khai. Để tổng quát hóa, agent buộc phải ghi nhớ sẵn lời giải cho mọi tình huống — điều chỉ khả thi nếu nó gặp tình huống tương tự khi huấn luyện.
 
 Lối thoát là học một **mô hình động học** (dynamics model) từ dữ liệu thu trước, rồi tối ưu hành vi cụ thể lúc runtime. Nhưng world model hiện có vướng một vòng lặp kẹt:
 
 - Học **online** cùng policy: mô hình chỉ chính xác trong vùng phủ của policy đang tối ưu, đổi task là phải train lại.
-- Học **offline** thì lại cần **thông tin phụ trợ mạnh**: expert demonstration, keypoint có cấu trúc, inverse model tiền huấn luyện, hoặc reward dày — tất cả làm giảm tính tổng quát.
+- Học **offline** thì lại cần **thông tin phụ trợ mạnh**: expert demonstration, keypoint có cấu trúc, inverse model tiền huấn luyện, hoặc reward dày đặc — tất cả làm giảm tính tổng quát.
 
 Câu hỏi trung tâm của bài báo: liệu có nguồn thông tin phụ trợ nào **không đánh đổi tính tổng quát**?
 
@@ -104,10 +104,10 @@ Câu hỏi trung tâm của bài báo: liệu có nguồn thông tin phụ trợ
 
 <ConceptFlow
   ariaLabel="Luồng tổng thể của DINO-WM"
-  steps={[
-    { title: 'Ảnh o_t', subtitle: 'RGB 224×224', detail: 'Quan sát môi trường tại mỗi bước thời gian.' },
-    { title: 'DINOv2 đóng băng', subtitle: 'enc theta', detail: 'Mã hóa ảnh thành N patch vector, mỗi vector E chiều, giữ nguyên thông tin không gian.' },
-    { title: 'ViT transition', subtitle: 'p theta', detail: 'Decoder-only transformer dự đoán patch feature tương lai từ lịch sử latent và action.' },
+  items={[
+    { title: 'Ảnh $o_t$', subtitle: 'RGB 224×224', detail: 'Quan sát môi trường tại mỗi bước thời gian.' },
+    { title: 'DINOv2 đóng băng', subtitle: '$\\operatorname{enc}_{\\theta}$', detail: 'Mã hóa ảnh thành N patch vector, mỗi vector E chiều, giữ nguyên thông tin không gian.' },
+    { title: 'ViT transition', subtitle: '$p_{\\theta}$', detail: 'Decoder-only transformer dự đoán patch feature tương lai từ lịch sử latent và action.' },
     { title: 'MPC + CEM', subtitle: 'Lập kế hoạch', detail: 'Tìm chuỗi hành động đưa dự đoán latent tới latent của ảnh mục tiêu, không cần reward hay inverse model.' },
   ]}
 />
@@ -166,7 +166,7 @@ Bốn số trên cần được đọc cùng ba giới hạn mà chính tác gi�
 
 - Kết quả phụ thuộc **độ phủ dữ liệu offline** đủ rộng; môi trường phức tạp cao rất khó thu thập.
 - Mô hình cần **action có nhãn** trong dữ liệu — video internet thường không có.
-- Lập kế hoạch diễn ra trong **không gian action phẳng**; tác vụ điều khiển mịn có thể cần cấu trúc phân cấp.
+- Lập kế hoạch diễn ra trong **không gian action phẳng**; các tác vụ fine-grained control có thể cần cấu trúc phân cấp.
 
 Ba giới hạn này sẽ được mổ xẻ ở Phần 6 (Tranh luận học thuật).
 

@@ -614,6 +614,28 @@ test('shared visual primitives accept static semantic data', async () => {
   assert.deepEqual(inspection.quizQuestionIds, []);
 });
 
+test('DINO-WM mapped visuals use the shared prop contracts', () => {
+  const sharedComponents = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
+  const dinoSources = lessonFiles
+    .filter((file) => file.replaceAll('\\', '/').includes('/research-papers/cv/world-models/dino-wm/'))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
+
+  assert.doesNotMatch(dinoSources, /<ConceptFlow\b[^>]*\bsteps\s*=/);
+  assert.match(dinoSources, /<ConceptFlow\b[^>]*\bitems\s*=/);
+  assert.match(dinoSources, /\bsubtitle:\s*'/);
+  assert.doesNotMatch(dinoSources, /<EvidenceCards\b[^>]*\bcards\s*=/);
+  assert.match(dinoSources, /<EvidenceCards\b[^>]*\bitems\s*=/);
+  assert.doesNotMatch(dinoSources, /<PaperTradeoff\b[^>]*\b(rows|items)\s*=/);
+  assert.match(dinoSources, /<ComparisonMatrix\b[^>]*\bcolumns\s*=/);
+  assert.doesNotMatch(dinoSources, /<ExperimentChecklist\b[^>]*\bitems\s*=\{\[\s*'/);
+  assert.match(dinoSources, /<ExperimentChecklist\b[^>]*\bitems\s*=\{\[\s*\{/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.title\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.action\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.check\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.subtitle\)/);
+});
+
 test('continual-learning visuals use global semantic primitives without shared domain leakage', () => {
   const sharedComponents = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
   const continualSources = lessonFiles

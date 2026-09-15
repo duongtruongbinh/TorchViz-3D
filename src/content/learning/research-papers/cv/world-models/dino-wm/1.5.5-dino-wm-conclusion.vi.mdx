@@ -80,20 +80,22 @@ Ghép lại: tổng quát hóa không nằm ở world model "thông minh hơn", 
 
 Phần kết luận của paper liệt kê thẳng ba giới hạn, và phần Quiz sẽ kiểm tra đúng các giới hạn này:
 
-<PaperTradeoff
+<ComparisonMatrix
   ariaLabel="Ba giới hạn của DINO-WM"
+  rowHeaderLabel='Giới hạn'
+  columns={['Hệ quả']}
   rows={[
     {
-      method: 'Phụ thuộc độ phủ dữ liệu offline',
-      tradeoff: 'World model chỉ chính xác trong vùng trạng thái mà dữ liệu phủ. Môi trường phức tạp rất khó thu thập đủ — mở rộng cần kết hợp exploration và cập nhật mô hình dần theo kinh nghiệm mới.',
+      label: 'Phụ thuộc độ phủ dữ liệu offline',
+      values: ['World model chỉ chính xác trong vùng trạng thái mà dữ liệu phủ. Môi trường phức tạp rất khó thu thập đủ — mở rộng cần kết hợp exploration và cập nhật mô hình dần theo kinh nghiệm mới.'],
     },
     {
-      method: 'Cần action có nhãn',
-      tradeoff: 'Dữ liệu phải kèm ground-truth action. Video internet — nguồn dữ liệu lớn nhất — thường không có nhãn hành động, chặn đường scale lên theo hướng này.',
+      label: 'Cần action có nhãn',
+      values: ['Dữ liệu phải kèm ground-truth action. Video internet — nguồn dữ liệu lớn nhất — thường không có nhãn hành động, chặn đường scale lên theo hướng này.'],
     },
     {
-      method: 'Plan trong không gian action phẳng',
-      tradeoff: 'Tối ưu chuỗi hành động phẳng khó đáp ứng tác vụ điều khiển mịn; tác giả đề xuất hướng phân cấp: high-level planning kết hợp low-level control policy.',
+      label: 'Plan trong không gian action phẳng',
+      values: ['Tối ưu chuỗi hành động phẳng khó đáp ứng các tác vụ fine-grained control; tác giả đề xuất hướng phân cấp: high-level planning kết hợp low-level control policy.'],
     },
   ]}
 />
@@ -110,7 +112,7 @@ Ba giới hạn trên tự nhiên sinh ra ba hướng nghiên cứu kế tiếp:
 
 <ConceptFlow
   ariaLabel="Ba hướng phát triển từ ba giới hạn"
-  steps={[
+  items={[
     {
       title: 'Online hóa dữ liệu',
       subtitle: 'Exploration + update',

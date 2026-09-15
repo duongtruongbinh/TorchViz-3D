@@ -42,7 +42,7 @@ Phần 2 kết thúc bằng ba câu hỏi. Phần 3 trả lời từng câu bằ
 
 ### Phát biểu bài toán dạng POMDP
 
-DINO-WM phát biểu điều khiển thị giác như một **POMDP** — quá trình quyết định Markov quan sát một phần:
+DINO-WM phát biểu điều khiển thị giác như một **partially observable Markov decision process (POMDP)** — quá trình quyết định Markov quan sát một phần:
 
 <BlockMath formula="\mathcal{P} = (\mathcal{O}, \mathcal{A}, p)" />
 
@@ -60,24 +60,24 @@ mô tả ảnh tương lai phụ thuộc toàn bộ lịch sử quan sát và h�
 
 ### Ba thành phần: observation, transition, decoder
 
-Một world model của DINO-WM gồm ba mối quan hệ:
+DINO-WM gồm ba thành phần:
 
 <ConceptFlow
   ariaLabel="Ba thành phần của world model DINO-WM"
-  steps={[
+  items={[
     {
       title: 'Observation model',
-      subtitle: 'z_t ~ enc_theta(o_t)',
-      detail: 'Mã hóa ảnh o_t thành latent z_t. DINO-WM dùng DINOv2 đóng băng.',
+      subtitle: '$z_t \\sim \\operatorname{enc}_{\\theta}(z_t|o_t)$',
+      detail: 'Mã hóa ảnh $o_t$ thành latent $z_t$. DINO-WM dùng DINOv2 đóng băng.',
     },
     {
       title: 'Transition model',
-      subtitle: 'z_{t+1} ~ p_theta(z_{t+1} | z_{t-H:t}, a_{t-H:t})',
-      detail: 'Dự đoán latent kế tiếp từ lịch sử H bước latent và hành động.',
+      subtitle: '$z_{t+1} \\sim p_{\\theta}(z_{t+1} \\mid z_{t-H:t}, a_{t-H:t})$',
+      detail: 'Dự đoán latent kế tiếp từ lịch sử $H$ bước latent và hành động.',
     },
     {
       title: 'Decoder model',
-      subtitle: 'o_hat_t ~ q_theta(o_t | z_t)',
+      subtitle: '$\\hat{o}_t \\sim q_{\\theta}(o_t \\mid z_t)$',
       detail: 'Tái tạo ảnh từ latent — tùy chọn, chỉ phục vụ giải thích trực quan.',
     },
   ]}
@@ -85,7 +85,7 @@ Một world model của DINO-WM gồm ba mối quan hệ:
 
 Ba công thức trên đơn giản, nhưng một chi tiết mang tính quyết định: **decoder tách rời hoàn toàn khỏi phần còn lại**. Mục tiêu huấn luyện decoder độc lập với transition model, nên:
 
-- Decoder không ảnh hưởng khả năng suy lý và plan của world model.
+- Decoder không ảnh hưởng khả năng reasoning và planning của world model.
 - Không cần tái tạo pixel khi plan — tiết kiệm chi phí tính toán đáng kể.
 
 Phần 4.3 (ablation) sẽ chứng minh việc tách rời này không những không hại mà còn có lợi so với truyền loss tái tạo ngược về predictor.
@@ -153,10 +153,26 @@ Huấn luyện dùng **teacher forcing**: cắt trajectory thành các đoạn d
 <ExperimentChecklist
   ariaLabel="Ý nghĩa từng thành phần của hàm mất mát"
   items={[
-    'p_theta(...) rollout latent từ lịch sử: mỗi khung dự đoán đứng trên khung dự đoán trước đó.',
-    'enc_theta(o_{t+1}) là mục tiêu: DINOv2 đóng băng nên mục tiêu cố định, không bị gradient làm trôi.',
-    'Norm L2 trên không gian patch: sai số định vị vật thể ảnh hưởng trực tiếp đến loss.',
-    'Tổng hợp trên H khung: một đoạn dữ liệu cho H cơ hội học quan hệ thời gian.',
+    {
+      title: 'Rollout latent từ lịch sử',
+      action: '$p_{\\theta}(...)$ dự đoán từng khung từ lịch sử latent và action.',
+      check: 'Mỗi khung dự đoán đứng trên khung dự đoán trước đó.',
+    },
+    {
+      title: 'Mục tiêu DINOv2 cố định',
+      action: '$\\operatorname{enc}_{\\theta}(o_{t+1})$ cung cấp feature của khung thật kế tiếp.',
+      check: 'DINOv2 đóng băng nên mục tiêu không bị gradient làm trôi.',
+    },
+    {
+      title: 'Norm L2 trên không gian patch',
+      action: 'Tính sai số giữa patch feature dự đoán và patch feature mục tiêu.',
+      check: 'Sai số định vị vật thể ảnh hưởng trực tiếp đến loss.',
+    },
+    {
+      title: 'Tổng hợp trên H khung',
+      action: 'Tính loss trên toàn bộ $H$ khung dự đoán trong một đoạn dữ liệu.',
+      check: 'Một đoạn dữ liệu cho $H$ cơ hội học quan hệ thời gian.',
+    },
   ]}
 />
 
@@ -193,9 +209,9 @@ với <InlineMath formula="\hat{z}_t = p(\hat{z}_{t-1}, a_{t-1})" /> rollout tro
 
 <ConceptFlow
   ariaLabel="Vòng lặp CEM tối ưu chuỗi hành động"
-  steps={[
+  items={[
     { title: 'Khởi tạo phân phối', subtitle: 'Gaussian', detail: 'Phân phối Gaussian trên chuỗi T hành động.' },
-    { title: 'Lấy mẫu N chuỗi', subtitle: 'N hypothesis', detail: 'Mỗi chuỗi được rollout bằng world model trong latent space, tính chi phí C tới goal.' },
+    { title: 'Lấy mẫu N chuỗi', subtitle: 'N hypothesis', detail: 'Mỗi chuỗi được rollout bằng world model trong latent space, tính chi phí $C$ tới goal.' },
     { title: 'Chọn elite set', subtitle: 'Top chuỗi tốt nhất', detail: 'Giữ lại nhóm hành động dẫn gần goal nhất.' },
     { title: 'Cập nhật phân phối', subtitle: 'Fit elite', detail: 'Ước lượng lại mean/variance từ elite set rồi lặp lại.' },
   ]}
@@ -217,7 +233,8 @@ MPC vận hành theo kiểu **receding horizon**: chỉ thực hiện <InlineMat
 
 <ComparisonMatrix
   ariaLabel="Số liệu kiến trúc và huấn luyện của DINO-WM"
-  columns={['Thành phần', 'Giá trị']}
+  rowHeaderLabel="Thành phần"
+  columns={['Giá trị', 'Ghi chú']}
   rows={[
     { label: 'Encoder', values: ['DINOv2, grid 14×14 patch, E = 384', 'đóng băng hoàn toàn'] },
     { label: 'Transition model', values: ['ViT depth 6, 16 heads, MLP dim 2048', '~19M tham số'] },
