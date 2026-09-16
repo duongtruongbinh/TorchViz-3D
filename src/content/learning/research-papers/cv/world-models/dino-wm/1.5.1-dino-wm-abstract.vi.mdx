@@ -72,18 +72,13 @@ Câu hỏi trung tâm của bài báo: liệu có nguồn thông tin phụ trợ
   nodes={[
     {
       title: '1. Dự đoán trong không gian pixel',
-      detail: 'Sinh ảnh tương lai trực tiếp hoặc qua video diffusion rất tốn tính toán, chi phí cao đến mức khó dùng cho tối ưu kiểu MPC tại thời điểm chạy.',
+      detail: 'Sinh ảnh tương lai trực tiếp hoặc qua video diffusion rất tốn tính toán, chi phí cao đến mức khó dùng cho tối ưu kiểu MPC tại thời điểm chạy. Các generative video model điều kiện bằng text như Genie và AVDC còn khó chỉ đích danh một mục tiêu thị giác chính xác.',
       tone: 'amber',
     },
     {
       title: '2. Dự đoán trong không gian latent tự học',
       detail: 'Latent thường bị ràng buộc với mục tiêu tái tạo ảnh (DreamerV3, IRIS), gây nghi ngờ liệu đặc trưng có đủ thông tin cho tác vụ; thêm reward prediction hoặc termination prediction lại làm mô hình gắn chặt vào một tác vụ.',
       tone: 'violet',
-    },
-    {
-      title: '3. Video generation điều kiện ngôn ngữ',
-      detail: 'Mô hình video quy mô lớn (Genie, AVDC) phụ thuộc điều kiện bằng text — khó chỉ đích danh một mục tiêu thị giác chính xác, và diffusion đắt đỏ cho MPC.',
-      tone: 'teal',
     },
   ]}
 />
