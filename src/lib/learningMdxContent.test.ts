@@ -225,7 +225,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     .map((file) => parseLearningMdxPath(file)?.lessonId)
     .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
     .sort();
-  assert.equal(theoryIds.length, 43);
+  assert.equal(theoryIds.length, 44);
   assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
   assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
   const claimIds = new Set<string>();
@@ -387,7 +387,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 });
 
 test('continual-learning references assemble as one dedicated final runtime page', () => {
-  assert.equal(continualLearningLessonReferenceCoverage.length, 43);
+  assert.equal(continualLearningLessonReferenceCoverage.length, 44);
   const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
   assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
   assert.match(registry, /const referencePage = referenceCoverage \? \(/);
@@ -444,8 +444,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 192);
-  assert.equal(singleQuestions.length, 191);
+  assert.equal(questions.length, 202);
+  assert.equal(singleQuestions.length, 201);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -483,8 +483,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [44, 47, 47, 53]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [45, 47, 48, 53]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [47, 49, 50, 55]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [48, 50, 50, 55]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {

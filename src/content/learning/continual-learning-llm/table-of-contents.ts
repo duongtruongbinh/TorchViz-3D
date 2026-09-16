@@ -121,6 +121,12 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
+    id: 'ewc-si-code-lab',
+    titleEn: 'EWC and SI Lab',
+    titleVi: 'Lab EWC và Synaptic Intelligence',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
     id: 'distillation-for-retention',
     titleEn: 'Function Regularization',
     titleVi: 'Function Regularization',

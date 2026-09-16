@@ -3,10 +3,10 @@ export const lessonMetadata = {
   id: 'parameter-regularization-ewc-quiz',
   locale: 'vi',
   title: 'Quiz',
-  headings: ['Mục tiêu', 'Ma trận importance', 'Trade-off'],
+  headings: ['Mục tiêu', 'Ma trận importance', 'Trade-off', 'EWC và SI'],
   keywords: ['Quiz', 'Parameter Regularization'],
-  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
-  pageCount: 3,
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff', 'ewc-si-distinction'],
+  pageCount: 4,
 }
 
 <MdxQuiz id="parameter-regularization-ewc-quiz" questions={[
@@ -14,7 +14,7 @@ export const lessonMetadata = {
     id: 'regularization-objective', title: 'Mục tiêu', mode: 'single',
     prompt: 'Parameter regularization thêm thành phần nào khi model học Task B?',
     options: [
-      { id: 'a', label: 'Một penalty hạn chế model rời xa tham số cũ ở các hướng quan trọng.' , isCorrect: true },
+      { id: 'a', label: 'Một penalty hạn chế model thay đổi các tọa độ tham số có importance cao.' , isCorrect: true },
       { id: 'b', label: 'Một task ID để chọn output head tại inference.' },
       { id: 'c', label: 'Toàn bộ dữ liệu Task A vào mọi batch của Task B.' },
       { id: 'd', label: 'Một module mới tách biệt cho mỗi sample của Task B.' },
@@ -42,5 +42,17 @@ export const lessonMetadata = {
       { id: 'd', label: 'Model giữ trạng thái cũ mạnh nhưng có thể underfit Task B.', isCorrect: true },
     ],
     success: 'Regularization quá mạnh làm giảm plasticity.', error: '$\\lambda$ điều khiển mức ưu tiên giữ cũ so với học mới.',
+  },
+  {
+    id: 'ewc-si-distinction', title: 'EWC và SI', mode: 'single',
+    prompt: 'Mô tả nào phân biệt đúng cách EWC và Synaptic Intelligence ước lượng parameter importance?',
+    options: [
+      { id: 'a', label: 'Cả hai đều tính chính xác full Hessian tại mỗi training step.' },
+      { id: 'b', label: 'SI chỉ đo Fisher tại checkpoint cuối, còn EWC tích lũy credit dọc trajectory.' },
+      { id: 'c', label: 'EWC dùng diagonal Fisher tại checkpoint; SI tích lũy đóng góp giảm loss dọc trajectory rồi chuẩn hóa ở ranh giới task.', isCorrect: true },
+      { id: 'd', label: 'SI bắt buộc replay toàn bộ dữ liệu cũ, còn EWC không dùng quadratic penalty.' },
+    ],
+    success: 'EWC là endpoint estimate dựa trên Fisher; SI là trajectory-based importance measure.',
+    error: 'Hãy phân biệt điểm đo importance: checkpoint cuối của EWC và toàn bộ optimization trajectory của SI.',
   },
 ]} />

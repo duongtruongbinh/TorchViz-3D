@@ -162,6 +162,7 @@ export const continualLearningLessonReferenceCoverage = [
     ...summarized(['kirkpatrick2017overcoming']),
     ...primary(['zenke2017continual']),
   ])]),
+  coverage('ewc-si-code-lab', [claim('ewc-si-lab-methods', 'The course lab operationalizes EWC endpoint Fisher importance and SI trajectory-based importance under one small-LLM experiment contract.', undefined, primary(['kirkpatrick2017overcoming', 'zenke2017continual']))], 'Task stream, controls, hyperparameter sweep, probes, resource measurements, and all notebook outputs are educational experiments created by the course rather than reproductions of the papers.'),
   coverage('distillation-for-retention', [claim('distillation-retention', 'A frozen earlier checkpoint can constrain a continually updated student through output or representation matching; the retained behavior depends on the query inputs, targets, and teacher quality.', undefined, primary(['hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark']))]),
   coverage('architecture-expansion-isolation', [claim('architecture-expansion', 'Dedicated or expanded capacity can reduce parameter interference while adding routing costs.', '§2.2.2', primary(['wistuba2023']))]),
   coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', '§1 và §3.1', primary(['qin2023recyclable', 'shi2024continualSurvey']))]),

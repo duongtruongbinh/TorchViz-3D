@@ -40,7 +40,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 16);
   assert.equal(learningCatalog.domains.length, 16);
   assert.equal(learningCatalog.tracks.length, 103);
-  assert.equal(learningCatalog.lessons.length, 777);
+  assert.equal(learningCatalog.lessons.length, 779);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -221,6 +221,8 @@ test('continual-learning methods chapter covers replay, regularization overview/
     'regularization-overview-quiz',
     'parameter-regularization-ewc',
     'parameter-regularization-ewc-quiz',
+    'ewc-si-code-lab',
+    'ewc-si-code-lab-quiz',
     'distillation-for-retention',
     'distillation-for-retention-quiz',
     'architecture-expansion-isolation',

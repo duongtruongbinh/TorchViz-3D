@@ -1197,10 +1197,10 @@ function ConceptHierarchyNodeCard({
         : 'min-h-12 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5';
 
     return (
-      <div className={cx('flex flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
+      <div className={cx('flex h-full flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
         <div
           className={cx(
-            'flex w-full flex-col items-center justify-center border text-center transition-all duration-200 ease-out hover:-translate-y-0.5',
+            'flex h-full w-full flex-col items-center justify-center border text-center transition-all duration-200 ease-out hover:-translate-y-0.5',
             cardClass,
             toneClasses[tone],
           )}
@@ -1335,6 +1335,8 @@ function ConceptHierarchyConnections({
 function ConceptHierarchyChildList({
   nodes,
   fallbackTone,
+  level = 'deep',
+  showRail = true,
   density,
   connector,
   toneClasses,
@@ -1343,15 +1345,19 @@ function ConceptHierarchyChildList({
 }: {
   nodes: ConceptHierarchyNode[];
   fallbackTone: ConceptHierarchyTone;
+  level?: 'nested' | 'deep';
+  showRail?: boolean;
   density: ConceptHierarchyDensity;
   connector: string;
   toneClasses: ConceptHierarchyToneClasses;
   bodyText: string;
   isLight: boolean;
 }) {
+  const compact = density === 'compact';
+
   return (
     <>
-      <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(nodes.length)} aria-hidden="true" />
+      {showRail ? <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(nodes.length)} aria-hidden="true" /> : null}
       <ul
         className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
         style={conceptHierarchyGridStyle(nodes.length)}
@@ -1359,12 +1365,12 @@ function ConceptHierarchyChildList({
         {nodes.map((node, index) => {
           const children = node.children ?? node.nodes ?? [];
           return (
-            <li key={`${node.title}-${index}`} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', density === 'compact' ? 'sm:px-1' : 'sm:px-2')}>
-              <span className={cx('mx-auto block w-px', density === 'compact' ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
+            <li key={`${node.title}-${index}`} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact && level === 'nested' ? 'sm:px-1.5' : compact ? 'sm:px-1' : 'sm:px-2')}>
+              <span className={cx('mx-auto block w-px', compact ? (level === 'nested' ? 'h-2.5' : 'h-2') : 'h-5', connector)} aria-hidden="true" />
               <ConceptHierarchyNodeCard
                 node={node}
                 fallbackTone={fallbackTone}
-                level="deep"
+                level={level}
                 density={density}
                 toneClasses={toneClasses}
                 bodyText={bodyText}
@@ -1376,6 +1382,7 @@ function ConceptHierarchyChildList({
                   <ConceptHierarchyChildList
                     nodes={children}
                     fallbackTone={node.tone ?? fallbackTone}
+                    level="deep"
                     density={density}
                     connector={connector}
                     toneClasses={toneClasses}
@@ -1422,6 +1429,17 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
     neutral: cx('border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6]', darkShadow),
   };
   const nodesWithChildrenCount = childNodes.filter((node) => (node.children?.length ?? 0) > 0 || (node.nodes?.length ?? 0) > 0).length;
+  const isSingleExpandingNode = !connections?.length && nodesWithChildrenCount === 1;
+  const singleExpandingIndex = isSingleExpandingNode
+    ? childNodes.findIndex((node) => (node.children?.length ?? 0) > 0 || (node.nodes?.length ?? 0) > 0)
+    : -1;
+  const singleExpandingChild = singleExpandingIndex >= 0 ? childNodes[singleExpandingIndex] : null;
+  const singleExpandingNestedChildren = singleExpandingChild ? (singleExpandingChild.children ?? singleExpandingChild.nodes ?? []) : [];
+  const singleExpandingParentCenter = childNodes.length > 0 ? ((singleExpandingIndex + 0.5) / childNodes.length) * 100 : 50;
+  const singleExpandingFirstChildCenter = singleExpandingNestedChildren.length > 0 ? (0.5 / singleExpandingNestedChildren.length) * 100 : 50;
+  const singleExpandingLastChildCenter = singleExpandingNestedChildren.length > 0 ? ((singleExpandingNestedChildren.length - 0.5) / singleExpandingNestedChildren.length) * 100 : 50;
+  const singleExpandingRailLeft = Math.min(singleExpandingParentCenter, singleExpandingFirstChildCenter);
+  const singleExpandingRailRight = Math.max(singleExpandingParentCenter, singleExpandingLastChildCenter);
 
   return (
     <figure className={cx('w-full max-w-full overflow-x-auto', compact ? 'my-4' : 'my-6')} aria-label={ariaLabel}>
@@ -1446,7 +1464,6 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
           >
             {childNodes.map((child, index) => {
               const nestedChildren = child.children ?? child.nodes ?? [];
-              const isSingleExpandingNode = !connections?.length && nodesWithChildrenCount === 1;
 
               return (
                 <li key={index} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact ? 'sm:px-1.5' : 'sm:px-2')}>
@@ -1461,75 +1478,19 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
                     isLight={themeClasses.isLight}
                   />
 
-                  {nestedChildren.length ? (
-                    <div
-                      className={cx('sm:relative', compact ? 'mt-2 sm:mt-2.5' : 'mt-1')}
-                      style={isSingleExpandingNode && childNodes.length > 1 ? {
-                        width: `${childNodes.length * 100}%`,
-                        transform: `translateX(-${(index / childNodes.length) * 100}%)`,
-                      } : undefined}
-                    >
-                      <span
-                        className={cx('hidden w-px sm:block', compact ? 'h-3.5' : 'h-5', connector)}
-                        style={isSingleExpandingNode && childNodes.length > 1 ? {
-                          marginLeft: `${((index + 0.5) / childNodes.length) * 100}%`,
-                          transform: 'translateX(-50%)',
-                        } : {
-                          marginLeft: '50%',
-                          transform: 'translateX(-50%)',
-                        }}
-                        aria-hidden="true"
+                  {!isSingleExpandingNode && nestedChildren.length ? (
+                    <div className={cx('w-full', compact ? 'mt-2 sm:mt-2.5' : 'mt-1')}>
+                      <span className={cx('mx-auto block w-px', compact ? 'h-3.5' : 'h-5', connector)} aria-hidden="true" />
+                      <ConceptHierarchyChildList
+                        nodes={nestedChildren}
+                        fallbackTone={child.tone ?? 'neutral'}
+                        level="nested"
+                        density={density}
+                        connector={connector}
+                        toneClasses={childNodeTones}
+                        bodyText={themeClasses.bodyText}
+                        isLight={themeClasses.isLight}
                       />
-                      <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(nestedChildren.length)} aria-hidden="true" />
-                      <ul
-                        className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
-                        style={conceptHierarchyGridStyle(nestedChildren.length)}
-                      >
-                        {nestedChildren.map((nestedChild, nestedIndex) => {
-                          const deepChildren = nestedChild.children ?? nestedChild.nodes ?? [];
-
-                          return (
-                            <li key={nestedIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact ? 'sm:px-1.5' : 'sm:px-2')}>
-                              <span className={cx('mx-auto block w-px', compact ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
-                              <ConceptHierarchyNodeCard
-                                node={nestedChild}
-                                fallbackTone={child.tone ?? 'neutral'}
-                                level="nested"
-                                density={density}
-                                toneClasses={childNodeTones}
-                                bodyText={themeClasses.bodyText}
-                                isLight={themeClasses.isLight}
-                              />
-
-                              {deepChildren.length ? (
-                                <div className={cx('w-full', compact ? 'mt-1' : 'mt-2')}>
-                                  <span className={cx('mx-auto block w-px', compact ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
-                                  <span className={cx('hidden h-px sm:block', connector)} style={conceptHierarchyRailStyle(deepChildren.length)} aria-hidden="true" />
-                                  <ul
-                                    className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
-                                    style={conceptHierarchyGridStyle(deepChildren.length)}
-                                  >
-                                    {deepChildren.map((deepChild, deepIndex) => (
-                                      <li key={deepIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact ? 'sm:px-1' : 'sm:px-2')}>
-                                        <span className={cx('mx-auto block w-px', compact ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
-                                        <ConceptHierarchyNodeCard
-                                          node={deepChild}
-                                          fallbackTone={nestedChild.tone ?? child.tone ?? 'neutral'}
-                                          level="deep"
-                                          density={density}
-                                          toneClasses={childNodeTones}
-                                          bodyText={themeClasses.bodyText}
-                                          isLight={themeClasses.isLight}
-                                        />
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ) : null}
-                            </li>
-                          );
-                        })}
-                      </ul>
 
                       <ConceptHierarchyConnections
                         connections={child.deepConnections}
@@ -1547,6 +1508,50 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
               );
             })}
           </ul>
+
+          {isSingleExpandingNode && singleExpandingChild && singleExpandingNestedChildren.length ? (
+            <div className={cx('w-full', compact ? 'mt-1' : 'mt-1 sm:mt-1.5')}>
+              <span
+                className={cx('hidden w-px sm:block', compact ? 'h-3.5' : 'h-5', connector)}
+                style={{
+                  marginLeft: `${singleExpandingParentCenter}%`,
+                  transform: 'translateX(-50%)',
+                }}
+                aria-hidden="true"
+              />
+              <span className={cx('mx-auto block w-px sm:hidden', compact ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
+              <span
+                className={cx('hidden h-px sm:block', connector)}
+                style={{
+                  marginLeft: `${singleExpandingRailLeft}%`,
+                  width: `${singleExpandingRailRight - singleExpandingRailLeft}%`,
+                }}
+                aria-hidden="true"
+              />
+              <ConceptHierarchyChildList
+                nodes={singleExpandingNestedChildren}
+                fallbackTone={singleExpandingChild.tone ?? 'neutral'}
+                level="nested"
+                showRail={false}
+                density={density}
+                connector={connector}
+                toneClasses={childNodeTones}
+                bodyText={themeClasses.bodyText}
+                isLight={themeClasses.isLight}
+              />
+
+              <ConceptHierarchyConnections
+                connections={singleExpandingChild.deepConnections}
+                parentCount={singleExpandingNestedChildren.length}
+                fallbackTone={singleExpandingChild.tone ?? 'neutral'}
+                density={density}
+                connector={connector}
+                toneClasses={childNodeTones}
+                bodyText={themeClasses.bodyText}
+                isLight={themeClasses.isLight}
+              />
+            </div>
+          ) : null}
 
           <ConceptHierarchyConnections
             connections={connections}

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-09-07
+updated: 2026-09-14
 ---
 
 # Learning Lab
@@ -19,9 +19,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 16 domains, 103 tracks, and 777 lesson nodes. Three hundred
-nine Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
+The catalog contains 16 domains, 103 tracks, and 779 lesson nodes. Three hundred
+eleven Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, eighty-seven in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
@@ -396,7 +396,7 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-The Continual Learning paper audit additionally checks that all 41 non-Quiz
+The Continual Learning paper audit additionally checks that all 44 non-Quiz
 lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
 identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
 coverage, `paper-summary` decisions have a matching component, and optional MDX
@@ -409,7 +409,7 @@ the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
 foundational distillation paper, FitNets for intermediate-representation
 distillation, the Kaplan et al. scaling-laws paper, the Chinchilla
 compute-optimal training paper, Vi-Mistral-X for Vietnamese continual
-pre-training, and Qi et al.'s safety-compromise fine-tuning paper. Forty-two
+pre-training, and Qi et al.'s safety-compromise fine-tuning paper. Forty-four
 reviewed claim rows currently expose 196 of the 235 registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 

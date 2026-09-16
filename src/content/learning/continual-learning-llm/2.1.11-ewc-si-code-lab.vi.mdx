@@ -1,0 +1,411 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'ewc-si-code-lab',
+  locale: 'vi',
+  title: 'Lab EWC và Synaptic Intelligence',
+  headings: [
+    'Câu hỏi nghiên cứu',
+    'Kế thừa baseline',
+    'Strategy hooks',
+    'EWC tại task boundary',
+    'SI trên optimization trajectory',
+    'Controls và strength sweep',
+    'Final multiseed run',
+    'Nhìn vào importance',
+    'Đối chiếu giả thuyết',
+  ],
+  keywords: ['EWC', 'Synaptic Intelligence', 'Empirical Fisher', 'Importance', 'Sequential Fine-tuning', 'Experience Replay', 'Hypothesis Testing'],
+  referenceIds: ['kirkpatrick2017overcoming', 'zenke2017continual'],
+  conceptIds: [
+    'ewc-si-lab-hypothesis-contract',
+    'ewc-si-lab-baseline-contract',
+    'ewc-si-lab-strategy-hooks',
+    'ewc-si-lab-ewc-boundary',
+    'ewc-si-lab-si-trajectory',
+    'ewc-si-lab-mechanism-controls',
+    'ewc-si-lab-multiseed-evaluation',
+    'ewc-si-lab-importance-probes',
+    'ewc-si-lab-hypothesis-audit',
+  ],
+  pageCount: 9,
+}
+
+<MdxPage page={0}>
+
+## Câu hỏi nghiên cứu
+
+Lab trước đã tạo một experiment contract dùng chung cho SeqFT và Experience Replay. Lần này ta giữ nguyên task stream, sample ID, training budget và evaluator, rồi chỉ thay cơ chế bảo vệ model bằng Elastic Weight Consolidation (EWC) và Synaptic Intelligence (SI).
+
+Mục tiêu không phải ép EWC hoặc SI đạt điểm cao nhất. Ta muốn biết importance mà mỗi phương pháp tính ra có thực sự dự báo tham số nào cần được bảo vệ hay không, và mức bảo vệ đó đánh đổi với khả năng học task mới như thế nào.
+
+<ExperimentChecklist
+  ariaLabel="Các giả thuyết cần kiểm tra trong lab EWC và Synaptic Intelligence"
+  items={[
+    {
+      title: 'H1 · Retention',
+      action: 'So sánh EWC và SI với SeqFT dưới cùng experiment contract.',
+      check: 'Forgetting có giảm mà diagonal accuracy và learning gain vẫn được giữ không?',
+    },
+    {
+      title: 'H2 · Importance',
+      action: 'Đối chiếu importance thật với Uniform L2 và shuffled importance.',
+      check: 'Vị trí được gán importance có tạo khác biệt hay chỉ tổng độ lớn penalty quan trọng?',
+    },
+    {
+      title: 'H3 · Hai tín hiệu',
+      action: 'So sánh Fisher tại checkpoint với credit tích lũy dọc trajectory.',
+      check: 'EWC và SI có bảo vệ cùng layer, cùng parameter và cùng task không?',
+    },
+    {
+      title: 'H4 · Sensitivity',
+      action: 'Perturb nhóm parameter có importance cao và thấp với cùng một norm.',
+      check: 'Nhóm được xếp hạng cao có làm old-task performance giảm mạnh hơn không?',
+    },
+    {
+      title: 'H5 · Trade-off',
+      action: 'Sweep regularization strength từ 0 đến mạnh.',
+      check: 'Ta có quan sát được stability–plasticity frontier hay chỉ thấy nhiễu?',
+    },
+  ]}
+/>
+
+Trước khi chạy, mỗi giả thuyết phải có cả dấu hiệu ủng hộ và dấu hiệu làm nó yếu đi. Nếu kết quả không rõ hơn seed variation, trạng thái đúng là `unresolved`, không phải tự động kết luận giả thuyết sai.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Kế thừa baseline
+
+Lab này kế thừa task stream và cách tổ chức từ `Lab baseline CL tuần tự`, nhưng dùng một contract mới và chạy lại mọi method. Full-model EWC và SI phải giữ nhiều tensor FP32; vì vậy notebook dùng SmolLM2-135M thay cho 360M để toàn bộ state vừa Colab T4 mà không cần một partial scope có tied weights khó diễn giải.
+
+Các trường sau tạo thành contract cần giữ cố định:
+
+<ComparisonMatrix
+  ariaLabel="Experiment contract dùng chung giữa các phương pháp"
+  columns={['Giữ cố định', 'Được thay đổi']}
+  rows={[
+    { label: 'Model', values: ['Checkpoint, tokenizer, trainable scope', 'Retention strategy'] },
+    { label: 'Data', values: ['Task order, sample ID, prompt format', 'Old-data access do method khai báo'] },
+    { label: 'Training', values: ['Train examples, updates, batch, max length', 'Penalty và consolidation pass'] },
+    { label: 'Evaluation', values: ['Validation/test split, evaluator, metric', 'Không thay đổi'] },
+  ]}
+/>
+
+```python
+BASE_CONTRACT_FIELDS = {
+    "model_name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "task_order": ["dbpedia", "amazon", "yahoo", "ag_news"],
+    "train_per_task": 2048,
+    "valid_per_task": 256,
+    "test_per_task": 512,
+    "batch_size": 4,
+    "grad_accum_steps": 4,
+    "epochs_per_task": 1,
+    "trainable_scope": "full",
+    "fisher_samples": 256,
+    "buffer_capacity": 512,
+    "reset_optimizer_each_task": True,
+    "evaluation_rule": "mean answer-token log-probability; EOS excluded",
+}
+
+def contract_hash(config):
+    """Tạo fingerprint ổn định để ngăn ghép các artifact không cùng contract."""
+    payload = json.dumps(config, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:12]
+
+# Chỉ tạo final ID sau validation sweep.
+FINAL_CONTRACT = {
+    **BASE_CONTRACT_FIELDS,
+    "selected_configs": selected_configs,
+    "sample_id_digests": sample_id_digests,
+    "runtime_versions": runtime_versions,
+}
+CONTRACT_ID = contract_hash(FINAL_CONTRACT)
+print("final contract:", CONTRACT_ID)
+```
+
+Regularization strength và SI damping được chọn trên validation split cố định. Test split chỉ được mở sau khi đã khóa cấu hình và seed list cho final run. Contract cuối còn chứa sample-ID digest, task-spec digest, gradient clipping, AMP, sweep grid, selected config và library versions; thay đổi một trường sẽ tạo artifact ID khác.
+
+`Optimizer updates` trong contract là số update thật sự được áp dụng, không phải số lần code thử gọi optimizer. Mixed-precision scaler được tạo một lần cho cả task stream với initial scale đã kiểm tra bằng smoke run. Notebook so sánh scale trước và sau `scaler.update()` để nhận ra skipped update; nếu AMP bỏ qua dù chỉ một update, run dừng và không xuất comparison artifact.
+
+Optimizer được reset tại mỗi task boundary cho mọi method. Đây là policy được khai báo, không phải yêu cầu phổ quát của SI: paper reset Adam trong một số benchmark và giữ state trong benchmark khác. Reset ở đây giúp optimizer moments không trở thành một memory mechanism bổ sung; một run giữ state phải mang contract ID khác.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Strategy hooks
+
+Ta giữ vòng lặp PyTorch của baseline và thêm bốn hook. Khi strategy không làm gì, đường chạy phải tương đương SeqFT. Đây là sanity check đầu tiên trước khi viết EWC hoặc SI.
+
+```python
+class ContinualStrategy:
+    """Interface nhỏ nhất để gắn retention strategy vào train loop hiện có."""
+
+    def penalty_before_backward(self, model):
+        parameter = next(model.parameters())
+        return parameter.new_zeros(())
+
+    def capture_task_gradient(self, model, regularizer_multiplier=1.0):
+        pass
+
+    def before_optimizer_step(self, model):
+        pass
+
+    def after_optimizer_step(self, model, update_applied=True):
+        pass
+
+    def consolidate_task(self, model, task_id, task_rows):
+        pass
+
+    def state_bytes(self):
+        return 0
+
+
+class NoOpStrategy(ContinualStrategy):
+    """Control dùng để xác nhận train loop có hooks vẫn tái tạo SeqFT."""
+    pass
+```
+
+Điểm chèn hook quanh optimizer step:
+
+```python
+task_loss = model(**batch).loss
+retention_loss = strategy.penalty_before_backward(model)
+loss = (task_loss + retention_loss) / grad_accum_steps
+scaler.scale(loss).backward()
+
+if is_update or is_last:
+    scaler.unscale_(optimizer)
+    strategy.capture_task_gradient(
+        model,
+        regularizer_multiplier=accumulated_microbatches / grad_accum_steps,
+    )
+    grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+    gradients_are_finite = torch.isfinite(grad_norm).item()
+    strategy.before_optimizer_step(model)
+    scale_before = scaler.get_scale()
+    scaler.step(optimizer)
+    scaler.update()
+    amp_skipped = scaler.is_enabled() and scaler.get_scale() < scale_before
+    strategy.after_optimizer_step(
+        model,
+        update_applied=gradients_are_finite and not amp_skipped,
+    )
+    optimizer.zero_grad(set_to_none=True)
+```
+
+`capture_task_gradient` chạy sau khi gradient đã được unscale nhưng trước gradient clipping. Đây là raw gradient của task loss, tương ứng với `unreg_grads` trong reference implementation. `before_optimizer_step` và `after_optimizer_step` đo <InlineMath formula="\Delta\theta_i" /> thật sau AdamW, clipping, weight decay và mixed precision. Không chuyển task gradient xuống sau clipping: SI ghép gradient toán học của task với quãng đường parameter thực sự đã đi.
+
+Không reset `GradScaler` khi chuyển task. Reset về scale mặc định ở mỗi boundary có thể lặp lại các overflow update đầu task và khiến số update thật khác nhau giữa method. Notebook dùng initial scale thấp từ đầu và coi `applied_updates == attempted_updates` là một invariant bắt buộc.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## EWC tại task boundary
+
+EWC làm chậm thay đổi ở những parameter quan trọng với task cũ <Cite paper="kirkpatrick2017overcoming" evidence="ewc-si-lab-methods-01-kirkpatrick2017overcoming" />. Trong lab này, sau khi học xong một task, EWC chạy một consolidation pass trên dữ liệu của task vừa hoàn thành. Ta bình phương gradient của observed-label answer-token mean NLL để tạo một diagonal empirical gradient-Fisher proxy. Đây không phải exact Fisher phải cộng qua mọi output có thể có. Sau consolidation, dữ liệu task được giải phóng và chỉ anchor cùng importance được giữ lại.
+
+<BlockMath formula="F_i \approx \frac{1}{N}\sum_{n=1}^{N}\left(\frac{\partial \ell_n}{\partial\theta_i}\right)^2" />
+
+<BlockMath formula="L_{EWC}=L_{new}+\frac{\lambda}{2}\sum_i F_i(\theta_i-\theta_i^*)^2" />
+
+API sẽ được hoàn thiện ở Phase 2:
+
+```python
+class EWCStrategy(ContinualStrategy):
+    def __init__(self, strength, fisher_batches):
+        self.strength = strength
+        self.fisher_batches = fisher_batches
+        self.anchor = {}
+        self.importance = {}
+
+    def penalty_before_backward(self, model):
+        # Sum 0.5 * strength * F_i * (theta_i - anchor_i)^2.
+        ...
+
+    def consolidate_task(self, model, task_id, task_rows):
+        # Estimate empirical Fisher, merge importance, then move the anchor.
+        ...
+```
+
+Ba invariant phải pass trước khi chạy benchmark: mọi <InlineMath formula="F_i\ge 0" />, penalty bằng 0 ngay tại anchor và consolidation không làm thay đổi model parameter.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## SI trên optimization trajectory
+
+SI tích lũy thông tin liên quan đến task tại từng parameter trong quá trình học <Cite paper="zenke2017continual" evidence="ewc-si-lab-methods-02-zenke2017continual" />. Nó không đợi đến checkpoint cuối để hỏi parameter nhạy đến đâu. Trong lúc optimizer di chuyển, SI cộng credit <InlineMath formula="-g_i^{task}\Delta\theta_i" /> từ từng update thật. Gradient ở đây chỉ đến từ loss của task hiện tại; nếu trộn gradient của SI penalty vào credit, importance mới sẽ tự củng cố importance cũ và không còn đo đóng góp của task đang học.
+
+<BlockMath formula="\omega_i\leftarrow\omega_i-g_i^{task}\Delta\theta_i" />
+
+<BlockMath formula="\Omega_i\leftarrow\max\left(0,\Omega_i+\frac{\omega_i}{(\theta_i^{end}-\theta_i^{start})^2+\xi}\right)" />
+
+```python
+class SIStrategy(ContinualStrategy):
+    def __init__(self, strength, damping):
+        self.strength = strength
+        self.damping = damping
+        self.anchor = {}
+        self.task_start = {}
+        self.path_credit = {}
+        self.importance = {}
+        self.before_step = {}
+        self.task_gradient = {}
+
+    def capture_task_gradient(self, model, regularizer_multiplier=1.0):
+        # Remove the SI-penalty gradient from the accumulated total gradient.
+        ...
+
+    def before_optimizer_step(self, model):
+        # Snapshot theta before the optimizer applies its update.
+        ...
+
+    def after_optimizer_step(self, model, update_applied=True):
+        # Accumulate -task_gradient * actual_parameter_delta for a valid update.
+        ...
+
+    def consolidate_task(self, model, task_id, task_rows=None):
+        # Normalize credit, update cumulative importance and reset task state.
+        ...
+```
+
+Tại task boundary, phép `ReLU` được áp dụng sau khi cộng contribution mới vào cumulative importance, giống reference implementation của tác giả. Sanity checks sẽ dùng một bài toán scalar có thể tính tay để bắt lỗi dấu, lỗi lấy gross movement thay cho net displacement, lỗi trộn regularizer gradient và lỗi reset <InlineMath formula="\omega_i" /> sai thời điểm.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Controls và strength sweep
+
+Nếu EWC tốt hơn SeqFT, ta vẫn chưa biết lợi ích đến từ Fisher importance hay chỉ vì model bị kéo về checkpoint cũ. Uniform L2 giữ nguyên anchor nhưng gán importance bằng nhau. `shuffled_ewc` dịch vòng importance bên trong từng tensor: phân phối của tensor không đổi nhưng importance chuyển sang coordinate khác. Control này được bật trong full run để H2 thật sự có dữ liệu kiểm tra.
+
+Trước khi replay buffer có dữ liệu, Replay phải nhận đúng danh sách current-task examples theo cùng thứ tự đầu vào như SeqFT; `DataLoader` sẽ thực hiện lần shuffle duy nhất với cùng stage seed. Nếu loss trajectory của hai method khác nhau ngay ở Task A, comparison chưa đạt fairness invariant và phải dừng trước khi đọc kết quả.
+
+<ComparisonMatrix
+  ariaLabel="Vai trò của từng baseline và control"
+  columns={['Giữ dữ liệu cũ?', 'Importance', 'Câu hỏi trả lời']}
+  rows={[
+    { label: 'SeqFT', values: ['Không', 'Không có', 'Mức forgetting gốc là bao nhiêu?'] },
+    { label: 'Replay 25%', values: ['Có', 'Không có', 'Data memory tạo trade-off nào?'] },
+    { label: 'Uniform L2', values: ['Không', 'Đồng đều', 'Generic anchoring có đủ không?'] },
+    { label: 'EWC', values: ['Chỉ ở boundary hiện tại', 'Empirical Fisher', 'Endpoint sensitivity có hữu ích không?'] },
+    { label: 'SI', values: ['Không cần consolidation data pass', 'Path credit', 'Optimization trajectory có hữu ích không?'] },
+  ]}
+/>
+
+```python
+SWEEP_CONFIGS = {
+    "uniform_l2": [0.0, 0.01, 0.1, 1.0],
+    "ewc": [0.0, 1e2, 1e3, 1e4],
+    "si": [
+        {"strength": 0.0, "damping": 1e-6},
+        {"strength": 0.01, "damping": 1e-7},
+        {"strength": 0.1, "damping": 1e-7},
+        {"strength": 0.1, "damping": 1e-6},
+        {"strength": 1.0, "damping": 1e-6},
+        {"strength": 1.0, "damping": 1e-5},
+    ],
+}
+
+def eligible(candidate, seqft):
+    """Không mua retention bằng cách làm từng task khó học hơn SeqFT quá 3 điểm %."""
+    diagonal_ok = np.all(candidate.diagonal >= seqft.diagonal - 0.03)
+    gain_ok = candidate.mean_learning_gain >= seqft.mean_learning_gain - 0.03
+    return diagonal_ok and gain_ok
+```
+
+SI sweep cả <InlineMath formula="c" /> và <InlineMath formula="\xi" /> vì damping `0.1` từ một benchmark nhỏ không scale theo parameter drift của LLM. Trong các cấu hình hợp lệ, notebook ưu tiên BWT, rồi Final Average Accuracy; exact tie chọn strength yếu hơn. Nó cũng log penalty/task-loss ratio và các quantile của <InlineMath formula="\Delta\theta_i^2/\xi" /> để nhận ra SI bị triệt hoặc penalty lấn át task loss.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Final multiseed run
+
+Sau khi khóa cấu hình bằng validation, ta chạy SeqFT, Replay, Uniform L2, EWC, SI và shuffled-EWC với ba seed `17, 42, 73`. Mỗi method phải xuất cùng schema để ghép vào một báo cáo chung.
+
+```python
+FINAL_SEEDS = [17, 42, 73]
+
+results = {
+    "contract_id": CONTRACT_ID,
+    "selected_configs": selected_configs,
+    "runs": {},
+}
+
+for seed in FINAL_SEEDS:
+    results["runs"][str(seed)] = run_all_methods(
+        seed=seed,
+        task_order=TASK_ORDER,
+        task_data=task_data,
+        selected_configs=selected_configs,
+    )
+```
+
+Báo cáo cuối gồm stage-by-task matrix của từng seed, mean ± standard deviation của Final Average Accuracy, Mean Diagonal Accuracy, Mean Learning Gain, BWT, Mean Forgetting và Worst-task Forgetting. Mean gain phải đạt `0.02` và từng task phải đạt ít nhất `0.01` trên validation trước khi sweep bắt đầu; nếu không, notebook dừng và yêu cầu tăng `EPOCHS_PER_TASK` thay vì diễn giải retention. Resource table tách ordinary training updates khỏi Fisher consolidation pass và SI bookkeeping; số raw example được lưu cũng phải xuất hiện cạnh số byte state.
+
+Sample output và con số diễn giải chỉ được điền sau khi artifact của final run đã được lưu. Không lấy một seed đẹp làm kết quả đại diện.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Nhìn vào importance
+
+Điểm benchmark cho biết method có hoạt động trong fixture này hay không. XAI section phải lưu dữ liệu ngay trong training loop rồi mới dùng các probe sau để kiểm tra lời giải thích về cơ chế:
+
+1. **Loss trajectory:** task loss, retention penalty và total loss đổi thế nào qua từng optimizer update?
+2. **Layerwise importance:** mean, upper quantile, non-zero ratio và tổng importance nằm nhiều ở embedding, attention, MLP hay final norm?
+3. **Importance–drift:** parameter có importance cao có dịch chuyển ít hơn khi học task kế tiếp không?
+4. **Penalty attribution:** module nào đóng góp nhiều nhất vào <InlineMath formula="\Omega_i(\theta_i-\theta_i^*)^2" /> trong lúc train?
+5. **Agreement:** Spearman correlation và top-k overlap giữa Fisher importance với SI importance cao đến đâu?
+6. **Perturbation:** qua nhiều noise seed có cùng norm, old-task loss thay đổi ra sao ở nhóm importance cao, random và thấp?
+
+```python
+probe_report = {
+    "training_history": training_history,
+    "layerwise_mass": summarize_importance_by_layer(states),
+    "importance_drift": summarize_importance_vs_drift(states),
+    "penalty_attribution": summarize_penalty_by_layer(states),
+    "ewc_si_spearman": sampled_rank_correlation(
+        states["ewc"], states["si"], seed=SEED
+    ),
+    "topk_overlap": sampled_topk_overlap(
+        states["ewc"], states["si"], fraction=0.01, seed=SEED
+    ),
+    "perturbation_trials": compare_equal_norm_perturbations(
+        model, task_data, states, fraction=0.01, trials=10, seed=SEED
+    ),
+}
+```
+
+Loss trajectory dùng line chart; layer-by-stage dùng heatmap; quan hệ giữa hàng nghìn coordinate dùng hexbin thay vì scatter đặc; perturbation lặp lại dùng box plot kèm từng trial. Không vẽ raw weight matrix như một bản đồ có ngữ nghĩa nếu row và column chỉ là coordinate tùy ý.
+
+Checkpoint phải được restore sau mỗi perturbation. Chỉ so sánh các nhóm có cùng global noise norm, và không kết luận từ một noise draw duy nhất. Nếu phân phối high-importance và low-importance gây tác động tương đương, ta chưa có bằng chứng rằng ranking phản ánh behavioral sensitivity; điểm CL tốt khi đó có thể đến từ generic anchoring hoặc yếu tố khác.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Đối chiếu giả thuyết
+
+Kết thúc lab bằng một evidence table, không bằng tuyên bố method thắng:
+
+| Giả thuyết | Kết quả cần đọc cùng nhau | Trạng thái có thể kết luận |
+| :--- | :--- | :--- |
+| H1 · Retention | BWT, mean/worst forgetting, learning gain và seed variation | Supported / Mixed / Unsupported / Unresolved |
+| H2 · Importance | EWC/SI so với Uniform L2 và shuffled importance | Supported / Mixed / Unsupported / Unresolved |
+| H3 · Hai tín hiệu | Rank correlation, top-k overlap và layerwise mass | Supported / Mixed / Unsupported / Unresolved |
+| H4 · Sensitivity | Equal-norm perturbation trên nhóm high/low | Supported / Mixed / Unsupported / Unresolved |
+| H5 · Trade-off | Validation sweep của retention và acquisition | Supported / Mixed / Unsupported / Unresolved |
+
+Một kết quả âm vẫn có giá trị nếu experiment phân biệt được các khả năng. Retention không tăng có thể do strength quá thấp, importance nhiễu hoặc task chưa tạo đủ interference. Retention tăng nhưng acquisition sụp cho thấy over-regularization. Nếu Uniform L2 cũng tốt ngang EWC/SI, fixture ủng hộ tác dụng của anchoring nhưng chưa ủng hộ parameter-specific importance.
+
+Artifact cuối phải lưu contract hash, sample IDs, selected strengths, toàn bộ seed, matrix, metrics, costs, state bytes và probe report. Nhờ đó người học khác có thể kiểm tra lại diễn giải thay vì chỉ nhìn bảng điểm đã tổng hợp.
+
+</MdxPage>

@@ -6,12 +6,11 @@ export const lessonMetadata = {
   headings: [
     'Tạo ràng buộc trong parameter space',
     'Vì sao không phạt mọi tham số như nhau?',
-    'Điều khiển trade-off',
-    'EWC và Synaptic Intelligence',
+    'Giải pháp ước lượng độ quan trọng',
   ],
   keywords: ['Parameter Regularization', 'EWC', 'Synaptic Intelligence', 'Sigma', 'Stability–Plasticity'],
-  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
-  pageCount: 4,
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff', 'ewc-si-distinction'],
+  pageCount: 3,
 }
 
 <MdxPage page={0}>
@@ -42,7 +41,13 @@ Parameter regularization thêm một penalty vào mục tiêu học Task B:
 
 <BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda R(\theta,\theta_A)}_{\text{stability}}" />
 
-Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter regularization tạo ràng buộc trong **parameter space**: model vẫn học Task B, nhưng nếu các trọng số của sau khi update task B quá khác so với trọng số ban đầu train trên Task A thì model phải nhận thêm một mức phạt (penalty) nhất định.
+Khác với replay cần lưu trữ dữ liệu cũ, Parameter regularization thiết lập hàng rào bảo vệ trực tiếp trong **parameter space**: mô hình vẫn tối ưu trên Task B, nhưng bị phạt nếu bộ trọng số rời quá xa mốc tham chiếu <InlineMath formula="\theta_A" /> đã học từ Task A.
+
+Như đã làm quen ở phần tổng quan, cách tiếp cận trực giác và ngây thơ nhất là đo độ lệch theo khoảng cách Euclidean thông thường:
+
+<BlockMath formula="R(\theta,\theta_A)=\lVert\theta-\theta_A\rVert_2^2=\sum_i(\theta_i-\theta_{A,i})^2" />
+
+Tuy nhiên, việc này tương đương với việc xem mọi trọng số đều có vai trò quan trọng ngang nhau.
 
 </MdxPage>
 
@@ -50,74 +55,171 @@ Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter re
 
 ## Vì sao không phạt mọi tham số như nhau?
 
-Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan giữa 2 bộ trọng số (trước và sau khi cập nhật).
+Sau khi học xong Task A, mô hình dừng gần một điểm cực tiểu <InlineMath formula="\theta_A^*" />. Địa hình mất mát (**loss landscape**) quanh điểm này có cấu trúc hình học không đồng đều:
 
-<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n}\\\Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n}\\\vdots&\vdots&\ddots&\vdots\\\Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
+- **Hướng có độ cong (curvature) cao:** Chỉ một dịch chuyển nhỏ dọc hướng này cũng có thể làm loss của Task A tăng mạnh.
+- **Hướng có độ cong thấp:** Đây là các thung lũng phẳng (**flat valleys**), nơi mô hình có thể dịch chuyển nhiều hơn mà loss cũ chỉ thay đổi ít.
 
-<LessonNote>
-  Lúc này, chúng ta hiểu rằng penalty không chỉ xét từng tham số thay đổi bao nhiêu, mà còn xét việc từng cặp tham số thay đổi cùng nhau ảnh hưởng thế nào đến kiến thức cũ.
-</LessonNote>
+<LessonImage
+  assetPath="continual-learning-llm/03-loss-landscape-curvature-doodle.jpg"
+  alt="Hai panel minh họa độ cong của loss landscape: hướng độ cong cao dốc đứng khiến loss tăng vọt khi dịch chuyển nhỏ, hướng độ cong thấp bằng phẳng cho phép tham số tự do di chuyển"
+  caption="Độ cong không đồng đều trên loss landscape: dịch chuyển theo hướng dốc đứng phá vỡ nghiệm cũ, trong khi di chuyển dọc thung lũng phẳng bảo toàn tri thức."
+/>
 
-Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, ma trận đầy đủ phải lưu và tính tương quan cho mọi cặp <InlineMath formula="(i,j)" />.
+Nếu dùng chung một mức phạt cho tất cả tham số, ta rơi vào thế tiến thoái lưỡng nan:
+
+- **Nếu muốn giữ năng lực cũ mà áp mức phạt nặng:** Toàn bộ trọng số bị ghìm chặt, khiến mô hình mất tính dẻo và không thể thích nghi để học tác vụ mới.
+- **Nếu muốn học tốt tác vụ mới mà nới lỏng mức phạt:** Các trọng số ở vùng dốc đứng dễ dàng bị xô lệch, dẫn đến **catastrophic forgetting**.
+
+---
+
+Muốn biết một thay đổi nhỏ của weights sẽ làm loss Task A tăng bao nhiêu, ta có thể nhìn vào **Hessian** <InlineMath formula="H_A" /> tại checkpoint <InlineMath formula="\theta_A^*" />. Gọi <InlineMath formula="\Delta\theta=\theta-\theta_A^*" /> là phần weights đã dịch chuyển, độ tăng loss cũ gần checkpoint được xấp xỉ bởi:
+
+<BlockMath formula="\Delta\mathcal{L}_A\approx\frac{1}{2}\Delta\theta^T H_A\Delta\theta" />
+
+Mỗi phần tử trên đường chéo <InlineMath formula="H_{ii}" /> cho biết loss nhạy thế nào khi riêng tham số <InlineMath formula="\theta_i" /> thay đổi. Các phần tử ngoài đường chéo <InlineMath formula="H_{ij}" /> ghi lại ảnh hưởng khi hai tham số cùng thay đổi:
+
+<BlockMath formula="H_A=\begin{bmatrix}H_{11}&H_{12}&\cdots&H_{1n}\\H_{21}&H_{22}&\cdots&H_{2n}\\\vdots&\vdots&\ddots&\vdots\\H_{n1}&H_{n2}&\cdots&H_{nn}\end{bmatrix}" />
+
+Nhờ vậy, Hessian đầy đủ cho ta bức tranh chi tiết về mức độ ảnh hưởng của mọi tham số và mối liên hệ giữa chúng.
 
 <LessonNote tone="warning">
-  Khi đó, <InlineMath formula="\Sigma" /> cần <InlineMath formula="n^2" /> phần tử, nên chi phí lưu trữ và tính toán tăng theo <InlineMath formula="O(n^2)" />. Quy mô này quá lớn đối với LLM.
+  Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, Hessian đầy đủ phải lưu và tính ảnh hưởng cho mọi cặp <InlineMath formula="(i,j)" />.
+
+  Khi đó, <InlineMath formula="H_A" /> cần <InlineMath formula="n^2" /> phần tử, nên chi phí lưu trữ và tính toán tăng theo <InlineMath formula="O(n^2)" />. Quy mô này bất khả thi đối với các LLM hàng tỷ tham số.
 </LessonNote>
 
-Vì vậy, trong thực tế ta thường bỏ các tương quan theo cặp và chỉ giữ đường chéo của <InlineMath formula="\Sigma" />:
+Giải pháp thực tế là thay Hessian đầy đủ bằng một ma trận importance chỉ có đường chéo. Mỗi tham số <InlineMath formula="\theta_i" /> được gán một con số <InlineMath formula="\Omega_i" /> cho biết nó nên được giữ mạnh đến đâu, còn ảnh hưởng kết hợp giữa các tham số được tạm bỏ qua:
 
 <BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0\\0&\Omega_2&\cdots&0\\\vdots&\vdots&\ddots&\vdots\\0&0&\cdots&\Omega_n\end{bmatrix}" />
 
-Khi đó, penalty trở thành:
+Thay vì lưu <InlineMath formula="n^2" /> phần tử, model chỉ cần lưu <InlineMath formula="n" /> giá trị importance. Penalty khi đó trở thành:
 
 <BlockMath formula="R_{\Sigma}(\theta,\theta_A)=\sum_i\Omega_i(\theta_i-\theta_{A,i})^2" />
 
-<LessonNote>
-  Lúc này, chúng ta đã chuyển câu hỏi từ **tương quan giữa từng cặp trọng số** thành **mức độ quan trọng của từng trọng số**. <InlineMath formula="\Omega_i" /> càng lớn, trọng số <InlineMath formula="\theta_i" /> càng bị phạt mạnh khi rời trạng thái cũ.
+#### Ví dụ ma trận minh họa (2 tham số)
+
+Vector trọng số tối ưu sau Task A:
+
+<BlockMath formula="\theta_A^* = \begin{bmatrix} 2.0 \\ -1.0 \end{bmatrix}" />
+
+Ma trận đường chéo tầm quan trọng ước lượng được:
+
+<BlockMath formula="\Sigma = \begin{bmatrix} \Omega_1 & 0 \\ 0 & \Omega_2 \end{bmatrix} = \begin{bmatrix} 100 & 0 \\ 0 & 0.1 \end{bmatrix}" />
+
+Vector trọng số mới dịch chuyển khi học Task B:
+
+<BlockMath formula="\theta = \begin{bmatrix} 2.1 \\ 0.0 \end{bmatrix} \implies \theta - \theta_A^* = \begin{bmatrix} 0.1 \\ 1.0 \end{bmatrix}" />
+
+Tính toán penalty:
+
+<BlockMath formula="R_{\Sigma}(\theta, \theta_A^*) = \begin{bmatrix} 0.1 & 1.0 \end{bmatrix} \begin{bmatrix} 100 & 0 \\ 0 & 0.1 \end{bmatrix} \begin{bmatrix} 0.1 \\ 1.0 \end{bmatrix} = 100 \times (0.1)^2 + 0.1 \times (1.0)^2 = 1.1" />
+
+- Tọa độ <InlineMath formula="\theta_1" /> chỉ nhích <InlineMath formula="0.1" />, nhưng đóng góp penalty <InlineMath formula="1.0" /> vì có importance <InlineMath formula="\Omega_1=100" />.
+- Tọa độ <InlineMath formula="\theta_2" /> biến thiên gấp 10 lần (<InlineMath formula="1.0" />), nhưng chỉ đóng góp <InlineMath formula="0.1" /> vì <InlineMath formula="\Omega_2=0.1" />.
+
+<LessonNote tone="warning">
+  Đổi lại, diagonal approximation đánh giá ảnh hưởng của mỗi tham số độc lập với các tham số còn lại. Nó không ghi nhận trường hợp nhiều tham số cùng thay đổi và bù trừ cho nhau để giữ output ổn định. Quy tắc còn lại rất đơn giản: <InlineMath formula="\Omega_i" /> càng lớn, thay đổi của <InlineMath formula="\theta_i" /> càng bị phạt mạnh.
+</LessonNote>
+
+<LessonNote tone="danger">
+  Vậy làm thế nào để ước lượng từng hệ số <InlineMath formula="\Omega_i" /> mà không cần dựng Hessian đầy đủ?
 </LessonNote>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Điều khiển trade-off
+## Giải pháp ước lượng độ quan trọng
 
-Khi ghép hai phần lại, mục tiêu huấn luyện trở thành:
+Để trả lời câu hỏi tính <InlineMath formula="\Omega_i" /> mà không cần ma trận Hessian bậc hai cồng kềnh, hai giải pháp kinh điển trong nhóm parameter regularization <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" /> đã tiếp cận theo hai cách:
 
-<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda\lVert\theta-\theta_A\rVert_{\Sigma}^{2}}_{\text{stability}}" />
+### 1. EWC: Ước lượng độ cong bằng Fisher Information
 
-- <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" /> giúp model học Task B; ảnh hưởng càng lớn thì plasticity càng tăng.
-- <InlineMath formula="\lambda" /> cân bằng loss mới và penalty; giá trị càng lớn thì model càng ưu tiên giữ trạng thái cũ.
-- <InlineMath formula="\Sigma" /> phân bổ penalty theo importance; tham số quan trọng được bảo vệ mạnh hơn.
+Sau khi rút ma trận xuống còn đường chéo, câu hỏi còn lại là: ta điền giá trị nào vào mỗi ô <InlineMath formula="\Omega_i" />?
 
-<LessonNote>
-  <InlineMath formula="\lambda" /> quá nhỏ khiến ràng buộc giữ Task A yếu; <InlineMath formula="\lambda" /> quá lớn có thể làm model học Task B kém. Parameter regularization không loại bỏ stability–plasticity trade-off mà dùng <InlineMath formula="\lambda" /> và <InlineMath formula="\Sigma" /> để điều khiển trade-off đó.
-</LessonNote>
+Elastic Weight Consolidation (EWC) <Cite paper="kirkpatrick2017overcoming" evidence="parameter-regularization-01-kirkpatrick2017overcoming" /> chọn <InlineMath formula="\Omega_i=F_i" />, trong đó <InlineMath formula="F_i" /> là Fisher importance của tham số <InlineMath formula="\theta_i" />.
 
-</MdxPage>
+Sau khi finetune trên Task A, ta xem mỗi giá trị đã học <InlineMath formula="\theta_{A,i}^*" /> là tâm của tham số <InlineMath formula="\theta_i" />, rồi hỏi: tham số này có thể dao động quanh tâm rộng đến đâu mà model vẫn giữ được năng lực cũ?
 
-<MdxPage page={3}>
+Để trả lời, ta giữ nguyên checkpoint <InlineMath formula="\theta_A^*" /> và đưa dữ liệu Task A qua model thêm một lượt. Đây không phải train lại Task A: weights không được update. Với mỗi mẫu, ta forward để tính xác suất của đáp án, backward để lấy gradient theo từng tham số, sau đó bình phương và lấy trung bình:
 
-## EWC và Synaptic Intelligence
+<BlockMath formula="\widehat F_i = \frac{1}{|\mathcal{D}_A|}\sum_{(x,y)\in\mathcal{D}_A}\left(\frac{\partial\log p(y\mid x;\theta_A^*)}{\partial\theta_i}\right)^2" />
 
-EWC và Synaptic Intelligence là hai ví dụ được survey nêu cho nhóm parameter regularization <Cite paper="kirkpatrick2017overcoming" evidence="parameter-regularization-01-kirkpatrick2017overcoming" /> <Cite paper="zenke2017continual" evidence="parameter-regularization-02-zenke2017continual" />.
+Bình phương giúp gradient dương và âm không triệt tiêu nhau. Giá trị trung bình thu được là diagonal empirical Fisher. Trong cách nhìn cục bộ quanh checkpoint, Fisher càng lớn thì khoảng dao động an toàn của tham số càng nhỏ:
+
+<BlockMath formula="F_i\approx\frac{1}{\operatorname{Var}(\theta_i)}" />
+
+- **Variance lớn:** <InlineMath formula="F_i" /> nhỏ, loss landscape tương đối phẳng theo trục <InlineMath formula="\theta_i" />. Tham số có thể thay đổi nhiều hơn mà loss và output cũ chỉ thay đổi ít, nên penalty thấp.
+- **Variance nhỏ:** <InlineMath formula="F_i" /> lớn, loss landscape cong và hẹp quanh <InlineMath formula="\theta_{A,i}^*" />. Một thay đổi nhỏ cũng có thể làm loss và output cũ biến động mạnh, nên penalty cao.
+
+Công thức trên dùng nhãn quan sát <InlineMath formula="y" /> nên là empirical Fisher. Exact Fisher còn lấy trung bình trên các output mà model có thể dự đoán; EWC thực tế thường dùng dạng xấp xỉ vì dễ tính hơn.
+
+Objective bám theo công thức EWC gốc là:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{EWC}}(\theta)=\mathcal{L}_{\mathcal B}(\theta)+\frac{\lambda}{2}\sum_i F_i(\theta_i-\theta_{A,i}^*)^2" />
+
+#### Ví dụ tính toán độ cong Fisher (2 tham số)
+
+Giả sử tập dữ liệu Task A gồm 2 mẫu (<InlineMath formula="|\mathcal{D}_A| = 2" />). Ví dụ do khóa học xây dựng này dùng empirical Fisher tại checkpoint <InlineMath formula="\theta_A^*" />:
+
+Gradient của log-likelihood trên mẫu thứ nhất:
+
+<BlockMath formula="\nabla_{\theta}\log p(y_1\mid x_1;\theta_A^*) = \begin{bmatrix} 10.0 \\ 0.2 \end{bmatrix} \implies \left(\nabla_{\theta}\log p_1\right)^2 = \begin{bmatrix} 100.0 \\ 0.04 \end{bmatrix}" />
+
+Gradient của log-likelihood trên mẫu thứ hai:
+
+<BlockMath formula="\nabla_{\theta}\log p(y_2\mid x_2;\theta_A^*) = \begin{bmatrix} -10.0 \\ 0.4 \end{bmatrix} \implies \left(\nabla_{\theta}\log p_2\right)^2 = \begin{bmatrix} 100.0 \\ 0.16 \end{bmatrix}" />
+
+Lấy trung bình cộng hai mẫu để thu được diagonal empirical Fisher:
+
+<BlockMath formula="F = \frac{1}{2}\left(\begin{bmatrix} 100.0 \\ 0.04 \end{bmatrix} + \begin{bmatrix} 100.0 \\ 0.16 \end{bmatrix}\right) = \begin{bmatrix} 100.0 \\ 0.10 \end{bmatrix}" />
+
+Kết quả cho ra vector importance minh họa <InlineMath formula="\Omega = \widehat F = \begin{bmatrix} 100.0 & 0.1 \end{bmatrix}^T" /> đã sử dụng ở trang trước.
 
 <PaperSummary
   paper="kirkpatrick2017overcoming"
-  locator="Methods; Figures 2–3"
-  question="Có thể học task mới mà vẫn giữ task cũ bằng cách hạn chế thay đổi các tham số quan trọng hay không?"
-  setup="Paper ước lượng độ quan trọng tham số bằng đường chéo Fisher information rồi thêm quadratic penalty khi học task kế tiếp; thí nghiệm gồm permuted MNIST và Atari reinforcement learning."
-  finding="Trong các setup được thử, EWC giữ hiệu năng task cũ tốt hơn fine-tuning tuần tự đồng thời vẫn cho phép học task mới."
-  limitation="Fisher diagonal là xấp xỉ cục bộ, importance phụ thuộc checkpoint và thí nghiệm không được thực hiện trên LLM sinh văn bản; không nên suy ra EWC tự động scale hiệu quả cho mọi LLM."
-  relevance="Đây là ví dụ kinh điển cho cách parameter regularization biến stability–plasticity thành một penalty có trọng số theo từng tham số."
+  locator="§Methods và Fig. 1–3"
+  question="Làm thế nào để mạng học task mới mà hạn chế làm hỏng các tham số quan trọng với task cũ?"
+  setup="Paper ước lượng importance bằng Fisher đường chéo tại nghiệm của task trước, rồi thêm quadratic penalty quanh checkpoint đó khi học task mới."
+  finding="Trong các benchmark permuted MNIST và Atari được thử, EWC giữ hiệu năng task cũ tốt hơn fine-tuning tuần tự không có consolidation."
+  limitation="Fisher đường chéo bỏ qua tương tác giữa tham số; kết quả trên các benchmark của paper không tự động bảo đảm hiệu quả cho LLM hoặc mọi task stream."
+  relevance="Đây là nguồn gốc của objective Fisher-weighted và ranh giới diễn giải dùng trong bài học này."
 />
 
-Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" />.
+### 2. Synaptic Intelligence: Theo dõi quỹ đạo tối ưu
 
-<LessonNote tone="warning">
-  EWC và Synaptic Intelligence ràng buộc model trong **parameter space**: chúng hạn chế thay đổi các tham số được xem là quan trọng. Tuy nhiên, penalty nhỏ trong parameter space không trực tiếp bảo đảm output hoặc representation trên task cũ vẫn giống checkpoint trước. Nói cách khác, giữ tham số chưa chắc đã giữ được cùng **functional behavior**.
+Synaptic Intelligence (SI) <Cite paper="zenke2017continual" evidence="parameter-regularization-02-zenke2017continual" /> không chỉ quan sát checkpoint cuối. Trong lúc học Task A, SI tích lũy credit cho mức giảm loss mà từng tọa độ tham số tạo ra dọc toàn bộ optimization trajectory:
 
-  Ở node **Function Regularization**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
-</LessonNote>
+<BlockMath formula="\omega_i^A\approx-\sum_{t\in A}g_{i,t}\,\delta\theta_{i,t},\qquad \Delta_i^A=\theta_{i,\mathrm{end}}^A-\theta_{i,\mathrm{start}}^A" />
+
+Ở đây, <InlineMath formula="g_{i,t}=\partial\mathcal L/\partial\theta_i" /> và <InlineMath formula="\delta\theta_{i,t}" /> là update tại một bước. Với gradient descent, hai đại lượng thường trái dấu; dấu âm phía trước biến phần đóng góp làm **giảm loss** thành credit dương. Sau khi Task A kết thúc, SI chuẩn hóa credit bằng bình phương **net displacement** từ đầu đến cuối task:
+
+<BlockMath formula="\Omega_i^B=\frac{\omega_i^A}{(\Delta_i^A)^2+\xi}" />
+
+Damping <InlineMath formula="\xi>0" /> giữ mẫu số hữu hạn khi net displacement gần zero. Khi đã học nhiều task, importance dùng để học task <InlineMath formula="\mu" /> cộng đóng góp từ mọi task trước:
+
+<BlockMath formula="\Omega_i^\mu=\sum_{\nu<\mu}\frac{\omega_i^\nu}{(\Delta_i^\nu)^2+\xi}" />
+
+Trong quy trình này, <InlineMath formula="\omega_i" /> được cập nhật theo từng training step; cumulative importance <InlineMath formula="\Omega_i" /> và reference weight chỉ được cập nhật ở ranh giới task. SI vì thế là một **trajectory-based importance measure**, không phải một endpoint Fisher khác. Với một số loss quadratic đặc biệt, SI có quan hệ rõ với Hessian; với loss phi tuyến tổng quát, paper không khẳng định một tương ứng đơn giản như vậy.
+
+#### Ví dụ tính toán quỹ đạo SI (2 tham số)
+
+Giả sử trong suốt quá trình huấn luyện Task A:
+
+Net displacement từ đầu đến cuối Task A là:
+
+<BlockMath formula="\Delta^A = \begin{bmatrix} 0.5 \\ 2.0 \end{bmatrix} \implies (\Delta^A)^2 = \begin{bmatrix} 0.25 \\ 4.00 \end{bmatrix}" />
+
+Chọn damping <InlineMath formula="\xi=0.01" />. Credit giảm loss tích lũy dọc theo quỹ đạo là:
+
+<BlockMath formula="\omega=-\sum_t g_t\odot\delta\theta_t=\begin{bmatrix}26.0\\0.401\end{bmatrix}" />
+
+Chuẩn hóa credit bằng bình phương net displacement cộng damping:
+
+<BlockMath formula="\Omega^B=\begin{bmatrix}\frac{26.0}{0.25+0.01}\\\frac{0.401}{4.00+0.01}\end{bmatrix}=\begin{bmatrix}100.0\\0.10\end{bmatrix}" />
+
+- Tọa độ <InlineMath formula="\theta_1" /> có net displacement nhỏ nhưng tích lũy credit lớn, nên nhận <InlineMath formula="\Omega_1^B=100.0" />.
+- Tọa độ <InlineMath formula="\theta_2" /> có net displacement lớn hơn nhiều nhưng tích lũy ít credit so với bình phương displacement đó, nên nhận <InlineMath formula="\Omega_2^B=0.1" />.
 
 </MdxPage>
