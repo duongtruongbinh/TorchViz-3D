@@ -103,12 +103,6 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
-    id: 'sequential-cl-baseline-lab',
-    titleEn: 'Sequential CL Baseline Lab',
-    titleVi: 'Lab baseline CL tuần tự',
-  }),
-  lessonPair({
-    trackId: 'cl-llm-methods',
     id: 'regularization-overview',
     titleEn: 'Regularization',
     titleVi: 'Regularization',

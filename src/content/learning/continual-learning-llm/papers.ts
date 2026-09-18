@@ -53,6 +53,26 @@ const additionalPapers = [
     kind: 'inproceedings',
   },
   {
+    id: 'sliogeris2025gemmaEwc',
+    title: 'Full-Parameter Continual Pretraining of Gemma2: Insights into Fluency and Domain Knowledge',
+    authors: ['Vytenis Šliogeris', 'Povilas Daniušis', 'Artūras Nakvosas'],
+    year: 2025,
+    venue: 'arXiv',
+    arxivId: '2505.05946',
+    url: 'https://arxiv.org/abs/2505.05946',
+    kind: 'misc',
+  },
+  {
+    id: 'ahadzi2025childrenAsr',
+    title: "Continuous Learning for Children’s ASR: Overcoming Catastrophic Forgetting with Elastic Weight Consolidation and Synaptic Intelligence",
+    authors: ['Edem Ahadzi', 'Vishwanath Pratap Singh', 'Tomi Kinnunen', 'Ville Hautamaki'],
+    year: 2025,
+    venue: 'Interspeech 2025',
+    arxivId: '2505.20216',
+    url: 'https://www.isca-archive.org/interspeech_2025/ahadzi25_interspeech.html',
+    kind: 'inproceedings',
+  },
+  {
     id: 'zheng2025spurious',
     title: 'Spurious Forgetting in Continual Learning of Language Models',
     authors: ['Junhao Zheng', 'Xidi Cai', 'Shengjie Qiu', 'Qianli Ma'],
@@ -152,17 +172,13 @@ export const continualLearningLessonReferenceCoverage = [
   coverage('vertical-horizontal-continuity', [claim('vertical-horizontal-framework', 'Continual LLM updates can be organized along vertical and horizontal continuity.', '§3', primary(['qin2023recyclable']))]),
   coverage('cl-methods-taxonomy-and-replay', [claim('cl-method-taxonomy', 'Replay, regularization, architecture, and optimization/representation methods address different constraints.', undefined, primary(['wang2024comprehensive', 'shi2024unified']))]),
   coverage('replay-introduction', [claim('replay-generalization-limit', 'Small replay buffers approximate rather than reproduce full historical retraining.', '§2.2.2', primary(['shi2024unified']))]),
-  coverage('replay-experience-code-lab', [claim('replay-lab-boundary', 'Replay reduces forgetting in the course fixture; broader conclusions require external evidence.', undefined, [
-    ...summarized(['zheng2025spurious']),
-    ...further(['shi2024unified'], 'The paper supplies theoretical context for replay but is not the source of the course fixture output.'),
-  ])], 'Kết quả chạy mẫu thuộc fixture của khóa học; paper được dùng để kiểm tra phạm vi diễn giải.'),
-  coverage('sequential-cl-baseline-lab', [claim('sequential-baseline-protocol', 'The course baseline adapts O-LoRA task order 1 and its sequential evaluation protocol to a smaller causal language model.', undefined, primary(['wang2023orthogonal']))], 'Notebook dùng task order và evaluation structure làm protocol tham khảo; model, sample budget, Replay implementation và mọi kết quả chạy thuộc educational adaptation của khóa học.'),
+  coverage('replay-experience-code-lab', [claim('replay-real-data-protocol', 'The course lab adapts O-LoRA task order 1 and its sequential evaluation protocol to compare SeqFT with Replay on a smaller causal language model.', undefined, primary(['wang2023orthogonal']))], 'Notebook dùng task order và evaluation structure làm protocol tham khảo; model, sample budget, Replay implementation và mọi kết quả chạy thuộc educational adaptation của khóa học.'),
   coverage('regularization-overview', [claim('regularization-overview', 'The regularization-based approach adds a retention constraint relative to a history model and divides into weight and function regularization by its target.', 'Shi et al. §2.2.2; Wang et al. §4.1', primary(['shi2024continualSurvey', 'wang2024comprehensive']))]),
   coverage('parameter-regularization-ewc', [claim('parameter-regularization', 'Parameter-importance penalties trade plasticity for retention.', '§2.2.2', [
     ...summarized(['kirkpatrick2017overcoming']),
     ...primary(['zenke2017continual']),
   ])]),
-  coverage('ewc-si-code-lab', [claim('ewc-si-lab-methods', 'The course lab operationalizes EWC endpoint Fisher importance and SI trajectory-based importance under one small-LLM experiment contract.', undefined, primary(['kirkpatrick2017overcoming', 'zenke2017continual']))], 'Task stream, controls, hyperparameter sweep, probes, resource measurements, and all notebook outputs are educational experiments created by the course rather than reproductions of the papers.'),
+  coverage('ewc-si-code-lab', [claim('ewc-si-lab-methods', 'The course ports a released Gemma2 EWC implementation and the original SI mechanism to one Pythia experiment contract, with Whisper-small providing independent Transformer evidence for both regularizers.', undefined, primary(['sliogeris2025gemmaEwc', 'ahadzi2025childrenAsr', 'kirkpatrick2017overcoming', 'zenke2017continual']))], 'Task stream, model replacement, controls, hyperparameter sweep, probes, resource measurements, and all notebook outputs are educational experiments created by the course rather than reproductions of the source benchmarks.'),
   coverage('distillation-for-retention', [claim('distillation-retention', 'A frozen earlier checkpoint can constrain a continually updated student through output or representation matching; the retained behavior depends on the query inputs, targets, and teacher quality.', undefined, primary(['hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark']))]),
   coverage('architecture-expansion-isolation', [claim('architecture-expansion', 'Dedicated or expanded capacity can reduce parameter interference while adding routing costs.', '§2.2.2', primary(['wistuba2023']))]),
   coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', '§1 và §3.1', primary(['qin2023recyclable', 'shi2024continualSurvey']))]),
@@ -280,8 +296,4 @@ function primary(paperIds: readonly string[]): ContinualLearningClaimPaperEviden
 
 function summarized(paperIds: readonly string[]): ContinualLearningClaimPaperEvidence[] {
   return paperIds.map((paperId) => ({ paperId, role: 'primary-example', exposure: 'paper-summary' }));
-}
-
-function further(paperIds: readonly string[], reason: string): ContinualLearningClaimPaperEvidence[] {
-  return paperIds.map((paperId) => ({ paperId, role: 'additional-evidence', exposure: 'reference-page', reason }));
 }
