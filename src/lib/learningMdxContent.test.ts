@@ -59,37 +59,20 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
     'utf8',
   );
   const replayCells = [...replaySource.matchAll(/```python\n([\s\S]*?)```/g)].map((match) => match[1]);
-  assert.equal(replayCells.length, 5, 'Replay lab must have 4 experiment cells and 1 artifact-only visualization cell');
   assert.match(replaySource, /SEED = 42/);
   assert.match(replaySource, /TRAIN_PER_TASK = 2048/);
   assert.match(replaySource, /EVAL_PER_TASK = 64/);
-  assert.match(replaySource, /AMP_INITIAL_SCALE = 128\.0/);
   assert.match(replaySource, /seqft_replay_seed42\.json/);
-  assert.match(replaySource, /dataset_revisions/);
-  assert.match(replaySource, /if importlib\.util\.find_spec\(name\) is None/);
-  assert.match(replaySource, /--upgrade-strategy", "only-if-needed/);
-  assert.match(replaySource, /9abd46cf7fc8b4c64290f26993c540b92aa145ac/);
-  assert.match(replaySource, /9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289/);
-  assert.match(replaySource, /community-datasets\/yahoo_answers_topics/);
-  assert.match(replaySource, /6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1/);
-  assert.match(replaySource, /AMP đã bỏ qua một optimizer update/);
   assert.match(replaySource, /os\.fsync\(file\.fileno\(\)\)/);
   assert.match(replaySource, /return list\(current_rows\)/);
   assert.match(replaySource, /seqft_matrix\[:2\], replay_matrix\[:2\]/);
-  assert.match(replaySource, /def plot_loss_slopes\(artifact, rolling_window=16\):/);
-  assert.match(replaySource, /slope_per_100_updates/);
-  assert.match(replaySource, /np\.polyfit\(local_x, smooth, deg=1\)/);
-  assert.match(replaySource, /Replay tăng Final Average Accuracy thêm 0\.3086/);
-  assert.match(replaySource, /02-replay-seed42-loss-slopes\.png/);
-  assert.ok(existsSync('src/assets/learning/continual-learning-llm/02-replay-seed42-loss-slopes.png'));
-  assert.doesNotMatch(replayCells[4], /run_seqft|run_exp_replay|AutoModelForCausalLM/);
+  const visualizationCell = replayCells.find((cell) => cell.includes('np.polyfit')) ?? '';
+  assert.match(visualizationCell, /loss_history/);
+  assert.match(visualizationCell, /np\.polyfit/);
+  assert.doesNotMatch(visualizationCell, /run_seqft|run_exp_replay|AutoModelForCausalLM/);
   assert.doesNotMatch(replaySource, /torch_dtype/);
-  assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);
-  assert.doesNotMatch(replaySource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
-  assert.doesNotMatch(replaySource, /(?:eec798b5|75855734|13426027)/);
 
   const replayOrderedMarkers = [
-    'name + ("=" * 2) + version',
     'TASK_SPECS =',
     'task_data, task_summary = load_task_stream',
     'tokenizer = AutoTokenizer.from_pretrained',
@@ -114,36 +97,14 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
     'src/content/learning/continual-learning-llm/2.1.9-ewc-si-code-lab.vi.mdx',
     'utf8',
   );
-  const ewcCells = [...ewcSource.matchAll(/```python\n([\s\S]*?)```/g)].map((match) => match[1]);
-  assert.equal(ewcCells.length, 5, 'EWC/SI lab must have exactly 5 consolidated Python cells');
   assert.match(ewcSource, /SEED = 42/);
-  assert.doesNotMatch(ewcSource, /RUN_MODE/);
-  assert.doesNotMatch(ewcSource, /FINAL_SEEDS/);
+  assert.doesNotMatch(ewcSource, /\bSEEDS\s*=/);
   assert.match(ewcSource, /seqft_replay_seed42\.json/);
   assert.match(ewcSource, /def validate_baseline_artifact\(artifact\):/);
-  assert.doesNotMatch(ewcSource, /torch==2\.5\.1/);
-  assert.match(ewcSource, /PLATFORM_PACKAGES = \("torch", "transformers", "datasets", "pandas", "numpy", "tqdm"\)/);
-  assert.match(ewcSource, /runtime_versions\[package\] = actual/);
-  assert.match(ewcSource, /if importlib\.util\.find_spec\(name\) is None/);
-  assert.match(ewcSource, /--upgrade-strategy", "only-if-needed/);
-  assert.match(ewcSource, /name \+ \("=" \* 2\) \+ version/);
-  assert.match(ewcSource, /9abd46cf7fc8b4c64290f26993c540b92aa145ac/);
-  assert.match(ewcSource, /9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289/);
-  assert.match(ewcSource, /community-datasets\/yahoo_answers_topics/);
-  assert.match(ewcSource, /6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1/);
-  assert.match(ewcSource, /AMP_INITIAL_SCALE = 128\.0/);
-  assert.match(ewcSource, /for split in \["train", "eval"\]/);
-  assert.match(ewcSource, /CHECKPOINT_CONTRACT_ID/);
-  assert.match(ewcSource, /all-diagonal-learning-gains-positive/);
   assert.match(ewcSource, /metrics\["min_learning_gain"\] > 0\.0/);
-  assert.match(ewcSource, /AMP đã bỏ qua một optimizer update/);
   assert.doesNotMatch(ewcSource, /torch_dtype/);
-  assert.doesNotMatch(ewcSource, /hơn 90% tổng năng lượng importance/);
-  assert.doesNotMatch(ewcSource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
-  assert.doesNotMatch(ewcSource, /(?:eec798b5|75855734|13426027)/);
 
   const ewcOrderedMarkers = [
-    'runtime_versions =',
     'baseline_artifact =',
     'validate_baseline_artifact(baseline_artifact)',
     'task_data = {}',
@@ -423,7 +384,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 
   const usedEvidenceIds = new Set<string>();
   const usedExceptionIds = new Set<string>();
-  let paperSummaryCount = 0;
 
   for (const file of domainFiles.filter((candidate) => !parseLearningMdxPath(candidate)?.lessonId.endsWith('-quiz'))) {
     const parsed = parseLearningMdxPath(file);
@@ -465,7 +425,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
       }
     }
     assert.ok(inspection.citationReferences.length > 0, `${parsed.lessonId} needs at least one reviewed Cite occurrence`);
-    paperSummaryCount += inspection.paperSummaryReferences.length;
     for (const evidence of getContinualLearningLessonClaimEvidence(parsed.lessonId)) {
       if (evidence.exposure !== 'reference-page') {
         assert.ok(authoredPaperIds.has(evidence.paperId), `${parsed.lessonId} must expose ${evidence.paperId} beside its claim`);
@@ -482,7 +441,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
   }
   assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
   assert.deepEqual([...usedExceptionIds].sort(), continualLearningCitationLinkOnlyExceptions.map((exception) => exception.id).sort(), 'every link-only exception must be used exactly once');
-  assert.equal(paperSummaryCount, 2, 'the two authored PaperSummary occurrences must remain inventoried');
   assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 8, 'overview must not inherit the survey introduction bibliography');
   assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
   const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
@@ -556,13 +514,10 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 191);
-  assert.equal(singleQuestions.length, 190);
-  assert.equal(multiQuestions.length, 1);
-  assert.equal(multiQuestions[0]?.id, 'replay-constraints');
+  assert.ok(multiQuestions.length > 0, 'the curriculum must exercise multi-answer assessment');
   assert.ok(questions.every((question) => question.optionCount === 4));
   assert.ok(singleQuestions.every((question) => question.correctOptionIndexes.length === 1));
-  assert.equal(multiQuestions[0]?.correctOptionIndexes.length, 2);
+  assert.ok(multiQuestions.every((question) => question.correctOptionIndexes.length > 1));
 
   for (const inspection of quizInspections) {
     const usedPositions = new Set(inspection.quizQuestions.flatMap((question) => question.correctOptionIndexes));
@@ -588,15 +543,14 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   }
 
   const singlePositionCounts = [0, 0, 0, 0];
-  const allCorrectFlagCounts = [0, 0, 0, 0];
-  for (const question of questions) {
-    for (const index of question.correctOptionIndexes) {
-      allCorrectFlagCounts[index] += 1;
-      if (question.mode === 'single') singlePositionCounts[index] += 1;
-    }
+  for (const question of singleQuestions) {
+    singlePositionCounts[question.correctOptionIndexes[0]] += 1;
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [43, 46, 47, 54]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [44, 47, 47, 54]);
+  assert.ok(singlePositionCounts.every((count) => count > 0), 'single-choice answers must use every option position');
+  assert.ok(
+    Math.max(...singlePositionCounts) - Math.min(...singlePositionCounts) <= Math.ceil(singleQuestions.length * 0.1),
+    'single-choice answer positions must remain broadly balanced as quizzes change',
+  );
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {

@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T20:45:00+07:00
+updated: 2026-09-20T21:10:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -59,6 +59,9 @@ below; committed predecessors remain available in Git history.
 - The checked-in seed-42 loss-slope figure sits beside its generating cell with
   concise interpretation and an explicit warning that the linear fit is a trend
   summary, not a prediction of negative token loss.
+- Tests protect behavior and experiment contracts without mirroring incidental
+  package lists, remote hashes, prose strings, local ignored assets, exact cell
+  counts, or exact corpus-wide answer-position totals.
 
 # Out of scope
 
@@ -132,3 +135,13 @@ below; committed predecessors remain available in Git history.
   DBpedia curve and retention boundary. All 173 referenced CDN images are
   reachable; 28 focused MDX tests, all 163 repository tests, typecheck,
   production build, and `git diff --check` passed.
+- 2026-09-20 — Reopened to audit branch-modified tests for implementation-detail
+  hardcoding while retaining the invariants that catch real notebook, catalog,
+  and clipboard regressions.
+- 2026-09-20 — Audited all three branch-modified test files. Kept intentional
+  clipboard fixtures and canonical catalog order; removed notebook cell counts,
+  dependency/revision mirrors, prose/output literals, ignored local-asset checks,
+  exact PaperSummary totals, and exact quiz totals/distributions. Replaced the
+  latter with behavior-level multi-answer and relative position-balance checks.
+  Focused tests, all 163 repository tests, typecheck, production build, and
+  `git diff --check` passed.
