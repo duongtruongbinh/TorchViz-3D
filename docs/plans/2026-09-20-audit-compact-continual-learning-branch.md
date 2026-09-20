@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T21:10:00+07:00
+updated: 2026-09-20T21:25:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -62,6 +62,9 @@ below; committed predecessors remain available in Git history.
 - Tests protect behavior and experiment contracts without mirroring incidental
   package lists, remote hashes, prose strings, local ignored assets, exact cell
   counts, or exact corpus-wide answer-position totals.
+- Per the final review decision, the combined Replay/EWC notebook-source test is
+  removed entirely; notebook implementation details are not duplicated in this
+  generic MDX contract suite.
 
 # Out of scope
 
@@ -145,3 +148,9 @@ below; committed predecessors remain available in Git history.
   latter with behavior-level multi-answer and relative position-balance checks.
   Focused tests, all 163 repository tests, typecheck, production build, and
   `git diff --check` passed.
+- 2026-09-20 — Reopened at the user's direction to remove the remaining combined
+  Replay/EWC notebook-source test rather than continue maintaining its notebook
+  constants and linear-order assertions.
+- 2026-09-20 — Deleted the combined Replay/EWC notebook-source test in full,
+  without a replacement assertion. Final verification passed all 162 remaining
+  tests, TypeScript checking, production build, and `git diff --check`.
