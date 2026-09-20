@@ -76,6 +76,7 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(replaySource, /os\.fsync\(file\.fileno\(\)\)/);
   assert.match(replaySource, /return list\(current_rows\)/);
   assert.match(replaySource, /seqft_matrix\[:2\], replay_matrix\[:2\]/);
+  assert.doesNotMatch(replaySource, /torch_dtype/);
   assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);
   assert.doesNotMatch(replaySource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
   assert.doesNotMatch(replaySource, /(?:eec798b5|75855734|13426027)/);
@@ -127,6 +128,7 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(ewcSource, /all-diagonal-learning-gains-positive/);
   assert.match(ewcSource, /metrics\["min_learning_gain"\] > 0\.0/);
   assert.match(ewcSource, /AMP đã bỏ qua một optimizer update/);
+  assert.doesNotMatch(ewcSource, /torch_dtype/);
   assert.doesNotMatch(ewcSource, /hơn 90% tổng năng lượng importance/);
   assert.doesNotMatch(ewcSource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
   assert.doesNotMatch(ewcSource, /(?:eec798b5|75855734|13426027)/);

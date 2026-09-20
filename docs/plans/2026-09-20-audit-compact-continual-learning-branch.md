@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T19:50:00+07:00
+updated: 2026-09-20T20:05:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -51,6 +51,8 @@ below; committed predecessors remain available in Git history.
   hotfix cell.
 - Copying an authored Python block preserves source operators verbatim; the
   `==...==` presentation-marker cleanup is confined to output blocks.
+- Model loading relies on the default FP32 dtype instead of passing the
+  deprecated, redundant `torch_dtype=torch.float32` keyword.
 
 # Out of scope
 
@@ -97,3 +99,11 @@ below; committed predecessors remain available in Git history.
   byte-for-byte code-copy invariant rather than coupling the regression test to
   one notebook variable. Final verification passed 163 tests, typecheck, build,
   the focused copy tests, and `git diff --check`.
+- 2026-09-20 — Reopened after a successful live Replay run reported the
+  Transformers `torch_dtype` deprecation warning. The supplied FP32 keyword is
+  redundant because FP32 is the loader default, so the fix removes it without
+  adding version-dependent notebook code.
+- 2026-09-20 — Removed the deprecated keyword from Replay loading and both
+  EWC/SI loading paths; added static regressions for both labs. Extracted Python
+  parses, 28 focused MDX tests, all 163 repository tests, typecheck, production
+  build, and `git diff --check` passed.

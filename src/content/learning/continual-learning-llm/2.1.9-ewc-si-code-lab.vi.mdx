@@ -429,7 +429,7 @@ def evaluate_task_quick(model, task_id, rows):
     return float(np.mean(np.array(preds) == np.array(gold)))
 
 print(">>> Chạy Preflight kiểm tra Base Model trên 64 eval rows...")
-base_preflight_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, revision=MODEL_REVISION, torch_dtype=torch.float32).to(DEVICE)
+base_preflight_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, revision=MODEL_REVISION).to(DEVICE)
 actual_base = [evaluate_task_quick(base_preflight_model, tid, task_data[tid]["eval"]) for tid in TASK_ORDER]
 expected_base = baseline_artifact["results"]["seqft"]["matrix"][0]
 del base_preflight_model
@@ -503,7 +503,6 @@ def load_fresh_model():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         revision=MODEL_REVISION,
-        torch_dtype=torch.float32,
     )
     model.config.use_cache = False
     model.gradient_checkpointing_enable()

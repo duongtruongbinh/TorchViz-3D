@@ -311,7 +311,6 @@ def load_fresh_model():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         revision=MODEL_REVISION,
-        torch_dtype=torch.float32,
     )
     model.config.use_cache = False
     model.gradient_checkpointing_enable()
