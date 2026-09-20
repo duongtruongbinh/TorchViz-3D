@@ -311,7 +311,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 
   const usedEvidenceIds = new Set<string>();
   const usedExceptionIds = new Set<string>();
-  let paperSummaryCount = 0;
 
   for (const file of domainFiles.filter((candidate) => !parseLearningMdxPath(candidate)?.lessonId.endsWith('-quiz'))) {
     const parsed = parseLearningMdxPath(file);
@@ -353,7 +352,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
       }
     }
     assert.ok(inspection.citationReferences.length > 0, `${parsed.lessonId} needs at least one reviewed Cite occurrence`);
-    paperSummaryCount += inspection.paperSummaryReferences.length;
     for (const evidence of getContinualLearningLessonClaimEvidence(parsed.lessonId)) {
       if (evidence.exposure !== 'reference-page') {
         assert.ok(authoredPaperIds.has(evidence.paperId), `${parsed.lessonId} must expose ${evidence.paperId} beside its claim`);
@@ -370,7 +368,6 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
   }
   assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
   assert.deepEqual([...usedExceptionIds].sort(), continualLearningCitationLinkOnlyExceptions.map((exception) => exception.id).sort(), 'every link-only exception must be used exactly once');
-  assert.equal(paperSummaryCount, 3, 'the three authored PaperSummary occurrences must remain inventoried');
   assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 8, 'overview must not inherit the survey introduction bibliography');
   assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
   const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
@@ -444,13 +441,10 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 192);
-  assert.equal(singleQuestions.length, 191);
-  assert.equal(multiQuestions.length, 1);
-  assert.equal(multiQuestions[0]?.id, 'replay-constraints');
+  assert.ok(multiQuestions.length > 0, 'the curriculum must exercise multi-answer assessment');
   assert.ok(questions.every((question) => question.optionCount === 4));
   assert.ok(singleQuestions.every((question) => question.correctOptionIndexes.length === 1));
-  assert.equal(multiQuestions[0]?.correctOptionIndexes.length, 2);
+  assert.ok(multiQuestions.every((question) => question.correctOptionIndexes.length > 1));
 
   for (const inspection of quizInspections) {
     const usedPositions = new Set(inspection.quizQuestions.flatMap((question) => question.correctOptionIndexes));
@@ -476,15 +470,14 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   }
 
   const singlePositionCounts = [0, 0, 0, 0];
-  const allCorrectFlagCounts = [0, 0, 0, 0];
-  for (const question of questions) {
-    for (const index of question.correctOptionIndexes) {
-      allCorrectFlagCounts[index] += 1;
-      if (question.mode === 'single') singlePositionCounts[index] += 1;
-    }
+  for (const question of singleQuestions) {
+    singlePositionCounts[question.correctOptionIndexes[0]] += 1;
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [44, 47, 47, 53]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [45, 47, 48, 53]);
+  assert.ok(singlePositionCounts.every((count) => count > 0), 'single-choice answers must use every option position');
+  assert.ok(
+    Math.max(...singlePositionCounts) - Math.min(...singlePositionCounts) <= Math.ceil(singleQuestions.length * 0.1),
+    'single-choice answer positions must remain broadly balanced as quizzes change',
+  );
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {

@@ -103,12 +103,6 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
-    id: 'sequential-cl-baseline-lab',
-    titleEn: 'Sequential CL Baseline Lab',
-    titleVi: 'Lab baseline CL tuần tự',
-  }),
-  lessonPair({
-    trackId: 'cl-llm-methods',
     id: 'regularization-overview',
     titleEn: 'Regularization',
     titleVi: 'Regularization',
@@ -118,6 +112,12 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
     id: 'parameter-regularization-ewc',
     titleEn: 'Weight Regularization',
     titleVi: 'Weight Regularization',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'ewc-si-code-lab',
+    titleEn: 'EWC and SI Lab',
+    titleVi: 'Lab EWC và Synaptic Intelligence',
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
