@@ -66,12 +66,19 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(replaySource, /AMP_INITIAL_SCALE = 128\.0/);
   assert.match(replaySource, /seqft_replay_seed42\.json/);
   assert.match(replaySource, /dataset_revisions/);
+  assert.match(replaySource, /if importlib\.util\.find_spec\(name\) is None/);
+  assert.match(replaySource, /--upgrade-strategy", "only-if-needed/);
+  assert.match(replaySource, /9abd46cf7fc8b4c64290f26993c540b92aa145ac/);
+  assert.match(replaySource, /9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289/);
+  assert.match(replaySource, /community-datasets\/yahoo_answers_topics/);
+  assert.match(replaySource, /6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1/);
   assert.match(replaySource, /AMP đã bỏ qua một optimizer update/);
   assert.match(replaySource, /os\.fsync\(file\.fileno\(\)\)/);
   assert.match(replaySource, /return list\(current_rows\)/);
   assert.match(replaySource, /seqft_matrix\[:2\], replay_matrix\[:2\]/);
   assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);
-  assert.doesNotMatch(replaySource, /"(?:scipy|matplotlib|seaborn)"/);
+  assert.doesNotMatch(replaySource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
+  assert.doesNotMatch(replaySource, /(?:eec798b5|75855734|13426027)/);
 
   const replayOrderedMarkers = [
     'name + ("=" * 2) + version',
@@ -105,9 +112,15 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(ewcSource, /seqft_replay_seed42\.json/);
   assert.match(ewcSource, /def validate_baseline_artifact\(artifact\):/);
   assert.doesNotMatch(ewcSource, /torch==2\.5\.1/);
-  assert.match(ewcSource, /PLATFORM_PACKAGES = \("torch",\)/);
+  assert.match(ewcSource, /PLATFORM_PACKAGES = \("torch", "transformers", "datasets", "pandas", "numpy", "tqdm"\)/);
   assert.match(ewcSource, /runtime_versions\[package\] = actual/);
+  assert.match(ewcSource, /if importlib\.util\.find_spec\(name\) is None/);
+  assert.match(ewcSource, /--upgrade-strategy", "only-if-needed/);
   assert.match(ewcSource, /name \+ \("=" \* 2\) \+ version/);
+  assert.match(ewcSource, /9abd46cf7fc8b4c64290f26993c540b92aa145ac/);
+  assert.match(ewcSource, /9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289/);
+  assert.match(ewcSource, /community-datasets\/yahoo_answers_topics/);
+  assert.match(ewcSource, /6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1/);
   assert.match(ewcSource, /AMP_INITIAL_SCALE = 128\.0/);
   assert.match(ewcSource, /for split in \["train", "eval"\]/);
   assert.match(ewcSource, /CHECKPOINT_CONTRACT_ID/);
@@ -115,7 +128,8 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(ewcSource, /metrics\["min_learning_gain"\] > 0\.0/);
   assert.match(ewcSource, /AMP đã bỏ qua một optimizer update/);
   assert.doesNotMatch(ewcSource, /hơn 90% tổng năng lượng importance/);
-  assert.doesNotMatch(ewcSource, /"(?:scipy|matplotlib|seaborn)"/);
+  assert.doesNotMatch(ewcSource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
+  assert.doesNotMatch(ewcSource, /(?:eec798b5|75855734|13426027)/);
 
   const ewcOrderedMarkers = [
     'runtime_versions =',

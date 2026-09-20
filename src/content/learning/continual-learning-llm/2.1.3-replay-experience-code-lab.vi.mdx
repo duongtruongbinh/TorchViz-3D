@@ -82,26 +82,31 @@ Thực thi tuần tự 2 cell dưới đây để thiết lập môi trường P
 
 ### Cell 1 · Cài đặt thư viện
 
-Cài đặt các gói Hugging Face và thư viện tính toán với phiên bản cố định, giữ Torch do nền tảng Colab quản lý để bảo toàn CUDA runtime:
+Tái sử dụng thư viện có sẵn trên Colab và chỉ cài hai gói Hugging Face khi runtime chưa cung cấp, nhờ đó không thay thế Torch hoặc scientific stack đang hoạt động:
 
 ```python
-# Cài đặt các gói phụ thuộc (giữ Torch do môi trường Colab quản lý)
+# Chỉ cài dependency còn thiếu; giữ nguyên runtime do Colab quản lý
+import importlib.util
 import subprocess
 import sys
 
 REQUIREMENTS = [
     ("transformers", "4.49.0"),
     ("datasets", "3.3.2"),
-    ("accelerate", "1.4.0"),
-    ("pandas", "2.2.2"),
-    ("numpy", "2.1.0"),
-    ("tqdm", "4.67.1"),
 ]
-cmd = [sys.executable, "-m", "pip", "install", "--quiet"] + [
-    name + ("=" * 2) + version for name, version in REQUIREMENTS
+missing = [
+    (name, version) for name, version in REQUIREMENTS
+    if importlib.util.find_spec(name) is None
 ]
-subprocess.check_call(cmd)
-print("Đã cài đặt xong gói phụ thuộc. Nếu vừa cài đặt lần đầu trên Colab, hãy restart session.")
+if missing:
+    cmd = [
+        sys.executable, "-m", "pip", "install", "--quiet", "--prefer-binary",
+        "--upgrade-strategy", "only-if-needed",
+    ] + [name + ("=" * 2) + version for name, version in missing]
+    subprocess.check_call(cmd)
+    print("Đã cài dependency còn thiếu. Hãy restart session một lần rồi chạy Cell 2.")
+else:
+    print("Runtime đã có đủ dependency; chuyển thẳng sang Cell 2.")
 ```
 
 ### Cell 2 · Cấu hình, Task Registry và tiền xử lý dữ liệu
@@ -166,7 +171,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 TASK_SPECS = {
     "dbpedia": {
         "dataset": "fancyzhx/dbpedia_14",
-        "revision": "eec798b5e94b2923f66c9ff99a9a5f7e759ef098",
+        "revision": "9abd46cf7fc8b4c64290f26993c540b92aa145ac",
         "train_split": "train",
         "eval_split": "test",
         "labels": [
@@ -179,7 +184,7 @@ TASK_SPECS = {
     },
     "amazon": {
         "dataset": "fancyzhx/amazon_polarity",
-        "revision": "75855734892c2560a80e15b5655767b43b67e7c5",
+        "revision": "9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289",
         "train_split": "train",
         "eval_split": "test",
         "labels": ["negative", "positive"],
@@ -187,8 +192,8 @@ TASK_SPECS = {
         "label": lambda row: row["label"],
     },
     "yahoo": {
-        "dataset": "fancyzhx/yahoo_answers_topics",
-        "revision": "13426027a4e09f583eb5a4a35abefb1c09939a3f",
+        "dataset": "community-datasets/yahoo_answers_topics",
+        "revision": "6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1",
         "train_split": "train",
         "eval_split": "test",
         "labels": [

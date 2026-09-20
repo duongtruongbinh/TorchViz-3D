@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T19:25:00+07:00
+updated: 2026-09-20T19:35:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -45,6 +45,10 @@ below; committed predecessors remain available in Git history.
   conditionally; the lesson contains no fabricated layerwise or multi-seed claims.
 - The typed TOC, locale MDX, source evidence, quiz concepts, and Light-Mode shared
   Learning Lab architecture remain unchanged in ownership.
+- Both web notebooks keep a clean linear flow: their bootstrap reuses compatible
+  Colab packages instead of reinstalling the full scientific stack, and every
+  dataset points to a valid pinned public Hugging Face revision without a manual
+  hotfix cell.
 
 # Out of scope
 
@@ -71,3 +75,16 @@ below; committed predecessors remain available in Git history.
   production build), catalog stats, and all 172 referenced R2 assets. The four
   branch-added citation records passed the source audit; 24 pre-existing remote
   anchor/search drifts remain reported for manual maintenance outside this task.
+- 2026-09-20 — Reopened by user request after a live Colab run exposed slow
+  dependency replacement and dead remote revisions. The follow-up is folded into
+  this compact plan; the separate draft follow-up plan was discarded.
+- 2026-09-20 — Simplified both Colab bootstrap cells to reuse the platform
+  scientific stack and install only missing Hugging Face packages; removed the
+  unused Accelerate dependency and exact-version rejection in the EWC/SI lab.
+- 2026-09-20 — Replaced the dead DBpedia and Amazon revisions, moved Yahoo to
+  its compatible public community repository, and added regression assertions
+  against the obsolete repository contract. All four pinned revisions returned
+  HTTP 200 during verification.
+- 2026-09-20 — Extracted Python cells parse and pass Pyflakes. Final
+  `npm run verify` passed TypeScript checking, all 161 tests, and the production
+  build; `git diff --check` also passed.

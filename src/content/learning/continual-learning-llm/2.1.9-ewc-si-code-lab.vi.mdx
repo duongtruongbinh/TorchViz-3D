@@ -82,26 +82,31 @@ Chạy tuần tự 2 cell dưới đây để cài đặt thư viện, nạp art
 
 ### Cell 1 · Cài đặt thư viện
 
-Cài đặt các gói cần thiết và giữ Torch do runtime Google Colab cung cấp:
+Tái sử dụng thư viện có sẵn trên Colab và chỉ cài hai gói Hugging Face khi runtime chưa cung cấp:
 
 ```python
-# Cài đặt các gói phụ thuộc (giữ Torch do môi trường Colab quản lý)
+# Chỉ cài dependency còn thiếu; giữ nguyên runtime do Colab quản lý
+import importlib.util
 import subprocess
 import sys
 
 REQUIREMENTS = [
     ("transformers", "4.49.0"),
     ("datasets", "3.3.2"),
-    ("accelerate", "1.4.0"),
-    ("pandas", "2.2.2"),
-    ("numpy", "2.1.0"),
-    ("tqdm", "4.67.1"),
 ]
-cmd = [sys.executable, "-m", "pip", "install", "--quiet"] + [
-    name + ("=" * 2) + version for name, version in REQUIREMENTS
+missing = [
+    (name, version) for name, version in REQUIREMENTS
+    if importlib.util.find_spec(name) is None
 ]
-subprocess.check_call(cmd)
-print("Đã cài đặt xong gói phụ thuộc. Nếu vừa cài đặt lần đầu trên Colab, hãy restart session.")
+if missing:
+    cmd = [
+        sys.executable, "-m", "pip", "install", "--quiet", "--prefer-binary",
+        "--upgrade-strategy", "only-if-needed",
+    ] + [name + ("=" * 2) + version for name, version in missing]
+    subprocess.check_call(cmd)
+    print("Đã cài dependency còn thiếu. Hãy restart session một lần rồi chạy Cell 2.")
+else:
+    print("Runtime đã có đủ dependency; chuyển thẳng sang Cell 2.")
 ```
 
 ### Cell 2 · Cấu hình, nạp artifact baseline, tái dựng dữ liệu và Preflight check
@@ -123,16 +128,11 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-PLATFORM_PACKAGES = ("torch",)
+PLATFORM_PACKAGES = ("torch", "transformers", "datasets", "pandas", "numpy", "tqdm")
 runtime_versions = {}
 for package in PLATFORM_PACKAGES:
     actual = importlib.metadata.version(package)
     runtime_versions[package] = actual
-for name, version in REQUIREMENTS:
-    actual = importlib.metadata.version(name)
-    if actual != version:
-        raise RuntimeError(f"Package {name} phải là {version}, nhận được {actual}")
-    runtime_versions[name] = actual
 
 SEED = 42
 
@@ -152,9 +152,9 @@ AMP_INITIAL_SCALE = 128.0
 MODEL_NAME = "EleutherAI/pythia-160m-deduped"
 MODEL_REVISION = "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e"
 DATASET_REVISIONS = {
-    "dbpedia": "eec798b5e94b2923f66c9ff99a9a5f7e759ef098",
-    "amazon": "75855734892c2560a80e15b5655767b43b67e7c5",
-    "yahoo": "13426027a4e09f583eb5a4a35abefb1c09939a3f",
+    "dbpedia": "9abd46cf7fc8b4c64290f26993c540b92aa145ac",
+    "amazon": "9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289",
+    "yahoo": "6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1",
     "ag_news": "eb185aade064a813bc0b7f42de02595523103ca4",
 }
 TASK_ORDER = ["dbpedia", "amazon", "yahoo", "ag_news"]
@@ -298,7 +298,7 @@ TASK_SPECS = {
         "text": lambda row: f"{row['title']}. {row['content']}", "label": lambda row: row["label"],
     },
     "yahoo": {
-        "dataset": "fancyzhx/yahoo_answers_topics", "revision": DATASET_REVISIONS["yahoo"],
+        "dataset": "community-datasets/yahoo_answers_topics", "revision": DATASET_REVISIONS["yahoo"],
         "eval_split": "test", "labels": [
             "society & culture", "science & mathematics", "health", "education & reference",
             "computers & internet", "sports", "business & finance", "entertainment & music",
