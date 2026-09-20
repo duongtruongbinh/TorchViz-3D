@@ -658,13 +658,141 @@ File JSON được lưu trữ nguyên tử (*atomic write*) vào đường dẫn
 ```
 Artifact này chứa toàn bộ mẫu dữ liệu huấn luyện, 64 mẫu đánh giá độc lập, cấu hình thực nghiệm và output của run hiện tại. Lab tiếp theo (EWC và Synaptic Intelligence) sẽ nạp trực tiếp file này để so sánh công bằng trên đúng seed 42 mà không cần huấn luyện lại SeqFT hay Replay.
 
+### Cell 5 · Vẽ rolling loss và loss slope từ artifact
+
+Cell này chỉ đọc `loss_history` đã lưu, không nạp model và không huấn luyện lại. Mỗi slope được fit riêng trong một stage để đường nối giữa hai task không bị hiểu nhầm là xu hướng tối ưu hóa.
+
+```python
+import json
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+ARTIFACT_PATH = "/content/drive/MyDrive/continual-learning-baseline/seqft_replay_seed42.json"
+
+if not os.path.exists(ARTIFACT_PATH):
+    try:
+        from google.colab import drive
+        drive.mount("/content/drive")
+    except ImportError:
+        pass
+if not os.path.exists(ARTIFACT_PATH):
+    raise FileNotFoundError(f"Không tìm thấy artifact: {ARTIFACT_PATH}")
+
+with open(ARTIFACT_PATH, "r", encoding="utf-8") as file:
+    saved_artifact = json.load(file)
+
+def plot_loss_slopes(artifact, rolling_window=16):
+    methods = [("seqft", "SeqFT", "#D97706"), ("replay", "Replay", "#205089")]
+    task_order = artifact["config"]["task_order"]
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True, sharey=True)
+    slope_rows = []
+    stage_centers = []
+
+    for ax, (method_id, method_label, color) in zip(axes, methods):
+        result = artifact["results"][method_id]
+        history = np.asarray(result["loss_history"], dtype=float)
+        costs = result["costs"]
+        if len(costs) != len(task_order):
+            raise RuntimeError(f"{method_label}: số cost records không khớp task order")
+
+        offset = 0
+        method_centers = []
+        for stage_index, (task_id, cost) in enumerate(zip(task_order, costs)):
+            updates = int(cost["updates"])
+            stage_loss = history[offset:offset + updates]
+            if len(stage_loss) != updates or updates < 2:
+                raise RuntimeError(f"{method_label}/{task_id}: loss history không đủ")
+
+            local_x = np.arange(updates, dtype=float)
+            global_x = offset + local_x + 1
+            smooth = pd.Series(stage_loss).rolling(
+                window=min(rolling_window, updates), min_periods=1
+            ).mean().to_numpy()
+            slope, intercept = np.polyfit(local_x, smooth, deg=1)
+            trend = intercept + slope * local_x
+
+            ax.plot(
+                global_x, stage_loss, color=color, alpha=0.16, linewidth=0.9,
+                label="Update loss" if stage_index == 0 else None,
+            )
+            ax.plot(
+                global_x, smooth, color=color, linewidth=2.2,
+                label=f"Rolling mean ({rolling_window})" if stage_index == 0 else None,
+            )
+            ax.plot(
+                global_x, trend, color="#334155", linestyle="--", linewidth=1.4,
+                label="Linear slope" if stage_index == 0 else None,
+            )
+
+            slope_rows.append({
+                "method": method_label,
+                "task": task_id,
+                "updates": updates,
+                "rolling_start": smooth[0],
+                "rolling_end": smooth[-1],
+                "slope_per_100_updates": slope * 100,
+            })
+            method_centers.append(offset + (updates + 1) / 2)
+            offset += updates
+            if stage_index < len(task_order) - 1:
+                ax.axvline(offset + 0.5, color="#94A3B8", linewidth=1, alpha=0.7)
+
+        if offset != len(history):
+            raise RuntimeError(f"{method_label}: loss history có dữ liệu dư")
+        if not stage_centers:
+            stage_centers = method_centers
+
+        ax.set_title(method_label)
+        ax.set_ylabel("Token loss")
+        ax.grid(alpha=0.2)
+        ax.legend(frameon=False, ncol=3, loc="upper right")
+
+    axes[-1].set_xticks(stage_centers, [f"{task_id}\n128 updates" for task_id in task_order])
+    axes[-1].set_xlabel("Task stage")
+    fig.suptitle("Rolling training loss và slope theo từng task", fontweight="bold")
+    plt.tight_layout()
+    plt.show()
+
+    slope_df = pd.DataFrame(slope_rows)
+    print(slope_df.round(4).to_string(index=False))
+    return slope_df
+
+loss_slope_df = plot_loss_slopes(saved_artifact)
+```
+
 </MdxPage>
 
 <MdxPage page={4}>
 
 ## Kiểm tra output và diễn giải kết quả
 
-Code in trực tiếp cost records, hai ma trận <InlineMath formula="R" /> và bảng metric từ run hiện tại. Không dùng lại bảng số của một run cũ sau khi contract, seed handling hoặc data ordering đã thay đổi.
+Run seed 42 trên contract đã khóa cho kết quả dưới đây. Đây là **observed result** của một run đã hoàn tất, không phải ước lượng multi-seed.
+
+| SeqFT | A: DBpedia | B: Amazon | C: Yahoo | D: AG News |
+| :--- | ---: | ---: | ---: | ---: |
+| Base | 0.328 | 0.547 | 0.172 | 0.547 |
+| After A | 1.000 | 0.500 | 0.156 | 0.531 |
+| After B | 0.312 | 0.875 | 0.109 | 0.359 |
+| After C | 0.547 | 0.562 | 0.562 | 0.281 |
+| After D | 0.047 | 0.812 | 0.047 | 0.906 |
+
+| Replay 25% | A: DBpedia | B: Amazon | C: Yahoo | D: AG News |
+| :--- | ---: | ---: | ---: | ---: |
+| Base | 0.328 | 0.547 | 0.172 | 0.547 |
+| After A | 1.000 | 0.500 | 0.156 | 0.531 |
+| After B | 0.969 | 0.875 | 0.109 | 0.469 |
+| After C | 0.938 | 0.906 | 0.578 | 0.281 |
+| After D | 0.844 | 0.844 | 0.469 | 0.891 |
+
+| Phương pháp | Final Avg | Mean Acq | Mean Learning Gain | Min Learning Gain | BWT | FWT | Peak Forgetting |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| SeqFT | 0.4531 | 0.8359 | 0.4375 | 0.3281 | -0.5104 | -0.1250 | 0.5104 |
+| Replay 25% | 0.7617 | 0.8359 | 0.4375 | 0.3281 | -0.0990 | -0.1250 | 0.1094 |
+
+Replay tăng Final Average Accuracy thêm 0.3086, đưa BWT tiến gần 0 thêm 0.4114 và giảm Peak Forgetting 0.4010. Mean Acquisition, Mean Learning Gain và Min Learning Gain giữ nguyên, nên mức retention tốt hơn trong run này không đến từ việc hy sinh khả năng học task mới.
 
 ### 1. Kiểm tra contract trước khi đọc điểm
 
@@ -685,7 +813,7 @@ Một metric trung bình có thể che giấu task bị quên mạnh. Hãy đọ
 
 ### 4. Không dùng training loss thay cho retention
 
-Từ Stage B, SeqFT và Replay tối ưu các batch có thành phần khác nhau. Loss thấp hơn chỉ mô tả objective nội bộ của method; bằng chứng retention phải đến từ held-out matrix và CL metrics.
+Từ Stage B, SeqFT và Replay tối ưu các batch có thành phần khác nhau. Cell 5 dùng rolling mean 16 updates để giảm nhiễu và fit slope riêng trong mỗi stage; slope âm cho thấy objective đang giảm trong stage đó, còn slope dương cảnh báo loss chưa ổn định trong budget hiện tại. Không nối slope qua task boundary và không dùng độ dốc thấp hơn để tuyên bố retention tốt hơn. Bằng chứng retention vẫn phải đến từ held-out matrix và CL metrics.
 
 ### 5. Ranh giới kết luận
 

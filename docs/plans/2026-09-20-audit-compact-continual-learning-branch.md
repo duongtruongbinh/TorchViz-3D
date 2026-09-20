@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T20:05:00+07:00
+updated: 2026-09-20T20:25:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -53,6 +53,9 @@ below; committed predecessors remain available in Git history.
   `==...==` presentation-marker cleanup is confined to output blocks.
 - Model loading relies on the default FP32 dtype instead of passing the
   deprecated, redundant `torch_dtype=torch.float32` keyword.
+- Replay reports the validated seed-42 run as observed evidence and provides a
+  standalone artifact-only visualization cell for per-task rolling loss and
+  linear loss slope; rendering the chart never retrains either baseline.
 
 # Out of scope
 
@@ -107,3 +110,13 @@ below; committed predecessors remain available in Git history.
   EWC/SI loading paths; added static regressions for both labs. Extracted Python
   parses, 28 focused MDX tests, all 163 repository tests, typecheck, production
   build, and `git diff --check` passed.
+- 2026-09-20 — Reopened to incorporate the user's completed corrected Replay
+  run and add loss-slope visualization from the saved artifact. The observed
+  matrices and metrics remain explicitly scoped to seed 42 rather than presented
+  as a multi-seed conclusion.
+- 2026-09-20 — Added both observed evaluation matrices, the CL metric comparison,
+  and an artifact-only fifth cell that plots raw/rolling loss plus per-task slope
+  and prints slope per 100 updates. Regression coverage forbids model loading or
+  baseline training in that visualization cell. Python syntax, Pyflakes, 28
+  focused MDX tests, all 163 repository tests, typecheck, production build, and
+  `git diff --check` passed.

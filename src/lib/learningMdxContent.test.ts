@@ -59,7 +59,7 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
     'utf8',
   );
   const replayCells = [...replaySource.matchAll(/```python\n([\s\S]*?)```/g)].map((match) => match[1]);
-  assert.equal(replayCells.length, 4, 'Replay lab must have exactly 4 consolidated Python cells');
+  assert.equal(replayCells.length, 5, 'Replay lab must have 4 experiment cells and 1 artifact-only visualization cell');
   assert.match(replaySource, /SEED = 42/);
   assert.match(replaySource, /TRAIN_PER_TASK = 2048/);
   assert.match(replaySource, /EVAL_PER_TASK = 64/);
@@ -76,6 +76,11 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(replaySource, /os\.fsync\(file\.fileno\(\)\)/);
   assert.match(replaySource, /return list\(current_rows\)/);
   assert.match(replaySource, /seqft_matrix\[:2\], replay_matrix\[:2\]/);
+  assert.match(replaySource, /def plot_loss_slopes\(artifact, rolling_window=16\):/);
+  assert.match(replaySource, /slope_per_100_updates/);
+  assert.match(replaySource, /np\.polyfit\(local_x, smooth, deg=1\)/);
+  assert.match(replaySource, /Replay tăng Final Average Accuracy thêm 0\.3086/);
+  assert.doesNotMatch(replayCells[4], /run_seqft|run_exp_replay|AutoModelForCausalLM/);
   assert.doesNotMatch(replaySource, /torch_dtype/);
   assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);
   assert.doesNotMatch(replaySource, /"(?:accelerate|scipy|matplotlib|seaborn)"/);
@@ -93,6 +98,8 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
     'seqft_results = run_seqft',
     'replay_results = run_exp_replay',
     'artifact_path = save_benchmark_artifact',
+    'saved_artifact = json.load',
+    'loss_slope_df = plot_loss_slopes',
   ];
   let replayPrev = -1;
   for (const marker of replayOrderedMarkers) {
