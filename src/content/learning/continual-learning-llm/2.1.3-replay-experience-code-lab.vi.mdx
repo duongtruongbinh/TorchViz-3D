@@ -763,6 +763,14 @@ def plot_loss_slopes(artifact, rolling_window=16):
 loss_slope_df = plot_loss_slopes(saved_artifact)
 ```
 
+<LessonImage
+  assetPath="continual-learning-llm/02-replay-seed42-loss-slopes.png"
+  alt="Hai biểu đồ training loss theo bốn task của SeqFT và Replay, gồm update loss, rolling mean 16 updates và linear slope fit riêng trong từng stage"
+  caption="Training loss và linear slope theo từng task của run seed 42; các đường dọc đánh dấu task boundary."
+/>
+
+Ở cả SeqFT và Replay, rolling loss giảm nhanh trong từng stage; đường fit của DBpedia kéo xuống dưới 0 chỉ tóm tắt một curve phi tuyến rất dốc, không dự đoán token loss âm. Hình này mô tả động lực tối ưu hóa, còn bằng chứng Replay giữ task cũ tốt hơn vẫn nằm ở evaluation matrix, BWT và Peak Forgetting.
+
 </MdxPage>
 
 <MdxPage page={4}>

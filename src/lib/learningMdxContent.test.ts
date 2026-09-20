@@ -80,6 +80,8 @@ test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook
   assert.match(replaySource, /slope_per_100_updates/);
   assert.match(replaySource, /np\.polyfit\(local_x, smooth, deg=1\)/);
   assert.match(replaySource, /Replay tăng Final Average Accuracy thêm 0\.3086/);
+  assert.match(replaySource, /02-replay-seed42-loss-slopes\.png/);
+  assert.ok(existsSync('src/assets/learning/continual-learning-llm/02-replay-seed42-loss-slopes.png'));
   assert.doesNotMatch(replayCells[4], /run_seqft|run_exp_replay|AutoModelForCausalLM/);
   assert.doesNotMatch(replaySource, /torch_dtype/);
   assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);

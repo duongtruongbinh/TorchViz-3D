@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T20:25:00+07:00
+updated: 2026-09-20T20:45:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -56,6 +56,9 @@ below; committed predecessors remain available in Git history.
 - Replay reports the validated seed-42 run as observed evidence and provides a
   standalone artifact-only visualization cell for per-task rolling loss and
   linear loss slope; rendering the chart never retrains either baseline.
+- The checked-in seed-42 loss-slope figure sits beside its generating cell with
+  concise interpretation and an explicit warning that the linear fit is a trend
+  summary, not a prediction of negative token loss.
 
 # Out of scope
 
@@ -120,3 +123,12 @@ below; committed predecessors remain available in Git history.
   baseline training in that visualization cell. Python syntax, Pyflakes, 28
   focused MDX tests, all 163 repository tests, typecheck, production build, and
   `git diff --check` passed.
+- 2026-09-20 — Reopened to incorporate the user's generated loss-slope PNG into
+  the Replay lesson under a stable semantic asset name and add a short,
+  evidence-bounded interpretation.
+- 2026-09-20 — Renamed the local figure to
+  `02-replay-seed42-loss-slopes.png`, uploaded only that 74.5 KB object to the
+  Learning Lab R2 prefix, embedded it after Cell 5, and clarified the nonlinear
+  DBpedia curve and retention boundary. All 173 referenced CDN images are
+  reachable; 28 focused MDX tests, all 163 repository tests, typecheck,
+  production build, and `git diff --check` passed.
