@@ -68,8 +68,8 @@ Sau khi học xong Task A, mô hình dừng gần một điểm cực tiểu <In
 
 Nếu dùng chung một mức phạt cho tất cả tham số, ta rơi vào thế tiến thoái lưỡng nan:
 
-- **Nếu muốn giữ năng lực cũ mà áp mức phạt nặng:** Toàn bộ trọng số bị ghìm chặt, khiến mô hình mất tính dẻo và không thể thích nghi để học tác vụ mới.
-- **Nếu muốn học tốt tác vụ mới mà nới lỏng mức phạt:** Các trọng số ở vùng dốc đứng dễ dàng bị xô lệch, dẫn đến **catastrophic forgetting**.
+- **Penalty quá mạnh:** Nhiều trọng số bị ghìm chặt, khiến mô hình có thể underfit tác vụ mới.
+- **Penalty quá yếu:** Các trọng số ở hướng nhạy cảm dễ bị xô lệch, làm tăng nguy cơ catastrophic forgetting.
 
 ---
 
@@ -83,11 +83,7 @@ Mỗi phần tử trên đường chéo <InlineMath formula="H_{ii}" /> cho bi�
 
 Nhờ vậy, Hessian đầy đủ cho ta bức tranh chi tiết về mức độ ảnh hưởng của mọi tham số và mối liên hệ giữa chúng.
 
-<LessonNote tone="warning">
-  Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, Hessian đầy đủ phải lưu và tính ảnh hưởng cho mọi cặp <InlineMath formula="(i,j)" />.
-
-  Khi đó, <InlineMath formula="H_A" /> cần <InlineMath formula="n^2" /> phần tử, nên chi phí lưu trữ và tính toán tăng theo <InlineMath formula="O(n^2)" />. Quy mô này bất khả thi đối với các LLM hàng tỷ tham số.
-</LessonNote>
+Nếu model có <InlineMath formula="n" /> tham số, Hessian đầy đủ cần <InlineMath formula="n^2" /> phần tử để biểu diễn mọi cặp <InlineMath formula="(i,j)" />. Chi phí <InlineMath formula="O(n^2)" /> này không khả thi với LLM hàng tỷ tham số.
 
 Giải pháp thực tế là thay Hessian đầy đủ bằng một ma trận importance chỉ có đường chéo. Mỗi tham số <InlineMath formula="\theta_i" /> được gán một con số <InlineMath formula="\Omega_i" /> cho biết nó nên được giữ mạnh đến đâu, còn ảnh hưởng kết hợp giữa các tham số được tạm bỏ qua:
 
@@ -118,13 +114,7 @@ Tính toán penalty:
 - Tọa độ <InlineMath formula="\theta_1" /> chỉ nhích <InlineMath formula="0.1" />, nhưng đóng góp penalty <InlineMath formula="1.0" /> vì có importance <InlineMath formula="\Omega_1=100" />.
 - Tọa độ <InlineMath formula="\theta_2" /> biến thiên gấp 10 lần (<InlineMath formula="1.0" />), nhưng chỉ đóng góp <InlineMath formula="0.1" /> vì <InlineMath formula="\Omega_2=0.1" />.
 
-<LessonNote tone="warning">
-  Đổi lại, diagonal approximation đánh giá ảnh hưởng của mỗi tham số độc lập với các tham số còn lại. Nó không ghi nhận trường hợp nhiều tham số cùng thay đổi và bù trừ cho nhau để giữ output ổn định. Quy tắc còn lại rất đơn giản: <InlineMath formula="\Omega_i" /> càng lớn, thay đổi của <InlineMath formula="\theta_i" /> càng bị phạt mạnh.
-</LessonNote>
-
-<LessonNote tone="danger">
-  Vậy làm thế nào để ước lượng từng hệ số <InlineMath formula="\Omega_i" /> mà không cần dựng Hessian đầy đủ?
-</LessonNote>
+Đổi lại, diagonal approximation đánh giá mỗi tham số độc lập và bỏ qua trường hợp nhiều tham số cùng thay đổi để bù trừ cho nhau. Quy tắc còn lại là <InlineMath formula="\Omega_i" /> càng lớn thì thay đổi của <InlineMath formula="\theta_i" /> càng bị phạt mạnh. Câu hỏi tiếp theo là cách ước lượng từng <InlineMath formula="\Omega_i" /> mà không dựng Hessian đầy đủ.
 
 </MdxPage>
 
@@ -195,11 +185,11 @@ Synaptic Intelligence (SI) <Cite paper="zenke2017continual" evidence="parameter-
 
 Ở đây, <InlineMath formula="g_{i,t}=\partial\mathcal L/\partial\theta_i" /> và <InlineMath formula="\delta\theta_{i,t}" /> là update tại một bước. Với gradient descent, hai đại lượng thường trái dấu; dấu âm phía trước biến phần đóng góp làm **giảm loss** thành credit dương. Sau khi Task A kết thúc, SI chuẩn hóa credit bằng bình phương **net displacement** từ đầu đến cuối task:
 
-<BlockMath formula="\Omega_i^B=\frac{\omega_i^A}{(\Delta_i^A)^2+\xi}" />
+<BlockMath formula="\Omega_i^B=\frac{\max(0,\omega_i^A)}{(\Delta_i^A)^2+\xi}" />
 
 Damping <InlineMath formula="\xi>0" /> giữ mẫu số hữu hạn khi net displacement gần zero. Khi đã học nhiều task, importance dùng để học task <InlineMath formula="\mu" /> cộng đóng góp từ mọi task trước:
 
-<BlockMath formula="\Omega_i^\mu=\sum_{\nu<\mu}\frac{\omega_i^\nu}{(\Delta_i^\nu)^2+\xi}" />
+<BlockMath formula="\Omega_i^\mu=\sum_{\nu<\mu}\frac{\max(0,\omega_i^\nu)}{(\Delta_i^\nu)^2+\xi}" />
 
 Trong quy trình này, <InlineMath formula="\omega_i" /> được cập nhật theo từng training step; cumulative importance <InlineMath formula="\Omega_i" /> và reference weight chỉ được cập nhật ở ranh giới task. SI vì thế là một **trajectory-based importance measure**, không phải một endpoint Fisher khác. Với một số loss quadratic đặc biệt, SI có quan hệ rõ với Hessian; với loss phi tuyến tổng quát, paper không khẳng định một tương ứng đơn giản như vậy.
 

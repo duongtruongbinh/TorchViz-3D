@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-09-14
+updated: 2026-09-20
 ---
 
 # Learning Lab
@@ -254,7 +254,7 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-222 authored citation occurrences across 41 theory/lab nodes: 221 reviewed
+227 authored citation occurrences across 43 theory/lab nodes: 226 reviewed
 evidence records and one explicit link-only exception. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
@@ -398,21 +398,22 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-The Continual Learning paper audit additionally checks that all 44 non-Quiz
+The Continual Learning paper audit additionally checks that all 43 non-Quiz
 lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
 identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
 coverage, `paper-summary` decisions have a matching component, and optional MDX
 `referenceIds` match the structured citations authored in that file. It also
 rejects missing publication years and Scholar fallbacks on any source exposed by
 a lesson. The generated snapshot currently represents 225 papers cited across
-30 taught survey sections, plus ten explicitly registered sources: the survey
+30 taught survey sections, plus twelve explicitly registered sources: the survey
 itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
+the Gemma2 EWC study, the children’s ASR EWC/SI study,
 the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
 foundational distillation paper, FitNets for intermediate-representation
 distillation, the Kaplan et al. scaling-laws paper, the Chinchilla
 compute-optimal training paper, Vi-Mistral-X for Vietnamese continual
 pre-training, and Qi et al.'s safety-compromise fine-tuning paper. Forty-four
-reviewed claim rows currently expose 196 of the 235 registry records. The remaining records stay available as survey-intake candidates but
+reviewed claim rows currently expose 198 of the 237 registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 
 The core metrics lesson treats metric names as incomplete without their

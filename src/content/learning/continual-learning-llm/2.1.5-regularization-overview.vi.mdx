@@ -33,9 +33,10 @@ Khi học Task B sau Task A theo cách tuần tự thông thường, hàm mục 
 
 Vì objective chỉ quan tâm đến Task B, các bước cập nhật gradient sẽ tự do dịch chuyển trọng số mà không màng tới Task A. Đây chính là nguyên nhân trực tiếp làm xô lệch các vùng tham số cũ và gây ra **catastrophic forgetting**.
 
-Để giải quyết vấn đề này mà không cần lưu trữ hay replay raw data cũ (vốn tốn storage và vướng rào cản privacy), hàm mục tiêu cần dung hòa đồng thời hai mục tiêu:
-- **Term đầu (<InlineMath formula="\mathcal{L}_{\mathrm{new}}" />):** Tối ưu có giám sát trên dữ liệu của task mới để model thích nghi và học hỏi (plasticity).
-- **Term thứ hai (<InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" />):** Đảm nhiệm vai trò bảo tồn mà **không có dữ liệu cũ**, do đó phải mang tính chất **unsupervised** đối với task cũ.
+Để giảm phụ thuộc vào việc replay raw data cũ, hàm mục tiêu có thể dung hòa hai mục tiêu:
+
+- **Loss task mới:** <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> giúp model thích nghi với dữ liệu hiện tại.
+- **Loss retention:** <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> dùng trạng thái đã lưu từ task trước, chẳng hạn checkpoint, parameter importance hoặc teacher output, để hạn chế forgetting. Term này không bắt buộc phải là một objective unsupervised.
 
 <BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}+\lambda\mathcal{L}_{\mathrm{retention}}" />
 
@@ -73,11 +74,11 @@ này thường cần lưu một frozen copy của model cũ làm mốc tham chi�
 
 Từ ý tưởng can thiệp trực tiếp vào parameter space (Weight regularization) này, hàng loạt công trình kinh điển trong continual learning đã phát triển theo hướng này <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />:
 - **Elastic Weight Consolidation (EWC):** sử dụng ma trận Fisher Information Matrix để đo lường mức độ nhạy cảm của từng trọng số đối với bài toán cũ.
-- **Synaptic Intelligence (SI) & Memory Aware Synapses (MAS):** theo dõi quỹ đạo gradient hoặc độ nhạy output để ước lượng tầm quan trọng của từng tham số mà không cần dữ liệu cũ.
+- **SI và MAS:** Synaptic Intelligence (SI) và Memory Aware Synapses (MAS) theo dõi quỹ đạo gradient hoặc độ nhạy output để ước lượng tầm quan trọng của từng tham số. Sau khi statistics đã được tổng hợp, penalty không cần replay raw data cũ trong mỗi batch mới.
 
-Tuy nhiên, hướng tiếp cận này nhanh chóng bộc lộ một hạn chế mang tính bản chất: **trọng số có thể rất giống nhau nhưng performance vẫn sụt giảm nghiêm trọng**. Trong các mạng nơ-ron sâu và LLM, do tính phi tuyến cực cao, một sự dịch chuyển nhỏ ở những chiều nhạy cảm cũng có thể làm sụp đổ hoàn toàn hành vi của mô hình. Ngược lại, việc cố neo giữ cứng nhắc hàng tỷ tham số vừa triệt tiêu tính linh hoạt (plasticity) cần thiết để học task mới, vừa tiêu tốn tài nguyên khổng lồ để tính toán và lưu trữ ma trận độ quan trọng.
+Parameter distance không ánh xạ trực tiếp sang functional distance: một dịch chuyển nhỏ ở hướng nhạy cảm vẫn có thể đổi output, trong khi nhiều dịch chuyển khác gần như không ảnh hưởng hành vi. Neo quá mạnh cũng có thể giảm plasticity, còn importance statistics làm tăng chi phí bộ nhớ và consolidation.
 
-Chính vì sự đứt gãy giữa không gian tham số và năng lực thực tế, các khảo sát continual learning <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" /> chính thức chia nhóm regularization thành **hai hướng tiếp cận độc lập**:
+Vì hai loại ràng buộc trả lời hai câu hỏi khác nhau, khảo sát continual learning <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" /> thường chia regularization thành hai nhóm:
 
 <ConceptHierarchy
   ariaLabel="Regularization trong ba hướng tiếp cận chính, chia tiếp thành Weight và Function regularization"
@@ -103,14 +104,12 @@ Chính vì sự đứt gãy giữa không gian tham số và năng lực thực 
 />
 
 Từ sự phân nhánh này, **Function regularization** (ràng buộc trong function space) xuất hiện như một lời giải trực diện cho hạn chế của Weight regularization:
-Thay vì kiểm soát từng con số trọng số tĩnh, ta chuyển sự chú ý sang **hành vi đầu ra** của mô hình. Bằng cách sử dụng checkpoint cũ làm frozen teacher và áp dụng **knowledge distillation**, model mới chỉ bị phạt nếu các phân phối output (logits) hoặc biểu diễn đặc trưng bị lệch khỏi model cũ trên cùng một ngữ cảnh đầu vào. Nhờ đó, các trọng số có thể tự do di chuyển sang vùng tối ưu mới để thích nghi với task mới, miễn là hàm ánh xạ cốt lõi của task cũ vẫn được bảo toàn.
+Thay vì kiểm soát từng trọng số, function regularization chuyển sự chú ý sang **hành vi đầu ra**. Với checkpoint cũ làm frozen teacher, knowledge distillation phạt độ lệch của logits hoặc biểu diễn trên cùng input. Cách này cho phép nhiều tự do hơn trong parameter space, nhưng chỉ bảo vệ hành vi trên phân phối input dùng để tạo teacher target; nó không tự động bảo toàn mọi capability cũ.
 
 Đối chiếu lại với ranh giới storage và mốc tham chiếu:
 - **Weight regularization** dùng mốc frozen copy đó cùng importance của tham số để đặt penalty.
 - **Function regularization** dùng model đã học trước đó làm teacher. Teacher target có thể được tạo từ input mới, một phần input cũ, dữ liệu ngoài không nhãn hoặc dữ liệu sinh <Cite paper="wang2024comprehensive" evidence="regularization-overview-04-wang2024comprehensive" />. Vì vậy, hướng tiếp cận này cũng có thể kết hợp linh hoạt với replay <Cite paper="wang2024comprehensive" evidence="regularization-overview-05-wang2024comprehensive" />.
 
-<LessonNote>
-Các bài học và code lab tiếp theo sẽ đi sâu vào chi tiết cơ chế toán học, cách ước lượng ma trận và triển khai thực nghiệm code từng nhánh để bạn quan sát rõ hiện tượng giữ tri thức trong thực tế.
-</LessonNote>
+Các bài tiếp theo đi sâu vào cách ước lượng parameter importance và cách kiểm tra retention bằng một experiment contract chung.
 
 </MdxPage>

@@ -53,6 +53,93 @@ test('continual-learning MDX filenames mirror chapter and TOC order', () => {
   assert.deepEqual(actualFilenames.sort(), expectedFilenames.sort());
 });
 
+test('Replay and EWC/SI labs are restart-safe, seed-42-only, and define notebook state in linear order', () => {
+  const replaySource = readFileSync(
+    'src/content/learning/continual-learning-llm/2.1.3-replay-experience-code-lab.vi.mdx',
+    'utf8',
+  );
+  const replayCells = [...replaySource.matchAll(/```python\n([\s\S]*?)```/g)].map((match) => match[1]);
+  assert.equal(replayCells.length, 4, 'Replay lab must have exactly 4 consolidated Python cells');
+  assert.match(replaySource, /SEED = 42/);
+  assert.match(replaySource, /TRAIN_PER_TASK = 2048/);
+  assert.match(replaySource, /EVAL_PER_TASK = 64/);
+  assert.match(replaySource, /AMP_INITIAL_SCALE = 128\.0/);
+  assert.match(replaySource, /seqft_replay_seed42\.json/);
+  assert.match(replaySource, /dataset_revisions/);
+  assert.match(replaySource, /AMP đã bỏ qua một optimizer update/);
+  assert.match(replaySource, /os\.fsync\(file\.fileno\(\)\)/);
+  assert.match(replaySource, /return list\(current_rows\)/);
+  assert.match(replaySource, /seqft_matrix\[:2\], replay_matrix\[:2\]/);
+  assert.doesNotMatch(replaySource, /02-sequential-cl-(?:retention-trajectories|metrics-comparison|training-loss-curves)/);
+  assert.doesNotMatch(replaySource, /"(?:scipy|matplotlib|seaborn)"/);
+
+  const replayOrderedMarkers = [
+    'name + ("=" * 2) + version',
+    'TASK_SPECS =',
+    'task_data, task_summary = load_task_stream',
+    'tokenizer = AutoTokenizer.from_pretrained',
+    'def evaluate_task',
+    'def train_stage',
+    'def run_seqft',
+    'def run_exp_replay',
+    'seqft_results = run_seqft',
+    'replay_results = run_exp_replay',
+    'artifact_path = save_benchmark_artifact',
+  ];
+  let replayPrev = -1;
+  for (const marker of replayOrderedMarkers) {
+    const pos = replaySource.indexOf(marker);
+    assert.ok(pos > replayPrev, `Replay: ${marker} must appear after its dependencies`);
+    replayPrev = pos;
+  }
+
+  const ewcSource = readFileSync(
+    'src/content/learning/continual-learning-llm/2.1.9-ewc-si-code-lab.vi.mdx',
+    'utf8',
+  );
+  const ewcCells = [...ewcSource.matchAll(/```python\n([\s\S]*?)```/g)].map((match) => match[1]);
+  assert.equal(ewcCells.length, 5, 'EWC/SI lab must have exactly 5 consolidated Python cells');
+  assert.match(ewcSource, /SEED = 42/);
+  assert.doesNotMatch(ewcSource, /RUN_MODE/);
+  assert.doesNotMatch(ewcSource, /FINAL_SEEDS/);
+  assert.match(ewcSource, /seqft_replay_seed42\.json/);
+  assert.match(ewcSource, /def validate_baseline_artifact\(artifact\):/);
+  assert.doesNotMatch(ewcSource, /torch==2\.5\.1/);
+  assert.match(ewcSource, /PLATFORM_PACKAGES = \("torch",\)/);
+  assert.match(ewcSource, /runtime_versions\[package\] = actual/);
+  assert.match(ewcSource, /name \+ \("=" \* 2\) \+ version/);
+  assert.match(ewcSource, /AMP_INITIAL_SCALE = 128\.0/);
+  assert.match(ewcSource, /for split in \["train", "eval"\]/);
+  assert.match(ewcSource, /CHECKPOINT_CONTRACT_ID/);
+  assert.match(ewcSource, /all-diagonal-learning-gains-positive/);
+  assert.match(ewcSource, /metrics\["min_learning_gain"\] > 0\.0/);
+  assert.match(ewcSource, /AMP đã bỏ qua một optimizer update/);
+  assert.doesNotMatch(ewcSource, /hơn 90% tổng năng lượng importance/);
+  assert.doesNotMatch(ewcSource, /"(?:scipy|matplotlib|seaborn)"/);
+
+  const ewcOrderedMarkers = [
+    'runtime_versions =',
+    'baseline_artifact =',
+    'validate_baseline_artifact(baseline_artifact)',
+    'task_data = {}',
+    'tokenizer = AutoTokenizer.from_pretrained',
+    'class ContinualStrategy',
+    'class EWCStrategy',
+    'class SIStrategy',
+    'def train_continual_experiment',
+    'SWEEP_CONFIGS =',
+    'CHECKPOINT_CONTRACT =',
+    'checkpoint_state = load_checkpoint()',
+    'final_artifact_path =',
+  ];
+  let ewcPrev = -1;
+  for (const marker of ewcOrderedMarkers) {
+    const pos = ewcSource.indexOf(marker);
+    assert.ok(pos > ewcPrev, `EWC/SI: ${marker} must appear after its dependencies`);
+    ewcPrev = pos;
+  }
+});
+
 test('linear-algebra MDX filenames mirror chapter and TOC order', () => {
   const tracks = learningCatalog.tracks.filter((track) => track.domainId === 'linear-algebra');
   const expectedFilenames = tracks.flatMap((track, chapterIndex) => (
