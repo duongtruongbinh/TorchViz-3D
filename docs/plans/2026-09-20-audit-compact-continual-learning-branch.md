@@ -2,7 +2,7 @@
 title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
-updated: 2026-09-20T19:35:00+07:00
+updated: 2026-09-20T19:50:00+07:00
 author: Nguyen Manh Khiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
@@ -49,6 +49,8 @@ below; committed predecessors remain available in Git history.
   Colab packages instead of reinstalling the full scientific stack, and every
   dataset points to a valid pinned public Hugging Face revision without a manual
   hotfix cell.
+- Copying an authored Python block preserves source operators verbatim; the
+  `==...==` presentation-marker cleanup is confined to output blocks.
 
 # Out of scope
 
@@ -88,3 +90,10 @@ below; committed predecessors remain available in Git history.
 - 2026-09-20 — Extracted Python cells parse and pass Pyflakes. Final
   `npm run verify` passed TypeScript checking, all 161 tests, and the production
   build; `git diff --check` also passed.
+- 2026-09-20 — Reopened after two live copies dropped equality operators from
+  the gradient-accumulation condition. The source was intact; the shared copy
+  path incorrectly treated Python `==` pairs as output highlight markers.
+- 2026-09-20 — Confined marker removal to output blocks and added a generic
+  byte-for-byte code-copy invariant rather than coupling the regression test to
+  one notebook variable. Final verification passed 163 tests, typecheck, build,
+  the focused copy tests, and `git diff --check`.

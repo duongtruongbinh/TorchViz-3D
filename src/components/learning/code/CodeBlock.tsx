@@ -13,6 +13,7 @@
 
 import { Check, Copy, Terminal } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { prepareCodeBlockCopySource } from './codeBlockCopy';
 import { highlightPython, type PythonTokens } from './pythonHighlighter';
 import { cx } from '../theme';
 import type { LearningThemeClasses } from '../learningMdxComponents';
@@ -148,7 +149,7 @@ export function CodeBlock({
 }: CodeBlockProps) {
   const isOutput = variant === 'output';
   const rawSource = Array.isArray(code) ? code.join('\n') : String(code ?? '');
-  const cleanSourceForCopy = rawSource.replace(/==([^\n]+?)==/g, '$1');
+  const copySource = prepareCodeBlockCopySource(rawSource, isOutput);
   const rawLines = rawSource.split('\n');
   // Output is never tokenized; pass '' so the hook never highlights plain text.
   const tokens = usePythonTokens(isOutput ? '' : rawSource);
@@ -173,7 +174,7 @@ export function CodeBlock({
         )}
         <span className="flex items-center gap-2">
           {headerTrailing}
-          {showCopy ? <CopyButton source={cleanSourceForCopy} themeClasses={themeClasses} /> : null}
+          {showCopy ? <CopyButton source={copySource} themeClasses={themeClasses} /> : null}
         </span>
       </div>
 
