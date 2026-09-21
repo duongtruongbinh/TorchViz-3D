@@ -37,6 +37,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
+  assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 17);
   assert.equal(learningCatalog.domains.length, 17);
   assert.equal(learningCatalog.tracks.length, 111);
