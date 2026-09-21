@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "evaluation-metrics-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Ý nghĩa của precision",
+    "Chọn metric theo chi phí lỗi",
+    "Metric cho bài toán nào?"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "evaluation-metric",
+    "mae-mse-rmse-r2",
+    "confusion-matrix-accuracy",
+    "precision-recall-f1",
+    "roc-auc-pr-auc-log-loss",
+    "cost-sensitive-evaluation"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="evaluation-metrics-quiz" questions={[
+  {
+    "id": "precision-meaning",
+    "title": "Ý nghĩa của precision",
+    "prompt": "Precision đo điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tỉ lệ bắt được mọi positive thật.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Sai số bình phương trung bình.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Số feature của mô hình.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Tỉ lệ dự đoán positive đúng trong tất cả dự đoán positive.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Precision tập trung vào độ tin cậy của cảnh báo positive.",
+    "error": "Hãy xét mẫu số của precision: tất cả dự đoán positive."
+  },
+  {
+    "id": "metric-priority",
+    "title": "Chọn metric theo chi phí lỗi",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Recall thường quan trọng khi bỏ sót một ca nguy hiểm gây hậu quả lớn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Precision thường quan trọng khi báo động giả rất tốn kém.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Accuracy luôn đáng tin cho dữ liệu có lớp dương cực hiếm.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "F1 giúp cân bằng precision và recall trong một chỉ số.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Metric phù hợp phải phản ánh loại lỗi mà ứng dụng muốn tránh.",
+    "error": "Accuracy có thể trông cao dù mô hình gần như không phát hiện được lớp hiếm."
+  },
+  {
+    "id": "metric-family",
+    "title": "Metric cho bài toán nào?",
+    "prompt": "Phân loại các metric theo loại bài toán thường dùng.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "regression",
+        "label": "Regression"
+      },
+      {
+        "id": "classification",
+        "label": "Classification"
+      }
+    ],
+    "options": [
+      {
+        "id": "mae",
+        "label": "MAE",
+        "categoryId": "regression"
+      },
+      {
+        "id": "rmse",
+        "label": "RMSE",
+        "categoryId": "regression"
+      },
+      {
+        "id": "f1",
+        "label": "F1 score",
+        "categoryId": "classification"
+      },
+      {
+        "id": "prauc",
+        "label": "PR-AUC",
+        "categoryId": "classification"
+      }
+    ],
+    "success": "Đúng. Bản chất của target quyết định nhóm metric phù hợp.",
+    "error": "MAE và RMSE đo sai số số liên tục; F1 và PR-AUC đánh giá phân loại."
+  }
+]} />

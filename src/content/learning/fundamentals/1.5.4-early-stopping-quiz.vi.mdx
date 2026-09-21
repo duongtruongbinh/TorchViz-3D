@@ -1,0 +1,118 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "early-stopping-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Theo dõi gì để early stopping?",
+    "Quy trình early stopping",
+    "Dùng early stopping đúng cách"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "early-stopping",
+    "validation-monitoring",
+    "patience-min-delta",
+    "best-checkpoint",
+    "early-stopping-workflow"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="early-stopping-quiz" questions={[
+  {
+    "id": "early-stop-monitor",
+    "title": "Theo dõi gì để early stopping?",
+    "prompt": "Early stopping thường theo dõi metric nào để quyết định dừng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Training loss duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Validation loss hoặc validation metric.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Số cột trong input.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Kích thước file model.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Validation phản ánh tổng quát hóa tốt hơn metric train.",
+    "error": "Training loss có thể tiếp tục tốt lên ngay cả khi mô hình bắt đầu overfit."
+  },
+  {
+    "id": "early-stopping-flow",
+    "title": "Quy trình early stopping",
+    "prompt": "Sắp xếp quy trình early stopping hợp lý.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "restore",
+        "label": "Dừng và khôi phục checkpoint có validation tốt nhất."
+      },
+      {
+        "id": "train",
+        "label": "Train thêm epoch."
+      },
+      {
+        "id": "patience",
+        "label": "Nếu không cải thiện đủ lâu theo patience, kích hoạt dừng."
+      },
+      {
+        "id": "monitor",
+        "label": "Đánh giá validation và lưu checkpoint nếu tốt hơn."
+      }
+    ],
+    "correctOrder": [
+      "train",
+      "monitor",
+      "patience",
+      "restore"
+    ],
+    "success": "Đúng. Early stopping cần lưu best checkpoint thay vì chỉ giữ epoch cuối cùng.",
+    "error": "Sau mỗi epoch cần monitor validation; chỉ dừng sau khi hết patience và khôi phục best checkpoint."
+  },
+  {
+    "id": "early-stopping-practice",
+    "title": "Dùng early stopping đúng cách",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Patience giúp tránh dừng chỉ vì một epoch validation dao động xấu.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Nên có checkpoint tốt nhất để khôi phục khi dừng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Early stopping không thể dùng cùng regularization.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Cần xác định metric và hướng tối ưu trước khi theo dõi.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Patience, best checkpoint và metric rõ ràng làm early stopping đáng tin hơn.",
+    "error": "Early stopping có thể kết hợp với các biện pháp regularization khác."
+  }
+]} />

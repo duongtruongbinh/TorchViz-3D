@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "overfitting-underfitting-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Dấu hiệu overfitting",
+    "Giảm overfitting",
+    "Chẩn đoán underfitting và overfitting"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "generalization",
+    "underfitting",
+    "overfitting",
+    "overfitting-mitigation",
+    "distribution-shift"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="overfitting-underfitting-quiz" questions={[
+  {
+    "id": "overfitting-sign",
+    "title": "Dấu hiệu overfitting",
+    "prompt": "Mẫu kết quả nào gợi ý overfitting mạnh nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Điểm train và validation đều thấp.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Điểm train cao nhưng điểm validation thấp hơn nhiều.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Điểm train và validation đều tốt và gần nhau.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Mô hình chưa được train lần nào.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Khoảng cách lớn giữa train và validation là tín hiệu điển hình của overfitting.",
+    "error": "Underfitting thường làm cả train lẫn validation đều kém; overfitting tạo khoảng cách lớn."
+  },
+  {
+    "id": "overfitting-actions",
+    "title": "Giảm overfitting",
+    "prompt": "Chọn tất cả hành động có thể giúp giảm overfitting.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Thêm dữ liệu đa dạng hoặc augmentation hợp lý.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Dùng regularization hay early stopping.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Chọn hyperparameter liên tục dựa trên test set.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Giảm độ phức tạp của mô hình khi phù hợp.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Các cách này làm mô hình bớt ghi nhớ chi tiết riêng của train set.",
+    "error": "Test set cần được giữ lại; các quyết định giảm overfitting nên dựa vào train và validation."
+  },
+  {
+    "id": "fit-diagnosis",
+    "title": "Chẩn đoán underfitting và overfitting",
+    "prompt": "Đưa mỗi dấu hiệu vào đúng loại vấn đề.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "underfitting",
+        "label": "Underfitting"
+      },
+      {
+        "id": "overfitting",
+        "label": "Overfitting"
+      }
+    ],
+    "options": [
+      {
+        "id": "low-both",
+        "label": "Điểm train và validation đều thấp.",
+        "categoryId": "underfitting"
+      },
+      {
+        "id": "large-gap",
+        "label": "Điểm train cao, validation thấp hơn rõ rệt.",
+        "categoryId": "overfitting"
+      },
+      {
+        "id": "too-simple",
+        "label": "Mô hình quá đơn giản để nắm quan hệ trong dữ liệu.",
+        "categoryId": "underfitting"
+      },
+      {
+        "id": "memorization",
+        "label": "Cây rất sâu ghi nhớ các dòng train cụ thể.",
+        "categoryId": "overfitting"
+      }
+    ],
+    "success": "Chính xác. Chẩn đoán đúng giúp chọn hướng xử lý đúng thay vì chỉ tăng độ phức tạp.",
+    "error": "Hãy so sánh cả điểm train lẫn validation và xem mô hình có quá đơn giản hay quá nhớ train không."
+  }
+]} />

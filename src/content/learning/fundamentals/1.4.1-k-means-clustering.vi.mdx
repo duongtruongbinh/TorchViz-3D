@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'k-means-clustering',
+  locale: 'vi',
+  title: 'K Means Clustering',
+  headings: [
+    'Clustering quanh các tâm cụm',
+    'Gán điểm và cập nhật tâm',
+    'Khoảng cách, scale và khởi tạo',
+    'Chọn K và nhận biết giới hạn',
+  ],
+  keywords: ['Machine Learning', 'Clustering', 'K-Means', 'Centroid', 'Elbow Method', 'Silhouette Score', 'Feature Scaling'],
+  conceptIds: ['clustering', 'k-means', 'centroid-assignment-update', 'feature-scaling-distance', 'choosing-k', 'k-means-limitations'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Clustering quanh các tâm cụm
+
+**K-Means** là thuật toán clustering không giám sát. Thay vì học từ nhãn có sẵn, nó cố gắng chia dữ liệu thành `K` nhóm sao cho các điểm trong cùng nhóm gần nhau hơn so với các điểm thuộc nhóm khác.
+
+Mỗi nhóm được đại diện bởi một **centroid**, tức tâm của cụm. Với dữ liệu khách hàng, một centroid có thể đại diện cho nhóm chi tiêu cao, một centroid khác đại diện cho nhóm mua ít nhưng thường xuyên. Các nhãn cụm ban đầu chỉ là số `0`, `1`, `2`; ý nghĩa nghiệp vụ của chúng cần được con người phân tích sau đó.
+
+K-Means tối ưu việc giảm tổng bình phương khoảng cách từ từng điểm đến centroid của cụm mà nó được gán. Vì vậy, nó hợp tự nhiên với các cụm có hình gần tròn hoặc gần cầu trong không gian feature.
+
+<LessonNote>
+  Một cụm do K-Means tạo ra không tự động là một nhóm “thật” trong thế giới. Hãy kiểm tra xem nó có ổn định, hữu ích và có ý nghĩa theo domain hay không.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Gán điểm và cập nhật tâm
+
+K-Means lặp lại hai bước đơn giản. Đầu tiên, thuật toán gán mỗi điểm vào centroid gần nhất. Sau đó, nó cập nhật centroid của mỗi cụm bằng trung bình feature của tất cả điểm vừa được gán vào cụm đó.
+
+```text
+1. Chọn K centroid ban đầu
+2. Gán mỗi điểm vào centroid gần nhất
+3. Tính lại centroid bằng trung bình các điểm trong cụm
+4. Lặp lại bước 2 và 3 đến khi ổn định
+```
+
+Ví dụ, nếu một cụm gồm các điểm hai chiều `(1, 2)`, `(3, 4)` và `(2, 6)`, centroid mới là trung bình theo từng chiều. Khi các centroid dịch chuyển, một số điểm có thể đổi cụm ở vòng lặp tiếp theo.
+
+Thuật toán dừng khi việc gán cụm hoặc vị trí centroid gần như không còn thay đổi. Nó thường hội tụ nhanh, nhưng có thể rơi vào một nghiệm cục bộ khác nhau tùy cách khởi tạo centroid ban đầu.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khoảng cách, scale và khởi tạo
+
+K-Means thường dùng Euclidean distance. Do đó, feature có thang đo lớn có thể chi phối hoàn toàn khoảng cách. Nếu dữ liệu có tuổi từ 18 đến 80 và thu nhập từ 5 triệu đến 500 triệu, thu nhập có thể áp đảo tuổi chỉ vì đơn vị đo.
+
+Hãy chuẩn hóa feature số trước khi clustering, thường bằng StandardScaler hoặc một scaler phù hợp với dữ liệu. Việc cần scale hay không là quyết định theo ý nghĩa distance; nếu một feature đáng lẽ phải quan trọng hơn, bạn có thể thiết kế trọng số hoặc representation có chủ đích thay vì chuẩn hóa máy móc.
+
+Khởi tạo cũng quan trọng. Khởi tạo ngẫu nhiên kém có thể tạo cụm không tốt. `k-means++` chọn các centroid ban đầu cách nhau hơn, thường cho kết quả ổn định hơn. Nhiều implementation chạy nhiều lần với các seed khác nhau rồi giữ nghiệm có objective tốt nhất.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chọn K và nhận biết giới hạn
+
+K-Means yêu cầu chọn số cụm `K` trước. **Elbow method** xem tổng khoảng cách trong cụm giảm thế nào khi K tăng; điểm “gấp khúc” có thể gợi ý K hợp lý. **Silhouette score** so sánh độ gần điểm với cụm của nó và với cụm lân cận. Cả hai chỉ là tín hiệu hỗ trợ, không thay thế hiểu biết domain.
+
+K lớn hơn luôn có thể làm objective trên train tốt hơn, vì có nhiều centroid hơn để bám vào dữ liệu. Nhưng K quá lớn tạo nhóm nhỏ khó giải thích và có thể không ổn định khi dữ liệu thay đổi. Hãy kiểm tra kích thước cụm, profile feature của từng cụm và giá trị sử dụng của kết quả.
+
+K-Means kém phù hợp khi cụm có hình cong phức tạp, mật độ hoặc kích thước rất khác nhau, hay có nhiều outlier. Trong những trường hợp đó, DBSCAN hoặc các phương pháp khác có thể phù hợp hơn. K-Means là một baseline nhanh và hữu ích, nhưng không nên được xem là thuật toán clustering mặc định cho mọi dataset.
+
+</MdxPage>

@@ -1,0 +1,256 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'shape-basics',
+  locale: 'vi',
+  title: 'Shape Basics',
+  headings: [
+    'Bắt đầu từ dữ liệu',
+    'Tensor và shape',
+    'Mẫu, đặc điểm và batch',
+    'Shape qua Linear layer',
+    'Tensor hình ảnh và Flatten',
+    'Kiểm tra shape và tổng kết',
+  ],
+  keywords: ['Machine Learning', 'Tensor', 'Shape', 'Batch', 'Feature'],
+  conceptIds: ['tensor', 'tensor-shape', 'sample-feature-batch', 'linear-shape-flow', 'image-tensor-flatten', 'shape-debugging'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Bắt đầu từ dữ liệu
+
+### Mục tiêu bài học
+
+Sau bài này, bạn có thể:
+
+- hiểu tensor là gì
+- đọc được một shape như `(100, 4)`
+- phân biệt mẫu dữ liệu, đặc điểm và batch
+- dự đoán shape sau một số phép biến đổi cơ bản
+- phát hiện lỗi không khớp kích thước khi dữ liệu đi qua model
+
+Trong Machine Learning, model không nhận dữ liệu dưới dạng một đoạn mô tả bằng lời. Model nhận các con số.
+
+Ví dụ, ta muốn dự đoán giá nhà. Một căn nhà có thể được mô tả bằng:
+
+```text
+[120, 3, 2, 10]
+```
+
+Ta có thể quy ước:
+
+`120` là diện tích tính bằng mét vuông, `3` là số phòng ngủ, `2` là số phòng tắm và `10` là số năm đã sử dụng.
+
+Bốn con số này mô tả **một mẫu dữ liệu**. Mỗi thông tin dùng để mô tả mẫu được gọi là một **đặc điểm** (*feature*).
+
+<LessonNote>
+  Trong suốt bài học, hãy luôn hỏi hai câu: “Tensor này có bao nhiêu mẫu?” và “Mỗi mẫu có bao nhiêu đặc điểm?”
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tensor và shape
+
+### Tensor là gì?
+
+Tensor là cách tổ chức các con số thành một hoặc nhiều chiều.
+
+Một số đơn lẻ:
+
+```text
+5
+```
+
+là tensor không có chiều. Một danh sách số:
+
+```text
+[2, 4, 6]
+```
+
+là tensor một chiều. Một bảng số:
+
+```text
+[
+  [120, 3, 2, 10],
+  [80,  2, 1, 5],
+  [150, 4, 3, 2]
+]
+```
+
+là tensor hai chiều.
+
+### Shape nghĩa là gì?
+
+**Shape** cho biết kích thước của tensor trên từng chiều. Bảng trên có 3 dòng và 4 cột, nên shape là `(3, 4)`.
+
+Với dữ liệu dạng bảng:
+
+```text
+X.shape = (100, 4)
+```
+
+Điều đó có nghĩa là:
+
+`100` là số mẫu dữ liệu, còn `4` là số đặc điểm của mỗi mẫu.
+
+Thứ tự rất quan trọng. `(100, 4)` nghĩa là 100 mẫu, mỗi mẫu có 4 feature; `(4, 100)` lại nghĩa là 4 mẫu, mỗi mẫu có 100 feature.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Mẫu, đặc điểm và batch
+
+Ba khái niệm thường xuất hiện cùng nhau. **Mẫu** (*sample*) là một đối tượng được đưa vào model, ví dụ một căn nhà. **Đặc điểm** (*feature*) là một thông tin mô tả mẫu, ví dụ diện tích. **Batch** là một nhóm nhiều mẫu được xử lý cùng lúc.
+
+Giả sử model xử lý 32 căn nhà trong một lần:
+
+```text
+(batch, features) = (32, 4)
+```
+
+Shape này có nghĩa là model đang nhận 32 mẫu, mỗi mẫu có 4 đặc điểm.
+
+`batch` không phải là một đặc điểm của căn nhà. Nó chỉ cho biết có bao nhiêu mẫu đang được xử lý trong lần đó.
+
+Ví dụ, bảng sau có 3 mẫu và 4 feature:
+
+| Diện tích | Phòng ngủ | Phòng tắm | Tuổi nhà |
+|---:|---:|---:|---:|
+| 120 | 3 | 2 | 10 |
+| 80 | 2 | 1 | 5 |
+| 150 | 4 | 3 | 2 |
+
+Vì vậy:
+
+```text
+shape = (3, 4)
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Shape qua Linear layer
+
+Một Linear layer nhận một số lượng feature và tạo ra một số lượng feature khác.
+
+```text
+Linear(4, 3)
+```
+
+nghĩa là layer nhận 4 feature và tạo ra 3 feature.
+
+Nếu input có shape `(32, 4)`, output sẽ có shape:
+
+```text
+(32, 4) → Linear(4, 3) → (32, 3)
+```
+
+Số mẫu `32` được giữ nguyên. Chỉ số feature thay đổi từ `4` thành `3`.
+
+Một lỗi thường gặp là:
+
+```text
+Input shape: (32, 5)
+Layer:       Linear(4, 3)
+```
+
+Layer cần mỗi mẫu có 4 feature, nhưng input lại có 5 feature. Hai kích thước không khớp nên model không thể thực hiện phép tính.
+
+Khi đọc lỗi shape, hãy kiểm tra:
+
+1. Input hiện tại có shape nào?
+2. Layer cần bao nhiêu feature đầu vào?
+3. Chiều nào là batch và chiều nào là feature?
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tensor hình ảnh và Flatten
+
+Ảnh có nhiều chiều hơn dữ liệu dạng bảng. Một batch gồm 32 ảnh màu kích thước 28 × 28 thường có shape:
+
+```text
+(32, 3, 28, 28)
+```
+
+Trong đó:
+
+`32` là số ảnh trong batch, `3` là số kênh màu (thường là đỏ, xanh lá và xanh dương), còn hai số `28` lần lượt là chiều cao và chiều rộng.
+
+Một số thư viện dùng thứ tự chiều khác, chẳng hạn `(batch, height, width, channels)`. Vì vậy, cần biết quy ước của model thay vì chỉ nhìn vào các con số.
+
+Linear thường nhận input dạng `(batch, features)`, nên ta dùng **Flatten** để gộp các chiều của mỗi ảnh thành một vector:
+
+```text
+(32, 3, 28, 28) → Flatten → (32, 2352)
+```
+
+Vì:
+
+```text
+3 × 28 × 28 = 2352
+```
+
+Flatten không làm thay đổi số ảnh trong batch. Nó chỉ gộp các chiều còn lại.
+
+Một pipeline đơn giản có thể là:
+
+```text
+Input ảnh        : (32, 3, 28, 28)
+Flatten          : (32, 2352)
+Linear(2352,128) : (32, 128)
+Linear(128,10)   : (32, 10)
+```
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiểm tra shape và tổng kết
+
+### Vì sao shape quan trọng?
+
+Shape cho biết dữ liệu có thể đi qua layer hay không. Các lỗi thường gặp là:
+
+- nhầm số mẫu với số feature;
+- quên chiều batch;
+- nối tensor trên sai chiều;
+- đưa số feature không đúng vào Linear;
+- Flatten sai các chiều cần giữ lại.
+
+Một cách kiểm tra đơn giản là in shape sau mỗi bước:
+
+```python
+print(x.shape)
+x = layer_1(x)
+print(x.shape)
+x = layer_2(x)
+print(x.shape)
+```
+
+### Tóm tắt
+
+- Tensor là dữ liệu được tổ chức thành một hoặc nhiều chiều.
+- Shape mô tả kích thước của tensor trên từng chiều.
+- Với dữ liệu dạng bảng, shape thường là `(số_mẫu, số_feature)`.
+- Batch là số mẫu được xử lý cùng lúc.
+- Linear thay đổi số lượng feature nhưng thường giữ nguyên batch size.
+- Ảnh thường có shape gồm batch, channel, chiều cao và chiều rộng.
+- Flatten gộp các chiều của mỗi mẫu thành một vector.
+- Shape của output layer này phải phù hợp với input của layer tiếp theo.
+
+### Tự kiểm tra
+
+1. `X.shape = (50, 6)` nghĩa là gì?
+2. `Linear(6, 10)` biến shape `(32, 6)` thành shape nào?
+3. Shape `(16, 3, 32, 32)` có thể mô tả loại dữ liệu gì?
+4. Vì sao `(32, 5)` không thể đưa trực tiếp vào `Linear(4, 3)`?
+5. Sau Flatten, shape `(8, 3, 10, 10)` trở thành shape nào?
+
+</MdxPage>

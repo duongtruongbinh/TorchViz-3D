@@ -1,0 +1,125 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'linear-activation',
+  locale: 'vi',
+  title: 'Linear Activation',
+  headings: [
+    'Từ feature đến đầu ra',
+    'Linear layer và shape',
+    'Bias và phép tính theo batch',
+    'Activation tạo tính phi tuyến',
+    'Chọn activation phù hợp',
+  ],
+  keywords: ['Machine Learning', 'Linear Layer', 'Activation Function', 'ReLU', 'Sigmoid', 'Softmax'],
+  conceptIds: ['linear-layer', 'linear-shape', 'bias', 'activation-function', 'relu-sigmoid-softmax'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Từ feature đến đầu ra
+
+Sau bài này, bạn có thể:
+
+- đọc được phép tính của một Linear layer;
+- dự đoán shape khi dữ liệu đi qua layer;
+- giải thích vai trò của bias và activation;
+- phân biệt khi nào thường dùng ReLU, sigmoid và softmax.
+
+Trong bài trước, một batch dữ liệu dạng bảng có thể có shape `(batch, features)`. Ví dụ `(32, 4)` nghĩa là 32 mẫu, mỗi mẫu có 4 đặc điểm. Một model cần biến bốn feature này thành một đầu ra hữu ích, chẳng hạn ba điểm số cho ba lớp dự đoán.
+
+Một **Linear layer** là phép biến đổi cơ bản thực hiện việc đó. Nó kết hợp các đầu vào theo trọng số học được, rồi tạo ra một số lượng feature mới. Linear layer thường là một khối xây dựng đầu tiên của neural network.
+
+<LessonNote>
+  Khi đọc shape của Linear layer, hãy tách hai câu hỏi: mỗi mẫu có bao nhiêu feature đi vào, và layer tạo ra bao nhiêu feature đi ra? Chiều batch thường được giữ nguyên.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Linear layer và shape
+
+Với một mẫu đầu vào dạng vector `x`, Linear layer có công thức:
+
+```text
+y = xW^T + b
+```
+
+Trong đó `W` là ma trận trọng số mà model học được, `b` là bias, còn `y` là vector đầu ra. Mỗi giá trị trong `y` là tổng có trọng số của toàn bộ feature đầu vào, sau đó được cộng thêm một bias riêng.
+
+Ví dụ:
+
+```text
+Linear(4, 3)
+```
+
+Layer này nhận 4 feature cho mỗi mẫu và tạo ra 3 feature đầu ra. Nếu input là `(32, 4)`, shape thay đổi như sau:
+
+```text
+(32, 4) -> Linear(4, 3) -> (32, 3)
+```
+
+Số `32` là batch size nên không đổi. Linear layer chỉ thay đổi chiều cuối cùng, từ 4 feature thành 3 feature. Nếu đưa `(32, 5)` vào `Linear(4, 3)`, model sẽ báo lỗi vì số feature đầu vào không khớp.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bias và phép tính theo batch
+
+Trọng số quyết định mỗi feature đầu vào ảnh hưởng mạnh hay yếu đến từng đầu ra. Bias cho phép đầu ra được dịch chuyển ngay cả khi tất cả giá trị đầu vào bằng 0. Nhờ đó, model có thể biểu diễn linh hoạt hơn.
+
+Với `Linear(4, 3)`, trọng số có thể được hình dung là một bảng có 3 hàng và 4 cột. Mỗi hàng tạo ra một đầu ra mới bằng cách kết hợp bốn feature đầu vào. Bias có 3 giá trị, một giá trị cho mỗi đầu ra.
+
+Khi xử lý một batch, cùng một bộ trọng số và bias được áp dụng độc lập cho từng mẫu:
+
+```text
+(32, 4) -> Linear(4, 3) -> (32, 3)
+(64, 4) -> Linear(4, 3) -> (64, 3)
+```
+
+Batch size có thể thay đổi từ lần chạy này sang lần chạy khác. Điều quan trọng là mỗi mẫu luôn có đúng 4 feature để đi vào layer. Đây là lý do các tài liệu thường viết shape là `(batch, in_features)` thay vì ghi một con số batch cố định.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Activation tạo tính phi tuyến
+
+Sau Linear layer, neural network thường đặt một **activation function**. Activation biến đổi từng giá trị đầu ra và tạo tính phi tuyến cho model.
+
+Nếu chỉ nối nhiều Linear layer mà không có activation, toàn bộ chuỗi vẫn tương đương với một Linear layer duy nhất. Dù có thêm bao nhiêu layer, model khi đó chỉ học được quan hệ tuyến tính. Activation giúp mạng học được những ranh giới và quy luật phức tạp hơn.
+
+ReLU là activation phổ biến:
+
+```text
+ReLU(x) = max(0, x)
+```
+
+Nó giữ nguyên giá trị dương và đưa giá trị âm về `0`. ReLU đơn giản, tính toán nhanh và thường phù hợp cho các hidden layer. Shape không đổi khi qua ReLU:
+
+```text
+(32, 3) -> ReLU -> (32, 3)
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chọn activation phù hợp
+
+Mỗi activation có ý nghĩa phù hợp với một loại đầu ra khác nhau. **Sigmoid** biến một score thành giá trị trong khoảng từ 0 đến 1, vì vậy nó thường được dùng cho xác suất của bài toán phân loại nhị phân. Ví dụ `0.82` có thể được hiểu là model dự đoán 82% khả năng thuộc lớp positive.
+
+**Softmax** nhận nhiều score và biến chúng thành một phân phối xác suất có tổng bằng 1. Nó thường xuất hiện ở đầu ra của phân loại nhiều lớp. Với ba lớp, output có thể là `[0.10, 0.75, 0.15]`; lớp thứ hai có xác suất cao nhất.
+
+Tóm lại:
+
+- `Linear` kết hợp feature bằng trọng số và bias, đồng thời có thể đổi số feature.
+- `ReLU` thường dùng trong hidden layer để tạo tính phi tuyến.
+- `Sigmoid` thường phù hợp với đầu ra phân loại nhị phân.
+- `Softmax` thường phù hợp với đầu ra phân loại nhiều lớp.
+
+Khi thiết kế model, hãy kiểm tra cả hai việc: shape của các layer có khớp nhau không, và activation ở đầu ra có đúng với loại bài toán hay không.
+
+</MdxPage>

@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "dbscan-clustering-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Điểm noise trong DBSCAN",
+    "Core, border và noise",
+    "Ảnh hưởng của eps và min_samples"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "dbscan",
+    "density-based-clustering",
+    "core-border-noise-points",
+    "eps-min-samples",
+    "dbscan-limitations"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="dbscan-clustering-quiz" questions={[
+  {
+    "id": "dbscan-noise",
+    "title": "Điểm noise trong DBSCAN",
+    "prompt": "DBSCAN có thể gán nhãn noise cho điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Mọi centroid của cụm.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Điểm có nhãn lớp hiếm.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Điểm không thuộc vùng mật độ đủ cao và không kết nối với core point.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Điểm đứng đầu dataset.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Khả năng nhận diện noise là ưu điểm của DBSCAN.",
+    "error": "Noise liên quan đến mật độ và kết nối, không phụ thuộc vị trí dòng hay nhãn có sẵn."
+  },
+  {
+    "id": "dbscan-point-types",
+    "title": "Core, border và noise",
+    "prompt": "Phân loại mỗi mô tả theo vai trò của điểm trong DBSCAN.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "core",
+        "label": "Core point"
+      },
+      {
+        "id": "border",
+        "label": "Border point"
+      },
+      {
+        "id": "noise",
+        "label": "Noise point"
+      }
+    ],
+    "options": [
+      {
+        "id": "dense-neighborhood",
+        "label": "Có đủ số hàng xóm trong bán kính eps.",
+        "categoryId": "core"
+      },
+      {
+        "id": "near-core",
+        "label": "Nằm gần core point nhưng bản thân chưa đủ mật độ.",
+        "categoryId": "border"
+      },
+      {
+        "id": "isolated",
+        "label": "Không đủ mật độ và không nối tới cụm từ core point.",
+        "categoryId": "noise"
+      },
+      {
+        "id": "cluster-expands",
+        "label": "Có thể mở rộng cụm qua vùng mật độ cao.",
+        "categoryId": "core"
+      }
+    ],
+    "success": "Đúng. Core point mở rộng cụm, border point bám vào cụm, còn noise không thuộc cụm.",
+    "error": "Hãy xét mật độ lân cận và việc điểm có kết nối tới core point hay không."
+  },
+  {
+    "id": "dbscan-parameters",
+    "title": "Ảnh hưởng của eps và min_samples",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tăng eps có thể làm các vùng trước đó tách biệt bị nối vào cùng cụm.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Tăng min_samples làm điều kiện để trở thành core point nghiêm ngặt hơn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "DBSCAN cần chỉ định trước số cụm K.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Một bộ tham số có thể hoạt động kém khi các cụm có mật độ rất khác nhau.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. DBSCAN không cần K nhưng nhạy với lựa chọn mật độ và cấu trúc dữ liệu.",
+    "error": "K thuộc K-Means; DBSCAN dùng eps và min_samples để xác định cụm."
+  }
+]} />

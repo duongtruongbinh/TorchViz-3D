@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'regularization-l1-l2',
+  locale: 'vi',
+  title: 'Điều chuẩn L1 L2',
+  headings: [
+    'Regularization kiểm soát độ phức tạp',
+    'L2 làm trọng số nhỏ và ổn định hơn',
+    'L1 tạo mô hình thưa và chọn feature',
+    'Chuẩn hóa feature và chọn lambda',
+  ],
+  keywords: ['Machine Learning', 'Regularization', 'L1', 'L2', 'Ridge', 'Lasso', 'Feature Scaling'],
+  conceptIds: ['regularization', 'l2-regularization', 'l1-regularization', 'sparse-weights', 'feature-scaling-and-lambda'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Regularization kiểm soát độ phức tạp
+
+Model có nhiều feature hoặc nhiều tham số có thể khớp train set rất tốt nhưng lại học cả nhiễu. **Regularization** thêm một penalty vào loss để model không dựa quá mạnh vào các trọng số lớn nếu chúng không thật sự cần thiết.
+
+Với loss gốc `data_loss`, mục tiêu train có dạng:
+
+```text
+total_loss = data_loss + lambda * penalty(weights)
+```
+
+`lambda` kiểm soát mức regularization. Khi `lambda` bằng 0, model chỉ tối ưu độ khớp với train set. Khi `lambda` tăng, model bị khuyến khích dùng trọng số nhỏ hơn hoặc ít trọng số hơn. Giá trị quá lớn có thể làm model quá đơn giản và gây underfitting.
+
+Regularization không thay thế validation. Nó là một hyperparameter cần được thử trên validation hoặc cross-validation để tìm mức giúp generalization tốt nhất.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## L2 làm trọng số nhỏ và ổn định hơn
+
+**L2 regularization** thêm tổng bình phương trọng số vào loss:
+
+```text
+L2 penalty = lambda * sum(w_i^2)
+```
+
+Vì bình phương tăng nhanh với giá trị lớn, L2 phạt mạnh những trọng số có độ lớn cao. Model vẫn có thể dùng tất cả feature, nhưng thường phân bổ ảnh hưởng một cách mềm mại hơn thay vì đặt toàn bộ niềm tin vào một feature đơn lẻ. Trong linear regression, L2 thường được gọi là **Ridge regression**.
+
+L2 đặc biệt hữu ích khi các feature tương quan với nhau. Ví dụ, diện tích nhà tính theo mét vuông và diện tích tính theo foot vuông gần như chứa cùng thông tin. Không regularization, model có thể gán trọng số không ổn định cho hai cột này; L2 có xu hướng làm các trọng số ổn định hơn.
+
+Thông thường, intercept hoặc bias không bị regularize. Bias dịch toàn bộ dự đoán lên hoặc xuống, còn penalty chủ yếu nhằm kiểm soát độ phức tạp do các feature và trọng số tạo ra.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## L1 tạo mô hình thưa và chọn feature
+
+**L1 regularization** thêm tổng trị tuyệt đối của trọng số vào loss:
+
+```text
+L1 penalty = lambda * sum(abs(w_i))
+```
+
+L1 có xu hướng đưa một số trọng số về đúng `0`. Khi trọng số của một feature bằng 0, feature đó không còn ảnh hưởng trực tiếp đến dự đoán của model. Vì vậy, L1 thường được xem là một cơ chế chọn feature tự động. Trong linear regression, L1 thường được gọi là **Lasso regression**.
+
+Mô hình thưa có thể dễ diễn giải hơn và giảm chi phí khi có rất nhiều feature. Tuy nhiên, việc một trọng số bằng 0 không chứng minh feature đó vô ích trong mọi hoàn cảnh. Với các feature tương quan mạnh, L1 có thể chọn một feature và bỏ feature còn lại khá tùy thuộc vào dữ liệu train.
+
+L1 phù hợp khi team muốn một model gọn hoặc nghi ngờ chỉ một phần nhỏ feature thực sự mang tín hiệu. L2 phù hợp hơn khi nhiều feature cùng có đóng góp nhỏ và cần giữ chúng ổn định.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chuẩn hóa feature và chọn lambda
+
+L1 và L2 phạt độ lớn của trọng số, nên thang đo của feature ảnh hưởng trực tiếp đến penalty. Nếu một cột đo bằng hàng triệu đồng còn cột khác đo bằng phần trăm, các trọng số có độ lớn khác nhau chỉ vì đơn vị đo, không hẳn vì feature quan trọng hơn.
+
+Vì vậy, hãy fit scaler trên train set rồi dùng nó để transform validation và test set. Sau chuẩn hóa, các feature số thường có thang đo tương đương hơn, giúp penalty giữa các cột công bằng và giúp optimizer ổn định hơn.
+
+`lambda` nên được chọn bằng validation hoặc cross-validation. Có thể thử một dải giá trị từ nhỏ đến lớn, so sánh metric phù hợp với bài toán rồi chọn cấu hình có generalization tốt nhất. Đừng chọn lambda chỉ vì train loss thấp, vì penalty được thêm vào chính để cải thiện kết quả trên dữ liệu mới.
+
+Tóm lại, L2 thu nhỏ trọng số để tăng ổn định, còn L1 có thể đưa một số trọng số về 0 để tạo mô hình thưa. Cả hai đều là công cụ kiểm soát độ phức tạp, không phải phép chữa chung cho mọi loại overfitting.
+
+</MdxPage>

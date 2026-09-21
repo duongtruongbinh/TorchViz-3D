@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "sklearn-saving-models-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Nên lưu gì khi deploy?",
+    "Artifact và metadata",
+    "Lưu và tải model an toàn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "model-artifact",
+    "save-pipeline",
+    "joblib-pickle-security",
+    "model-metadata-versioning",
+    "input-schema-validation",
+    "model-rollback"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="sklearn-saving-models-quiz" questions={[
+  {
+    "id": "save-pipeline",
+    "title": "Nên lưu gì khi deploy?",
+    "prompt": "Khi model phụ thuộc preprocessing, nên lưu artifact nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Chỉ tên của thuật toán.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Toàn bộ fitted pipeline gồm preprocessing và model.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Chỉ test set.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Chỉ một bảng kết quả validation.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Lưu pipeline giúp feature ở inference được xử lý giống lúc train.",
+    "error": "Chỉ lưu model mà không lưu preprocessing dễ làm input production không cùng không gian feature."
+  },
+  {
+    "id": "artifact-and-metadata",
+    "title": "Artifact và metadata",
+    "prompt": "Phân loại thứ nên lưu cùng một lần phát hành model.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "artifact",
+        "label": "Model artifact"
+      },
+      {
+        "id": "metadata",
+        "label": "Experiment/deployment metadata"
+      }
+    ],
+    "options": [
+      {
+        "id": "fitted-pipeline",
+        "label": "Pipeline đã fit gồm encoder, scaler và estimator.",
+        "categoryId": "artifact"
+      },
+      {
+        "id": "feature-schema",
+        "label": "Schema input và phiên bản preprocessing.",
+        "categoryId": "metadata"
+      },
+      {
+        "id": "library-versions",
+        "label": "Phiên bản thư viện và môi trường chạy.",
+        "categoryId": "metadata"
+      },
+      {
+        "id": "fitted-encoder",
+        "label": "Encoder đã fit được dùng khi inference.",
+        "categoryId": "artifact"
+      }
+    ],
+    "success": "Đúng. Artifact cho phép dự đoán, metadata giúp tái lập, kiểm tra và rollback.",
+    "error": "Hãy phân biệt đối tượng dùng để chạy prediction với thông tin mô tả cách nó được tạo và triển khai."
+  },
+  {
+    "id": "model-artifact-safety",
+    "title": "Lưu và tải model an toàn",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Nên ghi lại version thư viện và schema input cùng artifact.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Chỉ nên load serialized artifact từ nguồn đáng tin cậy.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Nên kiểm tra một prediction sau khi load để phát hiện lỗi tương thích.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Chỉ cần giữ source code, không cần artifact hay metadata.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Một artifact hữu ích phải đi cùng thông tin tái lập và các kiểm tra an toàn.",
+    "error": "Serialized object có thể không an toàn hoặc không tương thích nếu không kiểm soát nguồn và version."
+  }
+]} />

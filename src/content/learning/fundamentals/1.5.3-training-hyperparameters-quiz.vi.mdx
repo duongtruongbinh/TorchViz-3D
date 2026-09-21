@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "training-hyperparameters-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Vai trò của learning rate",
+    "Parameter hay hyperparameter?",
+    "Các quyết định train"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "training-hyperparameters",
+    "learning-rate",
+    "batch-size-epochs",
+    "optimizer",
+    "weight-decay-dropout-scheduler",
+    "training-reproducibility"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="training-hyperparameters-quiz" questions={[
+  {
+    "id": "learning-rate",
+    "title": "Vai trò của learning rate",
+    "prompt": "Learning rate kiểm soát điều gì trong quá trình tối ưu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Số feature đầu vào cố định.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Số nhãn trong dataset.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Kích thước test set.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Độ lớn bước cập nhật tham số theo gradient.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Learning rate quá lớn có thể làm tối ưu không ổn định, quá nhỏ có thể học rất chậm.",
+    "error": "Learning rate liên quan đến bước cập nhật tham số, không phải cấu trúc trực tiếp của dữ liệu."
+  },
+  {
+    "id": "parameter-vs-hyperparameter",
+    "title": "Parameter hay hyperparameter?",
+    "prompt": "Phân loại từng đại lượng.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "parameter",
+        "label": "Parameter được học"
+      },
+      {
+        "id": "hyperparameter",
+        "label": "Hyperparameter được chọn"
+      }
+    ],
+    "options": [
+      {
+        "id": "weight",
+        "label": "Trọng số của một layer sau khi train.",
+        "categoryId": "parameter"
+      },
+      {
+        "id": "learning-rate",
+        "label": "Learning rate.",
+        "categoryId": "hyperparameter"
+      },
+      {
+        "id": "batch-size",
+        "label": "Batch size.",
+        "categoryId": "hyperparameter"
+      },
+      {
+        "id": "bias",
+        "label": "Bias đã được optimizer cập nhật.",
+        "categoryId": "parameter"
+      }
+    ],
+    "success": "Đúng. Parameter được tối ưu từ dữ liệu; hyperparameter được người phát triển hoặc quy trình tuning chọn.",
+    "error": "Hãy hỏi: giá trị này có được gradient học trực tiếp không?"
+  },
+  {
+    "id": "training-controls",
+    "title": "Các quyết định train",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Learning rate quá lớn có thể làm loss dao động hoặc diverge.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Batch size ảnh hưởng đến bộ nhớ và độ nhiễu của gradient estimate.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Hyperparameter nên được chọn bằng validation hoặc cross-validation.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Nên dùng test set để chỉnh liên tục learning rate.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Hyperparameter ảnh hưởng cả hiệu quả tối ưu lẫn khả năng tổng quát hóa.",
+    "error": "Test set không phải công cụ tuning; nó là bước đánh giá cuối."
+  }
+]} />

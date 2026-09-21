@@ -1,0 +1,128 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "sklearn-pipelines-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Lợi ích của sklearn Pipeline",
+    "Thứ tự trong một Pipeline",
+    "Fit ở đâu, transform ở đâu?"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "sklearn-pipeline",
+    "preprocessing-workflow",
+    "pipeline-data-leakage",
+    "pipeline-cross-validation",
+    "train-inference-consistency"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="sklearn-pipelines-quiz" questions={[
+  {
+    "id": "pipeline-benefit",
+    "title": "Lợi ích của sklearn Pipeline",
+    "prompt": "Lợi ích quan trọng của Pipeline là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tự động biến mọi bài toán thành deep learning.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Bỏ qua bước chia train và validation.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Gói preprocessing và model thành một workflow nhất quán, giảm nguy cơ leakage.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Không cần fit dữ liệu.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Pipeline bảo đảm các bước được áp dụng theo đúng thứ tự trong train và inference.",
+    "error": "Pipeline hỗ trợ workflow đúng, nhưng không thay thế split, fit hay đánh giá."
+  },
+  {
+    "id": "pipeline-workflow",
+    "title": "Thứ tự trong một Pipeline",
+    "prompt": "Sắp xếp các bước phổ biến của Pipeline xử lý dữ liệu dạng bảng.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "model",
+        "label": "Đưa feature đã xử lý vào estimator để fit hoặc predict."
+      },
+      {
+        "id": "impute",
+        "label": "Điền giá trị thiếu theo thống kê học từ train."
+      },
+      {
+        "id": "encode-scale",
+        "label": "Encode cột categorical và scale cột numeric."
+      },
+      {
+        "id": "input",
+        "label": "Nhận dữ liệu thô theo schema đầu vào."
+      }
+    ],
+    "correctOrder": [
+      "input",
+      "impute",
+      "encode-scale",
+      "model"
+    ],
+    "success": "Đúng. Pipeline biến dữ liệu thô thành feature phù hợp rồi mới đưa vào model.",
+    "error": "Dữ liệu phải được impute và encode/scale trước khi estimator nhận feature cuối."
+  },
+  {
+    "id": "fit-vs-transform",
+    "title": "Fit ở đâu, transform ở đâu?",
+    "prompt": "Phân loại thao tác trong pipeline.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "fit-train",
+        "label": "Fit trên train"
+      },
+      {
+        "id": "transform-heldout",
+        "label": "Transform validation/test bằng trạng thái đã học"
+      }
+    ],
+    "options": [
+      {
+        "id": "learn-median",
+        "label": "Học median để impute từ dữ liệu train.",
+        "categoryId": "fit-train"
+      },
+      {
+        "id": "learn-scale",
+        "label": "Học mean và standard deviation từ train.",
+        "categoryId": "fit-train"
+      },
+      {
+        "id": "scale-validation",
+        "label": "Scale validation bằng mean/std của train.",
+        "categoryId": "transform-heldout"
+      },
+      {
+        "id": "encode-test",
+        "label": "Encode test bằng categories đã học từ train.",
+        "categoryId": "transform-heldout"
+      }
+    ],
+    "success": "Đúng. State của preprocessing phải được học từ train rồi tái sử dụng cho dữ liệu giữ lại.",
+    "error": "Không fit lại preprocessing trên validation hoặc test vì điều đó gây leakage."
+  }
+]} />

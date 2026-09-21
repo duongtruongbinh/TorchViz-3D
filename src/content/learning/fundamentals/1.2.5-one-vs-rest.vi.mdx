@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'one-vs-rest',
+  locale: 'vi',
+  title: 'One Vs Rest',
+  headings: [
+    'Từ phân loại nhị phân đến nhiều lớp',
+    'Huấn luyện K classifier nhị phân',
+    'Chọn lớp từ các score',
+    'Mất cân bằng, calibration và multilabel',
+  ],
+  keywords: ['Machine Learning', 'One Vs Rest', 'Multiclass Classification', 'Binary Classification', 'Calibration', 'Class Imbalance'],
+  conceptIds: ['multiclass-classification', 'one-vs-rest-training', 'argmax-prediction', 'score-calibration', 'multilabel-classification'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Từ phân loại nhị phân đến nhiều lớp
+
+Logistic regression nhị phân dự đoán một lớp dương đối lập với một lớp âm. Nhưng nhiều bài toán có nhiều hơn hai lớp, chẳng hạn nhận diện ảnh là mèo, chó hoặc chim; phân loại ticket hỗ trợ theo nhóm kỹ thuật, thanh toán hoặc tài khoản.
+
+**One-vs-Rest** (OvR), còn gọi là One-vs-All, biến bài toán có `K` lớp thành `K` bài toán phân loại nhị phân. Mỗi classifier tập trung vào câu hỏi “mẫu này có thuộc lớp của tôi không?”, còn mọi lớp khác được gộp thành lớp âm.
+
+OvR là một chiến lược đơn giản và linh hoạt. Nó cho phép dùng một binary classifier quen thuộc, như logistic regression, cho bài toán nhiều lớp mà không cần thay đổi hoàn toàn mô hình.
+
+<LessonNote>
+  One-vs-Rest là cách tổ chức nhiều binary classifier. Nó không phải một kiến trúc model riêng và có thể được dùng với nhiều loại classifier khác nhau.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Huấn luyện K classifier nhị phân
+
+Giả sử có ba lớp là `cat`, `dog` và `bird`. OvR huấn luyện ba classifier độc lập. Classifier thứ nhất coi `cat` là positive và gộp `dog` cùng `bird` thành negative. Hai classifier còn lại làm điều tương tự cho `dog` và `bird`.
+
+```text
+Classifier cat:  cat vs not-cat
+Classifier dog:  dog vs not-dog
+Classifier bird: bird vs not-bird
+```
+
+Với `K` lớp, ta có `K` bộ trọng số, bias và loss riêng. Mỗi classifier có thể xuất ra một score hoặc xác suất cho lớp mà nó phụ trách. Quá trình train của từng bộ gần giống logistic regression nhị phân.
+
+Ưu điểm của cách này là dễ triển khai, dễ thêm một classifier mới và thường hoạt động tốt khi base classifier mạnh. Nhược điểm là khi số lớp rất lớn, số model cần train và lưu trữ cũng tăng theo số lớp.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn lớp từ các score
+
+Trong bài toán multiclass độc quyền, mỗi mẫu chỉ thuộc đúng một lớp. Khi dự đoán, tất cả classifier OvR cùng chấm điểm mẫu đó, rồi hệ thống chọn lớp có score cao nhất.
+
+```text
+cat:  0.18
+dog:  0.77
+bird: 0.29
+
+Prediction: dog
+```
+
+Quy tắc này thường được gọi là `argmax`. Không cần tất cả các score phải cộng lại bằng 1; điều quan trọng là score của lớp đúng cao hơn score của các lớp còn lại. Đây là một khác biệt với softmax, vốn tạo ra một phân phối xác suất chung trên toàn bộ lớp.
+
+Nếu application cần trả lời “không có lớp nào đủ chắc chắn”, ta có thể đặt thêm threshold cho score cao nhất. Threshold này nên được chọn trên validation set, vì một quy tắc quá cứng có thể từ chối nhiều mẫu đúng hoặc chấp nhận quá nhiều mẫu không chắc chắn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Mất cân bằng, calibration và multilabel
+
+Với OvR, mỗi classifier có thể gặp class imbalance khác nhau. Một lớp hiếm có rất ít positive so với tất cả lớp còn lại, nên accuracy có thể cao dù classifier hầu như không nhận ra lớp đó. Class weight, sampling phù hợp và metric theo từng lớp như Precision, Recall hoặc PR-AUC giúp đánh giá công bằng hơn.
+
+Các classifier được train độc lập, nên xác suất của chúng có thể chưa được calibration đồng đều. Score `0.80` từ classifier `cat` không nhất thiết đáng tin tương đương score `0.80` từ classifier `dog`. Khi cần so sánh xác suất hoặc dùng threshold theo rủi ro, hãy kiểm tra calibration trên validation data.
+
+OvR cũng có thể dùng cho **multilabel classification**, nơi một mẫu được phép thuộc nhiều lớp cùng lúc, chẳng hạn một ảnh có cả `beach` và `sunset`. Khi đó không chọn một `argmax`; mỗi classifier dùng threshold riêng và có thể cùng dự đoán positive. Hãy xác định rõ bài toán là multiclass độc quyền hay multilabel trước khi thiết kế cách ra quyết định.
+
+Softmax multinomial logistic regression thường phù hợp tự nhiên với multiclass độc quyền, còn OvR linh hoạt hơn khi muốn tái sử dụng binary classifier hoặc khi bài toán có thể có nhiều nhãn. Lựa chọn cuối cùng nên được kiểm chứng bằng validation metric theo đúng mục tiêu sản phẩm.
+
+</MdxPage>

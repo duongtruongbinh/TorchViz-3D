@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'sklearn-api-pattern',
+  locale: 'vi',
+  title: 'Sklearn API Pattern',
+  headings: [
+    'Một giao diện chung cho nhiều loại object',
+    'fit, transform, predict và predict_proba',
+    'Estimator, transformer, pipeline và meta-estimator',
+    'API nhất quán giúp kiểm thử và thay thế model',
+  ],
+  keywords: ['Machine Learning', 'Scikit-Learn', 'Estimator', 'Transformer', 'Pipeline', 'fit', 'predict', 'predict_proba'],
+  conceptIds: ['sklearn-api', 'fit-predict-transform', 'fit-transform', 'estimator-transformer', 'pipeline-meta-estimator', 'composable-workflows'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Một giao diện chung cho nhiều loại object
+
+Scikit-Learn được thiết kế quanh một API nhất quán. Dù bạn dùng linear regression, random forest, scaler hay PCA, object thường được khởi tạo bằng hyperparameter, học từ dữ liệu qua `fit`, rồi được dùng qua các method phù hợp.
+
+Sự nhất quán này làm việc thử model dễ hơn. Bạn có thể thay LogisticRegression bằng RandomForestClassifier trong một Pipeline mà không phải viết lại toàn bộ luồng data. Cross-validation và search object cũng có thể làm việc với estimator theo cùng protocol.
+
+Hãy phân biệt hyperparameter với learned attributes. Hyperparameter được truyền lúc khởi tạo, như `max_depth=5`. Sau `fit`, object có thêm thông tin đã học, như các cây trong forest hoặc mean của scaler. Object chưa fit không nên được dùng để predict.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## fit, transform, predict và predict_proba
+
+`fit(X, y)` học từ dữ liệu. Với supervised estimator, `y` là target; với transformer như StandardScaler, `fit(X)` học thống kê của feature. Sau đó `predict(X_new)` tạo label hoặc giá trị dự đoán cho dữ liệu mới.
+
+`predict_proba(X_new)` thường có ở classifier hỗ trợ xác suất. Nó trả về xác suất theo từng lớp, hữu ích khi bạn cần chọn threshold, xếp hạng rủi ro hoặc đánh giá calibration. Không phải mọi classifier đều có xác suất có ý nghĩa tương đương, nên hãy kiểm tra documentation và validation result.
+
+`transform(X)` áp dụng biến đổi đã học, ví dụ scale feature hoặc chiếu PCA. `fit_transform(X)` kết hợp fit rồi transform, tiện khi xử lý train data. Với validation/test/inference, chỉ gọi `transform` bằng transformer đã fit để tránh học từ dữ liệu mới.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Estimator, transformer, pipeline và meta-estimator
+
+**Estimator** là object có `fit`; nhiều estimator sau đó có `predict` hoặc `score`. **Transformer** thường có `transform`, ví dụ StandardScaler, OneHotEncoder hoặc PCA. Một object có thể vừa fit vừa transform để tạo feature mới.
+
+**Pipeline** ghép các transformer và một estimator cuối thành workflow thống nhất. **ColumnTransformer** áp dụng transform khác nhau theo nhóm cột. Những object này làm preprocessing có cấu trúc và an toàn hơn trong cross-validation.
+
+**Meta-estimator** là object dùng các estimator khác bên trong, như GridSearchCV, OneVsRestClassifier hoặc VotingClassifier. Nhờ API chung, meta-estimator có thể clone, fit và đánh giá estimator con mà không cần biết chi tiết implementation của từng model.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## API nhất quán giúp kiểm thử và thay thế model
+
+API nhất quán khuyến khích code theo workflow composable. Bạn có thể dùng cùng một function để fit nhiều candidate pipeline, đánh giá chúng bằng cùng metric và chọn object tốt nhất. Điều này giảm code đặc biệt cho từng model và làm thí nghiệm dễ tái lập hơn.
+
+Tuy nhiên, cùng method name không có nghĩa mọi model có behavior giống nhau. `score` có thể đại diện cho metric khác nhau theo estimator; `predict_proba` có thể có calibration khác nhau; feature importance hay input constraints cũng khác nhau. Hãy đọc contract của estimator và kiểm tra output bằng test nhỏ.
+
+Khi hiểu `fit`, `transform`, `predict` và Pipeline, bạn có thể ghép phần lớn workflow tabular ML trong Scikit-Learn: chuẩn bị data, cross-validation, tuning, lưu artifact và inference. API làm các khối dễ kết nối; chất lượng hệ thống vẫn phụ thuộc vào dữ liệu, evaluation và quyết định engineering xung quanh chúng.
+
+</MdxPage>

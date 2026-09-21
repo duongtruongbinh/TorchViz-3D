@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'sklearn-pipelines',
+  locale: 'vi',
+  title: 'Sklearn Pipelines',
+  headings: [
+    'Một workflow thay vì các bước rời rạc',
+    'Pipeline ngăn data leakage',
+    'Pipeline trong cross-validation và tuning',
+    'Train và inference dùng cùng logic',
+  ],
+  keywords: ['Machine Learning', 'Scikit-Learn', 'Pipeline', 'Preprocessing', 'Data Leakage', 'Cross Validation', 'Deployment'],
+  conceptIds: ['sklearn-pipeline', 'preprocessing-workflow', 'pipeline-data-leakage', 'pipeline-cross-validation', 'train-inference-consistency'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Một workflow thay vì các bước rời rạc
+
+Một model hiếm khi nhận dữ liệu thô trực tiếp. Dữ liệu thường cần xử lý missing value, scale cột số, encode category rồi mới được đưa vào estimator. Nếu các bước này được gọi thủ công ở nhiều nơi, rất dễ dùng nhầm thứ tự feature hoặc áp dụng preprocessing khác nhau giữa train và inference.
+
+**Scikit-Learn Pipeline** nối các bước thành một object duy nhất:
+
+```text
+Du lieu tho -> preprocessing -> feature transformation -> model -> prediction
+```
+
+Các bước trước bước cuối phải là transformer, còn bước cuối thường là estimator. Pipeline có API chung như `fit`, `predict` và `score`, vì vậy cả workflow có thể được dùng gần giống một model đơn lẻ.
+
+<LessonNote>
+  Pipeline không chỉ làm code gọn hơn. Giá trị quan trọng nhất là biến preprocessing thành một phần không thể tách rời của model workflow.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Pipeline ngăn data leakage
+
+Data leakage thường xảy ra khi scaler, imputer hoặc encoder được fit trên toàn bộ dataset trước khi chia train và validation. Khi đó, preprocessing đã nhìn thấy thống kê hoặc category từ validation/test data, làm evaluation lạc quan hơn thực tế.
+
+Khi dùng Pipeline, gọi `pipeline.fit(X_train, y_train)` sẽ fit từng transformer chỉ trên train data. Sau đó, khi gọi `pipeline.predict(X_validation)`, pipeline dùng đúng các tham số preprocessing đã học từ train để transform validation rồi dự đoán.
+
+Ví dụ, StandardScaler học mean và standard deviation từ train set. Test set không được phép ảnh hưởng đến hai giá trị này. Pipeline đảm bảo quy tắc đó được áp dụng nhất quán thay vì dựa vào việc người viết code nhớ từng bước.
+
+Pipeline cũng giúp giữ thứ tự các transform cố định. Nếu train dùng imputer rồi scaler, inference sẽ luôn đi qua imputer rồi scaler trước khi tới model.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Pipeline trong cross-validation và tuning
+
+Khi một Pipeline được đưa vào cross-validation, Scikit-Learn tạo bản sao của pipeline cho từng fold. Mỗi bản chỉ fit preprocessing trên phần train của fold đó, rồi đánh giá trên validation portion. Đây là cách đúng để đo chất lượng của toàn bộ workflow.
+
+Pipeline cũng hoạt động với GridSearchCV hoặc RandomizedSearchCV. Hyperparameter của từng step thường dùng tên có dạng `step_name__parameter`. Ví dụ có thể tune `model__max_depth` cho tree hoặc `scaler__with_mean` cho scaler mà vẫn giữ toàn bộ preprocessing nằm trong cross-validation.
+
+Việc tuning một pipeline đầy đủ quan trọng hơn tuning riêng model sau khi preprocess toàn bộ data. Nếu feature engineering, imputation hoặc scaling có hyperparameter, chúng cũng là một phần của quyết định cần được đánh giá công bằng trong mỗi fold.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Train và inference dùng cùng logic
+
+Sau khi chọn cấu hình, fit pipeline trên phần dữ liệu phát triển đã định. Object pipeline đã train chứa cả preprocessing state lẫn model state. Khi có dữ liệu mới, chỉ cần truyền raw input vào `pipeline.predict` hoặc `pipeline.predict_proba`.
+
+Điều này giảm rủi ro production dùng một scaler khác, thiếu encoder, đảo cột feature hoặc quên xử lý missing value. Tuy nhiên, pipeline không thể tự sửa input schema sai. Hệ thống vẫn nên kiểm tra kiểu dữ liệu, cột bắt buộc, phạm vi giá trị và phiên bản schema trước khi dự đoán.
+
+Pipeline là nền tảng cho workflow có thể tái lập: train, cross-validation, tuning, lưu model và inference đều dùng cùng một object. Nó biến quy trình từ “một đoạn notebook chạy được” thành một đơn vị rõ ràng hơn để kiểm thử và triển khai.
+
+</MdxPage>

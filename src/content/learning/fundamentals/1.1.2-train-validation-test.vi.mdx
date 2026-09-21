@@ -1,0 +1,97 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'train-validation-test',
+  locale: 'vi',
+  title: 'Train Validation Test',
+  headings: [
+    'Vì sao phải chia dữ liệu',
+    'Train set học tham số',
+    'Validation set chọn quyết định',
+    'Test set và kết quả trung thực',
+    'Chia dữ liệu đúng với bài toán',
+  ],
+  keywords: ['Machine Learning', 'Train Set', 'Validation Set', 'Test Set', 'Data Split', 'Data Leakage'],
+  conceptIds: ['dataset-split', 'train-set', 'validation-set', 'test-set', 'time-group-stratified-split'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Vì sao phải chia dữ liệu
+
+Mục tiêu của Machine Learning không phải là nhớ chính xác dữ liệu đã nhìn thấy, mà là hoạt động tốt trên dữ liệu mới. Vì vậy, trước khi train model, dữ liệu thường được tách thành train set, validation set và test set.
+
+Nếu đánh giá trên chính dữ liệu đã dùng để học, model có thể đạt điểm rất cao chỉ vì đã ghi nhớ các ví dụ đó. Điểm số này không cho biết model có dự đoán tốt với người dùng, ảnh mới hay giao dịch mới trong thực tế hay không.
+
+Một cách chia phổ biến là dùng phần lớn dữ liệu để train, một phần nhỏ để validation và một phần được giữ lại làm test. Tỷ lệ cụ thể không cố định; nó phụ thuộc vào kích thước và đặc điểm của dataset. Điều quan trọng hơn là mỗi phần có vai trò riêng và không bị dùng lẫn lộn.
+
+<LessonNote>
+  Hãy xem test set như một bài kiểm tra cuối kỳ. Nếu xem đáp án rồi sửa bài nhiều lần, điểm cuối cùng sẽ không còn phản ánh năng lực thật.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Train set học tham số
+
+**Train set** là phần dữ liệu model được phép học trực tiếp. Trong quá trình train, model nhận input, tạo dự đoán, so sánh dự đoán với nhãn đúng rồi điều chỉnh trọng số để giảm loss.
+
+Với hồi quy giá nhà, train set có thể gồm diện tích, số phòng, tuổi nhà và giá bán thật. Model nhìn thấy các ví dụ này nhiều lần qua các epoch để học mối liên hệ giữa feature và target.
+
+Các tham số được học từ train set bao gồm trọng số của Linear layer, bias của layer hoặc trọng số của decision tree. Chúng là những giá trị model tự điều chỉnh trong quá trình tối ưu.
+
+Train accuracy hoặc train loss hữu ích để theo dõi model có đang học hay không, nhưng không đủ để kết luận model tốt. Một model có thể có train loss rất thấp mà vẫn dự đoán kém trên dữ liệu chưa từng thấy.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Validation set chọn quyết định
+
+**Validation set** không dùng để cập nhật trọng số trực tiếp. Sau khi train một hoặc nhiều model, ta dùng validation set để so sánh các lựa chọn và chọn cấu hình có khả năng tổng quát hóa tốt hơn.
+
+Validation có thể giúp trả lời những câu hỏi như:
+
+- nên dùng model nào;
+- learning rate, độ sâu tree hoặc regularization bằng bao nhiêu;
+- nên train bao nhiêu epoch;
+- ngưỡng nào phù hợp để chuyển xác suất thành nhãn positive hoặc negative.
+
+Ví dụ, một classifier có thể tạo xác suất `0.62`. Việc coi `0.62` là positive hay negative phụ thuộc vào threshold. Threshold này nên được chọn dựa trên validation set, không phải test set.
+
+Khi thử nhiều cấu hình, ta có thể chọn model tốt nhất theo validation metric rồi train lại theo quy trình đã quyết định. Nếu dataset nhỏ, cross-validation là một cách dùng dữ liệu hiệu quả hơn thay vì chỉ giữ một validation split cố định.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Test set và kết quả trung thực
+
+**Test set** được giữ riêng cho lần đánh giá cuối cùng. Nó mô phỏng dữ liệu tương lai mà team chưa dùng để train hoặc chọn hyperparameter. Sau khi đã chốt model, preprocessing và threshold, ta mới chạy test set để báo cáo kết quả.
+
+Nếu liên tục xem test score rồi chỉnh model để tăng score đó, test set dần trở thành validation set thứ hai. Khi ấy model và quyết định của team đã vô tình thích nghi với test data, khiến kết quả test trở nên lạc quan giả.
+
+Hiện tượng này là một dạng **data leakage**. Leakage không chỉ xảy ra khi lộ nhãn; nó cũng xảy ra khi thông tin từ test set tác động đến quyết định thiết kế model. Vì vậy, hãy lưu lại quy trình chọn model và chỉ công bố test score sau cùng.
+
+```text
+Train: học tham số
+Validation: chọn model và hyperparameter
+Test: đánh giá cuối cùng một cách trung thực
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chia dữ liệu đúng với bài toán
+
+Không phải dataset nào cũng nên chia ngẫu nhiên. Với dữ liệu theo thời gian như dự báo doanh thu, train set nên chứa giai đoạn quá khứ và test set nên chứa giai đoạn tương lai. Việc trộn dữ liệu tương lai vào train có thể làm model biết trước thông tin mà thực tế chưa có.
+
+Khi một người dùng, bệnh nhân hoặc thiết bị có nhiều dòng dữ liệu, hãy dùng **group split**. Toàn bộ các dòng của cùng một nhóm cần nằm trong một split duy nhất. Nếu cùng một người xuất hiện ở train và test, model có thể vô tình nhận ra người đó thay vì học quy luật chung.
+
+Với classification mất cân bằng, **stratified split** giúp giữ tỷ lệ các lớp gần giống nhau giữa train, validation và test. Ví dụ, nếu chỉ 5% giao dịch là gian lận, mỗi split cũng nên có tỷ lệ gian lận gần như vậy để metric ổn định và có ý nghĩa.
+
+Tóm lại, split tốt phải mô phỏng đúng cách dữ liệu mới sẽ xuất hiện sau khi model được triển khai. Hãy chọn cách chia theo thời gian, theo nhóm hoặc theo tỷ lệ lớp dựa trên bản chất dữ liệu, thay vì luôn dùng random split.
+
+</MdxPage>

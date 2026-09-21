@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "sklearn-model-selection-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Chọn model bằng dữ liệu nào?",
+    "Quy trình model selection",
+    "Chọn model cho sản phẩm"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "model-selection",
+    "baseline-model",
+    "evaluation-protocol",
+    "cross-validation-model-comparison",
+    "gridsearchcv-randomizedsearchcv",
+    "operational-tradeoffs"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="sklearn-model-selection-quiz" questions={[
+  {
+    "id": "selection-criterion",
+    "title": "Chọn model bằng dữ liệu nào?",
+    "prompt": "Nên dùng kết quả nào để so sánh các model và hyperparameter trong giai đoạn phát triển?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Validation score hoặc cross-validation score theo metric đã chọn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Training score duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Test score sau mỗi lần thử.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Tên của thuật toán.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Validation hoặc cross-validation cho phép so sánh công bằng mà vẫn giữ test set cuối.",
+    "error": "Training score thường quá lạc quan; test score không nên là feedback lặp lại."
+  },
+  {
+    "id": "model-selection-flow",
+    "title": "Quy trình model selection",
+    "prompt": "Sắp xếp quy trình chọn model hợp lý.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "test",
+        "label": "Đánh giá một lần cuối trên test set giữ riêng."
+      },
+      {
+        "id": "compare",
+        "label": "So sánh ứng viên bằng validation/CV và ràng buộc vận hành."
+      },
+      {
+        "id": "metric",
+        "label": "Xác định metric, split và baseline."
+      },
+      {
+        "id": "train",
+        "label": "Train và tune các model ứng viên trên dữ liệu phát triển."
+      }
+    ],
+    "correctOrder": [
+      "metric",
+      "train",
+      "compare",
+      "test"
+    ],
+    "success": "Đúng. Metric và protocol phải được xác định trước khi so sánh, còn test chỉ là bước cuối.",
+    "error": "Bắt đầu bằng metric/split, phát triển ứng viên, so sánh rồi mới đánh giá test."
+  },
+  {
+    "id": "selection-tradeoffs",
+    "title": "Chọn model cho sản phẩm",
+    "prompt": "Chọn tất cả yếu tố nên được cân nhắc khi chọn model cuối.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Metric phải phản ánh chi phí lỗi của ứng dụng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Latency, bộ nhớ và khả năng vận hành có thể quan trọng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Model có training score cao nhất luôn là lựa chọn đủ tốt.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Dùng cùng protocol split giúp so sánh các model công bằng hơn.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Model tốt trong production cần vừa có hiệu năng phù hợp vừa đáp ứng ràng buộc vận hành.",
+    "error": "Không nên chỉ nhìn training score; cần đánh giá tổng quát hóa và chi phí thực tế."
+  }
+]} />

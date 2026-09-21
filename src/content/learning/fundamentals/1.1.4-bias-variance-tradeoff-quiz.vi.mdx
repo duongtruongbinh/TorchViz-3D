@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "bias-variance-tradeoff-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "High bias thường biểu hiện ra sao?",
+    "Đọc trade-off",
+    "Nguồn gốc của lỗi"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "prediction-error",
+    "bias",
+    "variance",
+    "irreducible-noise",
+    "bias-variance-tradeoff"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="bias-variance-tradeoff-quiz" questions={[
+  {
+    "id": "high-bias",
+    "title": "High bias thường biểu hiện ra sao?",
+    "prompt": "Mô hình high bias thường có đặc điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Quá đơn giản nên bỏ sót quy luật quan trọng trong dữ liệu.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Thay đổi rất mạnh khi đổi một ít dữ liệu train.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Luôn có điểm train bằng 100%.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Không bao giờ có nhiễu đo lường.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. High bias thường dẫn đến underfitting.",
+    "error": "Độ nhạy mạnh với dữ liệu train là high variance, không phải high bias."
+  },
+  {
+    "id": "bias-variance-facts",
+    "title": "Đọc trade-off",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "High variance làm dự đoán nhạy với mẫu train cụ thể.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Mục tiêu là tổng quát hóa tốt, không phải bắt buộc đưa mọi thành phần lỗi về 0.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "High bias thường liên quan đến underfitting.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Không tồn tại nhiễu ngẫu nhiên không thể loại bỏ.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Bias, variance và nhiễu đều là phần của bức tranh lỗi dự đoán.",
+    "error": "Hãy nhớ rằng dữ liệu thực tế thường có một phần nhiễu không thể học hết."
+  },
+  {
+    "id": "error-sources",
+    "title": "Nguồn gốc của lỗi",
+    "prompt": "Phân loại mô tả vào nguồn lỗi chính.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "bias",
+        "label": "Bias"
+      },
+      {
+        "id": "variance",
+        "label": "Variance"
+      },
+      {
+        "id": "noise",
+        "label": "Nhiễu không thể loại bỏ"
+      }
+    ],
+    "options": [
+      {
+        "id": "linear-curve",
+        "label": "Dùng đường thẳng cho một quan hệ cong rõ ràng.",
+        "categoryId": "bias"
+      },
+      {
+        "id": "sample-sensitive",
+        "label": "Dự đoán thay đổi nhiều khi train trên mẫu khác.",
+        "categoryId": "variance"
+      },
+      {
+        "id": "measurement-error",
+        "label": "Sai số đo ngẫu nhiên không quan sát được đầy đủ.",
+        "categoryId": "noise"
+      },
+      {
+        "id": "rigid-model",
+        "label": "Giả định mô hình cứng khiến hệ thống bỏ qua cấu trúc thật.",
+        "categoryId": "bias"
+      }
+    ],
+    "success": "Đúng. Mỗi nguồn lỗi cần cách xử lý khác nhau.",
+    "error": "Bias là sai lệch hệ thống, variance là độ nhạy với mẫu train, còn noise là phần không thể loại bỏ."
+  }
+]} />

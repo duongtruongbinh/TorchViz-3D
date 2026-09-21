@@ -1,0 +1,77 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'random-forests',
+  locale: 'vi',
+  title: 'Random Forests',
+  headings: [
+    'Từ một tree đến một forest',
+    'Bootstrap và bagging',
+    'Random feature làm các tree đa dạng hơn',
+    'Gộp dự đoán và đánh giá out-of-bag',
+  ],
+  keywords: ['Machine Learning', 'Random Forest', 'Ensemble Learning', 'Bagging', 'Bootstrap', 'Out-of-Bag', 'Variance Reduction'],
+  conceptIds: ['random-forest', 'bagging-bootstrap', 'random-feature-selection', 'ensemble-aggregation', 'out-of-bag-evaluation'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Từ một tree đến một forest
+
+Một Decision Tree sâu có thể học các rule rất chi tiết, nhưng cũng dễ thay đổi mạnh khi train set thay đổi một chút. Đây là biểu hiện của variance cao. **Random Forest** giảm vấn đề đó bằng cách kết hợp dự đoán của nhiều decision tree thay vì tin vào một tree duy nhất.
+
+Mỗi tree trong forest nhìn dữ liệu theo một cách hơi khác. Một tree có thể mắc lỗi ở một vùng dữ liệu, nhưng nếu các tree khác không mắc cùng lỗi đó, việc gộp dự đoán sẽ ổn định hơn.
+
+Random Forest thuộc nhóm **bagging ensemble**. Mục tiêu chính của bagging là giảm variance bằng cách trung bình hoặc bỏ phiếu giữa nhiều model có độ biến động cao. Nó đặc biệt hiệu quả với decision tree vì tree là base model mạnh nhưng nhạy với train data.
+
+<LessonNote>
+  Nhiều bản sao giống hệt nhau của cùng một tree không giúp nhiều. Forest mạnh khi các tree vừa có năng lực dự đoán, vừa đủ khác nhau để không cùng mắc một lỗi.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bootstrap và bagging
+
+Để tạo các tree khác nhau, Random Forest dùng **bootstrap sampling**. Với mỗi tree, thuật toán lấy mẫu ngẫu nhiên từ train set có hoàn lại. Một mẫu có thể xuất hiện nhiều lần trong bootstrap dataset của tree này, còn một số mẫu khác có thể không xuất hiện.
+
+```text
+Train set -> bootstrap sample 1 -> tree 1
+          -> bootstrap sample 2 -> tree 2
+          -> bootstrap sample 3 -> tree 3
+```
+
+Mỗi tree được train độc lập trên bootstrap sample riêng. Việc lấy mẫu có hoàn lại làm các tree thấy các tập dữ liệu tương tự nhưng không hoàn toàn giống nhau. Khi số tree tăng, trung bình dự đoán của chúng thường ổn định hơn dự đoán của một tree đơn.
+
+Bagging không bắt buộc phải dùng tree, nhưng tree thường là lựa chọn phù hợp vì chúng có variance cao. Một model vốn rất ổn định có thể không nhận được nhiều lợi ích từ bagging như decision tree.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Random feature làm các tree đa dạng hơn
+
+Bootstrap alone chưa đủ nếu một feature rất mạnh luôn được chọn ở root của mọi tree. Khi đó các tree vẫn có cấu trúc gần giống nhau và lỗi của chúng tương quan cao. Random Forest thêm một nguồn đa dạng thứ hai: tại mỗi split, tree chỉ được xem một tập con ngẫu nhiên của các feature.
+
+Ví dụ, dataset có 20 feature nhưng mỗi split chỉ xét ngẫu nhiên 5 feature. Một tree có thể chia đầu tiên theo thu nhập, còn tree khác không được thấy feature đó ở split đầu và phải tìm một rule khác theo lịch sử giao dịch hoặc khu vực.
+
+Các tree trở nên ít tương quan hơn. Khi các dự đoán ít tương quan được trung bình, variance của ensemble giảm hiệu quả hơn. Đây là lý do tên gọi có cả “random” và “forest”: randomness nằm ở bootstrap sample lẫn feature được xét tại mỗi node.
+
+Số feature được xét mỗi split là hyperparameter. Xét quá ít feature có thể làm từng tree yếu đi quá nhiều; xét quá nhiều feature có thể làm các tree giống nhau hơn. Giá trị phù hợp cần được kiểm tra trên validation hoặc cross-validation.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Gộp dự đoán và đánh giá out-of-bag
+
+Trong classification, các tree có thể bỏ phiếu cho lớp dự đoán và forest chọn lớp nhận nhiều phiếu nhất. Nhiều thư viện cũng trung bình xác suất lớp từ các tree trước khi chọn lớp cuối cùng. Trong regression, forest thường lấy trung bình các giá trị dự đoán của tất cả tree.
+
+Vì mỗi bootstrap sample bỏ lại một phần train data, mỗi mẫu thường có một nhóm tree chưa từng thấy nó trong lúc train. Những tree này tạo ra dự đoán **out-of-bag** (OOB) cho mẫu đó. Tổng hợp OOB prediction cho toàn bộ train set cho phép ước lượng nhanh hiệu năng mà không cần một validation split riêng trong một số tình huống.
+
+OOB score hữu ích để kiểm tra ban đầu hoặc so sánh cấu hình, nhưng không thay thế test set cuối cùng. Test set vẫn cần độc lập với mọi quyết định phát triển để đánh giá khả năng hoạt động trên dữ liệu mới.
+
+Random Forest thường là baseline mạnh cho dữ liệu bảng: ít cần feature scaling, xử lý quan hệ phi tuyến và tương tác feature tốt, đồng thời ổn định hơn một tree. Đổi lại, nó khó diễn giải hơn một tree đơn, tốn bộ nhớ hơn và có thể không phù hợp khi cần latency rất thấp hoặc extrapolation ngoài miền dữ liệu train.
+
+</MdxPage>

@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'overfitting-underfitting',
+  locale: 'vi',
+  title: 'Quá khớp và Thiếu khớp',
+  headings: [
+    'Khả năng tổng quát hóa',
+    'Underfitting: học chưa đủ',
+    'Overfitting: ghi nhớ train set',
+    'Giảm overfitting',
+    'Distribution shift trong production',
+  ],
+  keywords: ['Machine Learning', 'Overfitting', 'Underfitting', 'Generalization', 'Regularization', 'Distribution Shift'],
+  conceptIds: ['generalization', 'underfitting', 'overfitting', 'overfitting-mitigation', 'distribution-shift'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Khả năng tổng quát hóa
+
+Một model tốt không chỉ dự đoán đúng các ví dụ trong train set. Nó còn phải hoạt động tốt với dữ liệu mới chưa từng xuất hiện trong quá trình học. Khả năng đó được gọi là **generalization**, hay khả năng tổng quát hóa.
+
+Để quan sát generalization, ta so sánh kết quả trên train set và validation set. Train metric cho biết model đã học dữ liệu đã thấy đến đâu; validation metric ước lượng model sẽ hoạt động ra sao với dữ liệu tương tự nhưng chưa từng thấy.
+
+Hai lỗi phổ biến nằm ở hai đầu của cùng một vấn đề. Model quá đơn giản hoặc học chưa đủ sẽ **underfit**. Model quá phức tạp so với dữ liệu, hoặc học quá sát dữ liệu train, sẽ **overfit**.
+
+<LessonNote>
+  Hãy luôn xem train và validation cùng nhau. Một chỉ số riêng lẻ hiếm khi đủ để chẩn đoán model.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Underfitting: học chưa đủ
+
+**Underfitting** xảy ra khi model không nắm được quy luật ngay cả trên train set. Nguyên nhân có thể là model quá đơn giản, feature chưa đủ thông tin, quá nhiều regularization hoặc quá trình train kết thúc quá sớm.
+
+Dấu hiệu quen thuộc là điểm train thấp và điểm validation cũng thấp. Ví dụ, một model tuyến tính cố dự đoán giá nhà chỉ từ diện tích, trong khi giá thực tế còn phụ thuộc mạnh vào vị trí, số phòng và tình trạng căn nhà. Model không có đủ biểu diễn để giải thích dữ liệu.
+
+Để xử lý underfitting, có thể tăng khả năng biểu diễn của model, bổ sung feature phù hợp, giảm regularization quá mạnh hoặc train thêm. Tuy nhiên, tăng độ phức tạp không phải mục tiêu tự thân; sau mỗi thay đổi, cần kiểm tra validation để tránh đi quá xa sang overfitting.
+
+```text
+Underfitting: train score thấp, validation score thấp
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Overfitting: ghi nhớ train set
+
+**Overfitting** xảy ra khi model học quá sát những chi tiết riêng của train set, bao gồm cả nhiễu và các mẫu ngẫu nhiên không lặp lại ở dữ liệu mới. Khi đó model có thể có train score cao, nhưng validation score lại thấp đáng kể.
+
+Ví dụ, một decision tree rất sâu có thể tạo rule riêng cho gần như mọi ví dụ train. Nó dự đoán tốt với các ví dụ đã thấy, nhưng dễ thất bại khi gặp một khách hàng mới có đặc điểm hơi khác. Khoảng cách giữa train và validation là tín hiệu quan trọng của overfitting.
+
+Trong biểu đồ loss theo epoch, overfitting thường có dạng train loss tiếp tục giảm trong khi validation loss ngừng giảm hoặc bắt đầu tăng. Đây là lý do validation được theo dõi trong suốt quá trình train, thay vì chỉ xem sau khi model đã hoàn tất.
+
+```text
+Overfitting: train score cao, validation score thấp hơn rõ rệt
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Giảm overfitting
+
+Không có một cách duy nhất để giảm overfitting. Lựa chọn phù hợp phụ thuộc vào dữ liệu, model và giới hạn tài nguyên. Các hướng thường dùng gồm:
+
+- thu thập thêm dữ liệu đa dạng hoặc dùng data augmentation phù hợp;
+- thêm regularization như L1, L2 hoặc dropout;
+- giảm độ phức tạp của model, chẳng hạn giới hạn độ sâu của tree;
+- dùng early stopping khi validation metric không còn cải thiện;
+- chọn hoặc xây dựng feature phản ánh quy luật thật thay vì nhiễu.
+
+Mỗi biện pháp đều có đánh đổi. Regularization quá mạnh hoặc model quá đơn giản có thể biến overfitting thành underfitting. Vì vậy, hãy thay đổi một cách có chủ đích, theo dõi metric và lưu lại cấu hình đã thử để biết điều gì thực sự có ích.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Distribution shift trong production
+
+Validation tốt chưa bảo đảm model sẽ tốt mãi trong production. Validation chỉ đại diện cho dữ liệu được dùng để đánh giá; nếu dữ liệu production có phân phối khác, model có thể giảm chất lượng dù không overfit train set.
+
+Trường hợp này gọi là **distribution shift**. Ví dụ, model dự đoán nhu cầu được train bằng dữ liệu mùa khô nhưng được triển khai vào mùa mưa; hoặc model phát hiện gian lận gặp một kiểu giao dịch mới chưa có trong dữ liệu lịch sử. Khi đó, vấn đề là dữ liệu mới khác dữ liệu train, không chỉ là model ghi nhớ quá mức.
+
+Để giảm rủi ro, hãy chia validation và test theo bối cảnh triển khai thực tế, theo dõi metric sau khi release và định kỳ kiểm tra thay đổi của feature hoặc target. Nếu production thay đổi, model có thể cần dữ liệu mới, đánh giá mới và quy trình huấn luyện lại.
+
+Tóm lại, overfitting là khoảng cách lớn giữa train và validation trong cùng một bối cảnh dữ liệu. Distribution shift là khoảng cách giữa dữ liệu đánh giá và dữ liệu thực tế sau khi triển khai. Hai vấn đề có thể cùng xuất hiện, nhưng cần được chẩn đoán và xử lý riêng.
+
+</MdxPage>

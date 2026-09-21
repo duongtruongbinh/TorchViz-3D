@@ -1,0 +1,93 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'decision-tree-splitting',
+  locale: 'vi',
+  title: 'Phân chia Decision Tree',
+  headings: [
+    'Tree chia dữ liệu bằng các câu hỏi',
+    'Chọn split cho classification',
+    'Chọn split cho regression',
+    'Từ leaf node đến dự đoán',
+    'Kiểm soát độ sâu và overfitting',
+  ],
+  keywords: ['Machine Learning', 'Decision Tree', 'Tree Splitting', 'Gini Impurity', 'Entropy', 'Variance Reduction', 'Pruning'],
+  conceptIds: ['decision-tree', 'tree-split', 'gini-entropy', 'variance-reduction', 'leaf-prediction', 'tree-regularization'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tree chia dữ liệu bằng các câu hỏi
+
+**Decision Tree** đưa ra dự đoán bằng một chuỗi câu hỏi điều kiện. Mỗi node nội bộ kiểm tra một feature, chẳng hạn “thu nhập có nhỏ hơn 20 triệu không?” hoặc “số giao dịch trong ngày có lớn hơn 5 không?”. Câu trả lời đưa mẫu dữ liệu sang một nhánh tiếp theo.
+
+```text
+Số giao dịch > 5?
+├─ Có  -> Giá trị giao dịch > 10 triệu? -> cần kiểm tra thêm
+└─ Không -> rủi ro thấp
+```
+
+Quá trình bắt đầu từ **root node**, rồi chia dữ liệu thành các nhóm nhỏ dần. Node không còn chia tiếp được gọi là **leaf node**. Toàn bộ các câu hỏi từ root đến leaf tạo thành một rule dễ đọc cho từng vùng dữ liệu.
+
+Điểm mạnh của tree là có thể học quan hệ phi tuyến và tương tác đơn giản giữa feature mà không cần tự tạo công thức. Điểm yếu là tree đơn lẻ rất dễ bám quá sát train set nếu được phép tiếp tục chia quá lâu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chọn split cho classification
+
+Trong classification, một split tốt làm các node con trở nên “thuần” hơn: mỗi node con tập trung vào ít lớp hơn node cha. Nếu một node ban đầu có cả positive và negative, tree sẽ thử nhiều feature và threshold để tìm cách tách hai loại này rõ hơn.
+
+Hai thước đo phổ biến là **Gini impurity** và **entropy**. Gini thấp khi một node chủ yếu chứa một lớp. Entropy cũng thấp khi node ít bất định về nhãn. Tree chọn split làm giảm impurity nhiều nhất sau khi tính đến số mẫu ở từng node con.
+
+Ví dụ, nếu tất cả giao dịch gian lận nằm gần như hoàn toàn ở nhánh “giá trị giao dịch lớn”, split theo giá trị giao dịch tạo hai nhóm thuần hơn nhiều so với split ngẫu nhiên theo một feature không liên quan.
+
+Gini và entropy thường cho kết quả gần nhau trong thực tế. Điều quan trọng hơn là dữ liệu, các giới hạn của tree và cách đánh giá trên validation set, thay vì cố tìm một impurity metric luôn tốt hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn split cho regression
+
+Với regression, target là một số liên tục nên khái niệm “thuần lớp” không còn phù hợp. Tree tìm split làm giảm độ phân tán của target trong các node con, thường được đo bằng variance hoặc MSE trong node.
+
+Ví dụ, một node chứa cả nhà giá thấp và giá cao có variance lớn. Nếu split theo khu vực khiến mỗi nhánh chỉ còn những nhà có mức giá gần nhau, target trong các node con ổn định hơn. Split đó có giá trị vì nó giúp leaf node tạo dự đoán chính xác hơn.
+
+Sau khi đã chọn split, tree tiếp tục thử chia từng node con. Quá trình lặp lại cho đến khi đạt điều kiện dừng, chẳng hạn tree đủ sâu, node quá ít mẫu hoặc không còn split nào giảm lỗi đáng kể.
+
+Decision tree không yêu cầu feature scaling để so sánh threshold, vì việc nhân một feature với hằng số chỉ thay đổi vị trí con số threshold tương ứng. Tuy vậy, dữ liệu vẫn cần được làm sạch, xử lý missing value và kiểm tra leakage trước khi train.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Từ leaf node đến dự đoán
+
+Khi một mẫu đi qua tree, nó kết thúc ở một leaf node. Với classification, leaf thường dự đoán lớp chiếm đa số trong các mẫu train rơi vào leaf đó. Tỷ lệ các lớp trong leaf cũng có thể được dùng làm xác suất dự đoán gần đúng.
+
+Với regression, leaf thường dự đoán trung bình target của các mẫu train trong leaf. Nếu leaf chứa các căn nhà có giá trung bình 3.2 tỷ đồng, mọi mẫu mới rơi vào leaf đó có thể nhận dự đoán 3.2 tỷ đồng.
+
+Leaf rất nhỏ có thể tạo rule chi tiết và train prediction rất chính xác. Nhưng nếu một leaf chỉ chứa một hoặc hai mẫu, dự đoán của nó dễ phản ánh nhiễu riêng của các mẫu đó hơn là quy luật chung. Đây là liên hệ trực tiếp giữa cấu trúc tree và overfitting.
+
+Để đánh giá tree, hãy xem cả train và validation metric. Một tree có train score gần hoàn hảo nhưng validation score giảm là dấu hiệu tree đã chia quá chi tiết.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiểm soát độ sâu và overfitting
+
+Tree càng sâu càng có thể tạo nhiều rule nhỏ, nên càng dễ ghi nhớ train set. Các hyperparameter thường dùng để kiểm soát độ phức tạp gồm:
+
+- `max_depth`: giới hạn số tầng tree được phép chia;
+- `min_samples_split`: yêu cầu node có đủ số mẫu trước khi được chia tiếp;
+- `min_samples_leaf`: yêu cầu mỗi leaf giữ lại tối thiểu một số mẫu;
+- pruning: cắt bớt những nhánh đóng góp ít cho khả năng tổng quát hóa.
+
+Các giới hạn này hoạt động như regularization cho tree. Giá trị quá chặt có thể làm tree underfit; giá trị quá lỏng có thể làm tree overfit. Hãy chọn chúng bằng validation hoặc cross-validation, không dựa trên train accuracy.
+
+Tóm lại, Decision Tree liên tục tìm câu hỏi làm các node con có target đồng nhất hơn. Classification dùng Gini hoặc entropy, regression dùng giảm variance, còn các điều kiện dừng và pruning quyết định tree có tổng quát hóa tốt hay chỉ ghi nhớ dữ liệu train.
+
+</MdxPage>

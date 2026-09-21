@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "sklearn-preprocessors-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Quy tắc fit preprocessing",
+    "Mỗi preprocessor giải quyết gì?",
+    "Preprocessing an toàn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "preprocessing",
+    "numeric-scaling",
+    "standard-minmax-robust-scaler",
+    "categorical-encoding",
+    "missing-value-imputation",
+    "column-transformer",
+    "fit-on-train-only"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="sklearn-preprocessors-quiz" questions={[
+  {
+    "id": "fit-train-only",
+    "title": "Quy tắc fit preprocessing",
+    "prompt": "Vì sao scaler hoặc encoder chỉ nên fit trên train set?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Để test set có nhiều hàng hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Để xóa nhãn lớp.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Để không cần transform dữ liệu mới.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Để không làm lộ thông tin từ validation hoặc test vào quá trình train.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Fit trên dữ liệu giữ lại sẽ làm ước lượng đánh giá bị lạc quan.",
+    "error": "Validation và test chỉ nên transform bằng trạng thái đã học từ train."
+  },
+  {
+    "id": "preprocessor-purpose",
+    "title": "Mỗi preprocessor giải quyết gì?",
+    "prompt": "Ghép thao tác với loại dữ liệu hoặc vấn đề chính.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "numeric",
+        "label": "Numeric feature"
+      },
+      {
+        "id": "categorical",
+        "label": "Categorical feature"
+      },
+      {
+        "id": "missing",
+        "label": "Giá trị thiếu"
+      }
+    ],
+    "options": [
+      {
+        "id": "standard-scaler",
+        "label": "StandardScaler cho các cột số.",
+        "categoryId": "numeric"
+      },
+      {
+        "id": "one-hot",
+        "label": "OneHotEncoder cho giá trị danh mục.",
+        "categoryId": "categorical"
+      },
+      {
+        "id": "median-imputer",
+        "label": "Điền median cho ô số bị thiếu.",
+        "categoryId": "missing"
+      },
+      {
+        "id": "unknown-category",
+        "label": "Xử lý category chưa từng thấy khi inference.",
+        "categoryId": "categorical"
+      }
+    ],
+    "success": "Đúng. ColumnTransformer thường kết hợp các xử lý khác nhau theo từng nhóm cột.",
+    "error": "Numeric, categorical và missing data cần các xử lý phù hợp khác nhau."
+  },
+  {
+    "id": "preprocessing-safety",
+    "title": "Preprocessing an toàn",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Cần quyết định cách xử lý category chưa từng thấy khi inference.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "One-hot encoding tránh tạo thứ tự giả cho category danh nghĩa.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Có thể fit scaler riêng trên test để test được chuẩn hóa tốt hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "ColumnTransformer giúp áp dụng đúng transformer cho đúng cột.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Preprocessing cần nhất quán từ train đến production, kể cả khi gặp dữ liệu mới.",
+    "error": "Không fit lại bất kỳ transformer nào trên test; dùng transformer đã học từ train."
+  }
+]} />

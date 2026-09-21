@@ -1,0 +1,133 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "sklearn-api-pattern-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Fit và predict",
+    "Các phương thức scikit-learn",
+    "Workflow cơ bản với scikit-learn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "sklearn-api",
+    "fit-predict-transform",
+    "fit-transform",
+    "estimator-transformer",
+    "pipeline-meta-estimator",
+    "composable-workflows"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="sklearn-api-pattern-quiz" questions={[
+  {
+    "id": "fit-predict",
+    "title": "Fit và predict",
+    "prompt": "Trong scikit-learn, model.fit(X_train, y_train) thường làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Dự đoán nhãn cho dữ liệu mới.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Tự động đánh giá test set cuối.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Học parameter từ dữ liệu train.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Xóa các cột categorical.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Sau fit, model có thể được dùng để predict trên dữ liệu mới.",
+    "error": "predict tạo dự đoán; fit là bước học trạng thái hoặc parameter từ train."
+  },
+  {
+    "id": "sklearn-methods",
+    "title": "Các phương thức scikit-learn",
+    "prompt": "Ghép lệnh với mục đích chính của nó.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "fit",
+        "label": "Fit / học trạng thái"
+      },
+      {
+        "id": "predict",
+        "label": "Predict"
+      },
+      {
+        "id": "evaluate",
+        "label": "Đánh giá"
+      }
+    ],
+    "options": [
+      {
+        "id": "fit-call",
+        "label": "model.fit(X_train, y_train)",
+        "categoryId": "fit"
+      },
+      {
+        "id": "predict-call",
+        "label": "model.predict(X_new)",
+        "categoryId": "predict"
+      },
+      {
+        "id": "cv-score",
+        "label": "cross_val_score(model, X, y)",
+        "categoryId": "evaluate"
+      },
+      {
+        "id": "score-call",
+        "label": "model.score(X_test, y_test)",
+        "categoryId": "evaluate"
+      }
+    ],
+    "success": "Đúng. API nhất quán này giúp các estimator và pipeline có thể kết hợp với nhau.",
+    "error": "fit học trạng thái, predict tạo kết quả mới, còn score/cross-validation dùng để đánh giá."
+  },
+  {
+    "id": "sklearn-workflow",
+    "title": "Workflow cơ bản với scikit-learn",
+    "prompt": "Sắp xếp các bước từ dữ liệu đến dự đoán mới.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "predict",
+        "label": "Dùng pipeline đã fit để predict dữ liệu mới."
+      },
+      {
+        "id": "split",
+        "label": "Chia dữ liệu phát triển thành train và validation."
+      },
+      {
+        "id": "prepare",
+        "label": "Định nghĩa preprocessing và estimator trong pipeline."
+      },
+      {
+        "id": "fit",
+        "label": "Fit pipeline trên train và đánh giá bằng validation."
+      }
+    ],
+    "correctOrder": [
+      "split",
+      "prepare",
+      "fit",
+      "predict"
+    ],
+    "success": "Đúng. Pipeline được định nghĩa, fit trên train, kiểm tra validation rồi tái sử dụng để dự đoán mới.",
+    "error": "Cần split trước, định nghĩa workflow, fit/evaluate rồi mới predict input mới."
+  }
+]} />
