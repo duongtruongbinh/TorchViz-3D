@@ -10,9 +10,9 @@ export const lessonMetadata = {
 
 ## Horizontal forgetting là gì?
 
-**Horizontal forgetting** là sự suy giảm hiệu năng trên các task hoặc stage cũ khi model tiếp tục học những stage mới theo thời gian hoặc domain.
+**Horizontal forgetting** là sự suy giảm hiệu năng trên các task hoặc stage cũ khi model tiếp tục học những stage mới theo thời gian hoặc domain <Cite paper="shi2024continualSurvey" evidence="horizontal-forgetting-01-shi2024continualSurvey" />.
 
-Trong lifelong pretraining, <Cite paper="jin2022lifelong" evidence="horizontal-forgetting-01-jin2022lifelong" /> đánh giá trực tiếp hai phía này: thích nghi với emerging corpora và giữ downstream performance trên các domain đã học trước đó.
+Trong lifelong pretraining, <Cite paper="jin2022lifelong" evidence="horizontal-forgetting-02-jin2022lifelong" /> đánh giá trực tiếp hai phía này: thích nghi với emerging corpora và giữ downstream performance trên các domain đã học trước đó.
 
 <LessonImage
   assetPath="continual-learning-llm/01-horizontal-forgetting-overview.png"
@@ -22,7 +22,7 @@ Trong lifelong pretraining, <Cite paper="jin2022lifelong" evidence="horizontal-f
 
 Khác với Vertical CL, các stage trong Horizontal CL thường có quy mô và vai trò tương đương nhau. Distribution giữa hai stage có thể chồng lấn một phần, nhưng mỗi lần update vẫn có thể đẩy model xa khỏi nghiệm phù hợp với dữ liệu cũ.
 
-Hai yếu tố làm bài toán này đặc biệt khó là **chuỗi task dài** và **distribution shift đột ngột**.
+Hai yếu tố làm bài toán này đặc biệt khó là **chuỗi task dài** và **distribution shift đột ngột** <Cite paper="shi2024continualSurvey" evidence="horizontal-forgetting-03-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -71,6 +71,6 @@ Trong Vertical CL, hướng chuyển đổi thường đã biết trước: từ
   caption="Gradual shift giữ nhiều overlap giữa các stage liền kề; abrupt shift tạo khoảng cách distribution lớn hơn nên tín hiệu học mới dễ xung đột với knowledge cũ."
 />
 
-Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-forgetting-02-shi2024continualSurvey" />.
+Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-forgetting-04-shi2024continualSurvey" />.
 
 </MdxPage>

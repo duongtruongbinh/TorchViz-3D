@@ -1,0 +1,191 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'meta-nca-experiments',
+  locale: 'vi',
+  title: 'Thực nghiệm',
+  headings: [
+    'Ba câu hỏi thực nghiệm',
+    'Dense MLP trên MNIST — Thử nghiệm thay đổi độ rộng mạng',
+    'CNN với kernel và width thay đổi',
+    'ResNet trên CIFAR-100 — Khảo sát 8 đến 24 channels',
+    'Weight Heatmap và giới hạn diễn giải',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'MetaNCA',
+    'MNIST',
+    'CIFAR-100',
+    'Dense MLP',
+    'CNN',
+    'ResNet',
+    'Architecture Generalization',
+    'Weight Heatmap',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### Ba câu hỏi thực nghiệm
+
+Để kiểm chứng tính khả thi và sức mạnh của cơ chế sinh trọng số cục bộ không cần đạo hàm, nhóm tác giả đã thiết kế một chuỗi thực nghiệm toàn diện nhằm trả lời **3 câu hỏi lớn**:
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ba câu hỏi thực nghiệm của MetaNCA"
+  root={{ title: 'Ba mục tiêu thực nghiệm cốt lõi', subtitle: 'Khảo sát năng lực sinh trọng số từ mạng đồ chơi đến mô hình 2 triệu tham số', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Quy tắc có tạo được trọng số hữu ích không?',
+      detail: 'Kiểm tra xem mạng đích sau 10 bước cập nhật cục bộ có đạt độ chính xác (accuracy) thực tế tốt hơn mức đoán mò ngẫu nhiên hay không.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Quy tắc có chịu được sự thay đổi kích thước mạng?',
+      detail: 'Kiểm tra xem một quy tắc học trên một số kiến trúc cố định có thể tự sinh trọng số cho mô hình có số nơ-ron hoặc kích thước kernel hoàn toàn mới hay không.',
+      tone: 'teal',
+    },
+    {
+      title: '3. Quy tắc có mở rộng (scale) lên quy mô lớn?',
+      detail: 'CNN lớn nhất đạt khoảng 2M parameters; thí nghiệm ResNet kiểm tra một family khác trên CIFAR-100.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Chuỗi bài kiểm tra được thiết kế theo cấp độ tăng dần: bắt đầu từ mạng **Dense MLP đơn giản trên MNIST**, mở rộng sang **mạng tích chập CNN với kích thước kernel biến thiên**, và đỉnh điểm là **ResNet sâu trên CIFAR-100**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Dense MLP trên MNIST — Thử nghiệm thay đổi độ rộng mạng
+
+**1. Bài toán và Kiến trúc mạng thử nghiệm:**
+Nhóm tác giả sử dụng tác vụ phân loại chữ số viết tay **MNIST** (<InlineMath formula="0 \to 9" />) với ảnh đầu vào <InlineMath formula="28 \times 28 = 784" /> pixel. Mạng nơ-ron có cấu trúc gồm 2 tầng ẩn:
+
+<BlockMath formula="784 \xrightarrow{\quad} N_1 \xrightarrow{\quad} N_2 \xrightarrow{\quad} 10" />
+
+Trong đó:
+- <InlineMath formula="784" /> là số nơ-ron đầu vào (tương ứng với 784 pixel của ảnh).
+- <InlineMath formula="N_1" /> và <InlineMath formula="N_2" /> chạy từ 0 đến 90 theo bước 10; width 0 nghĩa là tầng đó không tồn tại.
+- <InlineMath formula="10" /> là số nơ-ron đầu ra (tương ứng với 10 lớp chữ số dự đoán).
+
+**2. Mục tiêu kiểm tra của thí nghiệm:**
+Tác giả muốn trả lời câu hỏi cốt lõi:
+> *"Mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" /> học xong trên một mô hình có kích thước cố định, liệu có thể **tự sinh trọng số cho các mô hình có kích thước hoàn toàn lạ (chưa từng thấy khi huấn luyện)** hay không?"*
+
+Figure 3 so sánh cùng lưới <InlineMath formula="(N_1,N_2) \in \{0,10,\ldots,90\}^2" /> khi meta-train trên 3 và 5 architectures. Các rectangle đỏ là training configurations. Do <InlineMath formula="(30,0)" /> và <InlineMath formula="(0,30)" /> biểu diễn cùng một single-hidden-layer model, một training architecture có thể xuất hiện bằng hai rectangle.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/09-meta-nca-dense-mlp-grid.jpg"
+  alt="Bản đồ nhiệt độ chính xác MNIST cho kiến trúc Dense MLP: (a) 3 Training Architectures vs (b) 5 Training Architectures"
+  caption="Figure 3: Lưới N1, N2 từ 0 đến 90. Năm training architectures cải thiện mạnh coverage, đặc biệt ở các mạng nhỏ."
+/>
+
+Với 3 training architectures, phần lớn cấu hình có ít nhất 30 units ở mỗi tầng đạt từ 90% trở lên, nhưng các dải <InlineMath formula="N_1=10" /> và <InlineMath formula="N_1=20" /> có nhiều ô chỉ 40%–81%. Sau khi thêm hai training architectures, vùng trung tâm và phía phải của lưới chủ yếu đạt **94%–96%**. Các mạng nhỏ nhất vẫn yếu hơn: một số ô có width 10 hoặc 20 chỉ đạt 84%–92%. Vì vậy, Figure 3 hỗ trợ improved coverage chứ không hỗ trợ phát biểu “toàn bộ lưới đều 94%–96%”.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### CNN với kernel và width thay đổi
+
+Sau khi thành công trên mạng Dense MLP, nhóm tác giả nâng độ khó lên **mạng tích chập CNN** trên dữ liệu MNIST để kiểm tra khả năng xử lý không gian 2 chiều:
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Hai biến số kiến trúc được thay đổi trong thí nghiệm CNN"
+  root={{ title: 'Hai biến số kiến trúc được khảo sát trong thí nghiệm CNN', subtitle: 'Tạo lưới thử nghiệm đa dạng về kích thước bộ lọc và số lượng kênh', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Kích thước bộ lọc (Kernel size: 3x3, 4x4, 5x5)',
+      detail: 'Kiểm tra xem quy tắc có thích ứng được khi hình dạng không gian 2D và số lượng trọng số trong kernel thay đổi từ 9 lên 16 và 25 trọng số.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Width: m = 1.0–5.0 và h = 100–400',
+      detail: 'Ba convolutional layers có 32m, 64m, 128m filters; dense hidden layer trước output có h units.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+*(Lưu ý: Hệ tọa độ vị trí 5D RoPE luôn được kích hoạt để cung cấp tọa độ không gian <InlineMath formula="k_x, k_y" /> tương ứng cho từng kích thước kernel).*
+
+Figure 4 quét <InlineMath formula="m \in \{1.0,1.5,\ldots,5.0\}" /> và <InlineMath formula="h \in \{100,150,\ldots,400\}" />. Mỗi ô là mean test accuracy qua 5 samples trên split MNIST 80/20. Chỉ có **hai** training architectures: kernel 3 tại <InlineMath formula="(m,h)=(2.0,200)" /> và kernel 5 tại <InlineMath formula="(4.0,300)" />; cả hai đạt 97%. Kernel 4 hoàn toàn held out.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/10-meta-nca-cnn-kernel-width.jpg"
+  alt="Figure 4 trong bài báo: Bản đồ nhiệt độ chính xác MNIST cho mạng CNN với (a) Kernel 3, (b) Kernel 4 và (c) Kernel 5 theo hệ số m và số nơ-ron ẩn h"
+  caption="Figure 4: Kernel 3, 4, 5 theo m = 1.0–5.0 và h = 100–400. Hai ô train ở kernel 3 và 5 đạt 97%; kernel 4 được giữ lại hoàn toàn để test."
+/>
+
+Vùng lân cận không đối xứng và không đồng đều. Ở kernel 3, giữ <InlineMath formula="m=2.0" /> rồi đổi <InlineMath formula="h" /> từ 150 đến 400 cho accuracy 87%, 97%, 95%, 92%, 88%, 86%. Ở kernel 5 quanh <InlineMath formula="m=4.0" />, các mốc <InlineMath formula="h=200,250,300,350,400" /> đạt 95%, 97%, 97%, 97%, 96%. Kernel 4 đạt tối đa 66% tại <InlineMath formula="(m,h)=(4.0,350)" />. Kết quả cho thấy generalization mạnh gần một số training regions nhưng giảm đáng kể khi đi xa.
+
+<LessonNote tone="warning">
+  Bài báo chưa cung cấp trực quan hóa bộ lọc hoặc thí nghiệm triệt tiêu (ablation) đầy đủ để khẳng định 5D RoPE đã tự động tạo ra các bộ phát hiện cạnh (edge detectors) có định hướng như cách mạng CNN truyền thống học được.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### ResNet trên CIFAR-100 — Khảo sát 8 đến 24 channels
+
+Thí nghiệm dùng ResNet ba stage với số block <InlineMath formula="[1,1,1]" /> và channel widths <InlineMath formula="[c,2c,4c]" /> trên CIFAR-100. Mốc khoảng 2M parameters thuộc về CNN lớn nhất ở thí nghiệm trước, không phải các ResNet trong Figure 5. Hai training architectures là <InlineMath formula="c=16" /> (83K parameters) và <InlineMath formula="c=20" /> (128K parameters).
+
+**1. Kết quả độ chính xác theo số kênh cơ sở (Base channels):**
+
+Trong thí nghiệm, tác giả chỉ huấn luyện quy tắc trên hai kiến trúc ResNet (16 và 20 base channels, cột màu đỏ `[Train]`), sau đó đem quy tắc đó đi sinh trọng số cho các kích thước hoàn toàn mới (các cột màu xanh `[Test]`):
+
+| Số kênh cơ sở (Base channels) | Độ chính xác kiểm tra (Test accuracy) | Phân loại kiến trúc | Nhận xét trạng thái |
+| :--- | :---: | :---: | :--- |
+| **8** | 1.3% | `[Test]` | Gần sát mức đoán mò ngẫu nhiên (Random baseline của 100 lớp là 1.0%). |
+| **10** | 1.8% | `[Test]` | Tăng nhẹ nhưng vẫn ở mức thấp do mạng quá hẹp. |
+| **12** | 2.6% | `[Test]` | Vẫn gần vùng accuracy thấp. |
+| **14** | 9.7% | `[Test]` | Tăng rõ nhưng còn xa hai mốc train. |
+| **16** | 29.3% | `[Train]` | Đạt độ chính xác cao trên cấu hình huấn luyện. |
+| **18** | **29.9%** | `[Test]` | Đỉnh của Figure 5, nằm giữa hai mốc train. |
+| **20** | 29.7% | `[Train]` | Duy trì ổn định quanh vùng đỉnh trên cấu hình huấn luyện. |
+| **22** | 26.7% | `[Test]` | Bắt đầu bão hòa khi mạng mở rộng. |
+| **24** | 22.6% | `[Test]` | Accuracy giảm khi đi xa vùng train. |
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/11-meta-nca-resnet-scaling-curve.jpg"
+  alt="Đồ thị độ chính xác ResNet trên CIFAR-100 theo số kênh cơ sở từ 8 đến 24 kênh"
+  caption="Figure 5 trong bài báo: Độ chính xác phân loại CIFAR-100 của ResNet theo số kênh cơ sở (Training arch màu đỏ, Test arch màu xanh). Đỉnh 29.9% đạt được ở cấu hình test 18 channels."
+/>
+
+Mốc test <InlineMath formula="c=18" /> đạt 29.9%, nhỉnh hơn hai mốc train 29.3% và 29.7%. Nhưng các mạng <InlineMath formula="c \le 14" /> suy giảm mạnh; đây là bằng chứng cho generalization tốt trong capacity range lân cận, không phải toàn bộ họ ResNet. Baseline Adam trên đúng hai training architectures đạt 41.4% (<InlineMath formula="c=16" />) và 42.1% (<InlineMath formula="c=20" />), nên vẫn tồn tại accuracy gap rõ rệt.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Weight Heatmap và giới hạn diễn giải
+
+**1. Trực quan hóa ma trận trọng số (Weight Heatmap):**
+Figure 6 đặt cạnh nhau hai ma trận <InlineMath formula="50 \times 50" /> nối hai hidden layers của mạng <InlineMath formula="[784,50,50,10]" />. MetaNCA được rollout 10 bước; Adam được train 50 epochs. Cả hai task networks đạt 97% MNIST test accuracy.
+
+| Khía cạnh | Điều quan sát thực nghiệm khẳng định | Điều chưa thể kết luận vội vàng |
+| :--- | :--- | :--- |
+| **Từ heatmap** | MetaNCA có các dải, symmetry và nhiều vùng gần zero hơn; Adam trông hạt và phân tán hơn. | Không thể gán các dải cho functional clusters, cortical columns hoặc một cơ chế nhân quả chỉ từ hình ảnh. |
+| **Từ accuracy** | Hai mạng trong Figure 6 cùng đạt 97%. | Không thể kết luận MetaNCA tìm được optimum tốt hơn Adam. |
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/12-meta-nca-weight-heatmap-comparison.jpg"
+  alt="Figure 6 trong bài báo: So sánh ma trận trọng số 50x50 giữa (a) MetaNCA-generated và (b) Adam-trained"
+  caption="Figure 6: Ma trận 50 x 50 của mạng [784, 50, 50, 10]. Authors mô tả MetaNCA là đối xứng và sparse hơn; heatmap không xác định chức năng của các dải."
+/>
+
+**2. Những gì bài báo chưa chứng minh (Open Questions):**
+- Chưa có kết quả thử nghiệm trên kiến trúc **Transformer** hay các mô hình nền tảng lớn (Foundation Models).
+- Chưa có đánh giá chi tiết về **độ trễ (latency)**, mức tiêu thụ năng lượng khi chạy trên chip phần cứng mô phỏng thần kinh (Neuromorphic hardware).
+- Chưa có bài kiểm tra thực nghiệm cố tình phá hủy một phần mạng (damage-and-recovery) để đo lường định lượng khả năng tự sửa chữa (**Self-repair**).
+
+<LessonNote tone="info">
+  **Tổng kết:** Sau meta-training bằng backpropagation, một learned local rule có thể sinh task-network weights qua 10 bước mà không backpropagate trong pha sinh weights. Bằng chứng mạnh nhất nằm gần capacity range dùng để meta-train.
+</LessonNote>
+
+</MdxPage>

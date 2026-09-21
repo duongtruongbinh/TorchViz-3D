@@ -26,7 +26,7 @@ Các benchmark khác nhau về số stage, domain, corpus size và quyền truy 
 
 ## Protocol đánh giá công bằng
 
-Dùng cùng một dataset chưa có nghĩa là hai kết quả có thể so sánh trực tiếp. Một protocol công bằng phải ghi rõ **model được học trong điều kiện nào** và giữ các điều kiện đó nhất quán giữa các phương pháp.
+Dùng cùng một dataset chưa có nghĩa là hai kết quả có thể so sánh trực tiếp. Một protocol công bằng phải ghi rõ **model được học trong điều kiện nào** và giữ các điều kiện đó nhất quán giữa các phương pháp <Cite paper="shi2024continualSurvey" evidence="continual-benchmark-map-02-shi2024continualSurvey" />.
 
 <ComparisonMatrix
   ariaLabel="Bốn nhóm thông tin cần báo cáo trong protocol đánh giá continual learning"
@@ -51,7 +51,7 @@ Dùng cùng một dataset chưa có nghĩa là hai kết quả có thể so sán
 
 ## Realistic stress tests
 
-Một protocol có thể công bằng nhưng vẫn quá dễ. Sau khi cố định các điều kiện so sánh, benchmark cần kiểm tra model dưới những data stream gần thực tế hơn:
+Một protocol có thể công bằng nhưng vẫn quá dễ. Sau khi cố định các điều kiện so sánh, benchmark cần kiểm tra model dưới những data stream gần thực tế hơn <Cite paper="shi2024continualSurvey" evidence="continual-benchmark-map-03-shi2024continualSurvey" />:
 
 <ComparisonMatrix
   ariaLabel="Các stress test giúp benchmark continual learning gần thực tế hơn"

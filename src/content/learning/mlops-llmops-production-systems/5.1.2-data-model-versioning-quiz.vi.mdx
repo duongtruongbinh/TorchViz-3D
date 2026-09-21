@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-model-versioning-quiz',
+  locale: 'vi',
+  title: "Quiz: Quản lý Phiên bản",
+  headings: [
+    'Hạn chế của Git với File Lớn',
+    'Cơ chế Pointer File trong DVC',
+    'Khả năng Tái lập (Reproducibility)',
+    'Lệnh DVC Cơ bản',
+  ],
+  keywords: ['MLOps', 'Quiz', 'DVC', 'Data Versioning', 'Remote Storage', 'Git'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="data-model-versioning-quiz" questions={[
+  {
+    id: 'git-large-files-issue',
+    title: 'Hạn chế của Git với File Lớn',
+    prompt: 'Tại sao chúng ta KHÔNG NÊN commit trực tiếp các file dữ liệu lớn (CSV 5GB, weights 20GB) vào Git repository?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Làm dung lượng kho Git phình to vĩnh viễn trong thư mục .git, khiến các thao tác clone/push bị chậm và vi phạm giới hạn kích thước file của GitHub.', isCorrect: true },
+      { id: 'opt2', label: 'Vì Git chỉ hỗ trợ ngôn ngữ tiếng Trung Quốc.' },
+      { id: 'opt3', label: 'Vì Git sẽ tự động xóa file nếu file đó chứa số thập phân.' },
+      { id: 'opt4', label: 'Vì Git bắt buộc phải có card đồ họa GPU mới chạy được.' },
+    ],
+    success: 'Chính xác! Git lưu lịch sử delta không hiệu quả cho binary lớn, làm phình to repo và gây nghẽn băng thông.',
+    error: 'Chưa chính xác. Git không phù hợp cho file nhị phân và dữ liệu lớn vì sẽ làm tăng kích thước thư mục `.git` theo thời gian.',
+  },
+  {
+    id: 'dvc-pointer-file',
+    title: 'Cơ chế Pointer File trong DVC',
+    prompt: 'File `.dvc` (ví dụ: `dataset.csv.dvc`) thực chất chứa nội dung gì và được lưu trữ ở đâu?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chứa mã băm md5 và kích thước của file dữ liệu, được commit trực tiếp vào kho Git như một file văn bản nhỏ.', isCorrect: true },
+      { id: 'opt2', label: 'Chứa toàn bộ hàng triệu dòng dữ liệu thô.' },
+      { id: 'opt3', label: 'Chứa video ghi hình quá trình huấn luyện.' },
+      { id: 'opt4', label: 'Chứa hình ảnh chụp màn hình máy tính.' },
+    ],
+    success: 'Đúng! File `.dvc` là file con trỏ (pointer file) siêu nhẹ chứa metadata và mã băm md5 đại diện cho phiên bản dữ liệu.',
+    error: 'Chưa đúng. File `.dvc` chỉ chứa mã hash md5 đại diện để Git theo dõi phiên bản.',
+  },
+  {
+    id: 'reproducibility-triangle',
+    title: 'Khả năng Tái lập (Reproducibility)',
+    prompt: 'Để tái tạo lại chính xác 100% môi trường và kết quả huấn luyện mô hình của một phiên bản trong quá khứ, một kỹ sư cần:',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chuyển về Git commit tương ứng (mã nguồn), chạy `dvc pull` (kéo đúng dataset) và tái tạo môi trường qua lockfile (requirements/Docker).', isCorrect: true },
+      { id: 'opt2', label: 'Đoán lại các siêu tham số từ trí nhớ cá nhân.' },
+      { id: 'opt3', label: 'Cài đặt lại toàn bộ hệ điều hành Windows.' },
+      { id: 'opt4', label: 'Tạo một tài khoản mạng xã hội mới.' },
+    ],
+    success: 'Chính xác! Git commit + DVC pull + Environment lockfile đảm bảo tính tái lập tuyệt đối cho pipeline ML.',
+    error: 'Chưa chính xác. Cần kết hợp đúng commit code, bản snapshot dữ liệu từ DVC và môi trường dependency cố định.',
+  },
+  {
+    id: 'dvc-push-pull-commands',
+    title: 'Lệnh DVC Cơ bản',
+    prompt: 'Lệnh nào trong DVC dùng để tải (download) tệp dữ liệu lớn thực tế từ Cloud Storage về máy trạm theo phiên bản hiện tại của file `.dvc`?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: '`dvc pull`', isCorrect: true },
+      { id: 'opt2', label: '`dvc push`' },
+      { id: 'opt3', label: '`git status`' },
+      { id: 'opt4', label: '`npm install`' },
+    ],
+    success: 'Đúng! `dvc pull` kéo dữ liệu từ remote storage về máy cục bộ, tương tự như `git pull`.',
+    error: 'Chưa đúng. `dvc pull` dùng để kéo dữ liệu từ remote storage về máy cục bộ.',
+  },
+]} />

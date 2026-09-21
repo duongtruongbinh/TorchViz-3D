@@ -38,7 +38,7 @@ CFT chỉ có **một mục tiêu kép**:
 
 ## Năm nhánh CFT
 
-Cùng một mục tiêu kép được áp lên **năm đối tượng thích nghi liên tục** khác nhau:
+Cùng một mục tiêu kép được áp lên **năm đối tượng thích nghi liên tục** khác nhau <Cite paper="shi2024continualSurvey" evidence="cft-overview-01-shi2024continualSurvey" />:
 
 <ComparisonMatrix
   ariaLabel="Năm nhánh Continual Fine-Tuning và đối tượng được thích nghi liên tục"
@@ -72,7 +72,7 @@ Cùng một mục tiêu kép được áp lên **năm đối tượng thích ngh
 
 ### Ý chính trong CFT
 
-Trong **35 paper** ở Bảng 3, chỉ **3 paper** nghiên cứu **Class-Incremental Learning (CIL)** — model học thêm class mới nhưng vẫn phải nhận ra class cũ <Cite paper="shi2024continualSurvey" evidence="cft-overview-01-shi2024continualSurvey" />.
+Trong **35 paper** ở Bảng 3, chỉ **3 paper** nghiên cứu **Class-Incremental Learning (CIL)** — model học thêm class mới nhưng vẫn phải nhận ra class cũ <Cite paper="shi2024continualSurvey" evidence="cft-overview-02-shi2024continualSurvey" />.
 
 Phần lớn nghiên cứu chú ý hơn tới hai setup gần ứng dụng mô hình ngôn ngữ lớn:
 
@@ -89,13 +89,13 @@ Instruction tuning thường cung cấp context qua instruction; domain adaptati
 
 ### OBS-2: CFT chủ động thiết kế cơ chế mới
 
-Cả **35/35 paper** trong Bảng 3 đều dùng kỹ thuật Continual Learning một cách rõ ràng. Khoảng **một nửa** không dừng ở việc chọn hoặc ghép các kỹ thuật quen thuộc như replay, parameter regularization và architecture expansion. Thay vào đó, họ thiết kế **cơ chế mới cho vấn đề cụ thể** mà mình xử lý <Cite paper="shi2024continualSurvey" evidence="cft-overview-02-shi2024continualSurvey" />.
+Cả **35/35 paper** trong Bảng 3 đều dùng kỹ thuật Continual Learning một cách rõ ràng. Khoảng **một nửa** không dừng ở việc chọn hoặc ghép các kỹ thuật quen thuộc như replay, parameter regularization và architecture expansion. Thay vào đó, họ thiết kế **cơ chế mới cho vấn đề cụ thể** mà mình xử lý <Cite paper="shi2024continualSurvey" evidence="cft-overview-03-shi2024continualSurvey" />.
 
 ---
 
 ### SAPT — phối hợp học và chọn module
 
-Các phương pháp PEFT thường có hai việc tách rời: một **learning module** học knowledge của task mới và một **selection module** chọn PEFT block phù hợp khi inference. SAPT nối hai việc này bằng **Shared Attentive Learning & Selection**: cùng một tín hiệu attention vừa hướng dẫn block nào cần học, vừa giúp router chọn block cho input. Mục tiêu là giảm can nhiễu giữa task mà vẫn chuyển được knowledge hữu ích sang task mới. <Cite paper="zhao2024sapt" evidence="cft-overview-03-zhao2024sapt" />
+Các phương pháp PEFT thường có hai việc tách rời: một **learning module** học knowledge của task mới và một **selection module** chọn PEFT block phù hợp khi inference. SAPT nối hai việc này bằng **Shared Attentive Learning & Selection**: cùng một tín hiệu attention vừa hướng dẫn block nào cần học, vừa giúp router chọn block cho input. Mục tiêu là giảm can nhiễu giữa task mà vẫn chuyển được knowledge hữu ích sang task mới. <Cite paper="zhao2024sapt" evidence="cft-overview-04-zhao2024sapt" />
 
 <PaperTradeoff
   advantages={['Paper ghi nhận cải thiện trên hai continual-learning benchmark, nhiều kích thước model từ 770M đến 13B và cả task chưa thấy trong các setup được khảo sát.']}
@@ -106,7 +106,7 @@ Các phương pháp PEFT thường có hai việc tách rời: một **learning 
 
 ### Larimar — cập nhật qua episodic memory
 
-Larimar không ghi trực tiếp mọi fact mới vào toàn bộ tham số LLM. Phương pháp gắn model với một **distributed episodic memory**: knowledge mới được ghi vào memory bằng update một lần, rồi được truy xuất để điều khiển generation khi input liên quan xuất hiện. Nhờ tách phần knowledge có thể thay đổi khỏi base model, Larimar biến continual model refinement thành quá trình làm mới memory thay vì fine-tune lại model sau mỗi edit. <Cite paper="das2024larimar" evidence="cft-overview-04-das2024larimar" />
+Larimar không ghi trực tiếp mọi fact mới vào toàn bộ tham số LLM. Phương pháp gắn model với một **distributed episodic memory**: knowledge mới được ghi vào memory bằng update một lần, rồi được truy xuất để điều khiển generation khi input liên quan xuất hiện. Nhờ tách phần knowledge có thể thay đổi khỏi base model, Larimar biến continual model refinement thành quá trình làm mới memory thay vì fine-tune lại model sau mỗi edit. <Cite paper="das2024larimar" evidence="cft-overview-05-das2024larimar" />
 
 <PaperTradeoff
   advantages={['Trong các benchmark fact editing của paper, Larimar đạt accuracy cạnh tranh ở cả sequential editing và cập nhật nhanh hơn các baseline được so sánh.']}
@@ -117,7 +117,7 @@ Larimar không ghi trực tiếp mọi fact mới vào toàn bộ tham số LLM.
 
 ### AMA — cân bằng alignment và forgetting
 
-Trong RLHF, checkpoint sau alignment có thể đạt reward cao hơn nhưng mất một phần năng lực pre-training—survey gọi đây là **alignment tax**. AMA kết hợp trọng số của model trước và sau RLHF, đồng thời điều chỉnh tỷ lệ kết hợp theo từng layer. Thay vì chọn một checkpoint chỉ tối ưu reward hoặc chỉ giữ knowledge cũ, phương pháp tìm một điểm cân bằng trên trade-off giữa hai mục tiêu. <Cite paper="lin2024mitigating" evidence="cft-overview-05-lin2024mitigating" />
+Trong RLHF, checkpoint sau alignment có thể đạt reward cao hơn nhưng mất một phần năng lực pre-training—survey gọi đây là **alignment tax**. AMA kết hợp trọng số của model trước và sau RLHF, đồng thời điều chỉnh tỷ lệ kết hợp theo từng layer. Thay vì chọn một checkpoint chỉ tối ưu reward hoặc chỉ giữ knowledge cũ, phương pháp tìm một điểm cân bằng trên trade-off giữa hai mục tiêu. <Cite paper="lin2024mitigating" evidence="cft-overview-06-lin2024mitigating" />
 
 <PaperTradeoff
   advantages={['Paper ghi nhận model averaging theo layer cải thiện Pareto frontier giữa alignment performance và forgetting trên các model cùng RLHF setup được khảo sát.']}
@@ -136,7 +136,7 @@ Model từng phân loại review thành `positive` hoặc `negative`. Sau khi h�
 
 Nhưng có một hiện tượng lạ: một classifier nhỏ đọc hidden states của model vẫn có thể phân biệt khá tốt review tích cực và tiêu cực. **Model trả lời sai, nhưng dấu hiệu để trả lời dường như vẫn còn bên trong.**
 
-Một nghiên cứu thực nghiệm quan sát model pre-trained quên ít hơn model khởi tạo ngẫu nhiên trong các classification setting được thử nghiệm <Cite paper="mehta2023empirical" evidence="cft-overview-06-mehta2023empirical" />. Một đánh giá khác rà lại hơn 20 phương pháp và cho thấy nhiều baseline đã đánh giá thấp khả năng chống quên sẵn có của pre-trained language model <Cite paper="zheng2023learn" evidence="cft-overview-07-zheng2023learn" />.
+Một nghiên cứu thực nghiệm quan sát model pre-trained quên ít hơn model khởi tạo ngẫu nhiên trong các classification setting được thử nghiệm <Cite paper="mehta2023empirical" evidence="cft-overview-07-mehta2023empirical" />. Một đánh giá khác rà lại hơn 20 phương pháp và cho thấy nhiều baseline đã đánh giá thấp khả năng chống quên sẵn có của pre-trained language model <Cite paper="zheng2023learn" evidence="cft-overview-08-zheng2023learn" />.
 
 Nhìn chung, **pre-training có thể giúp model giữ lại nhiều thông tin cũ hơn ta tưởng**, nhưng kết quả mới chỉ được xác nhận trong các setting của hai paper. Survey lưu ý rằng mức quên rất thấp chủ yếu được quan sát ở **representation** — phần biểu diễn thông tin bên trong model. Điều đó chưa bảo đảm model vẫn biến thông tin này thành output đúng.
 
@@ -158,7 +158,7 @@ Không phải mọi CFT pipeline đều cần một CL architecture phức tạp
 
 ### Tối ưu vùng nghiệm rộng
 
-Sau khi liên hệ khả năng chống quên với vùng nghiệm rộng, Mehta et al. đề xuất tối ưu đồng thời **loss của task hiện tại** và **độ sắc của loss basin** để chủ động hướng model tới vùng nghiệm phẳng hơn. <Cite paper="mehta2023empirical" evidence="cft-overview-08-mehta2023empirical" />
+Sau khi liên hệ khả năng chống quên với vùng nghiệm rộng, Mehta et al. đề xuất tối ưu đồng thời **loss của task hiện tại** và **độ sắc của loss basin** để chủ động hướng model tới vùng nghiệm phẳng hơn. <Cite paper="mehta2023empirical" evidence="cft-overview-09-mehta2023empirical" />
 
 <LessonImage
   assetPath="continual-learning-llm/02-cft-wide-loss-basin-doodle.png"
@@ -175,7 +175,7 @@ Sau khi liên hệ khả năng chống quên với vùng nghiệm rộng, Mehta 
 
 ### LR ADJUST
 
-LR ADJUST điều chỉnh learning rate động để knowledge của ngôn ngữ mới không ghi đè quá mạnh lên các ngôn ngữ đã học. <Cite paper="winata2023overcoming" evidence="cft-overview-09-winata2023overcoming" />
+LR ADJUST điều chỉnh learning rate động để knowledge của ngôn ngữ mới không ghi đè quá mạnh lên các ngôn ngữ đã học. <Cite paper="winata2023overcoming" evidence="cft-overview-10-winata2023overcoming" />
 
 <LessonImage
   assetPath="continual-learning-llm/02-cft-lr-adjust-doodle.png"
@@ -192,7 +192,7 @@ LR ADJUST điều chỉnh learning rate động để knowledge của ngôn ng�
 
 ### SEQ
 
-SEQ* warm-up model rồi freeze PLM và classifier cũ khi học task mới <Cite paper="zheng2023learn" evidence="cft-overview-10-zheng2023learn" />.
+SEQ* warm-up model rồi freeze PLM và classifier cũ khi học task mới <Cite paper="zheng2023learn" evidence="cft-overview-11-zheng2023learn" />.
 
 <LessonImage
   assetPath="continual-learning-llm/02-cft-seq-star-doodle.png"
@@ -223,7 +223,7 @@ Nhóm giải pháp thứ hai thay đổi cách biểu diễn task hoặc tách c
 
 ### CTR
 
-CTR dùng **Task-Specific Module (TSM)** với task mask để bảo vệ neuron liên quan tới từng task <Cite paper="ke2021achieve" evidence="cft-overview-11-ke2021achieve" />. Một **Knowledge-Sharing Module (KSM)** song song cho phép các task có mask chồng lấn chia sẻ feature.
+CTR dùng **Task-Specific Module (TSM)** với task mask để bảo vệ neuron liên quan tới từng task <Cite paper="ke2021achieve" evidence="cft-overview-12-ke2021achieve" />. Một **Knowledge-Sharing Module (KSM)** song song cho phép các task có mask chồng lấn chia sẻ feature.
 
 <PaperTradeoff
   advantages={['Tách rõ hai mục tiêu forgetting prevention và knowledge transfer trong thiết kế module.']}
@@ -234,7 +234,7 @@ CTR dùng **Task-Specific Module (TSM)** với task mask để bảo vệ neuron
 
 ### LFPT5
 
-LFPT5 thống nhất sequence labeling, text classification và text generation thành **text-to-text generation**. Khi học domain mới, model prompt-tune trên pseudo-example do chính nó sinh cho domain cũ. <Cite paper="qin2021lfpt5" evidence="cft-overview-12-qin2021lfpt5" />
+LFPT5 thống nhất sequence labeling, text classification và text generation thành **text-to-text generation**. Khi học domain mới, model prompt-tune trên pseudo-example do chính nó sinh cho domain cũ. <Cite paper="qin2021lfpt5" evidence="cft-overview-13-qin2021lfpt5" />
 
 <PaperTradeoff
   advantages={['Một task format chung cho phép dùng cùng framework prompt tuning và generative replay qua nhiều loại task.']}
@@ -245,13 +245,13 @@ LFPT5 thống nhất sequence labeling, text classification và text generation 
 
 ### C3
 
-C3 kết hợp **PEFT** và **in-context tuning** trong teacher–student framework. Teacher dùng demonstration của domain hiện tại; student cùng tunable prompt học từ ground truth và output distribution của teacher. <Cite paper="chen2024parameterizing" evidence="cft-overview-13-chen2024parameterizing" />
+C3 kết hợp **PEFT** và **in-context tuning** trong teacher–student framework. Teacher dùng demonstration của domain hiện tại; student cùng tunable prompt học từ ground truth và output distribution của teacher. <Cite paper="chen2024parameterizing" evidence="cft-overview-14-chen2024parameterizing" />
 
 <PaperTradeoff
   advantages={['Nén contextual information vào prompt mà không cần lưu training example trong setup continual table semantic parsing.']}
   limitations={['Bằng chứng thực nghiệm thuộc table semantic parsing; khả năng mở rộng sang NLP task khác mới là giả thuyết của paper.']}
 />
 
-Paper này nằm trong landscape CFT được survey tổng hợp theo setting và nhóm phương pháp <Cite paper="shi2024continualSurvey" evidence="cft-overview-14-shi2024continualSurvey" />.
+Paper này nằm trong landscape CFT được survey tổng hợp theo setting và nhóm phương pháp <Cite paper="shi2024continualSurvey" evidence="cft-overview-15-shi2024continualSurvey" />.
 
 </MdxPage>

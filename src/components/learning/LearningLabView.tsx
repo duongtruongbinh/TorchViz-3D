@@ -1,5 +1,5 @@
 import { lazy, Suspense, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { ArrowDownWideNarrow, ArrowLeft, Home, ListTree, TableOfContents } from 'lucide-react';
+import { ArrowDownWideNarrow, ArrowLeft, FolderKanban, GraduationCap, Home, ListTree, TableOfContents } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import learningHomeDomainData from 'virtual:learning-home-catalog';
 import {
@@ -13,10 +13,15 @@ import { resolveRailLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { usePreferencesStore } from '../../store/usePreferencesStore';
 import LearningLabHeader from './LearningLabHeader';
-import { DOMAIN_ICONS } from './domainPresentation';
+import { getDomainIcon } from './domainPresentation';
 import { loadFullLearningCatalog, loadLearningDomainCatalog } from './learningCatalogLoader';
 import { loadLearningSearchDocuments } from './learningSearch';
-import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
+import LessonRail, {
+  filterLessonRailGroups,
+  type LessonHierarchyViewLevel,
+  type LessonRailFilter,
+  type LessonRailProps,
+} from './lesson/LessonRail';
 import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
@@ -29,6 +34,7 @@ type LearningLabViewProps = {
 const LessonDetail = lazy(() => import('./lesson/LessonDetail'));
 const learningHomeDomains: readonly LearningHomeDomainSummary[] = learningHomeDomainData;
 const DOMAIN_IDS = new Set<LearningDomainId>(learningHomeDomains.map(({ domain }) => domain.id));
+const HIERARCHICAL_DOMAIN_IDS = new Set<LearningDomainId>(['research-papers', 'ai-projects']);
 const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 const LESSON_RAIL_MIN_WIDTH = 240;
 const LESSON_RAIL_MAX_WIDTH = 440;
@@ -40,6 +46,10 @@ function isLearningDomainId(value: string | undefined): value is LearningDomainI
   return Boolean(value && DOMAIN_IDS.has(value as LearningDomainId));
 }
 
+function hasHierarchicalLessonRail(domainId: LearningDomainId | null): boolean {
+  return Boolean(domainId && HIERARCHICAL_DOMAIN_IDS.has(domainId));
+}
+
 export default function LearningLabView({ onBackToLanding }: LearningLabViewProps) {
   const navigate = useNavigate();
   const { domainId, trackId } = useParams();
@@ -47,6 +57,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   const routeDomainId = isLearningDomainId(domainId) ? domainId : null;
   const routeLessonId = searchParams.get('lesson');
+  const isHierarchicalDomain = hasHierarchicalLessonRail(routeDomainId);
 
   const language = usePreferencesStore((s) => s.language);
   const theme = 'light' as const;
@@ -67,6 +78,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [learningSearchRevision, setLearningSearchRevision] = useState(0);
   const [searchLoadState, setSearchLoadState] = useState<{ domainId: LearningDomainId; status: 'loading' | 'error' | 'success' } | null>(null);
   const [searchRetryVersion, setSearchRetryVersion] = useState(0);
+  const [hierarchyViewLevel, setHierarchyViewLevel] = useState<LessonHierarchyViewLevel>(
+    () => (routeLessonId ? 'paper' : 'all')
+  );
   const [, startLessonTransition] = useTransition();
   const contentAreaRef = useRef<HTMLElement | null>(null);
   const lessonRailResizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -83,6 +97,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     transition: `transform ${SIDEBAR_ANIMATION_MS}ms ${SIDEBAR_EASING}, opacity ${SIDEBAR_ANIMATION_MS}ms ease-out`,
     willChange: 'transform, opacity',
   } satisfies CSSProperties) : undefined;
+
+  useEffect(() => {
+    if (isHierarchicalDomain) {
+      setHierarchyViewLevel(routeLessonId ? 'paper' : 'all');
+    }
+  }, [isHierarchicalDomain, routeDomainId, routeLessonId]);
 
   const activeDomain = routeDomainId && learningCatalog ? getLearningDomain(learningCatalog, routeDomainId) : null;
   const groupedDomainLessons = useMemo(() => (
@@ -266,25 +286,30 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     setIsSidebarOpen(false);
   };
 
-  const toggleChapter = useCallback((trackId: string) => {
+
+
+  const toggleChapter = (chapterId: string) => {
     setCollapsedChapters((current) => {
       const next = new Set(current);
-      if (next.has(trackId)) {
-        next.delete(trackId);
+      if (next.has(chapterId)) {
+        next.delete(chapterId);
       } else {
-        next.add(trackId);
+        next.add(chapterId);
       }
       return next;
     });
-  }, []);
+  };
 
   const selectLesson = useCallback((lessonId: string) => {
     const targetLesson = domainLessons.find((item) => item.id === lessonId);
     if (!targetLesson) return;
+    if (isHierarchicalDomain) {
+      setHierarchyViewLevel('paper');
+    }
     startLessonTransition(() => {
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
-  }, [domainLessons, navigate, startLessonTransition]);
+  }, [domainLessons, isHierarchicalDomain, navigate, startLessonTransition]);
 
   useEffect(() => {
     if (!selectedLesson) return;
@@ -304,12 +329,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [previousLesson, nextLesson, selectLesson, selectedLesson]);
+
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
   const retryCatalogLoad = useCallback(() => setCatalogRetryVersion((current) => current + 1), []);
   const retryLessonSearch = useCallback(() => setSearchRetryVersion((current) => current + 1), []);
   const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
   const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
   const toggleSidebar = useCallback(() => setIsSidebarOpen((current) => !current), []);
+
   const lessonRailProps = activeTrack ? ({
     groups: filteredGroupedDomainLessons,
     collapsedTrackIds: collapsedChapters,
@@ -322,6 +349,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     selectedFilter: lessonRailFilter,
     selectedLesson: railSelectedLesson,
     theme,
+    breadcrumbViewLevel: isHierarchicalDomain ? hierarchyViewLevel : undefined,
+    onBreadcrumbViewLevelChange: setHierarchyViewLevel,
     onClearSearch: clearLessonSearch,
     onSearchChange: setLessonSearchQuery,
     onRetrySearch: retryLessonSearch,
@@ -490,7 +519,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
         {isSidebarRendered ? (
           <div
-            ref={(element) => element?.toggleAttribute('inert', !isSidebarVisible)}
+            ref={(element) => {
+              element?.toggleAttribute('inert', !isSidebarVisible);
+            }}
             className={cx(
               'grid min-h-0 flex-1 transition-[grid-template-rows,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transform-none motion-reduce:transition-none',
               isSidebarVisible ? 'grid-rows-[1fr] translate-y-0 opacity-100' : 'pointer-events-none grid-rows-[0fr] -translate-y-3 opacity-0',
@@ -519,7 +550,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             {learningHomeDomains.map(({ domain }) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
-              const DomainIcon = DOMAIN_ICONS[domain.id];
+              const DomainIcon = getDomainIcon(domain.id);
               return (
                 <button
                   key={domain.id}
@@ -548,7 +579,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       </aside>
 
       <div
-        ref={(element) => element?.toggleAttribute('inert', isSidebarVisible)}
+        ref={(element) => {
+          element?.toggleAttribute('inert', isSidebarVisible);
+        }}
         className="flex h-dvh min-h-0 min-w-0 flex-col overflow-hidden"
         aria-hidden={isSidebarVisible}
       >
@@ -715,7 +748,31 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   </div>
                 ) : null}
               </div>
-              {selectedLesson ? (
+              {isHierarchicalDomain && hierarchyViewLevel !== 'paper' ? (
+                <div className="flex h-full min-h-[460px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#205089]/20 bg-white/60 p-8 text-center shadow-sm">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#205089]/10 text-[#205089] mb-4 shadow-sm">
+                    {routeDomainId === 'ai-projects' ? (
+                      <FolderKanban className="h-8 w-8" />
+                    ) : (
+                      <GraduationCap className="h-8 w-8" />
+                    )}
+                  </div>
+                  <h3 className="text-xl font-black text-[#123B68]">
+                    {routeDomainId === 'ai-projects'
+                      ? (language === 'vi' ? 'Chọn một dự án để bắt đầu' : 'Select a project to explore')
+                      : (language === 'vi' ? 'Chọn một bài báo nghiên cứu để bắt đầu' : 'Select a research paper to explore')}
+                  </h3>
+                  <p className="mt-2 max-w-md text-sm text-[#123B68]/70 leading-relaxed">
+                    {routeDomainId === 'ai-projects'
+                      ? (language === 'vi'
+                        ? 'Khám phá các dự án AI & Data Science từ danh mục bên trái, chọn dự án để bắt đầu khám phá quy trình thực chiến và mã nguồn chi tiết.'
+                        : 'Browse through AI & Data Science projects on the left, pick a project to explore end-to-end production pipelines and code.')
+                      : (language === 'vi'
+                        ? 'Khám phá các chủ đề AI & Machine Learning từ danh mục bên trái, chọn bài báo để bắt đầu học tập và phân tích chuyên sâu.'
+                        : 'Browse through AI & Machine Learning research topics on the left, pick a paper to dive into its detailed analysis and math.')}
+                  </p>
+                </div>
+              ) : selectedLesson ? (
                 <div className="min-w-0">
                   <Suspense fallback={<LessonDetailFallback label={strings.lessonLoading} themeClasses={themeClasses} />}>
                     <LessonDetail

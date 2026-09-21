@@ -1,117 +1,109 @@
-import { CheckCircle2, Circle, RotateCcw, XCircle } from 'lucide-react';
-import { useState } from 'react';
-import { getStrings } from '../../../../lib/localization';
-import { useLearningMdxLesson, useLearningMdxTheme, type LearningMdxComponent } from '../../learningMdxComponents';
-import { getQuizPalette } from '../../lesson/QuizBlock';
+import { lazy, Suspense, type ComponentProps, type ComponentType } from 'react';
+import type { LINEAR_ALGEBRA_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
+import { useLearningMdxTheme, type LearningMdxComponent } from '../../learningMdxComponents';
 import { cx } from '../../theme';
 
-type MathQuizOption = {
-  text: string;
-  isCorrect: boolean;
-  feedback: string;
-};
-
-// The Linear Algebra lessons author a single-question, single-select quiz with
-// a per-option explanation. It is a different authored contract than the
-// canonical `questions` array used by the LLM checkpoint quizzes.
-function MathQuiz({ question, options }: { question: string; options: MathQuizOption[] }) {
+function VisualSkeleton() {
   const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  const quizPalette = getQuizPalette(themeClasses);
-  const strings = getStrings(language).learningLab;
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-
-  const reset = () => {
-    setSelectedIndex(null);
-    setChecked(false);
-  };
-
-  const check = () => {
-    if (selectedIndex === null) return;
-    setChecked(true);
-  };
-
   return (
-    <div className={cx('py-1', quizPalette.card)}>
-      <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{question}</div>
-
-      <div className="mt-5 grid gap-2">
-        {options.map((option, index) => {
-          const isSelected = selectedIndex === index;
-          const revealCorrect = checked && option.isCorrect;
-          const revealIncorrect = checked && isSelected && !option.isCorrect;
-          const reveal = revealCorrect || revealIncorrect;
-          return (
-            <div key={index}>
-              <button
-                type="button"
-                onClick={() => { if (!checked) setSelectedIndex(index); }}
-                disabled={checked}
-                aria-pressed={isSelected}
-                className={cx(
-                  'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-black leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
-                  isSelected
-                    ? quizPalette.optionSelected
-                    : checked
-                      ? quizPalette.optionDisabled
-                      : quizPalette.optionIdle,
-                )}
-              >
-                <span className={cx('grid h-6 w-6 shrink-0 place-items-center transition-colors', isSelected ? quizPalette.optionMarkerSelected : quizPalette.optionMarkerIdle)}>
-                  {revealCorrect ? (
-                    <CheckCircle2 className="h-5 w-5" strokeWidth={2.6} aria-hidden="true" />
-                  ) : revealIncorrect ? (
-                    <XCircle className="h-5 w-5" strokeWidth={2.6} aria-hidden="true" />
-                  ) : (
-                    <Circle className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
-                  )}
-                </span>
-                <span>{option.text}</span>
-              </button>
-              {reveal ? (
-                <div
-                  className={cx(
-                    'mt-2 flex gap-2 rounded-lg border px-3 py-2.5 text-sm font-semibold leading-6',
-                    revealCorrect ? quizPalette.feedbackCorrect : quizPalette.feedbackIncorrect,
-                  )}
-                  role="status"
-                >
-                  {revealCorrect ? <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" /> : <XCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />}
-                  <p>{option.feedback}</p>
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={check}
-          disabled={checked || selectedIndex === null}
-          className={cx(
-            'inline-flex h-10 min-w-[6.5rem] items-center justify-center rounded-lg px-4 text-xs font-black transition-colors disabled:cursor-not-allowed',
-            checked || selectedIndex === null ? quizPalette.disabledButton : quizPalette.checkButton,
-          )}
-        >
-          {strings.check}
-        </button>
-        <button
-          type="button"
-          onClick={reset}
-          disabled={selectedIndex === null && !checked}
-          className={cx('inline-flex h-10 items-center gap-2 rounded-lg px-4 text-xs font-black transition-colors disabled:cursor-not-allowed disabled:opacity-35', quizPalette.resetButton)}
-        >
-          <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          {strings.reset}
-        </button>
-      </div>
-    </div>
+    <div
+      aria-busy="true"
+      aria-label="Đang tải trực quan hóa toán học..."
+      className={cx(
+        'my-6 h-64 w-full animate-pulse rounded-xl border motion-reduce:animate-none transition-colors',
+        themeClasses.semantic.neutral.border,
+        themeClasses.semantic.neutral.surface,
+      )}
+    />
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lazyNamed<T extends Record<string, ComponentType<any>>, K extends keyof T>(
+  factory: () => Promise<T>,
+  name: K,
+): ComponentType<ComponentProps<T[K]>> {
+  const LazyComponent = lazy(() => factory().then((module) => ({ default: module[name] })));
+  return function WrappedLazyNamed(props: ComponentProps<T[K]>) {
+    return (
+      <Suspense fallback={<VisualSkeleton />}>
+        <LazyComponent {...props} />
+      </Suspense>
+    );
+  };
+}
+
+const loadOverview = () => import('./overviewRenderers');
+const loadVector = () => import('./vectorRenderers');
+const loadMatrix = () => import('./matrixRenderers');
+const loadSystem = () => import('./systemRenderers');
+const loadSpace = () => import('./spaceRenderers');
+const loadOrthogonality = () => import('./orthogonalityRenderers');
+const loadDeterminant = () => import('./determinantRenderers');
+const loadEigen = () => import('./eigenRenderers');
+const loadSvd = () => import('./svdRenderers');
+
 export const linearAlgebraMdxComponents = {
-  MdxQuiz: MathQuiz,
-} satisfies Record<'MdxQuiz', LearningMdxComponent>;
+  // Chapter 0 (1)
+  AiDataRepresentationDemo: lazyNamed(loadOverview, 'AiDataRepresentationDemo'),
+
+  // Chapter 1 (24)
+  CoordinateRepresentationDiagram: lazyNamed(loadVector, 'CoordinateRepresentationDiagram'),
+  CosineAngleExplorer: lazyNamed(loadVector, 'CosineAngleExplorer'),
+  CosineMotivationDiagram: lazyNamed(loadVector, 'CosineMotivationDiagram'),
+  DistancePlane: lazyNamed(loadVector, 'DistancePlane'),
+  DotProductAngleExplorer: lazyNamed(loadVector, 'DotProductAngleExplorer'),
+  DotProductPlane: lazyNamed(loadVector, 'DotProductPlane'),
+  EmbeddingCosineDiagram: lazyNamed(loadVector, 'EmbeddingCosineDiagram'),
+  HadamardProductGrid: lazyNamed(loadMatrix, 'HadamardProductGrid'),
+  L2NormTriangle: lazyNamed(loadVector, 'L2NormTriangle'),
+  MatrixExplorer: lazyNamed(loadMatrix, 'MatrixExplorer'),
+  MatrixProductExplorer: lazyNamed(loadMatrix, 'MatrixProductExplorer'),
+  MatrixTransposeExplorer: lazyNamed(loadMatrix, 'MatrixTransposeExplorer'),
+  MatrixVectorProductExplorer: lazyNamed(loadMatrix, 'MatrixVectorProductExplorer'),
+  NormUnitBallDiagram: lazyNamed(loadVector, 'NormUnitBallDiagram'),
+  NormalizationPlane: lazyNamed(loadVector, 'NormalizationPlane'),
+  NormalizationProcess: lazyNamed(loadVector, 'NormalizationProcess'),
+  OuterProductExplorer: lazyNamed(loadMatrix, 'OuterProductExplorer'),
+  ProductOverview: lazyNamed(loadMatrix, 'ProductOverview'),
+  ScalarVectorPlane: lazyNamed(loadVector, 'ScalarVectorPlane'),
+  UnitVectorPlane: lazyNamed(loadVector, 'UnitVectorPlane'),
+  VectorAdditionPlane: lazyNamed(loadVector, 'VectorAdditionPlane'),
+  VectorNormPlane: lazyNamed(loadVector, 'VectorNormPlane'),
+  VectorPlane: lazyNamed(loadVector, 'VectorPlane'),
+  VectorSubtractionPlane: lazyNamed(loadVector, 'VectorSubtractionPlane'),
+
+  // Chapter 2 (5)
+  ColumnCombinationExplorer: lazyNamed(loadSystem, 'ColumnCombinationExplorer'),
+  GaussianEliminationStepper: lazyNamed(loadSystem, 'GaussianEliminationStepper'),
+  GaussJordanInverseStepper: lazyNamed(loadSystem, 'GaussJordanInverseStepper'),
+  LinearSystemCasesExplorer: lazyNamed(loadSystem, 'LinearSystemCasesExplorer'),
+  LUFactorizationExplorer: lazyNamed(loadSystem, 'LUFactorizationExplorer'),
+
+  // Chapter 3 (5)
+  SubspaceClosureExplorer: lazyNamed(loadSpace, 'SubspaceClosureExplorer'),
+  ColumnNullSpaceExplorer: lazyNamed(loadSpace, 'ColumnNullSpaceExplorer'),
+  BasisIndependenceExplorer: lazyNamed(loadSpace, 'BasisIndependenceExplorer'),
+  RankPivotExplorer: lazyNamed(loadSpace, 'RankPivotExplorer'),
+  LinearTransformationExplorer: lazyNamed(loadSpace, 'LinearTransformationExplorer'),
+
+  // Chapter 4 (4)
+  OrthogonalityExplorer: lazyNamed(loadOrthogonality, 'OrthogonalityExplorer'),
+  ProjectionExplorer: lazyNamed(loadOrthogonality, 'ProjectionExplorer'),
+  GramSchmidtExplorer: lazyNamed(loadOrthogonality, 'GramSchmidtExplorer'),
+  LeastSquaresExplorer: lazyNamed(loadOrthogonality, 'LeastSquaresExplorer'),
+
+  // Chapter 5 (2)
+  DeterminantAreaExplorer: lazyNamed(loadDeterminant, 'DeterminantAreaExplorer'),
+  DeterminantRowOpsExplorer: lazyNamed(loadDeterminant, 'DeterminantRowOpsExplorer'),
+
+  // Chapter 6 (4)
+  TraceEigenvalueLink: lazyNamed(loadEigen, 'TraceEigenvalueLink'),
+  EigenvectorExplorer: lazyNamed(loadEigen, 'EigenvectorExplorer'),
+  DiagonalizationExplorer: lazyNamed(loadEigen, 'DiagonalizationExplorer'),
+  PCAProjectionExplorer: lazyNamed(loadEigen, 'PCAProjectionExplorer'),
+
+  // Chapter 7 (2)
+  SVDGeometryExplorer: lazyNamed(loadSvd, 'SVDGeometryExplorer'),
+  TruncatedSVDExplorer: lazyNamed(loadSvd, 'TruncatedSVDExplorer'),
+} satisfies Record<typeof LINEAR_ALGEBRA_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;

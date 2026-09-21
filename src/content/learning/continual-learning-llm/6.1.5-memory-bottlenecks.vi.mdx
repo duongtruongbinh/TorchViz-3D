@@ -25,7 +25,7 @@ Một protocol thực tế vì thế phải báo cả memory budget, số update
 
 Ở pipeline supplier–consumer, upstream supplier thường phát hành model weights nhưng không phát hành corpus tiền huấn luyện. Downstream consumer vì thế không thể replay dữ liệu mà họ chưa từng được truy cập.
 
-Survey nêu ba lựa chọn trong setting này:
+Survey nêu ba lựa chọn trong setting này <Cite paper="shi2024continualSurvey" evidence="memory-access-bottlenecks-02-shi2024continualSurvey" />:
 
 - thu thập **proxy data** từ nguồn khác;
 - dùng khả năng sinh của LLM để tạo **pseudo-examples**;
@@ -39,7 +39,7 @@ Các cách này giảm phụ thuộc vào upstream corpus, nhưng không tái t�
 
 ## Dữ liệu không được phép ở lại
 
-Memory constraint còn có thể đến từ privacy: sample được dùng khi nó xuất hiện nhưng không được lưu lâu dài trên server. Đây là setting **online continual learning**.
+Memory constraint còn có thể đến từ privacy: sample được dùng khi nó xuất hiện nhưng không được lưu lâu dài trên server. Đây là setting **online continual learning** <Cite paper="shi2024continualSurvey" evidence="memory-access-bottlenecks-03-shi2024continualSurvey" />.
 
 Model phải quyết định update từ dòng dữ liệu hiện tại mà không dựa vào một replay buffer chứa dữ liệu người dùng cũ. Vì vậy, protocol cần nói rõ:
 

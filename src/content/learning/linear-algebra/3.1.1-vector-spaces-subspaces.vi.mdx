@@ -1,0 +1,161 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-spaces-subspaces',
+  locale: 'vi',
+  title: 'Vector Space và Subspace',
+  headings: [
+    'Từ Rn đến Vector Space',
+    'Subspace là gì',
+    'Ba điều kiện cần kiểm tra',
+    'Ví dụ và phản ví dụ trong R2',
+    'Span tạo ra một Subspace',
+    'Kiểm tra bằng NumPy',
+  ],
+  keywords: ['vector space', 'subspace', 'closure', 'span', 'Rn', 'numpy'],
+  conceptIds: [
+    'vector-space-intuition',
+    'subspace-definition',
+    'subspace-test',
+    'subspace-examples',
+    'span-subspace',
+    'subspace-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Từ Rn đến Vector Space
+
+Ở các chapter trước, vector thường xuất hiện dưới dạng một danh sách số trong <InlineMath formula="\mathbb{R}^n" />.
+
+Bây giờ ta quan tâm đến **tập các vector** và những phép toán được phép thực hiện trong tập đó.
+
+Một vector space là một tập hợp mà trong đó ta có thể:
+
+- Cộng hai vector
+- Nhân vector với scalar
+
+và kết quả vẫn tuân theo các quy tắc quen thuộc của phép cộng và scalar multiplication.
+
+Trong course này, phần lớn ví dụ vẫn nằm trong <InlineMath formula="\mathbb{R}^n" />. Mục tiêu của khái niệm vector space là giúp ta nói chính xác về các tập vector có cấu trúc.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Subspace là gì
+
+Một **subspace** là một tập con của một vector space nhưng bản thân nó vẫn là một vector space với cùng phép cộng và scalar multiplication.
+
+Ví dụ trong <InlineMath formula="\mathbb{R}^2" />, đường thẳng đi qua gốc tọa độ:
+
+<BlockMath formula="S=\left\{t\begin{bmatrix}1\\2\end{bmatrix}:t\in\mathbb{R}\right\}" />
+
+là một subspace.
+
+Mọi vector trong <InlineMath formula="S" /> đều nằm trên cùng một đường qua gốc.
+
+<SubspaceClosureExplorer
+  ariaLabel="Một đường thẳng đi qua gốc tọa độ minh họa subspace trong R hai"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ba điều kiện cần kiểm tra
+
+Với một tập <InlineMath formula="S\subseteq\mathbb{R}^n" />, ta có thể kiểm tra subspace bằng ba điều kiện.
+
+Tập phải chứa vector không:
+
+<BlockMath formula="\mathbf{0}\in S" />
+
+Đóng với phép cộng:
+
+<BlockMath formula="\mathbf{u},\mathbf{v}\in S\Longrightarrow\mathbf{u}+\mathbf{v}\in S" />
+
+Đóng với scalar multiplication:
+
+<BlockMath formula="\mathbf{u}\in S,\ c\in\mathbb{R}\Longrightarrow c\mathbf{u}\in S" />
+
+Nếu một trong ba điều kiện thất bại thì tập đó không phải subspace.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ví dụ và phản ví dụ trong R2
+
+Đường:
+
+<BlockMath formula="y=2x" />
+
+là subspace của <InlineMath formula="\mathbb{R}^2" /> vì đi qua gốc và đóng với hai phép toán.
+
+Ngược lại, đường:
+
+<BlockMath formula="y=2x+1" />
+
+không phải subspace vì không chứa <InlineMath formula="\mathbf{0}" />.
+
+Một đường đi qua gốc có dạng:
+
+<BlockMath formula="\left\{t\mathbf{v}:t\in\mathbb{R}\right\}" />
+
+với một vector khác vector không <InlineMath formula="\mathbf{v}" />.
+
+<LessonNote>
+  Điều kiện đi qua gốc là cần thiết nhưng chưa đủ cho mọi loại tập. Khi tập phức tạp hơn một đường thẳng, ta vẫn cần kiểm tra closure.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Span tạo ra một Subspace
+
+Cho các vector:
+
+<BlockMath formula="\mathbf{v}_1,\ldots,\mathbf{v}_k" />
+
+span của chúng là tập tất cả linear combination:
+
+<BlockMath formula="\operatorname{span}(\mathbf{v}_1,\ldots,\mathbf{v}_k)=\left\{c_1\mathbf{v}_1+\cdots+c_k\mathbf{v}_k:c_i\in\mathbb{R}\right\}" />
+
+Span luôn là một subspace.
+
+Nếu chỉ có một vector khác vector không trong <InlineMath formula="\mathbb{R}^2" />, span là một đường qua gốc.
+
+Nếu hai vector trong <InlineMath formula="\mathbb{R}^2" /> không cùng phương, span của chúng là toàn bộ <InlineMath formula="\mathbb{R}^2" />.
+
+Đây là cầu nối trực tiếp sang column space ở bài tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiểm tra bằng NumPy
+
+Ta có thể tạo một vài linear combination để quan sát span:
+
+```python
+import numpy as np
+
+v1 = np.array([1.0, 0.0])
+v2 = np.array([0.0, 1.0])
+
+c1 = 2.0
+c2 = -3.0
+
+x = c1 * v1 + c2 * v2
+print(x)
+# [ 2. -3.]
+```
+
+Vì <InlineMath formula="\mathbf{v}_1" /> và <InlineMath formula="\mathbf{v}_2" /> là hai hướng độc lập trong <InlineMath formula="\mathbb{R}^2" />, mọi vector hai chiều đều có thể được tạo từ một linear combination của chúng.
+
+Bài tiếp theo áp dụng ý tưởng span vào các cột của một matrix.
+
+</MdxPage>

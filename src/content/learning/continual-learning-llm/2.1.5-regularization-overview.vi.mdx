@@ -1,0 +1,115 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'regularization-overview',
+  locale: 'vi',
+  title: 'Regularization',
+  headings: [
+    'Giữ tri thức cũ trong objective',
+    'Trade-off và ranh giới storage',
+    'Hai không gian ràng buộc Weight và Function regularization',
+  ],
+  keywords: ['Regularization', 'Stability–Plasticity', 'Weight Regularization', 'Function Regularization'],
+  conceptIds: ['regularization-family-objective', 'regularization-storage-tradeoff', 'regularization-space-split'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Giữ tri thức cũ trong objective
+
+<ConceptHierarchy
+  ariaLabel="Nhắc lại ba hướng tiếp cận chính, với Regularization là trọng tâm hiện tại"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    { title: 'Regularization', tone: 'amber', visual: 'two-term-loss' },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+Khi học Task B sau Task A theo cách tuần tự thông thường, hàm mục tiêu chỉ đơn thuần tối ưu trên dữ liệu của task mới:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}" />
+
+Vì objective chỉ quan tâm đến Task B, các bước cập nhật gradient sẽ tự do dịch chuyển trọng số mà không màng tới Task A. Đây chính là nguyên nhân trực tiếp làm xô lệch các vùng tham số cũ và gây ra **catastrophic forgetting**.
+
+Để giảm phụ thuộc vào việc replay raw data cũ, hàm mục tiêu có thể dung hòa hai mục tiêu:
+
+- **Loss task mới:** <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> giúp model thích nghi với dữ liệu hiện tại.
+- **Loss retention:** <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> dùng trạng thái đã lưu từ task trước, chẳng hạn checkpoint, parameter importance hoặc teacher output, để hạn chế forgetting. Term này không bắt buộc phải là một objective unsupervised.
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}+\lambda\mathcal{L}_{\mathrm{retention}}" />
+
+Để term thứ hai hoạt động mà không cần raw data cũ, cách tự nhiên nhất là đo lường độ lệch so với trạng thái cũ của mô hình:
+- Trực quan và đơn giản nhất là đo **khoảng cách Euclidean** (chuẩn L2) trực tiếp giữa hai bộ trọng số.
+- Mở rộng hơn dưới góc nhìn xác suất, ta có thể đo độ lệch phân phối dự đoán thông qua **KL divergence** giữa mô hình hiện tại và mô hình cũ.
+
+Tuy nhiên, việc ghép hai mục tiêu vào cùng một loss function dẫn đến một trade-off lớn: hai term có thể xung đột hướng đi (**gradient conflict**). Trong khi <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> kéo mô hình về cực tiểu của task mới, thì <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> lại kéo giật ngược về trạng thái cũ, khiến quá trình tối ưu dễ rơi vào thế giằng co và khó hội tụ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trade-off và ranh giới storage
+
+Retention càng mạnh, model càng khó thay đổi để học Task B. Nếu
+<InlineMath formula="\lambda" /> quá nhỏ, forgetting có thể tăng; nếu quá lớn,
+plasticity có thể giảm. Đây là stability–plasticity trade-off mà
+regularization-based approach điều khiển.
+
+Regularization-based approach không nhất thiết phải replay raw data cũ,
+nhưng cũng không đồng nghĩa với zero storage cost. Wang et al. lưu ý rằng hướng
+này thường cần lưu một frozen copy của model cũ làm mốc tham chiếu <Cite paper="wang2024comprehensive" evidence="regularization-overview-03-wang2024comprehensive" />.
+
+<LessonImage
+  assetPath="continual-learning-llm/02-regularization-tradeoff-storage-doodle.png"
+  alt="Bốn doodle card minh họa regularization với lambda thấp làm rơi tri thức cũ, lambda cân bằng giữ cả cũ và mới, lambda cao chặn task mới, và frozen checkpoint cung cấp mốc tham chiếu lưu trữ"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Hai không gian ràng buộc Weight và Function regularization
+
+Từ ý tưởng can thiệp trực tiếp vào parameter space (Weight regularization) này, hàng loạt công trình kinh điển trong continual learning đã phát triển theo hướng này <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />:
+- **Elastic Weight Consolidation (EWC):** sử dụng ma trận Fisher Information Matrix để đo lường mức độ nhạy cảm của từng trọng số đối với bài toán cũ.
+- **SI và MAS:** Synaptic Intelligence (SI) và Memory Aware Synapses (MAS) theo dõi quỹ đạo gradient hoặc độ nhạy output để ước lượng tầm quan trọng của từng tham số. Sau khi statistics đã được tổng hợp, penalty không cần replay raw data cũ trong mỗi batch mới.
+
+Parameter distance không ánh xạ trực tiếp sang functional distance: một dịch chuyển nhỏ ở hướng nhạy cảm vẫn có thể đổi output, trong khi nhiều dịch chuyển khác gần như không ảnh hưởng hành vi. Neo quá mạnh cũng có thể giảm plasticity, còn importance statistics làm tăng chi phí bộ nhớ và consolidation.
+
+Vì hai loại ràng buộc trả lời hai câu hỏi khác nhau, khảo sát continual learning <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" /> thường chia regularization thành hai nhóm:
+
+<ConceptHierarchy
+  ariaLabel="Regularization trong ba hướng tiếp cận chính, chia tiếp thành Weight và Function regularization"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet' },
+        { title: 'Function regularization', tone: 'teal' },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/Regularizationv3.jpg"
+  alt="Minh họa regularization-based approach chia thành weight regularization, ràng buộc tham số của model cũ, và function regularization, ràng buộc hành vi của model cũ"
+/>
+
+Từ sự phân nhánh này, **Function regularization** (ràng buộc trong function space) xuất hiện như một lời giải trực diện cho hạn chế của Weight regularization:
+Thay vì kiểm soát từng trọng số, function regularization chuyển sự chú ý sang **hành vi đầu ra**. Với checkpoint cũ làm frozen teacher, knowledge distillation phạt độ lệch của logits hoặc biểu diễn trên cùng input. Cách này cho phép nhiều tự do hơn trong parameter space, nhưng chỉ bảo vệ hành vi trên phân phối input dùng để tạo teacher target; nó không tự động bảo toàn mọi capability cũ.
+
+Đối chiếu lại với ranh giới storage và mốc tham chiếu:
+- **Weight regularization** dùng mốc frozen copy đó cùng importance của tham số để đặt penalty.
+- **Function regularization** dùng model đã học trước đó làm teacher. Teacher target có thể được tạo từ input mới, một phần input cũ, dữ liệu ngoài không nhãn hoặc dữ liệu sinh <Cite paper="wang2024comprehensive" evidence="regularization-overview-04-wang2024comprehensive" />. Vì vậy, hướng tiếp cận này cũng có thể kết hợp linh hoạt với replay <Cite paper="wang2024comprehensive" evidence="regularization-overview-05-wang2024comprehensive" />.
+
+Các bài tiếp theo đi sâu vào cách ước lượng parameter importance và cách kiểm tra retention bằng một experiment contract chung.
+
+</MdxPage>

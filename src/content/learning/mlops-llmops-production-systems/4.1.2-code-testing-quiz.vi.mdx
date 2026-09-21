@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-testing-quiz',
+  locale: 'vi',
+  title: "Quiz: Kiểm thử Code",
+  headings: [
+    '3 Trụ cột Kiểm thử ML',
+    'Mục đích của Unit Testing trong ML',
+    'Vai trò của Pytest Fixtures',
+    'Kiểm thử Tham số hóa (@pytest.mark.parametrize)',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Pytest', 'Fixtures', 'Unit Test', 'Integration Test'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="code-testing-quiz" questions={[
+  {
+    id: 'three-pillars-ml-testing',
+    title: '3 Trụ cột Kiểm thử ML',
+    prompt: 'Khác với kiểm thử phần mềm truyền thống chỉ kiểm tra code, hệ thống kiểm thử ML hoàn chỉnh phải bao gồm 3 trụ cột nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Code Testing (Mã nguồn), Data Testing (Chất lượng dữ liệu), và Model Testing (Hành vi & Bias của mô hình).', isCorrect: true },
+      { id: 'opt2', label: 'Màn hình, Bàn phím và Chuột máy tính.' },
+      { id: 'opt3', label: 'HTML, CSS và JavaScript.' },
+      { id: 'opt4', label: 'Tốc độ gõ phím của kỹ sư.' },
+    ],
+    success: 'Chính xác! Kiểm thử ML toàn diện phải kiểm tra cả Code logic, Data distribution & schema, và Model behavior.',
+    error: 'Chưa chính xác. Hệ thống kiểm thử ML bao gồm 3 trụ cột: Code, Data và Model.',
+  },
+  {
+    id: 'unit-test-purpose',
+    title: 'Mục đích của Unit Testing trong ML',
+    prompt: 'Ví dụ nào sau đây là một trường hợp Unit Test điển hình cho pipeline xử lý dữ liệu ML?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Kiểm tra hàm `clean_text()` có chuyển đổi đúng chữ thường và loại bỏ các ký tự HTML lạ hay không.', isCorrect: true },
+      { id: 'opt2', label: 'Đợi khách hàng phàn nàn trên mạng xã hội rồi mới sửa lỗi.' },
+      { id: 'opt3', label: 'Kiểm tra xem máy tính có bật nguồn hay chưa.' },
+      { id: 'opt4', label: 'Chạy toàn bộ quá trình train 100 epoch trên GPU cụm.' },
+    ],
+    success: 'Đúng! Unit test cô lập kiểm tra tính đúng đắn của từng hàm độc lập như hàm làm sạch văn bản, encode nhãn.',
+    error: 'Chưa đúng. Unit test kiểm tra các hàm logic nhỏ độc lập như hàm tiền xử lý dữ liệu.',
+  },
+  {
+    id: 'pytest-fixture-usecase',
+    title: 'Vai trò của Pytest Fixtures',
+    prompt: 'Decorator `@pytest.fixture` được sử dụng để làm gì trong bộ test suite?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cung cấp dữ liệu mẫu, cấu hình hoặc đối tượng tái sử dụng (như mock dataset, tokenizer) cho nhiều hàm test.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động gửi thông báo qua Facebook.' },
+      { id: 'opt3', label: 'Xóa toàn bộ mã nguồn nếu test thất bại.' },
+      { id: 'opt4', label: 'Khóa tài khoản GitHub của người lập trình.' },
+    ],
+    success: 'Chính xác! Fixture giúp khởi tạo tài nguyên dùng chung một cách sạch sẽ, tránh trùng lặp code.',
+    error: 'Chưa chính xác. Fixture dùng để khởi tạo và cung cấp môi trường/đối tượng tái sử dụng cho các bài test.',
+  },
+  {
+    id: 'parametrize-testing-benefit',
+    title: 'Kiểm thử Tham số hóa (@pytest.mark.parametrize)',
+    prompt: 'Tại sao nên sử dụng `@pytest.mark.parametrize` khi kiểm thử các hàm xử lý văn bản?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Giúp chạy cùng một hàm kiểm thử trên nhiều mẫu câu đầu vào và đầu ra kỳ vọng khác nhau chỉ với một hàm test duy nhất.', isCorrect: true },
+      { id: 'opt2', label: 'Làm cho code chạy chậm hơn để dễ quan sát.' },
+      { id: 'opt3', label: 'Tự động tạo ra các file PDF.' },
+      { id: 'opt4', label: 'Giảm số lượng bài test trong báo cáo.' },
+    ],
+    success: 'Đúng! Parametrize cho phép kiểm thử toàn diện nhiều kịch bản đầu vào (edge cases) cực kỳ gọn gàng.',
+    error: 'Chưa đúng. Parametrize giúp chạy lặp hàm test với nhiều bộ dữ liệu thử nghiệm khác nhau.',
+  },
+]} />

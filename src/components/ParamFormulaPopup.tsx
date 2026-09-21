@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { IRNode } from '../lib/irTypes';
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings } from '../lib/localization';

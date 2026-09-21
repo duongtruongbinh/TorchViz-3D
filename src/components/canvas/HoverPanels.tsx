@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { LayoutNode } from '../../lib/irTypes';
+import type { LayoutNode } from '../../lib/irTypes';
 import { getStrings } from '../../lib/localization';
 import { getLayerInsight } from '../../lib/layerInsights';
 import { usePreferencesStore } from '../../store/usePreferencesStore';

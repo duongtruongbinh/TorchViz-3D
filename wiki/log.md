@@ -3,6 +3,37 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-08-19 — Learning Lab UI Architecture Refactored & Deduplicated.**
+  Established a clear 4-layer UI architecture (Global Theme/Shell, Reference Engine,
+  Domain Adapters, Math Primitives). Extracted the reference engine (`Cite`, `PaperSummary`,
+  `LessonReferences`, `@floating-ui/react`) and Continual Learning adapter (`StageContinuityMap`)
+  into isolated dynamic modules loaded strictly on demand. Refactored Linear Algebra domain
+  controls (`MathVisualCard`, `MathRangeControl`, `MathSegmentedControl`, `MathStepperControls`,
+  `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`), eliminated duplicate matrix cell
+  and info-panel implementations, upgraded one-of-N selectors to WAI-ARIA radiogroup standards
+  with keyboard roving focus, pruned dead theme tokens, and removed Tailwind `.dark` usage in theme-context
+  components. Documented UI ownership layers and 10 agent reuse rules across the wiki and repo guides.
+  Details recorded in [docs/plans/2026-08-19-learning-lab-ui-refactor.md](../docs/plans/2026-08-19-learning-lab-ui-refactor.md).
+
+- **2026-08-19 — Linear Algebra reframed for applied AI.** Added a standalone
+  Chapter 0 overview that connects tabular data and RGB images to scalar,
+  vector, matrix, and tensor representations, then leads into the operations
+  used throughout AI. Narrowed the domain description to essential applied-AI
+  linear algebra while preserving the existing 29 Theory/Quiz pairs across the
+  7 core chapters. Standardized all 59 Linear Algebra MDX filenames as
+  `<chapter>.1.<node>-<lesson-id>.vi.mdx`, starting the overview at Chapter 0
+  and keeping every theory and Quiz node in typed-TOC order.
+
+- **2026-08-18 — Linear Algebra completed with 58 lessons and audited math/visuals.**
+  Published all 7 chapters (29 theory lessons and 29 quiz lessons) following the
+  Gilbert Strang / MIT 18.06 outline. Migrated 2D Cartesian mathematics to Mafs 0.21.0
+  and consolidated shared visual primitives (`MathCanvas`, `MathVisualCard`, `MatrixEquationRow`,
+  `RightAngleMarker`, `MathSegmentedControl`, `demoMath`). Audited exact SVD Frobenius
+  energy/errors, trace cyclic property, centered PCA projection residuals, stable
+  singular determinant bounds, and rebalanced all 101 quiz questions evenly across
+  options A-D. Fragmented plan files were consolidated into
+  [one master plan](../docs/plans/2026-08-18-linear-algebra-full-curriculum-and-refinement.md).
+
 - **2026-08-17 — Learning Lab moved to recoverable on-demand boundaries.** Cold
   Home now uses canonical generated summaries and a small language-preference
   store, requesting no Workspace template, TOC, MDX, search, adapter, reference,
@@ -114,7 +145,8 @@ no `type` frontmatter required.)
   LLM-from-scratch course's planned React-free visual/formula metadata, concrete
   checkpoint exercises, and code-step contracts.
 - **2026-07-02 — LLM-from-scratch gist reference alignment.** Downloaded the
-  supplied "Building LLMs From Scratch" gist into `docs/reference/` and aligned
+  supplied "Building LLMs From Scratch" gist into `docs/reference/` *(directory
+  since removed from the repo)* and aligned
   the LLM course copy/checkpoints with source-grounded paraphrases plus explicit
   placeholders for out-of-scope extension labs.
 - **2026-06-29 — Landing home redesign.** Refined the outer Landing page into a
@@ -220,3 +252,5 @@ no `type` frontmatter required.)
   authored renderer DTOs, and MDX allowlists to their owning content/UI layers.
   Added a regression test for the one-way React-free core boundary; all 107
   tests and the production build pass.
+
+- **2026-09-21 — Machine Learning branch main integration.** Retained current main test logic while reconciling Machine Learning catalog counts and Windows NCA path filtering. Typecheck, 162 tests, and production build passed using an explicit PYTHON executable in the Codex environment. See [merge continuation plan](../docs/plans/2026-09-21-machine-learning-main-merge.md).

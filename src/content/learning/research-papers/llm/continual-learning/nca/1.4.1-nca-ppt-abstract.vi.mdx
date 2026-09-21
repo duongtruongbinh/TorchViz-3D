@@ -1,0 +1,350 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nca-ppt-abstract',
+  locale: 'vi',
+  title: 'Phần 1: Tóm tắt (Abstract)',
+  headings: [
+    'Abstract',
+    'Kỹ thuật Sinh Dữ liệu & Huấn luyện Cốt lõi',
+    'Giải mã Kiến trúc: Cơ chế Tạo nên Đột phá',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Neural Cellular Automata',
+    'NCA Pre-Pre-Training',
+    'In-Context Learning',
+    'Epiplexity',
+    'Continual Learning',
+    'Induction Heads',
+    'Token Efficiency',
+    'Synthetic Pre-training',
+  ],
+  conceptIds: ['nca-ppt-concept-role'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+**Paper:** [arXiv:2603.10055v1](https://arxiv.org/abs/2603.10055)
+
+**Bài viết Tương tác (Blog):** [hanseungwook.github.io/blog/nca-pre-pre-training](https://hanseungwook.github.io/blog/nca-pre-pre-training/)
+
+**Mã nguồn:** [github.com/danihyunlee/nca-pre-pretraining](https://github.com/danihyunlee/nca-pre-pretraining)
+
+**Title:** Training Language Models via Neural Cellular Automata
+
+**Tác giả:** Dan Lee (*Independent Contributor*), Seungwook Han (*MIT, Improbable AI Lab*), Akarsh Kumar (*MIT*), Pulkit Agrawal (*MIT, Improbable AI Lab*)
+
+---
+
+### Abstract
+
+Tiền huấn luyện (Pre-training) là giai đoạn quyết định nơi các mô hình ngôn ngữ lớn (LLM) tiếp thu phần lớn biểu diễn không gian và năng lực tính toán. Tuy nhiên, việc phụ thuộc hoàn toàn vào văn bản tự nhiên đang đối mặt với ba rào cản nghiêm trọng:
+
+<ConceptFlow
+  ariaLabel="Ba rào cản cốt lõi của tiền huấn luyện bằng ngôn ngữ tự nhiên"
+  items={[
+    {
+      title: '1. Cạn kiệt Dữ liệu',
+      detail: 'Nguồn văn bản tự nhiên chất lượng cao có giới hạn và dự báo cạn kiệt vào ~2028.',
+      visual: 'database',
+      tone: 'amber',
+    },
+    {
+      title: '2. Thiên kiến Con người',
+      detail: 'Văn bản tự nhiên thừa hưởng nhiều định kiến xã hội và đòi hỏi tinh lọc, làm sạch tốn kém.',
+      visual: 'selection',
+      tone: 'violet',
+    },
+    {
+      title: '3. Đan xen Tri thức & Suy luận',
+      detail: 'Lồng ghép phức tạp giữa tri thức sự thật với năng lực suy luận trừu tượng.',
+      example: 'Mô hình dễ học vẹt dữ kiện bề mặt thay vì rèn luyện tư duy suy luận logic.',
+      visual: 'neural-network',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<EvidenceCards
+  singleColumn
+  ariaLabel="Mục tiêu trọng tâm của nghiên cứu"
+  items={[
+    {
+      value: 'Ý tưởng',
+      insight: 'Nếu pre-training trực tiếp trên ngôn ngữ tự nhiên khiến LLM trước hết học nhiều mẫu bề mặt, tương quan và tri thức ngữ nghĩa, thì ta có thể chèn thêm một giai đoạn pre-pre-training (tiền-tiền-huấn luyện) trên dữ liệu phi ngôn ngữ có cấu trúc để giúp mô hình hình thành trước các cơ chế tính toán và năng lực suy luận trừu tượng. Sau đó mô hình mới có thể tiếp tục lặp lại quy trình thông thường pre-training (tiền huấn luyện) trên ngôn ngữ tự nhiên để tiếp thu tri thức, ngữ nghĩa và các quy luật ngôn ngữ.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Điều này đặt ra một số câu hỏi nền tảng:
+
+<ConceptHierarchy
+  ariaLabel="Các câu hỏi nghiên cứu nền tảng"
+  root={{
+    title: 'Câu hỏi Nghiên cứu Nền tảng',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: '1. Dữ liệu & Đặc tính Cấu trúc',
+      detail: 'Dữ liệu phi ngôn ngữ nào, và những đặc tính cấu trúc nào của dữ liệu đó, có thể giúp LLM hình thành các năng lực tính toán và suy luận trừu tượng trước khi tiếp xúc với ngôn ngữ tự nhiên?',
+      tone: 'amber',
+    },
+    {
+      title: '2. Khả năng Chuyển giao sang LLM',
+      detail: 'Làm sao để chứng minh các năng lực suy luận trừu tượng đó thực sự chuyển giao sang LLM, giúp mô hình học ngôn ngữ tự nhiên nhanh hơn, giảm perplexity và tiết kiệm token huấn luyện?',
+      tone: 'violet',
+    },
+    {
+      title: '3. Cơ chế Bên trong & Khả năng Học Liên tục',
+      detail: 'Bên trong mô hình thực sự xảy ra điều gì khi tiếp thu dữ liệu này, và liệu việc rèn luyện tư duy trước có giúp mô hình học thêm nhiều kiến thức mới sau này mà không bị quên kiến thức cũ (Catastrophic Forgetting) hay không?',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+Để giải quyết các câu hỏi trên, nhóm nghiên cứu bắt đầu từ một quy luật cốt lõi trong ngôn ngữ con người: **Định luật Zipf (Zipf's Law)**. Trong mọi ngôn ngữ tự nhiên, từ vựng không phân bố ngẫu nhiên mà luôn có một số ít từ xuất hiện cực kỳ thường xuyên (như "và", "của", "the"), trong khi đa số từ còn lại xuất hiện ít hơn nhưng mang thông tin đặc thù. Cấu trúc thống kê này chính là "dấu vân tay" phản ánh trật tự tư duy và logic tự nhiên.
+
+Nếu muốn tạo ra một nguồn dữ liệu tổng hợp giúp mô hình rèn luyện tư duy trước khi học chữ, nguồn dữ liệu đó bắt buộc phải tái hiện được quy luật phân phối tự nhiên này, thay vì chỉ là các chuỗi số ngẫu nhiên vô nghĩa.
+
+Từ động lực đó, công trình này đề xuất sử dụng **Neural Cellular Automata (NCA)**: một hệ thống các tế bào số tự biến đổi trên lưới ma trận theo các quy luật nơ-ron cục bộ. Nghiên cứu phát hiện rằng động lực học NCA tự động tái hiện hoàn hảo quy luật phân phối Zipfian tương tự ngôn ngữ con người. Nhờ đó, máy tính có thể tự sinh ra nguồn dữ liệu vô tận, chi phí gần như bằng 0 và sạch sẽ tuyệt đối để rèn luyện năng lực suy luận trừu tượng cho mô hình trước khi bước vào văn bản thật.
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/nca/nca-zipf-law-motivation.png"
+  alt="Minh họa Định luật Zipf trong ngôn ngữ thật, sự thất bại của nhiễu ngẫu nhiên và khả năng tự tái hiện trật tự của lưới tế bào NCA"
+  caption="Định luật Zipf là động lực cốt lõi: Ngôn ngữ tự nhiên có trật tự lũy thừa phi ngẫu nhiên (trái); nhiễu ngẫu nhiên hỗn loạn không có cấu trúc (giữa); lưới tế bào NCA tự động tái hiện trật tự Zipf tương tự ngôn ngữ thật (phải)."
+/>
+
+---
+
+#### Toàn cảnh Quy trình: Rèn Tư duy trước, Nạp Kiến thức sau
+
+Toàn bộ hành trình của phương pháp được khái quát qua 5 bước trực quan và tự nhiên:
+
+<ConceptFlow
+  ariaLabel="Quy trình 5 giai đoạn của phương pháp NCA Pre-Pre-Training"
+  items={[
+    {
+      title: '1. Tạo Thế giới Số (NCA)',
+      detail: 'Máy tính tự sinh ra một lưới các ô số biến đổi liên tục theo thời gian, hoàn toàn tự động mà không cần cào dữ liệu từ Internet.',
+      visual: 'database',
+      tone: 'amber',
+    },
+    {
+      title: '2. Sàng lọc Quy luật',
+      detail: 'Giữ lại những chuỗi số có nhịp điệu và trật tự giống ngôn ngữ tự nhiên, loại bỏ các chuỗi ngẫu nhiên hỗn loạn không có logic.',
+      visual: 'selection',
+      tone: 'violet',
+    },
+    {
+      title: '3. Luyện Tư duy (Pre-Pre-Train)',
+      detail: 'Cho mô hình tập đoán các quy luật số để xây dựng phản xạ logic và khả năng suy luận trừu tượng trước khi học chữ viết.',
+      visual: 'neural-network',
+      tone: 'teal',
+    },
+    {
+      title: '4. Nạp Tri thức (Pre-Train)',
+      detail: 'Khi tư duy đã vững vàng, đưa mô hình vào học văn bản thật; mô hình tiếp thu nhanh hơn và hiểu sâu hơn với ít dữ liệu hơn.',
+      visual: 'solution',
+      tone: 'blue',
+    },
+    {
+      title: '5. Vận dụng & Học Liên tục',
+      detail: 'Mô hình suy luận sắc bén hơn khi làm toán, lập trình, đồng thời dễ dàng nạp thêm kiến thức mới mà không bị quên điều đã học.',
+      visual: 'evaluation',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+---
+
+#### Thiết kế Thí nghiệm So sánh
+
+Để kiểm chứng xem liệu dữ liệu số tự sinh từ NCA có thực sự giúp mô hình hình thành năng lực tư duy tốt hơn dữ liệu ngôn ngữ tự nhiên hay không, các tác giả đã tiến hành một thử nghiệm so sánh trực tiếp:
+
+<ConceptHierarchy
+  ariaLabel="Sơ đồ thiết kế thí nghiệm so sánh hai nhánh huấn luyện và hội tụ vào downstream task"
+  root={{
+    title: 'Mô hình Nền tảng LLaMA (1.6B Tham số)',
+    detail: 'Khởi đầu từ cùng một kiến trúc và phân tách thành hai nhánh tiền huấn luyện sơ bộ (PPT) độc lập',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: 'Nhánh 1 (PPT): Số Tự sinh (NCA)',
+      detail: 'Huấn luyện sơ khởi trên 164 triệu tokens chuỗi số từ lưới tế bào NCA, hoàn toàn phi ngôn ngữ.',
+      tone: 'teal',
+    },
+    {
+      title: 'Nhánh 2 (PPT): Văn bản Thật (C4)',
+      detail: 'Huấn luyện sơ khởi trên 1.6 tỷ tokens văn bản người thật thu thập từ web C4 (dung lượng lớn gấp gần 10 lần).',
+      tone: 'amber',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1],
+      children: [
+        {
+          title: 'Pha 2: Tiền huấn luyện Ngôn ngữ Thật (Pre-Training)',
+          detail: 'Cả hai mô hình cùng bước vào giai đoạn nạp văn bản tự nhiên quy mô lớn trên các tập ngữ liệu đích: OpenWebText (9B tokens văn bản), OpenWebMath (4B tokens toán học) và CodeParrot (13B tokens mã nguồn).',
+          tone: 'blue',
+          children: [
+            {
+              title: 'Pha 3: Đánh giá Tác vụ Hạ nguồn (Downstream Tasks)',
+              detail: 'Đo lường năng lực suy luận và giải quyết bài toán thực tế trên ba bộ kiểm chuẩn tiêu chuẩn: GSM8K (Toán học), HumanEval (Lập trình) và BigBench-Lite (Suy luận logic).',
+              tone: 'violet',
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+---
+
+#### Kết quả Thực nghiệm Nổi bật
+
+Nhờ cách tiếp cận "rèn tư duy trước, nạp kiến thức sau", nghiên cứu này mang lại những kết quả và bước tiến nổi bật:
+
+<ConceptFlow
+  ariaLabel="Những kết quả và bước tiến nổi bật của phương pháp NCA Pre-Pre-Training"
+  items={[
+    {
+      title: 'Pha 2: Tăng tốc Hội tụ (1.6×)',
+      detail: 'Khi bước vào nạp văn bản thật (OpenWebText, Code), mô hình hội tụ nhanh hơn 1.4× đến 1.6× và tiết kiệm tới 49% lượng token huấn luyện cần thiết.',
+      visual: 'solution',
+      tone: 'amber',
+    },
+    {
+      title: 'Pha 2: Giảm Perplexity (-6%)',
+      detail: 'Đo lường sau tiền huấn luyện cho thấy độ phân vân (perplexity) giảm từ 4–6% trên toàn bộ các miền văn bản, toán học và mã nguồn.',
+      visual: 'evaluation',
+      tone: 'teal',
+    },
+    {
+      title: 'Pha 3: Suy luận Đột phá (Pass@4 36.5%)',
+      detail: 'Khi đem đi giải bài toán logic và lập trình thực tế, nhánh xuất phát từ 164M số NCA đạt pass@4 tới 36.5%, vượt xa mức 29.7% của nhánh học từ 1.6B văn bản C4.',
+      visual: 'database',
+      tone: 'blue',
+    },
+    {
+      title: 'Pha 3: Học Liên tục & Không Quên',
+      detail: 'Khi tiếp tục tiếp nhận thêm các miền kiến thức mới, mô hình hạn chế tối đa hiện tượng quên lãng thảm khốc nhờ các mạch tư duy đã được tôi luyện vững chắc.',
+      visual: 'neural-network',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Kỹ thuật Sinh Dữ liệu & Huấn luyện Cốt lõi
+
+Để tạo ra nguồn dữ liệu tổng hợp phi ngôn ngữ có khả năng chuyển giao vượt trội sang mô hình ngôn ngữ lớn, nhóm nghiên cứu tại MIT đã thiết kế quy trình kỹ thuật gồm 5 bước chuẩn tắc:
+
+<ConceptFlow
+  ariaLabel="Quy trình 5 bước kỹ thuật sinh dữ liệu NCA và tiền tiền huấn luyện"
+  items={[
+    {
+      title: '1. Lấy mẫu Quy tắc NCA',
+      detail: 'Lấy mẫu ngẫu nhiên nhiều bộ tham số $\\theta$ để tạo các quy tắc chuyển trạng thái NCA khác nhau $f_\\theta$, đồng thời lấy mẫu ngẫu nhiên trạng thái lưới ban đầu $X^{(0)}$.',
+      visual: 'neural-network',
+      tone: 'amber',
+    },
+    {
+      title: '2. Sinh Quỹ đạo NCA',
+      detail: 'Chạy từng hàm $f_\\theta$ trên lưới từ $X^{(0)}$ qua $T$ bước thời gian (giữ $\\theta$ cố định trong mỗi quỹ đạo) để sinh ra chuỗi biến đổi $X^{(0)} \\to \\cdots \\to X^{(T)}$.',
+      visual: 'space',
+      tone: 'violet',
+    },
+    {
+      title: '3. Lọc Phức độ bằng Gzip',
+      detail: 'Không phải quỹ đạo nào cũng sử dụng được, do đó áp dụng tỷ lệ nén gzip trên dữ liệu quỹ đạo quan sát được để chọn lọc và giữ lại những chuỗi đạt độ phức tạp mong muốn ($r > 50\\%$).',
+      visual: 'selection',
+      tone: 'teal',
+    },
+    {
+      title: '4. Mã hóa Thành Đơn vị từ',
+      detail: 'Chia mỗi trạng thái lưới thành các mảnh $2 \\times 2$, ánh xạ mỗi mảnh thành một mã số, rồi nối các bước thời gian thành chuỗi đầu vào cho mô hình ngôn ngữ.',
+      visual: 'database',
+      tone: 'blue',
+    },
+    {
+      title: '5. Dự đoán Trạng thái Kế tiếp ($X^{(t+1)}$)',
+      detail: 'Mô hình dự đoán trạng thái tiếp theo từ lịch sử $X^{(0)} \\to \\cdots \\to X^{(t)}$. Để dự đoán tốt trên nhiều quỹ đạo được sinh bởi các $f_\\theta$ khác nhau, mô hình phải học cơ chế suy luận quy tắc tiềm ẩn từ ngữ cảnh và áp dụng quy tắc đó để dự đoán diễn biến tiếp theo.',
+      visual: 'solution',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Giải mã Kiến trúc: Cơ chế Tạo nên Đột phá
+
+Sau khi chứng kiến hiện tượng thực nghiệm bất ngờ: **chỉ 164M tokens chuỗi số NCA lại vượt trội 1.6 tỷ tokens văn bản thật C4**, câu hỏi lớn nhất đặt ra cho các nhà nghiên cứu là: *Thành phần nào bên trong kiến trúc Transformer đã thực sự tiếp thu và chuyển giao năng lực tư duy này?*
+
+Cần lưu ý rằng đây là một **phân tích thực nghiệm sau khi có kết quả (post-hoc mechanistic discovery)**: Ban đầu nhóm tác giả không hề giả định trước sự phân chia này. Chỉ sau khi mô hình chứng minh hiệu quả vượt bậc trên thực tế, họ mới tiến hành giải phẫu từng thành phần để giải mã nguyên nhân thành công thông qua kỹ thuật: **Triệt tiêu trọng số có chọn lọc (Selective Weight Ablation)**.
+
+---
+
+#### Thí nghiệm Bóc tách Trọng số (Selective Weight Ablation)
+
+Sau khi mô hình kết thúc Pha 1 (học 164M tokens số NCA), các tác giả thử **reset ngẫu nhiên** từng thành phần trọng số trước khi đưa mô hình bước vào học văn bản tiếng Anh:
+
+<ConceptHierarchy
+  ariaLabel="Kết quả thử nghiệm bóc tách trọng số chứng minh vai trò của Attention và MLP"
+  root={{
+    title: 'Thử nghiệm Bóc tách Trọng số (Weight Ablation)',
+    detail: 'Reset ngẫu nhiên từng nhóm trọng số sau pha NCA để đo lường mức độ suy giảm hiệu năng khi học ngôn ngữ thật',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Reset Tầng Attention (Self-Attention)',
+      detail: 'Việc reset Attention gây mức suy giảm chuyển giao lớn nhất: tốc độ hội tụ giảm và perplexity tăng gần 3%. Kết quả cho thấy phần lớn lợi ích chuyển giao nằm trong các tầng Attention.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Reset Tầng MLP (Feed-Forward)',
+      detail: 'Reset MLP làm giảm hiệu quả trên OpenWebText nhưng ảnh hưởng không đáng kể trên CodeParrot. Điều này cho thấy phần kiến thức trong MLP mang tính đặc thù miền hơn, nên giá trị chuyển giao phụ thuộc độ tương thích giữa dữ liệu nguồn và đích.',
+      tone: 'teal',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1],
+      children: [
+        {
+          title: 'Kết luận Giải phẫu: Phân định Vai trò Kiến trúc',
+          detail: 'Attention lưu giữ phần lớn các cơ chế có khả năng chuyển giao (theo dõi phụ thuộc dài hạn và suy ra quy tắc tiềm ẩn từ chuỗi quan sát). Ngược lại, MLP đóng vai trò như một bộ nhớ đặc thù miền lưu các mẫu thống kê bề mặt, đòi hỏi phải tái điều chỉnh khi chuyển sang miền mới.',
+          tone: 'violet',
+        },
+      ],
+    },
+  ]}
+/>
+
+---
+
+#### Ý nghĩa Đột phá cho Bài toán Thích nghi Miền & Học Liên tục
+
+Khám phá thực nghiệm trên mang lại góc nhìn then chốt cho bài toán thích nghi miền (Domain Adaptation) và học liên tục (Continual Learning):
+
+> **Bản chất chuyển giao kiến trúc:** Attention lưu giữ phần lớn các cơ chế có khả năng chuyển giao, chẳng hạn khả năng theo dõi phụ thuộc dài hạn và suy ra quy tắc tiềm ẩn từ chuỗi quan sát. Ngược lại, MLP giống một "bộ nhớ đặc thù miền" hơn: nó có xu hướng mã hóa các mẫu và thống kê gắn với dữ liệu đã học, nên khả năng chuyển giao phụ thuộc vào mức độ tương thích giữa miền nguồn và miền đích. Từ đó, khi thích nghi miền (Domain Adaptation), có thể kỳ vọng tầng MLP cần được điều chỉnh nhiều hơn để khớp với thống kê và mẫu của miền mới, còn Attention có xu hướng giữ lại các cơ chế tổng quát hơn như theo dõi phụ thuộc và suy ra quy tắc.
+
+- **Bản chất của hiện tượng quên lãng (Catastrophic Forgetting):** Khi một mô hình ngôn ngữ thông thường học thêm lĩnh vực mới, các trọng số bị ghi đè hỗn loạn khiến cả tư duy logic lẫn kiến thức cũ đều bị phá hủy.
+- **Giả thuyết cho Continual Learning:** Kết quả gợi ý có thể ưu tiên bảo toàn Attention và điều chỉnh MLP khi thích nghi miền. Đây là hướng suy rộng cần được kiểm chứng trên chuỗi tác vụ học liên tục; paper chưa đánh giá trực tiếp hiện tượng quên lãng thảm khốc.
+
+Trong các bài học tiếp theo, chúng ta sẽ lần lượt bóc tách chi tiết công thức toán học rời rạc, bộ lọc nén Kolmogorov, kỹ thuật mã hóa patch và phân tích cơ chế trọng số bên trong mạng nơ-ron.
+
+</MdxPage>

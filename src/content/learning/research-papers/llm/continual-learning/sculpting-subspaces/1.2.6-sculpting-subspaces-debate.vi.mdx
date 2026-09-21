@@ -1,0 +1,249 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-debate',
+  locale: 'vi',
+  title: 'Phần 6: Tranh luận Học thuật & Phản biện',
+  headings: [
+    'Tranh luận 1: Single Checkpoint (OSFT) vs Modular Multi-Adapter (LoRA)',
+    'Tranh luận 2: Bẫy AA và Ảo tưởng Tái lập (Engineering Nondeterminism)',
+    'Tranh luận 3: Sự Tiến hóa của Phân bổ Rank: Bản Cũ vs Bản ICLR 2026 Final',
+    'Tranh luận 4: Những Phát hiện Cốt lõi & Bài học Thực chiến',
+    '5 Bài học Đắt giá cho Kỹ sư & Nhà Nghiên cứu AI',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Sculpting Subspaces Debate',
+    'Academic Debates',
+    'ICLR 2026 Final Update',
+    'Full Fine-Tuning vs PEFT',
+    'Reproduction Audit',
+    'GPU Nondeterminism',
+    'Negative Cosine Clipping',
+    'BWT Formula Inconsistency',
+    'First-Class CL Metrics',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Tranh luận 1: Single Checkpoint (OSFT) vs Modular Multi-Adapter (LoRA)
+
+Một trong những bất đồng triết lý lớn nhất giữa các chuyên gia Continual Learning là: **Nên duy trì một mô hình duy nhất liên tục tiến hóa (Monolithic Single Model) hay xây dựng hệ sinh thái nhiều adapter rời rạc (Modular Multi-Adapter)?**
+
+<ComparisonMatrix
+  ariaLabel="So sánh Triết lý Single Model vs Modular Multi-Adapter"
+  rowHeaderLabel="Khía cạnh So sánh"
+  columns={['Sculpting Subspaces (Single Model)', 'Hệ Adapter Rời rạc (Multi-LoRA / O-LoRA)']}
+  rows={[
+    {
+      label: 'Dung lượng Biểu diễn',
+      highlightedColumn: 0,
+      values: [
+        'Khai phóng 100% không gian tham số ma trận, học sâu các bài toán logic & coding phức tạp.',
+        'Bị kẹp trong bottleneck rank hẹp (r = 8, 16), suy giảm khả năng suy luận đa bước.',
+      ],
+    },
+    {
+      label: 'Hạ tầng Phục vụ (Serving)',
+      highlightedColumn: 0,
+      values: [
+        'Chỉ phục vụ đúng 1 checkpoint duy nhất, zero latency overhead khi chuyển đổi tác vụ.',
+        'Cần router hoặc cơ chế load/switch dynamic adapter trong runtime, tăng độ phức tạp.',
+      ],
+    },
+    {
+      label: 'Cách ly Dữ liệu (Multi-tenant)',
+      highlightedColumn: 1,
+      values: [
+        'Mọi tri thức hòa quyện vào trọng số chung, khó thu hồi riêng lẻ một tác vụ khi có yêu cầu xóa dữ liệu.',
+        'Từng adapter độc lập cho từng khách hàng, dễ dàng thêm/bớt/xóa bỏ tri thức theo yêu cầu.',
+      ],
+    },
+  ]}
+/>
+
+---
+
+#### Phản biện từ Giới Học thuật:
+- **Ủng hộ Single Model (Nhóm tác giả Sculpting Subspaces):** Não bộ con người hoạt động như một khối thống nhất, nơi tri thức mới liên kết hữu cơ với tri thức cũ thay vì là các "mô-đun cắm rút" nhân tạo.
+- **Ủng hộ Multi-Adapter (Trường phái PEFT):** Trong môi trường Enterprise đa khách hàng (Multi-tenant SaaS), việc cô lập hoàn toàn adapter của từng công ty là yêu cầu an ninh bắt buộc không thể thương lượng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Tranh luận 2: Bẫy AA và Ảo tưởng Tái lập (Engineering Nondeterminism)
+
+Khi tiến hành tái lập độc lập (*Independent Reproduction*) thuật toán **OSFT Adaptive** trên **T5-Large** (Order 1: DBPedia <InlineMath formula="\to" /> Amazon <InlineMath formula="\to" /> Yahoo <InlineMath formula="\to" /> AG News), các nhà nghiên cứu đã phát hiện ra những cạm bẫy thực nghiệm lớn:
+
+#### 1. Run 1: Khớp Average Accuracy (AA) nhưng Thất bại về Quên lãng (BWT)
+
+| Chỉ số Đo lường | Run 1 (Tái lập) | Báo cáo Paper | Nhận định Độc lập |
+| :--- | :---: | :---: | :--- |
+| **Average Accuracy (AA)** | **75.25%** | **75.3%** | Khớp gần như tuyệt đối (lệch ~0.05%) |
+| **Paper-compatible BWT** | **−6.20%** | **−3.7%** | Lệch lớn: Quên lãng nặng hơn gần gấp đôi |
+| **Standard BWT** | **−8.26%** | — | Suy thoái giữ chân tri thức rõ rệt |
+
+<LessonNote tone="warning">
+  **Bài học Cốt lõi về Thước đo:** Trùng khớp chỉ số **Average Accuracy (AA)** không đồng nghĩa với việc hành vi Học liên tục đã được tái lập thành công! Hai quỹ đạo tham số hoàn toàn khác nhau vẫn có thể vô tình cho ra cùng một giá trị AA trung bình. Đối với Continual Learning, **Backward Transfer (BWT) và quỹ đạo lưu giữ tri thức phải là thước đo hạng nhất (First-Class Metric)**.
+</LessonNote>
+
+---
+
+#### 2. Mâu thuẫn Nội tại trong Công thức BWT của Bài báo Gốc
+
+Tại **Mục 4 (Phương trình 5)**, bài báo định nghĩa chuẩn học thuật:
+<BlockMath formula="\text{BT} = \frac{1}{T-1} \sum_{j=1}^{T-1} (A_{T,j} - A_{j,j})" />
+
+Tuy nhiên, khi đối chiếu số liệu tại **Bảng 11**:
+- Tổng mức sụt giảm: <InlineMath formula="-1.7 - 7.4 - 5.6 = -14.7" />.
+- Nếu chia theo đúng định thức (<InlineMath formula="T - 1 = 3" /> tác vụ cũ): <InlineMath formula="\text{BT} = -14.7 / 3 = \mathbf{-4.9\%}" />.
+- Con số <InlineMath formula="-3.7\%" /> trong báo cáo thực chất thu được do chia cho <InlineMath formula="T = 4" /> (<InlineMath formula="-14.7 / 4 = -3.675\% \approx -3.7\%" />).
+
+---
+
+#### 3. Same-Seed Drift & Kiểm chứng Causal Deterministic
+
+- Chạy lại Replicate 2 cùng seed (42), cùng mã nguồn: <InlineMath formula="\Delta \text{AA} = +2.07\%" />, <InlineMath formula="\Delta \text{BWT} = +2.07\%" /> dù độ chính xác tức thời Task 1 gần như bất biến (<InlineMath formula="\Delta = 0.026\%" />).
+- **Định vị Nguồn gốc:** Sai lệch xuất hiện từ **Nondeterministic GPU Execution** trên A100 ở Task 1 dense fine-tuning. Bật `torch.use_deterministic_algorithms(True)` và `CUBLAS_WORKSPACE_CONFIG` triệt tiêu hoàn toàn sai số (<InlineMath formula="\Delta W = 0" />).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Tranh luận 3: Sự Tiến hóa của Phân bổ Rank: Bản Cũ vs Bản ICLR 2026 Final
+
+Những bất ổn định phát hiện trong quá trình tái lập đã giúp làm sáng tỏ **bước chuyển mình quan trọng giữa bản phát hành ban đầu (Old Released Artifact) và bản công bố chính thức tại ICLR 2026 (Final Paper)**:
+
+<ComparisonMatrix
+  ariaLabel="So sánh Bản Released Cũ và Bản ICLR 2026 Final của OSFT"
+  rowHeaderLabel="Thành phần Kỹ thuật"
+  columns={['Bản Released Cũ / Code Thô', 'Bản ICLR 2026 Final']}
+  rows={[
+    {
+      label: 'Xử lý Cosine Âm',
+      highlightedColumn: 1,
+      values: [
+        'Giữ nguyên cosine âm, dẫn đến score âm cực lớn và rank bị ép về 1.',
+        'Clip toàn bộ cosine âm về 0 trước khi normalize (I_raw < 0 => 0), đảm bảo rank >= mrr.',
+      ],
+    },
+    {
+      label: 'Làm tròn Rank',
+      highlightedColumn: 1,
+      values: [
+        'Dùng Python round() ties-to-even.',
+        'Dùng hàm sàn toán học floor: k = floor(r * min(d_O, d_I)).',
+      ],
+    },
+    {
+      label: 'Cơ chế Huấn luyện',
+      highlightedColumn: 1,
+      values: [
+        'Cập nhật dense W và chiếu toàn bộ gradient qua Eq.4.',
+        'Reparameterize: W = W_high (frozen) + W_low (trainable) kết hợp Gradient Hooks.',
+      ],
+    },
+    {
+      label: 'Mẫu Hiệu chuẩn',
+      highlightedColumn: 1,
+      values: [
+        '128 mẫu dữ liệu cũ.',
+        'Khoảng ~500 mẫu dữ liệu từ tác vụ trước (t - 1).',
+      ],
+    },
+  ]}
+/>
+
+---
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế Bảo vệ Mới trong ICLR 2026 Final"
+  root={{
+    title: 'Tại sao Bản Final Khắc phục được Hiện tượng Sụp đổ Rank?',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Triệt tiêu Requested Rank Âm nhờ Negative Clipping',
+      detail: (
+        <span>
+          Trong code cũ, điểm cosine âm kéo <InlineMath formula="I_i^{\text{norm}}" /> xuống âm hàng nghìn, khiến <strong>126 / 288 ma trận bị ép về rank 1</strong>. Với cơ chế <strong>Negative Clipping</strong> trong bản final, chặn dưới <InlineMath formula="r^{(l)} \ge \text{mrr} = 0.1" /> được đảm bảo tuyệt đối.
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '2. Tối ưu Bộ nhớ Thực tế qua W_high + W_low',
+      detail: (
+        <span>
+          Mục 3.6 và Thuật toán 1 xác nhận mô hình không update ma trận dense đầy đủ mà chỉ huấn luyện các nhân tử SVD <InlineMath formula="(U_{\text{low}}, \Sigma_{\text{low}}, V_{\text{low}})" />, tiết kiệm bộ nhớ AdamW từ <InlineMath formula="4n^2" /> xuống <InlineMath formula="2n^2 + 6nr" />.
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+<LessonNote tone="warning">
+  **Câu hỏi Tranh biện Cốt lõi (The Core Debate Question):**
+
+  *Tại sao nhóm tác giả ICLR 2026 báo cáo góc tương tự Cosine thực nghiệm thường đạt mức **0.5 – 0.8**, trong khi bản thử nghiệm thô trên slice dữ liệu cũ lại cho giá trị trung bình tiệm cận **0.004**?*
+
+  Khoảng cách chênh lệch hàng trăm lần này chỉ ra rằng: **Hình học không gian kích hoạt (Activation Geometry) và quy trình trích xuất token calibration** vẫn còn những chi tiết kỹ thuật ẩn (*Underspecification*) chưa được mô tả cặn kẽ trong bài báo.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Tranh luận 4: Những Phát hiện Cốt lõi & Bài học Thực chiến
+
+Từ toàn bộ hành trình phân tích lý thuyết và kiểm chứng thực nghiệm, ta đúc kết ma trận trạng thái khoa học minh bạch:
+
+<ComparisonMatrix
+  ariaLabel="Đối chiếu Bằng chứng Thực nghiệm trong Nghiên cứu Tái lập"
+  rowHeaderLabel="Trạng thái Bằng chứng"
+  columns={['Nội dung Đã Chứng minh Vững chắc', 'Nội dung Chưa Thể Khẳng định']}
+  rows={[
+    {
+      label: 'Phần cứng & Thực thi',
+      highlightedColumn: 0,
+      values: [
+        'Dense FP32 training trên GPU có sai lệch ngẫu nhiên run-to-run; kích hoạt deterministic CUDA loại bỏ 100% sai số này.',
+        'Sự khác biệt SHA commit hay sampling temperature không phải là nguyên nhân gây phân kỳ.',
+      ],
+    },
+    {
+      label: 'Cơ chế Phân bổ Rank',
+      highlightedColumn: 0,
+      values: [
+        'Code literal cũ không có clipping gây bão hòa rank nặng nề; Bản ICLR 2026 Final bổ sung negative clipping để khắc phục trực tiếp.',
+        'Công thức tính BWT của bài báo gốc có sự không nhất quán về mặt số học giữa Eq.5 (chia T - 1) và Table 11 (chia T).',
+      ],
+    },
+    {
+      label: 'Quy kết Quên lãng',
+      highlightedColumn: 1,
+      values: [
+        'Sự rung lắc rank policy có tương quan mật thiết với dao động BWT.',
+        'Chưa thể khẳng định bất ổn định rank là nguyên nhân duy nhất của toàn bộ 2% chênh lệch BWT (do tương tác phức tạp với AdamW và kiến trúc SVD factors).',
+      ],
+    },
+  ]}
+/>
+
+---
+
+### 5 Bài học Đắt giá cho Kỹ sư & Nhà Nghiên cứu AI
+
+1. **Same Seed không bằng Deterministic Training:** Với mô hình quy mô lớn trên GPU, quy trình kiểm định bắt buộc phải xác nhận tính trùng khớp bitwise của checkpoint trước khi đưa ra kết luận khoa học.
+2. **Functional Similarity không bằng Parameter Equivalence:** Hai mô hình có độ chính xác Task 1 gần như y hệt (99.9%) vẫn có thể nằm ở tọa độ không gian đủ khác biệt để bộ điều khiển rank đưa ra quyết định trái ngược nhau.
+3. **AA là Thước đo Đánh lừa:** Tuyệt đối không đánh giá thuật toán Continual Learning chỉ qua Average Accuracy; độ lưu giữ và suy giảm tri thức (BWT) mới là chìa khóa then chốt.
+4. **Cơ chế Reparameterization Thanh lịch:** Việc chuyển từ chiếu dense gradient sang huấn luyện trực tiếp các nhân tử <InlineMath formula="(U_{\text{low}}, \Sigma_{\text{low}}, V_{\text{low}})" /> với Gradient Hooks là giải pháp chuẩn mực để đưa OSFT vào production thực tế.
+5. **Cảnh giác với Mâu thuẫn Metric:** Luôn tự kiểm tra chéo các bảng số liệu thực nghiệm với công thức định nghĩa toán học để phát hiện sớm các sai số quy ước (như việc chia <InlineMath formula="T" /> thay vì <InlineMath formula="T - 1" /> trong BWT).
+
+</MdxPage>

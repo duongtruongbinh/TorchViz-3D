@@ -1,0 +1,169 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'pca-eigenvalues',
+  locale: 'vi',
+  title: 'PCA qua Eigenvalues',
+  headings: [
+    'Mục tiêu của PCA',
+    'Center dữ liệu',
+    'Covariance Matrix',
+    'Principal Components',
+    'Projection xuống k chiều',
+    'Explained Variance',
+    'PCA trong thực tế',
+  ],
+  keywords: ['PCA', 'covariance matrix', 'eigenvalues', 'eigenvectors', 'dimensionality reduction', 'SVD'],
+  conceptIds: [
+    'pca-objective',
+    'pca-centering',
+    'pca-covariance',
+    'principal-components-eigenvectors',
+    'pca-projection',
+    'pca-explained-variance',
+    'pca-svd-practice',
+  ],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu của PCA
+
+Giả sử mỗi sample là một vector trong không gian nhiều chiều.
+
+PCA tìm các hướng orthonormal mà dữ liệu biến thiên nhiều nhất.
+
+Ta sắp các hướng theo lượng variance mà chúng giải thích rồi giữ lại một số hướng đầu.
+
+<PCAProjectionExplorer
+  ariaLabel="Dữ liệu hai chiều được chiếu lên principal component đầu tiên để minh họa giảm từ hai chiều xuống một chiều"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Center dữ liệu
+
+Cho data matrix:
+
+<BlockMath formula="X\in\mathbb{R}^{m\times n}" />
+
+với mỗi hàng là một sample.
+
+Trước PCA, ta trừ mean của từng feature:
+
+<BlockMath formula="X_c=X-\mathbf{1}\boldsymbol{\mu}^\top" />
+
+Sau centering, mỗi feature có mean bằng 0.
+
+Centering quan trọng vì PCA quan tâm đến biến thiên quanh mean.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Covariance Matrix
+
+Một sample covariance matrix có thể viết:
+
+<BlockMath formula="C=\frac{1}{m-1}X_c^\top X_c" />
+
+Matrix <InlineMath formula="C" /> là symmetric:
+
+<BlockMath formula="C^\top=C" />
+
+Do đó nó có orthonormal eigenvectors và real eigenvalues.
+
+Đây là điểm nối trực tiếp với spectral theorem.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Principal Components
+
+Giải:
+
+<BlockMath formula="C\mathbf{q}_i=\lambda_i\mathbf{q}_i" />
+
+Các eigenvectors <InlineMath formula="\mathbf{q}_i" /> là principal directions.
+
+Các eigenvalues <InlineMath formula="\lambda_i" /> cho variance theo từng direction.
+
+Ta sắp:
+
+<BlockMath formula="\lambda_1\geq\lambda_2\geq\cdots\geq0" />
+
+Principal component đầu tiên là hướng có variance lớn nhất.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Projection xuống k chiều
+
+Giữ <InlineMath formula="k" /> eigenvectors đầu:
+
+<BlockMath formula="Q_k=\begin{bmatrix}\vert&&\vert\\\mathbf{q}_1&\cdots&\mathbf{q}_k\\\vert&&\vert\end{bmatrix}" />
+
+Data mới là:
+
+<BlockMath formula="Z=X_cQ_k" />
+
+Nếu <InlineMath formula="k<n" />, mỗi sample được biểu diễn bằng ít coordinates hơn.
+
+Reconstruction trong không gian gốc là:
+
+<BlockMath formula="\hat{X}=ZQ_k^\top" />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Explained Variance
+
+Tỷ lệ variance do component thứ <InlineMath formula="i" /> giải thích là:
+
+<BlockMath formula="\frac{\lambda_i}{\sum_j\lambda_j}" />
+
+Tổng tỷ lệ của <InlineMath formula="k" /> components đầu cho biết lượng variance được giữ lại sau reduction.
+
+PCA không chọn feature cũ.
+
+Nó tạo các axes mới là linear combinations của các feature ban đầu.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## PCA trong thực tế
+
+Ta có thể học PCA qua eigendecomposition của covariance matrix:
+
+```python
+import numpy as np
+
+X = np.array([
+    [2.0, 0.0],
+    [0.0, 2.0],
+    [3.0, 1.0],
+    [1.0, 3.0],
+])
+
+Xc = X - X.mean(axis=0)
+
+C = Xc.T @ Xc / (len(Xc) - 1)
+
+values, vectors = np.linalg.eigh(C)
+
+order = np.argsort(values)[::-1]
+values = values[order]
+vectors = vectors[:, order]
+```
+
+Trong implementation thực tế, PCA có thể dùng SVD trực tiếp trên centered data thay vì bắt buộc tạo covariance matrix trước.
+
+Chapter 7 sẽ cho thấy vì sao SVD liên hệ trực tiếp với PCA.
+
+</MdxPage>

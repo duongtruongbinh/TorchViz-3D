@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'orthogonality-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Orthogonal Vectors', 'Orthogonal Set', 'Orthonormal Matrix'],
+  keywords: ['orthogonal', 'orthonormal', 'dot product', 'quiz'],
+  conceptIds: ['orthogonality-dot-product', 'orthogonal-set', 'orthonormal-matrix'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="orthogonality-quiz" questions={[
+  {
+    id: 'orthogonality-dot-product',
+    title: 'Orthogonal Vectors',
+    prompt: 'Hai vector khác không $u$ và $v$ trực giao (orthogonal) khi thỏa mãn điều kiện nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$u^T v = 1$' },
+      { id: 'b', label: '$u = v$' },
+      { id: 'c', label: '$\\|u\\|_2 = \\|v\\|_2$' },
+      { id: 'd', label: '$u^T v = 0$', isCorrect: true },
+    ],
+    success: 'Đúng. Tích vô hướng $u^T v = 0$ tương ứng với góc $\\theta = 90^\\circ$.',
+    error: 'Dùng công thức hình học của tích vô hướng: $u^T v = \\|u\\| \\|v\\| \\cos \\theta = 0$.',
+  },
+  {
+    id: 'orthogonal-set',
+    title: 'Orthogonal Set',
+    prompt: 'Một tập các vector khác không đôi một trực giao có tính chất đại số nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Độc lập tuyến tính (Linearly independent).', isCorrect: true },
+      { id: 'b', label: 'Tất cả các vector đều bằng nhau.' },
+      { id: 'c', label: 'Mọi vector đều có norm bằng 0.' },
+      { id: 'd', label: 'Luôn span toàn bộ $\\mathbb{R}^n$ bất kể có bao nhiêu vector.' },
+    ],
+    success: 'Đúng. Các hướng đôi một vuông góc không thể biểu diễn tuyến tính qua nhau, do đó luôn độc lập tuyến tính.',
+    error: 'Tính trực giao loại bỏ hoàn toàn sự phụ thuộc tuyến tính giữa các vector.',
+  },
+  {
+    id: 'orthonormal-matrix',
+    title: 'Orthonormal Matrix',
+    prompt: 'Ma trận $Q$ có các cột trực chuẩn (orthonormal). Hệ thức nào sau đây luôn đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$Q^T Q = 0$' },
+      { id: 'b', label: '$Q^T Q = I$', isCorrect: true },
+      { id: 'c', label: '$Q = 0$' },
+      { id: 'd', label: 'Mọi phần tử của $Q$ đều bằng 1.' },
+    ],
+    success: 'Đúng. Tích vô hướng giữa các cột trực chuẩn tạo thành ma trận đơn vị $Q^T Q = I$.',
+    error: 'Đường chéo là $\\|q_i\\|^2 = 1$, ngoài đường chéo là $q_i^T q_j = 0$ ($i \\neq j$), do đó $Q^T Q = I$.',
+  },
+]} />

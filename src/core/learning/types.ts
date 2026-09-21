@@ -11,7 +11,10 @@ export type LearningDomainId =
   | 'ai-system-design'
   | 'ai-ethics-safety-governance'
   | 'reinforcement-learning'
-  | 'robot-learning';
+  | 'robot-learning'
+  | 'evolutionary-algorithms'
+  | 'research-papers'
+  | 'ai-projects';
 
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
@@ -127,8 +130,17 @@ export type LearningCatalog = {
   routeAliases?: LearningRouteAlias[];
 };
 
+export type LearningDomainReadinessState = 'ready' | 'updating' | 'unupdated';
+
+export type LearningDomainReadiness = {
+  domain: LearningDomain;
+  isReady: boolean;
+  readinessState: LearningDomainReadinessState;
+};
+
 export type LearningHomeDomainSummary = {
   domain: LearningDomain;
   lessonCount: number;
   isReady: boolean;
+  readinessState: LearningDomainReadinessState;
 };

@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw, type LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { cx } from '../../theme';
 import { getLlmRendererTheme } from './rendererTheme';
@@ -35,77 +35,6 @@ export function LlmCallout({
     <div className={cx('flex items-start gap-3 rounded-lg border px-4 py-3.5', llmTheme.callout[tone], className)}>
       <Icon className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
       {children}
-    </div>
-  );
-}
-
-type StepPlaybackControlsProps = {
-  isPlaying: boolean;
-  labels: {
-    next: string;
-    pause: string;
-    play: string;
-    previous: string;
-    reset: string;
-  };
-  nextDisabled: boolean;
-  onNext: () => void;
-  onPrevious: () => void;
-  onReset: () => void;
-  onTogglePlay: () => void;
-  playDisabled?: boolean;
-  presentation?: 'default' | 'loss-animation';
-  previousDisabled: boolean;
-  themeClasses: LlmRendererTheme;
-};
-
-export function StepPlaybackControls({
-  isPlaying,
-  labels,
-  nextDisabled,
-  onNext,
-  onPrevious,
-  onReset,
-  onTogglePlay,
-  playDisabled = false,
-  presentation = 'default',
-  previousDisabled,
-  themeClasses,
-}: StepPlaybackControlsProps) {
-  const llmTheme = getLlmRendererTheme(themeClasses);
-  const isLossAnimation = presentation === 'loss-animation';
-  const iconButtonClass = cx(
-    'grid h-9 w-9 place-items-center rounded-lg',
-    isLossAnimation ? 'disabled:opacity-30' : 'disabled:cursor-not-allowed disabled:opacity-40',
-    !isLossAnimation && themeClasses.focusRing,
-    llmTheme.playback.secondary,
-  );
-
-  return (
-    <div className="flex items-center gap-2">
-      <button type="button" disabled={previousDisabled} onClick={onPrevious} className={iconButtonClass} aria-label={labels.previous}>
-        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        disabled={playDisabled}
-        onClick={onTogglePlay}
-        className={cx(
-          'flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-black',
-          isLossAnimation ? 'disabled:opacity-30' : 'disabled:cursor-not-allowed disabled:opacity-40',
-          !isLossAnimation && themeClasses.focusRing,
-          llmTheme.playback.primary,
-        )}
-      >
-        {isPlaying ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
-        {isPlaying ? labels.pause : labels.play}
-      </button>
-      <button type="button" disabled={nextDisabled} onClick={onNext} className={iconButtonClass} aria-label={labels.next}>
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
-      </button>
-      <button type="button" onClick={onReset} className={iconButtonClass} aria-label={labels.reset}>
-        <RotateCcw className="h-4 w-4" aria-hidden="true" />
-      </button>
     </div>
   );
 }

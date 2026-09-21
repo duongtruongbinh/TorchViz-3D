@@ -47,29 +47,29 @@ Ví dụ, ta đưa vào model câu **"Paris là thủ đô của [MASK]"**. Nế
 
 CKL dùng LAMA để đánh giá factual knowledge qua một chuỗi cập nhật <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-02-jang2022towards" />:
 
-### 1. Chuẩn bị corpus cũ D₀
+### 1. Chuẩn bị corpus cũ $
 
 Nhóm nghiên cứu có corpus <InlineMath formula="D_0" /> và checkpoint ban đầu <InlineMath formula="M_0" /> đã được pre-train trên corpus này. Họ dùng LAMA để đo xem <InlineMath formula="M_0" /> thực sự trả lời được những fact nào; một fact xuất hiện trong corpus không có nghĩa model chắc chắn đã học được nó.
 
 <ComparisonMatrix
   ariaLabel="Ví dụ các fact trong corpus D0"
-  columns={['Thông tin trong D₀', 'Probe trên model M₀']}
+  columns={['Thông tin trong $', 'Probe trên model $']}
   rows={[
     { label: 'Fact A · vẫn đúng', values: ['Thủ đô của Aurelia là Nova', '"Thủ đô của Aurelia là [MASK]" → Nova'] },
     { label: 'Fact B · sẽ lỗi thời', values: ['CEO của Orbit Labs là Linh', '"CEO của Orbit Labs là [MASK]" → Linh'] },
   ]}
 />
 
-### 2. Chuẩn bị corpus mới D₁
+### 2. Chuẩn bị corpus mới $
 
 Tiếp theo, nhóm nghiên cứu thu thập corpus mới <InlineMath formula="D_1" />. Corpus này chứa phiên bản mới của Fact B và một Fact C chưa có trong <InlineMath formula="D_0" />.
 
 <ComparisonMatrix
   ariaLabel="Ví dụ các fact trong corpus D1"
-  columns={['Thông tin trong D₁', 'Điều model cần học']}
+  columns={['Thông tin trong $', 'Điều model cần học']}
   rows={[
     { label: 'Fact B · được cập nhật', values: ['CEO của Orbit Labs hiện là Minh', 'Thay đáp án cũ Linh bằng Minh'] },
-    { label: 'Fact C · hoàn toàn mới', values: ['BrightAI đặt trụ sở tại Đà Nẵng', 'Tiếp thu một fact chưa có trong D₀'] },
+    { label: 'Fact C · hoàn toàn mới', values: ['BrightAI đặt trụ sở tại Đà Nẵng', 'Tiếp thu một fact chưa có trong $'] },
   ]}
 />
 
@@ -80,7 +80,7 @@ Model <InlineMath formula="M_0" /> tiếp tục pre-train trên toàn bộ <Inli
 Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật có thành công hay không. Đây là **dữ liệu đánh giá**, không phải ba kỹ thuật training:
 
 <ComparisonMatrix
-  ariaLabel="Ba lát cắt LAMA trong CKL"
+  ariaLabel="Ba phân nhóm dữ liệu LAMA trong CKL"
   columns={['Kiểm tra', 'Cập nhật tốt khi']}
   rows={[
     { label: 'InvariantLAMA', values: ['Giữ kiến thức không đổi', 'Fact A vẫn được trả lời là Nova'] },
@@ -89,7 +89,7 @@ Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật c
   ]}
 />
 
-Ba lát cắt CKL mở rộng cách probing factual knowledge của LAMA để tách retention, update và acquisition <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-03-jang2022towards" /> <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-04-petroni2019language" />. Cách tách này giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-05-shi2024continualSurvey" />.
+Ba phân nhóm CKL mở rộng cách probing factual knowledge của LAMA để tách retention, update và acquisition <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-03-jang2022towards" /> <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-04-petroni2019language" />. Cách tách này giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-05-shi2024continualSurvey" />.
 
 </MdxPage>
 

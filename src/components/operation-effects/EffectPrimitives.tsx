@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { FONT_URL, UNICODE_FONTS_URL } from '../../lib/constants';

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { getLearningMdxRuntimeCapabilities } from '../../scripts/learningContentMdx.ts';
 import { isLearningTableOfContentsFile } from '../../scripts/learningHomeCatalog.ts';
@@ -29,7 +30,15 @@ test('MDX runtime capabilities follow authored component use and canonical refer
   const references = new Set(['continual-learning-llm/theory']);
 
   assert.deepEqual(
-    getLearningMdxRuntimeCapabilities('<MdxQuiz question="Q" options={[]} />', 'linear-algebra', 'vectors', references),
+    getLearningMdxRuntimeCapabilities('<OrthogonalityExplorer ariaLabel="orthogonality" />', 'linear-algebra', 'orthogonality', references),
+    { needsDomainAdapter: true, needsReferenceRuntime: false },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<MdxQuiz questions={[]} />', 'linear-algebra', 'vectors-intuition-quiz', references),
+    { needsDomainAdapter: false, needsReferenceRuntime: false },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<VectorPlane x={3} y={2} />', 'linear-algebra', 'vectors-intuition', references),
     { needsDomainAdapter: true, needsReferenceRuntime: false },
   );
   assert.deepEqual(
@@ -46,6 +55,14 @@ test('MDX runtime capabilities follow authored component use and canonical refer
   );
   assert.deepEqual(
     getLearningMdxRuntimeCapabilities('<LessonNote>Body</LessonNote>', 'continual-learning-llm', 'theory', references),
+    { needsDomainAdapter: false, needsReferenceRuntime: true },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<StageContinuityMap items={[]} ariaLabel="Stages" />', 'continual-learning-llm', 'continuity-stages', new Set()),
+    { needsDomainAdapter: true, needsReferenceRuntime: false },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<Cite paper="lora" />', 'continual-learning-llm', 'lora-analysis', new Set()),
     { needsDomainAdapter: false, needsReferenceRuntime: true },
   );
   assert.deepEqual(
@@ -66,4 +83,40 @@ test('lesson UI identity includes the domain and cannot collide across catalogs'
     getLearningLessonIdentity({ domainId: 'cv', id: 'introduction' }),
     getLearningLessonIdentity({ domainId: 'linear-algebra', id: 'introduction' }),
   );
+});
+
+test('learningMdxRegistry enforces lazy boundaries for references and domain adapters', () => {
+  const registrySource = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
+
+  // No static eager import of learningMdxReferences or Mafs
+  assert.doesNotMatch(registrySource, /^import .* from '\.\/learningMdxReferences';/m);
+  assert.doesNotMatch(registrySource, /^import .* from 'mafs';/m);
+
+  // Reference components and continual learning adapter are dynamically imported
+  assert.match(registrySource, /import\('\.\/learningMdxReferences'\)/);
+  assert.match(registrySource, /import\('\.\/domains\/continual-learning-llm\/mdxComponents'\)/);
+  assert.match(registrySource, /import\('\.\/domains\/research-papers\/mdxComponents'\)/);
+  assert.doesNotMatch(
+    readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8'),
+    /MatrixTransformStepper/,
+  );
+});
+
+test('linear-algebra mdxComponents enforces module-level lazy boundaries without static renderers', () => {
+  const adapterSource = readFileSync('src/components/learning/domains/linear-algebra/mdxComponents.tsx', 'utf8');
+
+  // No static eager import of individual renderer modules
+  assert.doesNotMatch(adapterSource, /^import .* from '\.\/(vector|matrix|system|space|orthogonality|determinant|eigen|svd|overview)Renderers';/m);
+  assert.doesNotMatch(adapterSource, /^import .* from 'mafs';/m);
+
+  // All 9 modules are loaded via dynamic import
+  assert.match(adapterSource, /import\('\.\/vectorRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/matrixRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/systemRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/spaceRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/orthogonalityRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/determinantRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/eigenRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/svdRenderers'\)/);
+  assert.match(adapterSource, /import\('\.\/overviewRenderers'\)/);
 });

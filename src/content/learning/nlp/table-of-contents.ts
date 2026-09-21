@@ -155,7 +155,7 @@ export const learningTableOfContents = {
     title: { en: "NLP", vi: "NLP" },
     description: { en: "Build the language-model foundation before LLMs: text cleaning, tokenization, sparse and dense representations, embeddings, sequence shapes, attention, transformer blocks, decoding, and evaluation.", vi: "Xây nền tảng language model trước LLM: làm sạch text, tokenization, biểu diễn sparse/dense, embedding, shape sequence, attention, transformer block, decoding và evaluation." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
   routeAliases: [{

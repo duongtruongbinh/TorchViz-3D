@@ -23,7 +23,7 @@ DIL vì thế trở thành một setting trung tâm của continual LLM, dù mod
 
 ## Instruction chỉ task
 
-Trong **Task-Incremental Learning (TIL)** cổ điển, model được báo task hiện tại khi inference. Với LLM, tín hiệu đó không nhất thiết là một số như `task_id = 3`: chính instruction bằng natural language có thể mô tả model cần tóm tắt, phân loại hay sinh code.
+Trong **Task-Incremental Learning (TIL)** cổ điển, model được báo task hiện tại khi inference. Với LLM, tín hiệu đó không nhất thiết là một số như `task_id = 3`: chính instruction bằng natural language có thể mô tả model cần tóm tắt, phân loại hay sinh code <Cite paper="shi2024continualSurvey" evidence="incremental-settings-for-llms-02-shi2024continualSurvey" />.
 
 Điều này giải thích vì sao TIL xuất hiện nhiều trong Continual Instruction Tuning. Tuy nhiên, ranh giới giữa TIL và DIL bắt đầu mờ đi: một instruction chưa từng thấy có thể vừa mô tả task, vừa để lộ domain mà model cần tự suy ra.
 
@@ -42,6 +42,6 @@ Trong **Task-Incremental Learning (TIL)** cổ điển, model được báo task
 - **Vocabulary expansion:** thêm token mới cũng là mở rộng không gian output mà model phải học phân biệt.
 - **Mixture of Experts routing:** học route mới cũng giống mở rộng tập lựa chọn mà model phải phân phối input tới đúng nhánh.
 
-Vì vậy, CIL được **hấp thụ vào language modeling và routing**, thay vì chỉ xuất hiện dưới dạng thêm neuron vào classification head. Các kỹ thuật CIL truyền thống vẫn có thể cung cấp ý tưởng cho hai setting này.
+Vì vậy, CIL được **hấp thụ vào language modeling và routing**, thay vì chỉ xuất hiện dưới dạng thêm neuron vào classification head <Cite paper="shi2024continualSurvey" evidence="incremental-settings-for-llms-03-shi2024continualSurvey" />. Các kỹ thuật CIL truyền thống vẫn có thể cung cấp ý tưởng cho hai setting này.
 
 </MdxPage>

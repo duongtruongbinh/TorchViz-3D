@@ -2,7 +2,7 @@ import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
-import { LayoutData, LayoutNode } from '../../lib/irTypes';
+import type { LayoutData, LayoutNode } from '../../lib/irTypes';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import { usePreferencesStore } from '../../store/usePreferencesStore';

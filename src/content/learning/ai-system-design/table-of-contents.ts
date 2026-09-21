@@ -94,7 +94,7 @@ export const learningTableOfContents = {
     title: { en: "AI System Design", vi: "AI System Design" },
     description: { en: "Design complete AI products: requirements, data flow, model choice, RAG, memory, recommendations, inference placement, caching, latency, cost, reliability, observability, and interview-ready tradeoffs.", vi: "Thiết kế sản phẩm AI hoàn chỉnh: requirement, data flow, chọn model, RAG, memory, recommendation, vị trí inference, caching, latency, cost, reliability, observability và tradeoff cho phỏng vấn." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

@@ -10,9 +10,9 @@ export const lessonMetadata = {
 
 ## Vertical forgetting là gì?
 
-**Vertical forgetting** là sự suy giảm knowledge hoặc năng lực tổng quát khi model được thích nghi từ tầng upstream xuống domain và downstream task chuyên biệt.
+**Vertical forgetting** là sự suy giảm knowledge hoặc năng lực tổng quát khi model được thích nghi từ tầng upstream xuống domain và downstream task chuyên biệt <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-01-shi2024continualSurvey" />.
 
-Trong Vertical CL, distribution upstream thường bao phủ một phần distribution downstream. Vì vậy, model không bắt đầu từ số 0: checkpoint tổng quát đã cung cấp representation và knowledge hữu ích cho stage tiếp theo.
+Trong Vertical CL, distribution upstream thường bao phủ một phần distribution downstream <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-02-shi2024continualSurvey" />. Vì vậy, model không bắt đầu từ số 0: checkpoint tổng quát đã cung cấp representation và knowledge hữu ích cho stage tiếp theo.
 
 <LessonImage
   assetPath="continual-learning-llm/01-vertical-forgetting-overview.png"
@@ -20,9 +20,9 @@ Trong Vertical CL, distribution upstream thường bao phủ một phần distri
   caption="Model đi xuống vertical pipeline bằng cách kế thừa knowledge từ tầng trước. Quá trình thích nghi tạo năng lực chuyên biệt mới nhưng có thể làm suy giảm một phần năng lực upstream."
 />
 
-Ví dụ, CoLoR giữ backbone pre-trained cố định và học module LoRA riêng cho từng dataset thay vì xây lại representation từ đầu <Cite paper="wistuba2023" evidence="vertical-forgetting-01-wistuba2023" />.
+Ví dụ, CoLoR giữ backbone pre-trained cố định và học module LoRA riêng cho từng dataset <Cite paper="wistuba2023" evidence="vertical-forgetting-03-wistuba2023" /> thay vì xây lại representation từ đầu.
 
-Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm retention. Hai nguyên nhân lớn là **task heterogeneity** và **không thể truy cập upstream data**.
+Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm retention. Hai nguyên nhân lớn là **task heterogeneity** và **không thể truy cập upstream data** <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-04-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -70,6 +70,6 @@ Các đơn vị trong vertical pipeline có thể tuân theo những chính sác
   { label: 'Parameter importance', values: ['Ước lượng tham số quan trọng cho knowledge cũ', 'Không thể tính trực tiếp trên corpus upstream'] },
 ]} />
 
-Các hướng thay thế thường dùng **dataset công khai** hoặc **ví dụ tổng hợp** làm proxy gần đúng cho pre-training data. Chúng tạo ra tín hiệu bảo tồn, nhưng không thể bảo đảm bao phủ toàn bộ distribution upstream ban đầu <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-02-shi2024continualSurvey" />.
+Các hướng thay thế thường dùng **dataset công khai** hoặc **ví dụ tổng hợp** làm proxy gần đúng cho pre-training data. Chúng tạo ra tín hiệu bảo tồn, nhưng không thể bảo đảm bao phủ toàn bộ distribution upstream ban đầu <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-05-shi2024continualSurvey" />.
 
 </MdxPage>

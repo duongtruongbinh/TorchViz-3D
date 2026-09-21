@@ -1,0 +1,129 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'orthogonality',
+  locale: 'vi',
+  title: 'Orthogonality và Orthonormal Sets',
+  headings: [
+    'Vuông góc bằng Dot Product',
+    'Orthogonal Sets',
+    'Orthonormal Sets',
+    'Vì sao Orthonormal Basis đặc biệt',
+    'Orthogonality trong NumPy',
+  ],
+  keywords: ['orthogonality', 'orthogonal vectors', 'orthonormal basis', 'dot product', 'numpy'],
+  conceptIds: [
+    'orthogonality-dot-product',
+    'orthogonal-set',
+    'orthonormal-set',
+    'orthonormal-basis-benefit',
+    'orthogonality-numpy',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Vuông góc bằng Dot Product
+
+Với hai vector khác vector không:
+
+<BlockMath formula="\mathbf{u}^\top\mathbf{v}=\|\mathbf{u}\|_2\|\mathbf{v}\|_2\cos\theta" />
+
+Khi <InlineMath formula="\theta=90^\circ" />:
+
+<BlockMath formula="\mathbf{u}^\top\mathbf{v}=0" />
+
+Ta gọi hai vector là **orthogonal**.
+
+<OrthogonalityExplorer
+  ariaLabel="Hai vector orthogonal có dot product bằng zero và tạo góc chín mươi độ"
+/>
+
+<LessonNote>
+  Vector không có dot product bằng 0 với mọi vector nhưng không có hướng xác định. Khi dùng góc để diễn giải orthogonality, ta xét các vector khác vector không.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Orthogonal Sets
+
+Một tập vector khác vector không:
+
+<BlockMath formula="\mathbf{q}_1,\ldots,\mathbf{q}_k" />
+
+là orthogonal nếu mọi cặp khác nhau thỏa:
+
+<BlockMath formula="\mathbf{q}_i^\top\mathbf{q}_j=0,\qquad i\neq j" />
+
+Một orthogonal set tự động linearly independent.
+
+Trực giác là mỗi vector đóng góp một hướng không bị trộn với các hướng còn lại.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Orthonormal Sets
+
+Nếu một orthogonal set còn có:
+
+<BlockMath formula="\|\mathbf{q}_i\|_2=1" />
+
+cho mọi <InlineMath formula="i" />, ta gọi tập đó là **orthonormal**.
+
+Khi ghép các vector thành các cột của matrix <InlineMath formula="Q" />:
+
+<BlockMath formula="Q^\top Q=I" />
+
+Nếu <InlineMath formula="Q" /> là square matrix thì:
+
+<BlockMath formula="Q^{-1}=Q^\top" />
+
+Đây là lý do orthonormal matrices đặc biệt dễ làm việc.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vì sao Orthonormal Basis đặc biệt
+
+Nếu các cột của <InlineMath formula="Q" /> tạo orthonormal basis và:
+
+<BlockMath formula="\mathbf{x}=c_1\mathbf{q}_1+\cdots+c_k\mathbf{q}_k" />
+
+thì hệ số được lấy trực tiếp bằng dot product:
+
+<BlockMath formula="c_i=\mathbf{q}_i^\top\mathbf{x}" />
+
+Không cần giải một hệ phương trình tổng quát để tìm coordinates.
+
+Tính chất này là nền tảng của projection, QR, PCA và SVD.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Orthogonality trong NumPy
+
+```python
+import numpy as np
+
+u = np.array([1.0, 1.0])
+v = np.array([1.0, -1.0])
+
+dot = u @ v
+print(dot)
+# 0.0
+
+is_orthogonal = np.isclose(dot, 0.0)
+print(is_orthogonal)
+# True
+```
+
+Với floating point computation, dùng tolerance thay vì yêu cầu kết quả phải đúng tuyệt đối bằng 0.
+
+Bài tiếp theo dùng orthogonality để tách một vector thành phần nằm trong một subspace và phần vuông góc với subspace đó.
+
+</MdxPage>

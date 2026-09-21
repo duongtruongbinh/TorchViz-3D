@@ -1,0 +1,146 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'determinant-properties-formulas',
+  locale: 'vi',
+  title: 'Determinant: Tính chất và Công thức',
+  headings: [
+    'Determinant và Row Operations',
+    'Triangular Matrix',
+    'Tích của hai Matrix',
+    'Transpose và Inverse',
+    'Cofactor Expansion',
+    'det và slogdet trong NumPy',
+  ],
+  keywords: ['determinant properties', 'row operations', 'triangular matrix', 'cofactor expansion', 'slogdet', 'numpy'],
+  conceptIds: [
+    'det-row-operations',
+    'det-triangular',
+    'det-product',
+    'det-transpose-inverse',
+    'cofactor-expansion',
+    'det-slogdet-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Determinant và Row Operations
+
+Ba row operations ảnh hưởng determinant theo ba cách khác nhau.
+
+Đổi chỗ hai hàng:
+
+<BlockMath formula="\det(A_{\text{swap}})=-\det(A)" />
+
+Nhân một hàng với scalar <InlineMath formula="c" />:
+
+<BlockMath formula="\det(A_{\text{scaled}})=c\det(A)" />
+
+Cộng bội của một hàng vào hàng khác:
+
+<BlockMath formula="\det(A_{\text{add}})=\det(A)" />
+
+<DeterminantRowOpsExplorer
+  ariaLabel="Ba row operations làm determinant đổi dấu scale hoặc giữ nguyên"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Triangular Matrix
+
+Nếu <InlineMath formula="U" /> là triangular matrix thì determinant bằng tích các phần tử trên đường chéo:
+
+<BlockMath formula="\det(U)=\prod_i u_{ii}" />
+
+Ví dụ:
+
+<BlockMath formula="\det\begin{bmatrix}2&1&4\\0&3&5\\0&0&-2\end{bmatrix}=2\cdot3\cdot(-2)=-12" />
+
+Tính chất này liên kết determinant với Gaussian elimination và LU.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tích của hai Matrix
+
+Với hai square matrices cùng kích thước:
+
+<BlockMath formula="\det(AB)=\det(A)\det(B)" />
+
+Do đó nếu một trong hai matrix singular thì product cũng singular.
+
+Tính chất này cũng giải thích area hoặc volume scaling của composition.
+
+Scale tổng của hai transformations bằng tích các scale của từng transformation.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Transpose và Inverse
+
+Transpose không đổi determinant:
+
+<BlockMath formula="\det(A^\top)=\det(A)" />
+
+Nếu <InlineMath formula="A" /> invertible:
+
+<BlockMath formula="\det(A^{-1})=\frac{1}{\det(A)}" />
+
+vì:
+
+<BlockMath formula="\det(A)\det(A^{-1})=\det(I)=1" />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Cofactor Expansion
+
+Với matrix nhỏ, determinant có thể được tính bằng cofactor expansion.
+
+Ví dụ với hàng đầu tiên của matrix 3×3:
+
+<BlockMath formula="\det(A)=a_{11}C_{11}+a_{12}C_{12}+a_{13}C_{13}" />
+
+trong đó:
+
+<BlockMath formula="C_{ij}=(-1)^{i+j}M_{ij}" />
+
+và <InlineMath formula="M_{ij}" /> là determinant của minor thu được khi bỏ hàng <InlineMath formula="i" /> và cột <InlineMath formula="j" />.
+
+Cofactor expansion hữu ích để hiểu công thức, nhưng numerical libraries không tính determinant matrix lớn bằng cách mở rộng cofactor trực tiếp.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## det và slogdet trong NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [2.0, 1.0],
+    [3.0, 4.0],
+])
+
+print(np.linalg.det(A))
+
+sign, logabsdet = np.linalg.slogdet(A)
+
+print(sign)
+print(logabsdet)
+```
+
+`slogdet` biểu diễn determinant qua sign và log absolute value nên ổn định hơn khi determinant quá lớn hoặc quá nhỏ để biểu diễn trực tiếp.
+
+Chapter 5 kết thúc ở đây.
+
+Bài tiếp theo chuyển sang trace và eigenvalues.
+
+</MdxPage>

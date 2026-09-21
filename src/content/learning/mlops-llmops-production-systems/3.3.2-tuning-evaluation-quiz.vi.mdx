@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'tuning-evaluation-quiz',
+  locale: 'vi',
+  title: "Quiz: Tuning & Đánh giá",
+  headings: [
+    'Thuật toán Tinh chỉnh Tối ưu (ASHA)',
+    'Cạm bẫy của Aggregate Metrics',
+    'Mục tiêu của Sliced Evaluation',
+    'Phân tích Confusion Matrix',
+    'Chẩn đoán: Suy thoái Hiệu năng trên Critical Slice',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Ray Tune', 'ASHA', 'Sliced Evaluation', 'Confusion Matrix', 'Quality Gate'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="tuning-evaluation-quiz" questions={[
+  {
+    id: 'asha-hyperparameter-search',
+    title: 'Thuật toán Tinh chỉnh Tối ưu (ASHA)',
+    prompt: 'So với tìm kiếm ngẫu nhiên (Random Search), thuật toán ASHA (Asynchronous Successive Halving) tối ưu hóa chi phí huấn luyện bằng cơ chế cốt lõi nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cấp lượng tài nguyên nhỏ cho nhiều cấu hình thử nghiệm đồng thời, sau đó tự động hủy sớm các nhánh thử nghiệm có loss kém qua từng checkpoint.', isCorrect: true },
+      { id: 'opt2', label: 'Chỉ huấn luyện trên 1 máy GPU duy nhất và bắt buộc phải thử hết tất cả các tổ hợp siêu tham số khả dĩ.', isCorrect: false },
+      { id: 'opt3', label: 'Tự động sửa đổi kiến trúc mô hình từ Convolution sang Transformer để tăng tốc độ hội tụ.', isCorrect: false },
+      { id: 'opt4', label: 'Bỏ qua hoàn toàn tập dữ liệu validation và chỉ đánh giá tốc độ nạp dữ liệu vào bộ nhớ RAM.', isCorrect: false },
+    ],
+    success: 'Chính xác! ASHA sử dụng cơ chế Early Stopping thông minh, liên tục loại bỏ các trial kém hiệu quả để dồn tài nguyên GPU cho các cấu hình hứa hẹn nhất.',
+    error: 'Chưa chính xác. Cơ chế cốt lõi của ASHA là Successive Halving: dừng sớm các thử nghiệm kém hiệu quả để tiết kiệm thời gian và tài nguyên tính toán.',
+  },
+  {
+    id: 'aggregate-metric-blindspot',
+    title: 'Cạm bẫy của Aggregate Metrics',
+    prompt: 'Tại sao một mô hình có độ chính xác tổng thể (Overall Accuracy) lên tới 95% trên tập kiểm thử vẫn có thể gây ra rủi ro nghiêm trọng khi đưa vào sản xuất?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chỉ số trung bình tổng thể thường che giấu hiệu năng yếu kém (thậm chí 0% accuracy) trên các phân khúc người dùng quan trọng hoặc các lớp nhãn thiểu số (Rare Classes).', isCorrect: true },
+      { id: 'opt2', label: 'Độ chính xác 95% chứng tỏ mô hình chắc chắn đã bị overfitting và không thể thực hiện suy luận trên GPU.', isCorrect: false },
+      { id: 'opt3', label: 'Mô hình có độ chính xác cao thường đòi hỏi băng thông mạng internet vượt quá giới hạn cho phép của API Gateway.', isCorrect: false },
+      { id: 'opt4', label: 'Các chỉ số tổng thể không thể chuyển đổi được sang định dạng số thực 32-bit (FP32) trên server.', isCorrect: false },
+    ],
+    success: 'Đúng! Điểm mù của chỉ số trung bình là làm lu mờ sự sụt giảm hiệu năng trên các phân khúc dữ liệu đặc thù mang tính sống còn đối với sản phẩm.',
+    error: 'Chưa đúng. Vấn đề cốt lõi là chỉ số tổng thể che giấu các điểm mù trên các phân khúc dữ liệu quan trọng.',
+  },
+  {
+    id: 'sliced-evaluation-definition',
+    title: 'Mục tiêu của Sliced Evaluation',
+    prompt: 'Trong quy trình kiểm định chất lượng MLOps, mục đích chính của kỹ thuật Đánh giá theo Phân khúc (Sliced Evaluation) là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Phân tách tập dữ liệu kiểm thử theo các tiêu chí nghiệp vụ (độ dài câu, nguồn thiết bị, nhóm khách hàng) để đo lường chi tiết hiệu năng và phát hiện sai sót cục bộ.', isCorrect: true },
+      { id: 'opt2', label: 'Chia nhỏ tệp checkpoint nhị phân thành các mảnh dung lượng dưới 10MB để thuận tiện cho việc tải lên Object Storage.', isCorrect: false },
+      { id: 'opt3', label: 'Tách mã nguồn huấn luyện thành nhiều file script độc lập nhằm tăng tốc độ thực thi của trình thông dịch Python.', isCorrect: false },
+      { id: 'opt4', label: 'Tự động loại bỏ các mẫu dữ liệu bị thiếu trường thông tin trước khi chuyển sang giai đoạn tiền xử lý.', isCorrect: false },
+    ],
+    success: 'Chính xác! Sliced evaluation giúp phát hiện chính xác các điểm yếu cục bộ của mô hình trên từng nhóm phân khúc dữ liệu đặc thù.',
+    error: 'Chưa chính xác. Đánh giá theo phân khúc nhằm chia dữ liệu theo tiêu chí nghiệp vụ để kiểm tra hiệu năng chi tiết trên từng nhóm con.',
+  },
+  {
+    id: 'confusion-matrix-insight',
+    title: 'Phân tích Confusion Matrix',
+    prompt: 'Giá trị nằm trên đường chéo chính của một Ma trận Nhầm lẫn chuẩn hóa (Normalized Confusion Matrix) biểu thị thông tin kỹ thuật nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tỷ lệ mẫu được dự đoán chính xác (Recall / True Positive Rate) của từng phân lớp mục tiêu tương ứng.', isCorrect: true },
+      { id: 'opt2', label: 'Số lượng mẫu dữ liệu bị gán nhãn sai lệch giữa tập huấn luyện và tập kiểm định thực tế.', isCorrect: false },
+      { id: 'opt3', label: 'Độ trễ trung bình tính bằng mili-giây của mô hình khi thực hiện suy luận trên từng lớp dữ liệu.', isCorrect: false },
+      { id: 'opt4', label: 'Tỷ lệ mất cân bằng dữ liệu giữa phân lớp chiếm đa số và phân lớp chiếm thiểu số trong dataset.', isCorrect: false },
+    ],
+    success: 'Đúng! Đường chéo chính của confusion matrix chuẩn hóa thể hiện tỷ lệ phần trăm mẫu được phân loại đúng cho từng nhãn mục tiêu.',
+    error: 'Chưa đúng. Đường chéo chính biểu diễn tỷ lệ dự đoán chính xác (Recall) cho từng phân lớp tương ứng.',
+  },
+  {
+    id: 'critical-slice-regression-gate',
+    title: 'Chẩn đoán: Suy thoái Hiệu năng trên Critical Slice',
+    prompt: 'Một mô hình ứng viên mới có F1-score trung bình toàn tập test cao hơn 2% so với mô hình Production, nhưng F1 trên phân khúc khách hàng VIP (hoặc nhãn Vi phạm Nghiêm trọng) lại bị sụt giảm 15%. Theo nguyên tắc Quality Gate trong MLOps, bạn nên hành động như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chặn (Block) việc triển khai lên Production; tiến hành phân tích lỗi (Error Analysis) trên phân khúc bị suy thoái và thu thập thêm dữ liệu (Data-Centric AI) cho nhóm đó.', isCorrect: true },
+      { id: 'opt2', label: 'Lập tức phê duyệt triển khai vì điểm F1 trung bình tổng thể toàn cục đã vượt qua mô hình cũ 2%.', isCorrect: false },
+      { id: 'opt3', label: 'Loại bỏ nhóm phân khúc khách hàng VIP ra khỏi tập dữ liệu đánh giá để chỉ số F1 đạt mức tối ưu.', isCorrect: false },
+      { id: 'opt4', label: 'Chuyển sang sử dụng thuật toán Random Forest thay thế hoàn toàn mạng nơ-ron mà không cần kiểm tra lại.', isCorrect: false },
+    ],
+    success: 'Chính xác! Chất lượng sản phẩm thực tế được quyết định bởi các phân khúc sống còn (Critical Slices). Không bao giờ đánh đổi sự suy thoái nghiêm trọng trên nhóm trọng yếu lấy điểm số trung bình toàn cục.',
+    error: 'Chưa đúng. Trong hệ thống MLOps chuyên nghiệp, suy thoái trên critical slice là điều kiện tiên quyết để chặn release và thực hiện Error Analysis.',
+  },
+]} />

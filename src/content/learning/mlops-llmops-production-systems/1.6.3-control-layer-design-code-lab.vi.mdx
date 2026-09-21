@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'control-layer-design-code-lab',
+  locale: 'vi',
+  title: "Lab: Giám sát & Circuit Breaker",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Đăng ký Mô hình vào MLflow Model Registry',
+    'Phát hiện Data Drift với Evidently AI',
+    'Thiết lập Pipeline Tự động Retrain khi có Drift',
+  ],
+  keywords: ['MLOps', 'Control Layer', 'MLflow', 'Model Registry', 'Data Drift', 'Evidently', 'Retraining', 'Hands-on Lab'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành cuối cùng của Chapter 1, bạn sẽ thiết lập hệ thống kiểm soát và vòng lặp phản hồi tự động:
+1. **Đăng ký và Quản lý Phiên bản:** Đăng ký mô hình vào MLflow Model Registry và chuyển đổi stage (`Staging` -> `Production`).
+2. **Phát hiện Data Drift:** Đo lường sự thay đổi phân phối dữ liệu đầu vào bằng kiểm định thống kê.
+3. **Kích hoạt Retraining Loop:** Tự động gọi pipeline huấn luyện lại khi độ trôi dạt vượt ngưỡng cảnh báo.
+
+<LessonNote tone="info">
+  **Khép kín Vòng đời:** Đây là bước hoàn thiện chu trình khép kín kết nối Tầng Control trở lại Tầng Data & Tầng Compute.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đăng ký Mô hình vào MLflow Model Registry
+
+Tạo file `mlops_pipeline/registry.py` để đăng ký và quản lý stage mô hình:
+
+```python
+import mlflow
+from mlflow.tracking import MlflowClient
+from mlops_pipeline.config import logger
+
+def register_production_model(run_id: str, model_name: str = "mlops_pipeline_classifier"):
+    """Đăng ký model từ một run và thăng cấp lên Production."""
+    client = MlflowClient()
+    model_uri = f"runs:/{run_id}/model"
+    
+    logger.info(f"Đang đăng ký mô hình từ run '{run_id}' vào Registry...")
+    model_version = mlflow.register_model(model_uri, model_name)
+    
+    # Chuyển đổi trạng thái sang Production
+    client.transition_model_version_stage(
+        name=model_name,
+        version=model_version.version,
+        stage="Production",
+        archive_existing_versions=True,  # Tự động lưu trữ các version Production cũ
+    )
+    logger.info(f"Mô hình {model_name} phiên bản {model_version.version} đã chính thức lên Production!")
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Phát hiện Data Drift với Evidently AI
+
+Tạo file `mlops_pipeline/drift_detector.py` để kiểm tra phân phối dữ liệu mới:
+
+```python
+import pandas as pd
+from scipy.stats import ks_2samp
+from mlops_pipeline.config import logger
+
+def detect_feature_drift(reference_data: pd.Series, current_data: pd.Series, threshold: float = 0.05) -> dict:
+    """Kiểm tra Data Drift bằng kiểm định thống kê Kolmogorov-Smirnov (KS-test).
+    
+    Args:
+        reference_data: Dữ liệu lúc huấn luyện mô hình ban đầu
+        current_data: Dữ liệu người dùng gửi lên production trong tuần qua
+        threshold: Ngưỡng p-value để kết luận drift
+    """
+    ks_stat, p_value = ks_2samp(reference_data, current_data)
+    has_drift = bool(p_value < threshold)
+    
+    logger.info(f"KS Statistic: {ks_stat:.4f} | P-Value: {p_value:.4f}")
+    if has_drift:
+        logger.warning("CẢNH BÁO: Phát hiện Data Drift nghiêm trọng! Phân phối dữ liệu đã thay đổi.")
+    else:
+        logger.info("Dữ liệu an toàn, không phát hiện Drift đáng kể.")
+        
+    return {"has_drift": has_drift, "p_value": p_value, "ks_stat": ks_stat}
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thiết lập Pipeline Tự động Retrain khi có Drift
+
+Tạo file `mlops_pipeline/feedback_loop.py` để kết nối hệ thống tự động:
+
+```python
+from mlops_pipeline.drift_detector import detect_feature_drift
+from mlops_pipeline.config import logger
+
+def automated_feedback_loop_trigger(reference_df, production_df):
+    """Vòng lặp tự động kiểm tra và kích hoạt huấn luyện lại."""
+    logger.info("Đang chạy lịch kiểm tra Data Drift định kỳ...")
+    
+    drift_result = detect_feature_drift(
+        reference_data=reference_df["feature_length"],
+        current_data=production_df["feature_length"],
+    )
+    
+    if drift_result["has_drift"]:
+        logger.info("Đang tự động kích hoạt Pipeline Huấn luyện lại (Retraining Pipeline)...")
+        # Gọi lệnh kích hoạt GitHub Actions / Argo Workflow để train mô hình mới
+        logger.info("Lệnh Retrain đã được gửi thành công đến Tầng Compute!")
+    else:
+        logger.info("Mô hình tiếp tục phục vụ bình thường trên Tầng Serving.")
+```
+
+<LessonNote tone="tip">
+  **Chúc mừng!** Bạn đã hoàn thành toàn bộ khung kiến trúc 4 tầng MLOps từ Dữ liệu, Tính toán, Phục vụ đến Kiểm soát & Vòng đời khép kín!
+</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,194 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-layer-design',
+  locale: 'vi',
+  title: "Kiến trúc Tầng Dữ liệu (Data Layer)",
+  headings: [
+    'Bản chất & Nhiệm vụ Cốt lõi của Data Layer',
+    'Hạ tầng Lưu trữ Độc lập (Decoupled Storage)',
+    'Feature Store & Chống Train-Serve Skew',
+    'Quản lý Phiên bản Dữ liệu & Data Lineage',
+    'Ma trận Kỹ năng & Lộ trình Junior - Senior',
+  ],
+  keywords: [
+    'Data Layer', 'Decoupled Storage', 'Feature Store', 'Train-Serve Skew', 'Data Lineage', 'DVC', 'Feast', 'S3',
+    'Junior vs Senior',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bản chất & Nhiệm vụ Cốt lõi của Data Layer
+
+Tầng Dữ liệu (Data & Storage Layer) là nền móng quyết định sự thành bại của mọi hệ thống Machine Learning. Nguyên lý cơ bản trong kỹ thuật phần mềm ML là: **"Garbage In, Garbage Out"** (Dữ liệu rác thì mô hình rác).
+
+Nhiệm vụ trọng tâm của Tầng Dữ liệu không đơn thuần là chứa file, mà là một hệ thống kỹ thuật đảm bảo 4 trụ cột:
+
+<ConceptHierarchy
+  ariaLabel="4 trụ cột kỹ thuật của Tầng Dữ liệu trong MLOps"
+  root={{
+    title: 'Data & Storage Layer',
+    detail: 'Hệ thống quản trị và xử lý dữ liệu tin cậy cho toàn bộ vòng đời mô hình',
+  }}
+  nodes={[
+    {
+      title: '1. Ingestion & Cleaning',
+      problem: 'Thu thập log thời gian thực, stream sự kiện, tài liệu và làm sạch tự động.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. Decoupled Storage',
+      problem: 'Lưu trữ đối tượng (Object Storage) độc lập hoàn toàn với cụm máy tính toán.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Feature Store',
+      problem: 'Đồng bộ hóa feature giữa môi trường huấn luyện offline và phục vụ online.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '4. Lineage & Versioning',
+      problem: 'Đánh vết nguồn gốc dữ liệu (Lineage) và quản lý phiên bản snapshot bằng mã băm.',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Định nghĩa Data Contract:** Mọi dữ liệu ra vào Tầng Data phải có schema hợp đồng rõ ràng (Pydantic / Protobuf / Parquet Metadata) để ngăn chặn dữ liệu bẩn tràn vào pipeline huấn luyện.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hạ tầng Lưu trữ Độc lập (Decoupled Storage)
+
+Sai lầm nghiêm trọng nhất của người mới học MLOps là lưu dữ liệu huấn luyện ngay trên ổ cứng cục bộ (`/data`) của máy chủ GPU. Khi máy chủ bị khởi động lại hoặc hủy bỏ (Spot Instance), toàn bộ dữ liệu và checkpoint sẽ biến mất.
+
+<CourseCards
+  ariaLabel="So sánh lưu trữ cục bộ và lưu trữ đối tượng độc lập"
+  exampleLabel="Mô hình triển khai"
+  takeawayLabel="Tác động hệ thống"
+  items={[
+    {
+      title: 'Local Storage (Lưu trữ cục bộ - Rủi ro cao)',
+      example: 'Lưu dataset 500GB trực tiếp trên ổ SSD của máy huấn luyện GPU EC2 / Virtual Machine.',
+      takeaway: 'Chi phí lưu trữ đắt đỏ theo giá máy GPU; dữ liệu gắn chặt vào máy, dễ mất trắng khi máy bị treo hoặc tắt.',
+    },
+    {
+      title: 'Decoupled Object Storage (Lưu trữ đối tượng độc lập)',
+      example: 'Lưu dataset, raw files và model checkpoints trên AWS S3, Google Cloud Storage, MinIO hoặc Cloudflare R2.',
+      takeaway: 'Dữ liệu an toàn vĩnh viễn (độ bền 99.999999999%); cho phép hàng trăm worker node cùng đọc đồng thời với chi phí cực thấp.',
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Nguyên tắc Vàng:** Worker tính toán chỉ là tài nguyên tiêu hao tạm thời (Stateless / Ephemeral). Mọi trạng thái dữ liệu (Stateful) bắt buộc phải nằm ở Object Storage độc lập.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Feature Store & Chống Train-Serve Skew
+
+Một trong những lỗi ngầm nguy hiểm nhất trong sản xuất là **Train-Serve Skew** (Lệch pha giữa lúc Huấn luyện và lúc Phục vụ):
+* Khi **huấn luyện (Offline Training)**: Feature được tính toán bằng câu lệnh SQL phức tạp trên toàn bộ lịch sử 6 tháng.
+* Khi **phục vụ (Online Serving)**: Kỹ sư backend viết lại logic tính feature bằng JavaScript / Go / Python nhưng khác công thức hoặc khác múi giờ (Timezone Skew).
+
+<CourseCards
+  ariaLabel="2 cơ chế lưu trữ của Feature Store"
+  exampleLabel="Công nghệ sử dụng"
+  takeawayLabel="Mục đích phục vụ"
+  items={[
+    {
+      title: 'Offline Store (Lưu trữ Phân tích)',
+      example: 'Snowflake, BigQuery, AWS Redshift, Apache Iceberg.',
+      takeaway: 'Phục vụ truy vấn dữ liệu lịch sử dung lượng lớn (Batch Query) với độ chính xác theo đúng mốc thời gian trong quá khứ (Time-travel / Point-in-time join).',
+    },
+    {
+      title: 'Online Store (Lưu trữ Thời gian thực)',
+      example: 'Redis, DynamoDB, Redis Cluster, Cassandra.',
+      takeaway: 'Phục vụ truy vấn đọc feature với độ trễ cực thấp (dưới 5 mili-giây) phục vụ trực tiếp cho API suy luận người dùng.',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  **Giải pháp Feast / Hopsworks:** Feature Store cung cấp một định nghĩa tính toán duy nhất (Single Source of Truth) và tự động đồng bộ sang cả Offline Store lẫn Online Store.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Quản lý Phiên bản Dữ liệu & Data Lineage
+
+Trong phát triển phần mềm truyền thống, bạn chỉ cần Git để quản lý code. Nhưng trong ML, kết quả mô hình phụ thuộc vào mối quan hệ:
+
+<BlockMath formula="\text{Model} = f(\text{Code},\, \text{Data},\, \text{Hyperparameters})" />
+
+Nếu chỉ version code mà không version data, bạn không bao giờ có thể tái lập (Reproduce) được một mô hình trong quá khứ khi xảy ra sự cố.
+
+<CourseCards
+  ariaLabel="Hai trụ cột quản trị phiên bản dữ liệu"
+  exampleLabel="Công cụ tiêu biểu"
+  takeawayLabel="Giá trị cốt lõi"
+  items={[
+    {
+      title: 'Data Version Control (DVC / LakeFS)',
+      example: 'DVC theo dõi dataset lớn bằng file con trỏ `.dvc` dung lượng nhỏ được lưu trong Git, trong khi dữ liệu thật nằm trên S3/MinIO.',
+      takeaway: 'Cho phép quay ngược thời gian (Git checkout) để lấy chính xác phiên bản dữ liệu đã dùng để huấn luyện mô hình 6 tháng trước.',
+    },
+    {
+      title: 'Data Lineage & Provenance',
+      example: 'Apache Atlas, OpenLineage, Marquez ghi lại đồ thị nguồn gốc dữ liệu.',
+      takeaway: 'Biết chính xác bảng dữ liệu nào, bản ghi nào đã ảnh hưởng đến quyết định dự đoán của mô hình phục vụ người dùng.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ma trận Kỹ năng & Lộ trình Junior - Senior
+
+Tùy theo cấp bậc, một kỹ sư MLOps tiếp cận Tầng Dữ liệu với các tiêu chuẩn và trách nhiệm khác nhau:
+
+<ComparisonMatrix
+  ariaLabel="Ma trận kỹ năng Tầng Dữ liệu từ Junior đến Senior MLOps"
+  rowHeaderLabel="Tiêu chí đánh giá"
+  columns={['Junior MLOps', 'Mid-level MLOps', 'Senior MLOps / Architect']}
+  rows={[
+    {
+      label: 'Kỹ năng Dữ liệu',
+      values: [
+        'Đọc/ghi file CSV, Parquet bằng Pandas; viết truy vấn SQL cơ bản; tiền xử lý chuỗi và số trên RAM.',
+        'Xây dựng pipeline ETL tự động; sử dụng DVC đánh phiên bản dữ liệu lớn; tích hợp Pydantic kiểm tra schema dữ liệu.',
+        'Thiết kế kiến trúc Data Lakehouse & Feature Store đa vùng; tối ưu chi phí lưu trữ; đảm bảo Data Lineage và bảo mật GDPR/HIPAA.',
+      ],
+    },
+    {
+      label: 'Bẫy thường gặp',
+      values: [
+        'Lưu data cứng trên ổ đĩa máy tính; sửa data trực tiếp mà không lưu vết snapshot; dùng file CSV 10GB làm tràn RAM.',
+        'Không kiểm tra schema drift; logic tính feature lúc train lệch với lúc serve (Train-Serve Skew).',
+        'Lưu trữ trùng lặp dữ liệu gây lãng phí hàng nghìn USD; thiếu cơ chế mã hóa và quản trị quyền truy cập (IAM/RBAC).',
+      ],
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Bài tập Chuyển tiếp:** Hãy tiếp tục sang bài Quiz và Code Lab để thực hành lưu trữ dữ liệu trên MinIO và thiết lập hợp đồng dữ liệu chuẩn với Pydantic!
+</LessonNote>
+
+</MdxPage>

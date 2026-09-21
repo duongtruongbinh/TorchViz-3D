@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-behavioral-testing-quiz',
+  locale: 'vi',
+  title: "Quiz: Kiểm thử Mô hình",
+  headings: [
+    'Mục tiêu của Behavioral Testing',
+    'Kiểm thử Bất biến (Invariance Test)',
+    'Kiểm thử Định hướng (Directional Test)',
+    'Kiểm thử Chức năng Tối thiểu (MFT)',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Behavioral Testing', 'CheckList', 'Invariance', 'Directional'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="model-behavioral-testing-quiz" questions={[
+  {
+    id: 'behavioral-testing-objective',
+    title: 'Mục tiêu của Behavioral Testing',
+    prompt: 'Tại sao kiểm thử hành vi (Behavioral Testing theo CheckList) lại bổ sung quan trọng cho các chỉ số F1/Accuracy truyền thống?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Nó kiểm tra có chủ đích các năng lực ngôn ngữ cụ thể, tính bất biến và phát hiện thiên kiến (bias) trước các biến đổi nhỏ của câu.', isCorrect: true },
+      { id: 'opt2', label: 'Nó giúp mô hình tự động tải thêm RAM.' },
+      { id: 'opt3', label: 'Nó thay thế toàn bộ GPU bằng CPU.' },
+      { id: 'opt4', label: 'Nó làm tăng kích thước file model lên gấp đôi.' },
+    ],
+    success: 'Chính xác! Behavioral testing kiểm tra có hệ thống các tính chất hành vi mà tập test tĩnh không thể bao quát hết.',
+    error: 'Chưa chính xác. Behavioral testing giúp kiểm tra các năng lực ngôn ngữ và độ bền vững của mô hình.',
+  },
+  {
+    id: 'invariance-test-concept',
+    title: 'Kiểm thử Bất biến (Invariance Test)',
+    prompt: 'Khi ta thay đổi tên tác giả trong bài viết ("Hướng dẫn bởi Alice" -> "Hướng dẫn bởi Bob"), bài kiểm thử Invariance yêu cầu điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Dự đoán phân loại chủ đề của mô hình và xác suất đầu ra KHÔNG ĐƯỢC thay đổi đáng kể.', isCorrect: true },
+      { id: 'opt2', label: 'Mô hình phải đổi nhãn sang chủ đề khác.' },
+      { id: 'opt3', label: 'Mô hình phải ném ra lỗi Exception.' },
+      { id: 'opt4', label: 'Độ trễ suy luận phải tăng lên gấp 10 lần.' },
+    ],
+    success: 'Đúng! Invariance Test kiểm tra tính bất biến: những thay đổi ngữ nghĩa không liên quan đến nhãn không được làm thay đổi kết quả dự đoán.',
+    error: 'Chưa đúng. Kiểm thử bất biến đòi hỏi kết quả dự đoán phải giữ nguyên khi thay đổi các thông tin không liên quan.',
+  },
+  {
+    id: 'directional-test-concept',
+    title: 'Kiểm thử Định hướng (Directional Test)',
+    prompt: 'Khi thêm các từ khóa đặc trưng về triển khai hệ thống (như "Docker", "Kubernetes", "Ray Serve") vào một bài viết công nghệ, bài kiểm thử Directional kỳ vọng điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Xác suất dự đoán nhãn `mlops` PHẢI TĂNG LÊN hoặc tối thiểu không được giảm.', isCorrect: true },
+      { id: 'opt2', label: 'Xác suất nhãn `mlops` phải giảm về 0%.' },
+      { id: 'opt3', label: 'Mô hình phải xóa file trọng số.' },
+      { id: 'opt4', label: 'Mô hình không cần quan tâm đến từ khóa mới.' },
+    ],
+    success: 'Chính xác! Directional Test kiểm tra tính đơn điệu: khi nạp thêm bằng chứng có định hướng rõ ràng, xác suất của nhãn tương ứng phải tăng lên.',
+    error: 'Chưa chính xác. Directional test kiểm tra sự thay đổi xác suất theo chiều hướng kỳ vọng.',
+  },
+  {
+    id: 'mft-test-concept',
+    title: 'Kiểm thử Chức năng Tối thiểu (MFT)',
+    prompt: 'Bài kiểm thử Minimum Functionality Test (MFT) tương đương với khái niệm nào trong lập trình truyền thống?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Unit Test cho các ca cơ bản nhất (Sanity Checks / Boundary Cases) mà mô hình bắt buộc phải đạt độ chính xác tuyệt đối 100%.', isCorrect: true },
+      { id: 'opt2', label: 'Kiểm thử tải hiệu năng 1 triệu người dùng.' },
+      { id: 'opt3', label: 'Viết tài liệu hướng dẫn sử dụng.' },
+      { id: 'opt4', label: 'Thay thế chuột máy tính mới.' },
+    ],
+    success: 'Đúng! MFT là các ca kiểm thử tối thiểu cực kỳ đơn giản và không có mơ hồ; mô hình bắt buộc phải qua 100% các ca này.',
+    error: 'Chưa đúng. MFT đóng vai trò như các Unit Test cơ bản kiểm tra các trường hợp bắt buộc phải đúng.',
+  },
+]} />

@@ -1,0 +1,952 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-model-training-and-evaluation',
+  locale: 'vi',
+  title: "Phần 6: Huấn luyện, Giải mã Thiên lệch & TreeSHAP",
+  headings: [
+    'Thiết kế Cửa sổ Mở rộng và Vùng đệm Thời gian',
+    'Lựa chọn Độ đo Đánh giá: WAPE, Bias & R²',
+    'Thiết lập 7 Mô hình Cơ sở & Điểm Tựa So Sánh (Baselines)',
+    'Huấn luyện 5 Mô hình Cây và Đóng góp của Từng Nhóm Đặc trưng',
+    'Đánh giá trên Tập Kiểm tra và Truy tìm Nguyên nhân Thiên lệch Âm',
+    'Giải thích Mô hình bằng SHAP và Phân tích Dự báo Cụ thể',
+    'Kết luận Toàn diện và Khung Rubric Đánh giá',
+    'Tổng kết & Đánh giá: Điểm Sáng Huấn Luyện & Khuyến Nghị Nâng Cấp',
+  ],
+  keywords: ['LightGBM', 'XGBoost', 'WAPE', 'Expanding Window', 'Model Bias', 'TreeSHAP', 'Ablation Study', 'Rubric'],
+  pageCount: 8,
+};
+
+<MdxPage page={0}>
+
+Ở phần này chúng ta huấn luyện mô hình trên bảng đặc trưng vừa xây. Trước hết chúng ta quyết định cách chia dữ liệu, độ đo dùng để chấm điểm và mốc so sánh, vì ba thứ đó chi phối cách đọc mọi con số phía sau. Bốn lần cắt và hai hàm chấm điểm đã khai ở khối chuẩn bị chung tại Mục I. Ở đây chúng ta giải thích vì sao chúng có hình dạng như vậy, và vì sao `CV_FOLDS` chỉ liệt kê Fold 2 với Fold 3.
+
+```python
+df = pd.read_csv(f"features_h{H}.csv", parse_dates=["date"])
+features = load_results("04_features")["features"]
+series = df.set_index("date").revenue
+```
+
+Hai hàm chấm điểm dùng lại suốt mục này:
+
+```python
+def evaluate_fold(fold, columns, model=None):
+    """Huấn luyện trên phần train, đo trên phần kiểm định."""
+    train, valid = split_by_date(df, fold[1], fold[2], fold[3])
+    if model is None:
+        model = get_models()["LightGBM"]
+    model.fit(train[columns], np.log1p(train.revenue.values))
+    prediction = np.expm1(model.predict(valid[columns]))
+    return metrics(valid.revenue.values, prediction)
+
+def cross_validate(columns, model_name="LightGBM"):
+    """Chạy qua ba lần cắt, trung bình hai lần ổn định."""
+    scores = {}
+    for fold in FOLDS:
+        model = get_models()[model_name]
+        scores[fold[0]] = evaluate_fold(fold, columns, model)["WAPE"]
+    scores["CV"] = float(np.mean([scores[f] for f in CV_FOLDS]))
+    return scores
+```
+
+### Thiết kế Cửa sổ Mở rộng và Vùng đệm Thời gian
+
+Với dữ liệu chuỗi thời gian, chúng ta không được chia ngẫu nhiên. Chia ngẫu nhiên sẽ đặt những ngày tương lai vào tập huấn luyện và những ngày quá khứ vào tập kiểm định, tức mô hình được học đáp án của chính khoảng thời gian nó sắp phải dự báo.
+
+Cách chia phù hợp là cắt theo mốc thời gian Bergmeir (2018). Ở đây, chúng ta sử dụng **cửa sổ mở rộng (expanding window)** với ba lần cắt, mỗi lần lùi thêm một năm, cùng một tập kiểm tra cuối cùng dành riêng cho Mục VII.
+
+Một số bảng ở mục này có cột TEST, nhưng cột đó chỉ để đối chiếu và không có quyết định nào của tài liệu dựa vào nó.
+
+```python
+folds = []
+for name, train_end, valid_start, valid_end in FOLDS + [TEST_FOLD]:
+    train, valid = split_by_date(df, train_end, valid_start, valid_end)
+    buffer_days = (pd.Timestamp(valid_start)
+                   - pd.Timestamp(train_end)).days
+    folds.append({"name": name, "train_end": train_end,
+                  "valid": f"{valid_start} đến {valid_end}",
+                  "n_train": len(train), "n_valid": len(valid),
+                  "buffer_days": buffer_days})
+print(pd.DataFrame(folds).to_string(index=False))
+```
+
+Kết quả:
+
+```text
+  name  train_end                           valid  n_train  n_valid  buffer_days
+Fold 1 2019-05-31 2019-07-01 đến 2019-12-31     2152      184           31
+Fold 2 2020-05-31 2020-07-01 đến 2020-12-31     2518      184           31
+Fold 3 2021-05-31 2021-07-01 đến 2021-12-31     2883      184           31
+  TEST 2022-05-31 2022-07-01 đến 2022-12-31     3248      184           31
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-18-bon-lan-cat-cua-so-mo-rong.png"
+  alt="Hình 18: Bốn lần cắt theo cửa sổ mở rộng. Khoảng đệm 31 ngày giữa tập huấn luyện và tập kiểm định dài hơn H = 28, nên loại bỏ hoàn toàn vùng chồng lấn"
+  caption="Hình 18: Bốn lần cắt theo cửa sổ mở rộng. Khoảng đệm 31 ngày giữa tập huấn luyện và tập kiểm định dài hơn H = 28, nên loại bỏ hoàn toàn vùng chồng lấn."
+/>
+
+Đáng chú ý nhất trong Hình 18 là cột `buffer_days`: giữa tập huấn luyện và tập kiểm định chúng ta để trống **31 ngày**, và khoảng đệm này bắt buộc phải có vì hai tập dùng nhãn theo hai cách khác nhau.
+
+Một hàng huấn luyện ở ngày <InlineMath formula="T" /> mang nhãn là doanh thu của chính ngày <InlineMath formula="T" />. Trong khi đó, hàng kiểm định đầu tiên là một hàng dự báo, nên tại thời điểm chạy nó chỉ được biết dữ liệu tới <InlineMath formula="T - H" />. Nếu hai tập sát nhau thì mô hình đã nhìn thấy nhãn của những ngày mà lẽ ra nó chưa được biết. Đệm 31 ngày dài hơn <InlineMath formula="H = 28" /> nên khoảng chồng lấn đó biến mất hoàn toàn.
+
+**Lưu ý kỹ thuật: Cơ chế Purging (Khoảng đệm 31 ngày) và Cú đứt gãy Doanh thu 2019**
+
+1. **Vì sao bắt buộc phải có `buffer_days = 31` (Kỹ thuật Purging / Embargo)?**
+   - **Bản chất bài toán**: Ta cần lập kế hoạch dự báo trước một chu kỳ <InlineMath formula="H = 28" /> ngày. Ví dụ, vào ngày **31/05/2019**, đội ngũ vận hành cần chạy mô hình để xuất bảng dự báo cho toàn bộ 6 tháng cuối năm (bắt đầu từ **01/07/2019**).
+   - **Rò rỉ nếu không có khoảng đệm**: Nếu tập Train lấy dữ liệu đến sát ngày 30/06, các đặc trưng biến trễ (lag 7, rolling mean 28 ngày) và chính nhãn của tháng 6 sẽ nằm trong tập Train. Nhưng trong thực tế, tại thời điểm chạy mô hình (31/05), bạn **hoàn toàn chưa có số liệu của tháng 6**.
+   - **Giải pháp**: Khoảng đệm 31 ngày (toàn bộ tháng 6) đóng vai trò như một bức tường ngăn (Purging/Embargo), triệt tiêu hoàn toàn sự chồng lấn thông tin giữa thời điểm chốt dữ liệu quá khứ và thời điểm bắt đầu suy luận tương lai.
+
+2. **Vì sao loại Fold 1 khỏi điểm trung bình Cross-Validation?**
+   - **Cú sốc đứt gãy cấu trúc (Structural Break / Regime Shift)**: Như đã phân tích ở Mục IV.1, nửa cuối năm 2019 doanh thu trung bình toàn sàn đột ngột sụt giảm **38.6%** (từ ~5.15 triệu/ngày xuống ~3.16 triệu/ngày) do tái cơ cấu danh mục bán hàng.
+   - **Hạn chế của mô hình cây**: Mô hình dạng cây quyết định (LightGBM, XGBoost) chỉ phân vùng không gian đặc trưng dựa trên dữ liệu đã thấy và không có khả năng ngoại suy (extrapolation) xu hướng giảm vượt ra ngoài biên giá trị của quá khứ. Tập Train của Fold 1 chỉ học trên thời kỳ hoàng kim (doanh thu cao), nên khi đem suy luận cho nửa cuối 2019, mô hình tất yếu dự báo cao hơn thực tế rất nhiều.
+   - **Mục đích đánh giá**: Sai số lớn ở Fold 1 phản ánh một cú sốc vĩ mô (regime shift) chứ không phản ánh khả năng học tính chu kỳ tuần hay hiệu ứng khuyến mãi của mô hình. Vẫn chạy Fold 1 để kiểm tra độ nhạy khi gặp khủng hoảng, nhưng điểm đánh giá thuật toán chính thức chỉ lấy trung bình Fold 2 và Fold 3 (giai đoạn thị trường đã thiết lập mặt bằng mới ổn định).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Lựa chọn Độ đo Đánh giá: WAPE, Bias & R²
+
+Độ đo chính của tài liệu là WAPE, tức tổng sai số tuyệt đối chia cho tổng giá trị thật:
+
+<BlockMath formula="\text{WAPE} = \frac{\sum_d |y_d - \hat{y}_d|}{\sum_d y_d}" />
+
+Lý do chọn WAPE nằm ở hai tính chất của bộ dữ liệu đã tìm được ở Mục IV. Thứ nhất, phân phối lệch phải với vài ngày cực trị, nên độ đo phải bền với những ngày đó. Thứ hai, khoảng giá trị chênh nhau 75 lần, nên độ đo không được nhạy với những ngày doanh thu thấp.
+
+Hai độ đo quen thuộc khác đều vướng một trong hai tính chất trên:
+- **RMSE** bình phương sai số nên một ngày lệch gấp đôi sẽ đóng góp gấp bốn, và với 169 ngày cực trị thì con số cuối cùng chủ yếu phản ánh vài ngày đó.
+- **MAPE** chia sai số cho giá trị thật của từng ngày, nên một ngày doanh thu 280 nghìn lệch 100 nghìn sẽ bị tính nặng hơn hẳn một ngày doanh thu 20 triệu lệch 2 triệu, dù về mặt kinh doanh thì ngược lại.
+
+WAPE tránh được cả hai vì nó cộng sai số tuyệt đối rồi chia cho tổng, tức mỗi đồng doanh thu có trọng số như nhau. Một cách đọc trực quan là WAPE bằng 0.20 nghĩa là tổng sai số chiếm 20% tổng doanh thu.
+
+Nhưng WAPE có một điểm mù, là nó lấy trị tuyệt đối nên không phân biệt dự báo cao hơn thực tế với dự báo thấp hơn thực tế. Một mô hình luôn dự báo thấp 15% và một mô hình lúc cao lúc thấp có thể cho cùng một WAPE, trong khi hệ quả kinh doanh của chúng khác hẳn nhau. Vì vậy chúng ta luôn báo cáo WAPE kèm thiên lệch (bias):
+
+<BlockMath formula="\text{bias} = \frac{\bar{\hat{y}} - \bar{y}}{\bar{y}}" />
+
+Thiên lệch dương nghĩa là mô hình dự báo cao hơn thực tế, âm là thấp hơn. Mục VII.2 sẽ cho thấy con số này quan trọng thế nào với mô hình cuối cùng.
+
+Cả ba độ đo (WAPE, bias và <InlineMath formula="R^2" />) được tính toán đồng thời qua hàm `metrics` được dùng xuyên suốt toàn bộ dự án:
+
+```python
+def metrics(y_true, y_pred):
+    """WAPE là độ đo chính. Luôn kèm bias vì WAPE không đo được chiều lệch, và R2 để giám sát rò rỉ."""
+    y = np.asarray(y_true, float)
+    p = np.clip(np.asarray(y_pred, float), 0, None)  # Doanh thu dự báo không thể âm
+    return dict(
+        WAPE=float(np.sum(np.abs(y - p)) / np.sum(y)),
+        bias=float((p.mean() - y.mean()) / y.mean()),
+        R2=float(1 - np.sum((y - p) ** 2) / np.sum((y - y.mean()) ** 2)),
+    )
+```
+
+Một số bảng còn kèm cột <InlineMath formula="R^2" />, phần phương sai của chuỗi thật mà mô hình giải thích được. Chúng ta không dùng nó để chọn mô hình, nhưng vẫn in ra vì <InlineMath formula="R^2" /> gần 1 trong một bài toán dự báo là dấu hiệu đáng ngờ, như Mục V.5 đã cho thấy:
+
+```python
+# Nhắc lại thí nghiệm rò rỉ dữ liệu (Data Leakage) ở Mục V.5:
+runs = {
+    "53 đặc trưng hợp lệ": features,
+    "thêm cogs cùng ngày (rò rỉ)": features + ["cogs"]
+}
+for name, cols in runs.items():
+    model = get_models()["LightGBM"].fit(train[cols], y_train_log)
+    pred = np.expm1(model.predict(test[cols]))
+    print(f"{name:30s} -> WAPE: {metrics(y_test, pred)['WAPE']:.4f}, R2: {metrics(y_test, pred)['R2']:.4f}")
+```
+
+Kết quả đối chiếu từ Mục V.5:
+
+```text
+                               WAPE    bias      R2
+53 đặc trưng hợp lệ          0.2038 -0.1181  0.6398
+thêm cogs cùng ngày (rò rỉ)  0.0285  0.0102  0.9945  # <-- R2 xấp xỉ 1: Dấu hiệu rò rỉ nhãn!
+```
+
+Chỉ cần vô tình đưa biến giá vốn `cogs` cùng ngày vào, <InlineMath formula="R^2" /> lập tức nhảy vọt từ **0.6398** lên **0.9945** (gần bằng 1 tuyệt đối) và WAPE giảm ảo xuống 0.0285. Vì vậy, trong dự báo chuỗi thời gian, một giá trị <InlineMath formula="R^2 \approx 1" /> không chứng minh mô hình xuất sắc mà là dấu hiệu cảnh báo đỏ về rò rỉ thông tin tương lai (target leakage).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Thiết lập 7 Mô hình Cơ sở & Điểm Tựa So Sánh (Baselines)
+
+Trong khoa học dữ liệu và học máy ứng dụng, một câu hỏi quan trọng bậc nhất trước khi bắt tay xây dựng các thuật toán phức tạp là: **"Liệu mô hình Machine Learning có thực sự mang lại giá trị gia tăng vượt trội so với các công thức kinh nghiệm nghiệp vụ đơn giản hay không?"**
+
+Nếu một hệ thống AI tiêu tốn nhiều tài nguyên tính toán và công sức xây dựng đặc trưng nhưng không đánh bại được một phép gán đơn giản như "lấy doanh thu cùng kỳ năm ngoái", thì toàn bộ dự án sẽ thất bại về mặt kinh tế.
+
+**Cây cầu ngôn ngữ giữa Data Science và Team Business / Khách hàng**
+
+Trong thực tế doanh nghiệp, khách hàng hoặc các nhà quản lý nghiệp vụ thường coi Machine Learning như một "hộp đen" phức tạp, xa lạ và ngần ngại tin tưởng. Ngược lại, họ nắm rất rõ các công thức ước tính truyền thống mà họ vẫn tính trên bảng tính Excel hàng ngày (như lấy trung bình tháng trước hay cùng kỳ năm ngoái).
+
+Việc thiết lập tường minh các mô hình cơ sở (Baselines) đóng vai trò như một **chuẩn đối sánh kinh doanh**: khi chứng minh được mô hình ML vượt trội hơn bao nhiêu % so với cách làm hiện tại (giảm sai số WAPE từ 34.8% xuống 20.4%), ta cung cấp luận cứ kinh tế trực quan nhất để thuyết phục họ tự tin phê duyệt triển khai hệ thống vào sản xuất.
+
+Dưới đây là 5 câu hỏi chiến lược định hướng việc thiết lập hệ thống mô hình cơ sở (Baselines):
+
+<ConceptHierarchy
+  ariaLabel="5 câu hỏi chiến lược khi thiết lập mô hình cơ sở (Baselines)"
+  root={{
+    title: 'Hệ Thống Câu Hỏi Định Hướng: Vì Sao Bắt Buộc Phải Có Baselines?',
+    detail: 'Thiết lập các mốc chuẩn thực nghiệm để chứng minh giá trị kinh tế và tạo sự đồng thuận nghiệp vụ với các bên liên quan.',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Mô hình ML đắt đỏ có thực sự thắng được các công thức kinh nghiệm đơn giản?',
+      detail: 'Huấn luyện và duy trì các mô hình như LightGBM đòi hỏi chi phí hạ tầng máy chủ và bảo trì đường ống dữ liệu. Chúng ta bắt buộc phải chứng minh mô hình AI vượt trội rõ rệt so với quy tắc cơ bản như "lấy cùng kỳ năm trước" (WAPE 0.3477).',
+    },
+    {
+      title: '2. Cầu nối thuyết phục Team Business và Khách hàng chấp nhận giải pháp AI?',
+      detail: 'Business không cần hiểu toán chia nhánh của cây quyết định. Họ hiểu rõ các công thức baseline (vốn là cách họ đang làm). Khi chứng minh ML giảm sai số từ 34.8% xuống 20.4% (cải thiện hơn 30.7%), ta cung cấp luận cứ kinh tế không thể chối từ để họ tự tin ứng dụng.',
+    },
+    {
+      title: '3. Đâu là giới hạn chính xác mà các công thức cố định (Heuristics) không thể vượt qua?',
+      detail: 'Các quy tắc thủ công (trung bình trượt, cùng kỳ 1 năm hay 2 năm) hoàn toàn bất lực trước tương tác phi tuyến: hiệu ứng khuyến mãi, lịch Tết âm lịch dịch chuyển hay các biến động ngày trong tháng. Mô hình ML ra đời là để khai thác chính các tương tác phức tạp này.',
+    },
+    {
+      title: '4. Làm thế nào để đảm bảo so sánh công bằng tuyệt đối giữa Baseline và ML?',
+      detail: 'Mọi mô hình cơ sở đều phải tuân thủ nghiêm ngặt cùng một mốc chặn thời gian d - H (lùi 28 ngày) và được đo lường trên cùng tập kiểm định chéo mở rộng (Expanding Window Cross-Validation). Không một thuật toán nào được phép "ăn gian" dữ liệu tương lai.',
+    },
+    {
+      title: '5. Cạm bẫy "chiến thắng ngẫu nhiên" trên một lát cắt dữ liệu đơn lẻ là gì?',
+      detail: 'Một công thức có thể tình cờ cho sai số rất thấp trên một khoảng thời gian ngắn (như 6 tháng của tập Test), nhưng lại sụp đổ ở các chu kỳ khác. Hệ thống Baseline giúp định hình bức tranh toàn cảnh bền vững qua nhiều năm thay vì đánh giá may rủi.',
+    },
+  ]}
+/>
+
+---
+
+#### Chi tiết 7 Quy tắc Dự báo Cơ sở (Không cần huấn luyện)
+
+Tiếp theo chúng ta dựng một mốc so sánh, vì không có mốc thì con số WAPE 0.24 chẳng cho biết được điều gì cả, nó có thể là rất tốt, cũng có thể là tệ hơn cả phép dự báo bằng tay đơn giản nhất.
+
+Chúng ta dựng bảy mô hình cơ sở, đều là những quy tắc thẳng thừng không cần huấn luyện. Điểm chung của cả bảy là chúng đều tôn trọng mốc <InlineMath formula="d - H" />.
+
+```python
+level_factor = (series.shift(H).rolling(91).mean()
+                / series.shift(364 + H).rolling(91).mean())
+BASELINES = {
+    "y[d-28]": series.shift(H),
+    "trung bình 7 ngày, lùi 28": series.shift(H).rolling(7).mean(),
+    "trung bình 28 ngày, lùi 28": series.shift(H).rolling(28).mean(),
+    "cùng kỳ năm trước y[d-364]": series.shift(364),
+    "cùng kỳ hai năm trước y[d-728]": series.shift(728),
+    "trung bình hai năm cùng kỳ":
+        (series.shift(364) + series.shift(728)) / 2,
+    "cùng kỳ năm trước nhân hệ số mức":
+        series.shift(364) * level_factor,
+}
+```
+
+Ba mô hình đầu khai thác vùng gần tức lấy doanh thu quanh mốc <InlineMath formula="d - 28" />, ba mô hình tiếp theo khai thác cùng kỳ năm trước theo đúng gợi ý của Mục IV.6, còn mô hình cuối cùng kết hợp cả hai bằng cách lấy cùng kỳ năm trước rồi nhân với một hệ số điều chỉnh miền để bù cho cú đứt gãy ở Mục IV.1.
+
+```python
+rows = []
+for name, prediction in BASELINES.items():
+    row = {"baseline": name}
+    for fold in FOLDS + [TEST_FOLD]:
+        _, valid = split_by_date(df, fold[1], fold[2], fold[3])
+        p = np.nan_to_num(prediction.reindex(valid.date).values)
+        row[fold[0]] = metrics(valid.revenue.values, p)["WAPE"]
+    row["CV"] = float(np.mean([row[f] for f in CV_FOLDS]))
+    rows.append(row)
+
+baseline_table = pd.DataFrame(rows).set_index("baseline")
+columns_shown = ["Fold 1", "Fold 2", "Fold 3", "CV", "TEST"]
+print(baseline_table[columns_shown].round(4).rename_axis(
+    "mô hình cơ sở").to_string())
+
+best = baseline_table["CV"].idxmin()
+chosen = {"name": best,
+          "WAPE_cv": float(baseline_table.loc[best, "CV"]),
+          "WAPE_test": float(baseline_table.loc[best, "TEST"])}
+```
+
+Kết quả:
+
+```text
+                                 Fold 1  Fold 2  Fold 3      CV    TEST
+mô hình cơ sở
+y[d-28]                          0.4330  0.4080  0.4519  0.4299  0.4031
+trung bình 7 ngày, lùi 28        0.3856  0.3705  0.3660  0.3682  0.3574
+trung bình 28 ngày, lùi 28       0.4557  0.4558  0.4473  0.4515  0.4290
+cùng kỳ năm trước y[d-364]       0.6892  0.3362  0.3592  0.3477  0.2941
+cùng kỳ hai năm trước y[d-728]   0.7597  0.7235  0.4109  0.5672  0.2847
+trung bình hai năm cùng kỳ       0.7052  0.4517  0.3410  0.3963  0.2428
+cùng kỳ năm trước nhân hệ số mức 0.2872  0.3592  0.3853  0.3722  0.3105
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-19-bay-mo-hinh-co-so.png"
+  alt="Hình 19: Bảy mô hình cơ sở. Cùng kỳ năm trước tốt nhất theo kiểm định chéo với WAPE 0.3477, còn mô hình thấp nhất trên tập kiểm tra chỉ xếp thứ tư theo kiểm định chéo"
+  caption="Hình 19: Bảy mô hình cơ sở. Cùng kỳ năm trước tốt nhất theo kiểm định chéo với WAPE 0.3477, còn mô hình thấp nhất trên tập kiểm tra chỉ xếp thứ tư theo kiểm định chéo."
+/>
+
+Theo Hình 19, nếu chọn theo kết quả kiểm định chéo thì mô hình cơ sở tốt nhất là **phép dự báo bằng cùng kỳ năm trước**, với WAPE **0.3477**. Chúng ta lấy con số này làm mốc cho toàn bộ phần còn lại của tài liệu.
+
+Bên cạnh đó, kết quả vừa in ra cũng cho thấy một cái bẫy đáng nhớ. Nếu chọn theo cột TEST thì mô hình tốt nhất lại là `trung bình hai năm cùng kỳ` với WAPE 0.2428, thấp hơn hẳn. Nhưng chính mô hình đó chỉ đạt 0.3963 trên kiểm định chéo, tức xếp thứ tư trong bảy. Nó thắng ở cột TEST vì nửa cuối năm 2022 tình cờ hợp với cách tính đó, và đấy là đặc điểm của một cửa sổ 184 ngày chứ không phải một quy luật.
+
+**Lưu ý quan trọng: Tuyệt đối không chọn mô hình dựa trên tập kiểm tra (Test Set)**
+
+Chúng ta chốt mọi quyết định lựa chọn mô hình và đặc trưng hoàn toàn bằng kiểm định chéo (Cross-Validation), và chỉ mở tập kiểm tra một lần duy nhất ở bước đánh giá cuối cùng. Nếu vừa nhìn điểm số cột TEST vừa điều chỉnh mô hình thì tập kiểm tra không còn là một phép đo độc lập khách quan nữa, mà đã bị rò rỉ và trở thành một phần của quá trình huấn luyện (dẫn đến overfitting và sai lệch đánh giá).
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Huấn luyện 5 Mô hình Cây và Đóng góp của Từng Nhóm Đặc trưng
+
+Chúng ta huấn luyện năm mô hình cây của Module 03, xếp theo độ phức tạp tăng dần: cây quyết định, rừng ngẫu nhiên, Gradient Boosting của scikit-learn, XGBoost Chen (2016) và LightGBM Ke (2017). Cả năm chạy trên cùng bộ 53 đặc trưng, cùng hạt giống ngẫu nhiên, và cùng ba lần cắt.
+
+```python
+records = []
+for fold in FOLDS:
+    for model_name, model in get_models().items():
+        started = time.time()
+        score = evaluate_fold(fold, features, model)
+        records.append(dict(fold=fold[0], model=model_name,
+                            fit_seconds=time.time() - started, **score))
+cv_table = pd.DataFrame(records)
+
+stable = (cv_table[cv_table.fold.isin(CV_FOLDS)].groupby("model")
+          .agg(WAPE=("WAPE", "mean"), bias=("bias", "mean"),
+               fit_seconds=("fit_seconds", "mean"))
+          .sort_values("WAPE"))
+fold1 = cv_table[cv_table.fold == "Fold 1"].set_index("model")
+summary = stable.assign(fold1_WAPE=fold1.WAPE, fold1_bias=fold1.bias)
+print(summary.round(4).rename_axis("mô hình").to_string())
+```
+
+Kết quả:
+
+```text
+                   WAPE    bias  fit_seconds  fold1_WAPE  fold1_bias
+mô hình
+XGBoost          0.2350 -0.0536       1.5425      0.5154      0.4934
+GradientBoosting 0.2377 -0.0819       9.5813      0.4751      0.4333
+LightGBM         0.2423 -0.0627       1.2777      0.4842      0.4781
+RandomForest     0.2502 -0.0656       8.5873      0.5190      0.5017
+DecisionTree     0.3153 -0.0899       0.0583      0.6504      0.6155
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-20-nam-mo-hinh-cay-module-03.png"
+  alt="Hình 20: Cả năm mô hình cây đều vượt ngưỡng cơ sở 0.3477. Kiểm định chéo chọn XGBoost, còn tập kiểm tra nghiêng về LightGBM"
+  caption="Hình 20: Cả năm mô hình cây đều vượt ngưỡng cơ sở 0.3477. Kiểm định chéo chọn XGBoost, còn tập kiểm tra nghiêng về LightGBM."
+/>
+
+Theo Hình 20, XGBoost dẫn đầu với WAPE 0.2350, và cả năm mô hình đều vượt mô hình cơ sở 0.3477. Khoảng cách giữa mô hình tốt nhất và mô hình kém nhất là 0.2350 so với 0.3153, tức chênh nhau khoảng một phần ba.
+
+Trong kết quả vừa in ra:
+1. Trước hết chúng ta đọc cột `fit_seconds`, LightGBM chạy **1.3 giây** trong khi Gradient Boosting của scikit-learn mất **9.6 giây**, nhanh gấp 7.5 lần dù cho kết quả tương đương. Chênh lệch này đến từ thuật toán histogram, vốn gom giá trị liên tục thành các thùng rời rạc trước khi tìm ngưỡng cắt Ke (2017). Riêng cột `fit_seconds` phụ thuộc vào máy chạy, nên chạy lại trên máy khác sẽ ra con số khác. Thứ giữ nguyên là tỉ lệ giữa các mô hình.
+2. Thứ hai là cột `bias`, cả năm mô hình đều mang thiên lệch âm, tức đều dự báo thấp hơn thực tế. Đây là dấu hiệu của một nguyên nhân chung chứ không phải đặc điểm riêng của mô hình nào, và Mục VII.2 sẽ truy tìm nguyên nhân đó.
+3. Thứ ba là hai cột của Fold 1, WAPE nhảy lên 0.4751 đến 0.6504 và thiên lệch đổi dấu thành dương, tức mô hình dự báo cao hơn thực tế, đúng như Mục VI.1 đã dự đoán.
+
+**Góc nhìn thực chiến: Thời gian huấn luyện (`fit_seconds`) vs Thời gian suy luận (Inference Latency)**
+
+Trong bài toán dự báo doanh thu bán lẻ theo đợt (batch forecasting chạy định kỳ hàng tuần hoặc hàng tháng), thời gian huấn luyện chỉ mất từ vài giây đến vài phút không phải là tiêu chí mang tính quyết định. Trong môi trường doanh nghiệp, nếu một mô hình phức tạp hơn đòi hỏi thời gian huấn luyện lâu hơn (thậm chí vài giờ qua đêm) nhưng đem lại chỉ số WAPE bền vững và giảm thiểu rủi ro kinh doanh, chúng ta chắc chắn vẫn sẵn sàng đánh đổi tài nguyên máy chủ để chọn mô hình đó.
+
+Tuy nhiên, nếu bài toán đòi hỏi **thời gian thực (real-time / on-demand)** — ví dụ: thuật toán định giá động (dynamic pricing theo giờ), gợi ý sản phẩm tức thời trên website, hoặc điều phối kho vận hỏa tốc 15–30 phút — thì yếu tố sống còn bắt buộc phải đo lường là **thời gian suy luận (Inference Latency)** tính bằng mili-giây và năng lực đáp ứng đồng thời (Throughput), chứ không còn là thời gian huấn luyện offline.
+
+#### Thứ hạng không ổn định
+
+Tuy nhiên thứ hạng vừa thấy phụ thuộc vào cách chúng ta gộp các lần cắt, và Hình 21 đặt ba cách đọc cạnh nhau.
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-21-so-sanh-cac-mo-hinh-theo-cach-danh-gia.png"
+  alt="Hình 21: So sánh các mô hình theo cách đánh giá: gộp cả ba lần cắt, bỏ Fold 1, hay đo trên tập kiểm tra 2022"
+  caption="Hình 21: So sánh các mô hình theo cách đánh giá: gộp cả ba lần cắt, bỏ Fold 1, hay đo trên tập kiểm tra 2022."
+/>
+
+Nếu lấy trung bình cả ba lần cắt thì Gradient Boosting đứng đầu, nếu bỏ Fold 1 thì XGBoost đứng đầu, còn nếu đo trên tập kiểm tra thì LightGBM đứng đầu. Ba cách đọc cho ba câu trả lời khác nhau, mà chênh lệch giữa các mô hình thì rất nhỏ: LightGBM và XGBoost cách nhau 0.0025 WAPE trên một cửa sổ 184 ngày.
+
+Theo kết quả kiểm định chéo, **XGBoost** là mô hình được chọn để đánh giá. Tài liệu sử dụng LightGBM riêng cho phần minh họa cách giải thích mô hình ở Mục VIII; lựa chọn này phục vụ mục đích trình bày và không thay đổi kết quả lựa chọn mô hình bằng kiểm định chéo.
+
+#### Đóng góp của từng nhóm đặc trưng (Ablation Study)
+
+Cuối cùng chúng ta xem 53 đặc trưng có thật sự cần thiết không, bằng cách thêm dần từng nhóm rồi đo lại sau mỗi bước, bắt đầu từ bộ tối giản chỉ có hai cột.
+
+```python
+HISTORY = ("lag", "roll", "ratio", "trend", "cv_")
+CALENDAR = ("dow", "dom", "month", "quarter", "doy", "days_in",
+            "is_week", "is_eom", "is_som", "is_odd", "fourier")
+FEATURE_SETS = {
+    "A. hai độ trễ thô": ["lag_28", "lag_364"],
+    "B. tám độ trễ thô": [c for c in features if c.startswith("lag_")],
+    "C. thêm trung bình trượt, tỉ số, xu hướng":
+        [c for c in features if c.startswith(HISTORY)],
+    "D. thêm lịch và Fourier":
+        [c for c in features if c.startswith(HISTORY + CALENDAR)],
+    "E. đầy đủ, thêm Tết và khuyến mãi": features,
+}
+
+rows = []
+for name, columns in FEATURE_SETS.items():
+    scores = cross_validate(columns)
+    scores["TEST"] = evaluate_fold(TEST_FOLD, columns)["WAPE"]
+    rows.append({"set": name, "n_columns": len(columns), **scores})
+
+add_table = pd.DataFrame(rows).set_index("set")
+base_cv = add_table["CV"].iloc[0]
+add_table["vs_A_pct"] = 100 * (add_table.CV / base_cv - 1)
+shown = {"n_columns": "cột", "Fold 2": "Fold 2", "Fold 3": "Fold 3",
+         "CV": "CV", "vs_A_pct": "so với A %", "TEST": "TEST"}
+print(add_table[list(shown)].round(4).rename(columns=shown)
+      .rename_axis("bộ đặc trưng").to_string())
+save_results("05_models", {"baselines": baseline_table.to_dict("index"),
+                           "baseline_chosen": chosen,
+                           "cv": stable.to_dict("index"),
+                           "feature_sets": add_table.to_dict("index")})
+```
+
+Kết quả:
+
+```text
+                                           cột  Fold 2  Fold 3      CV  so với A %    TEST
+bộ đặc trưng
+A. hai độ trễ thô                            2  0.3581  0.4004  0.3793      0.0000  0.2994
+B. tám độ trễ thô                            8  0.3136  0.3139  0.3138    -17.2710  0.2315
+C. thêm trung bình trượt, tỉ số, xu hướng   24  0.2970  0.2744  0.2857    -24.6616  0.2759
+D. thêm lịch và Fourier                     43  0.2657  0.2440  0.2548    -32.8090  0.2164
+E. đầy đủ, thêm Tết và khuyến mãi           53  0.2631  0.2214  0.2423    -36.1230  0.2038
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-22-them-dan-tung-nhom-dac-trung.png"
+  alt="Hình 22: Thêm dần từng nhóm, WAPE kiểm định chéo giảm từ 0.3793 xuống 0.2423. Riêng ở bộ C, tập kiểm tra xấu đi trong khi kiểm định chéo vẫn tốt lên"
+  caption="Hình 22: Thêm dần từng nhóm, WAPE kiểm định chéo giảm từ 0.3793 xuống 0.2423. Riêng ở bộ C, tập kiểm tra xấu đi trong khi kiểm định chéo vẫn tốt lên."
+/>
+
+Theo Bảng 4 và Hình 22, WAPE trên kiểm định chéo giảm đều từ 0.3793 xuống 0.2423, tổng cộng 36.1%. Bước nhảy lớn nhất là từ hai lên tám độ trễ, giảm 17.3% chỉ với sáu cột thêm vào, và bộ B cũng là bộ đầu tiên vượt mô hình cơ sở, trong khi bộ A còn tệ hơn mốc đó 9.1%.
+
+Cột TEST lại kể một câu chuyện khác. Ở bộ C, WAPE trên tập kiểm tra tăng từ 0.2315 lên 0.2759, tức xấu đi, trong khi trên kiểm định chéo nó vẫn giảm từ 0.3138 xuống 0.2857. Hai con số mâu thuẫn nhau, và chúng ta tin con số kiểm định chéo vì nó đo trên hai cửa sổ độc lập thay vì một. Đây cũng là một minh hoạ nữa cho cái bẫy đã gặp ở Mục VI.3: một cửa sổ 184 ngày không đủ để phân biệt cải thiện thật với may mắn.
+
+<ComparisonMatrix
+  ariaLabel="Bảng 4: Đóng góp của từng nhóm đặc trưng, đo bằng WAPE trên kiểm định chéo"
+  columns={[
+    { title: 'Nhóm thêm vào', key: 'group' },
+    { title: 'Số cột', key: 'nCols' },
+    { title: 'CV (WAPE)', key: 'cv' },
+    { title: 'So với bộ liền trước', key: 'reduction' },
+    { title: 'Nhận xét', key: 'comment' },
+  ]}
+  rows={[
+    {
+      group: 'A. Hai độ trễ thô',
+      nCols: '2',
+      cv: '0.3793',
+      reduction: '—',
+      comment: 'Bộ tối giản, vẫn tệ hơn mô hình cơ sở 0.3477',
+    },
+    {
+      group: 'B. Tám độ trễ thô',
+      nCols: '8',
+      cv: '0.3138',
+      reduction: '−17.3%',
+      comment: 'Bước nhảy lớn nhất, và là bộ đầu tiên vượt mô hình cơ sở',
+    },
+    {
+      group: 'C. Trung bình trượt và tỉ số',
+      nCols: '24',
+      cv: '0.2857',
+      reduction: '−8.9%',
+      comment: 'Thống kê trượt bù thêm cho độ trễ thô',
+    },
+    {
+      group: 'D. Lịch và Fourier',
+      nCols: '43',
+      cv: '0.2548',
+      reduction: '−10.8%',
+      comment: 'Nhóm đóng góp lớn thứ hai',
+    },
+    {
+      group: 'E. Tết và khuyến mãi',
+      nCols: '53',
+      cv: '0.2423',
+      reduction: '−4.9%',
+      comment: 'Đúng kỳ vọng thấp đặt ra ở Mục IV.5',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Đánh giá trên Tập Kiểm tra và Truy tìm Nguyên nhân Thiên lệch Âm
+
+Đến đây chúng ta đã chốt xong mọi lựa chọn bằng kiểm định chéo gồm bộ đặc trưng, cách chia tập, độ đo và mô hình cơ sở. Phần này đo trên tập kiểm tra, và con số thu về là ước lượng trung thực nhất về chất lượng mô hình khi chạy thật.
+
+Tập kiểm tra gồm 184 ngày của nửa cuối năm 2022, từ 1 tháng 7 đến 31 tháng 12. Nó có xuất hiện ở vài bảng của các mục trước để đối chiếu, nhưng chưa từng quyết định điều gì.
+
+```python
+train, test = split_by_date(df, *TEST_FOLD[1:])
+y_train_log = np.log1p(train.revenue.values)
+y_test = test.revenue.values
+
+scores = {}
+for model_name, model in get_models().items():
+    model.fit(train[features], y_train_log)
+    prediction = np.expm1(model.predict(test[features]))
+    scores[model_name] = metrics(y_test, prediction)
+
+table = pd.DataFrame(scores).T.sort_values("WAPE")
+baseline = load_results("05_models")["baseline_chosen"]
+baseline_wape = baseline["WAPE_test"]
+table["vs_baseline_pct"] = 100 * (table.WAPE / baseline_wape - 1)
+print(table.round(4).to_string())
+print(f"\n mô hình cơ sở WAPE {baseline['WAPE_test']:.4f}")
+```
+
+Kết quả:
+
+```text
+                   WAPE    bias      R2  vs_baseline_pct
+LightGBM         0.2038 -0.1181  0.6398         -30.6943
+XGBoost          0.2063 -0.1316  0.6588         -29.8417
+RandomForest     0.2109 -0.1008  0.6180         -28.2796
+GradientBoosting 0.2233 -0.1621  0.5839         -24.0733
+DecisionTree     0.2535 -0.0749  0.4731         -13.8087
+
+ mô hình cơ sở WAPE 0.2941
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-23-du-bao-lightgbm-va-co-so-tren-tap-test.png"
+  alt="Hình 23: Dự báo của LightGBM và của mô hình cơ sở so với thực tế trên 184 ngày kiểm tra. Ở khung phải, đa số điểm nằm dưới đường chéo, tức mô hình dự báo thấp"
+  caption="Hình 23: Dự báo của LightGBM và của mô hình cơ sở so với thực tế trên 184 ngày kiểm tra. Ở khung phải, đa số điểm nằm dưới đường chéo, tức mô hình dự báo thấp."
+/>
+
+Hình 23 đặt đường dự báo cạnh đường thực tế. LightGBM đạt WAPE 0.2038, tốt hơn mô hình cơ sở 30.7%. Nói cách khác, tổng sai số chiếm khoảng 20% tổng doanh thu của nửa cuối 2022, trong khi phép dự báo bằng cùng kỳ năm trước để lại sai số 29%.
+
+Cả năm mô hình đều vượt mô hình cơ sở, kém nhất là cây quyết định với 13.8%. Điều này xác nhận rằng bộ 53 đặc trưng thật sự mang thông tin, chứ không phải mô hình chỉ đang học lại chính cùng kỳ năm trước.
+
+Mô hình chốt theo kiểm định chéo ở Mục VI.4 là XGBoost, còn tốt nhất trên tập kiểm tra lại là LightGBM, chênh nhau 0.0025 WAPE. Chúng ta không đổi lựa chọn sau khi nhìn thấy tập kiểm tra, vì làm vậy là phá đúng quy tắc đã đặt ra ở Mục VI.3. Tài liệu dùng LightGBM cho phần giải thích ở Mục VIII là một quyết định về trình bày, không phải kết quả của phép so sánh này.
+
+#### Thiên lệch của mô hình (bias)
+
+Ở phần này chúng ta xem cột `bias`. Cả năm mô hình đều mang thiên lệch âm, và LightGBM dự báo thấp hơn thực tế 11.8%. Đây không phải nhiễu ngẫu nhiên mà là một khuynh hướng có hệ thống, nên chúng ta cần truy ra nguyên nhân.
+
+**Giả thuyết 1: Do phép đổi thang log.**
+Chúng ta huấn luyện trên <InlineMath formula="\log(1 + y)" /> rồi dùng <InlineMath formula="\exp" /> để đổi ngược, mà trung bình của hàm mũ không bằng hàm mũ của trung bình, nên phép đổi này vốn dĩ tạo ra thiên lệch âm. Cách chữa quen thuộc là nhân dự báo với hệ số Duan (1983), tính từ phần dư của tập huấn luyện.
+
+```python
+model = get_models()["LightGBM"]
+model.fit(train[features], y_train_log)
+residual_log = np.log1p(y_test) - model.predict(test[features])
+duan_factor = float(np.mean(np.exp(
+    y_train_log - model.predict(train[features]))))
+
+mean_residual = residual_log.mean()
+print(f" Trung bình phần dư trên thang log: {mean_residual:+.4f},"
+      f" tương đương {100 * (np.exp(mean_residual) - 1):+.1f}%")
+print(f" Hệ số Duan từ phần dư train      : {duan_factor:.4f},"
+      f" chỉ chữa được {100 * (duan_factor - 1):+.2f}%")
+```
+
+Kết quả:
+
+```text
+ Trung bình phần dư trên thang log: +0.1058, tương đương +11.2%
+ Hệ số Duan từ phần dư train      : 1.0016, chỉ chữa được +0.16%
+```
+
+Hệ số Duan bằng 1.0016 nên nó chỉ nâng dự báo lên 0.16%, quá nhỏ so với mức lệch 11.8% cần giải thích. Giả thuyết thứ nhất bị loại.
+
+Con số thứ hai trong đoạn mã trên trả lời luôn **giả thuyết thứ hai**: Trung bình phần dư đo ngay trên thang log đã là +0.1058, tương đương +11.2%, tức gần trọn vẹn mức lệch cần giải thích. Điều đó có nghĩa là thiên lệch đã tồn tại từ trước khi đổi thang, nên nguyên nhân nằm ở chính mô hình chứ không nằm ở phép biến đổi.
+
+**Giả thuyết 3: Do miền doanh thu năm 2022 hồi phục.**
+Dự báo cho nửa cuối 2022 chủ yếu dựa vào cùng kỳ năm trước, tức nửa cuối 2021, mà 2021 lại là năm miền thấp nhất chuỗi theo bảng ở Mục IV.1. Nếu nửa cuối 2022 cao hơn giai đoạn đó thì mô hình sẽ kéo dự báo về phía miền cũ.
+
+```python
+raw = pd.read_csv("sales_clean.csv", parse_dates=["date"])
+
+def second_half_mean(year):
+    w = (raw.date.dt.year == year) & (raw.date.dt.month >= 7)
+    return float(raw.loc[w, "revenue"].mean())
+
+recent_mean = np.mean([second_half_mean(y) for y in (2019, 2020, 2021)])
+vs_2021 = 100 * (second_half_mean(2022) / second_half_mean(2021) - 1)
+vs_recent = 100 * (second_half_mean(2022) / recent_mean - 1)
+print(f" Nửa cuối 2022 so với cùng kỳ 2021    : {vs_2021:+.1f}%")
+print(f" Nửa cuối 2022 so với trung bình 2019-2021: {vs_recent:+.1f}%")
+```
+
+Kết quả:
+
+```text
+ Nửa cuối 2022 so với cùng kỳ 2021    : +16.2%
+ Nửa cuối 2022 so với trung bình 2019-2021: +10.2%
+```
+
+Nửa cuối 2022 cao hơn cùng kỳ 2021 tới 16.2%, và cao hơn trung bình ba năm gần nhất 10.2%. Con số 10.2% này rất gần với mức thiên lệch 11.8% cần giải thích, nên giả thuyết thứ ba đứng vững.
+
+Thiên lệch đến từ dữ liệu huấn luyện chứ không phải từ lỗi kỹ thuật, và Mục VIII.2 sẽ cho thấy cơ chế này ở mức từng ngày. Đây là hạn chế cố hữu của mọi mô hình học từ lịch sử, và cách chữa đúng không phải là nhân thêm một hệ số mà là huấn luyện lại định kỳ để mô hình bám theo miền mới.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Giải thích Mô hình bằng SHAP và Phân tích Dự báo Cụ thể
+
+Mô hình đạt WAPE 0.2038 nhưng chúng ta chưa biết nó dựa vào đâu để cho ra con số đó. Ở phần này chúng ta dùng SHAP để trả lời hai câu hỏi là trên toàn bộ tập kiểm tra thì đặc trưng nào quan trọng nhất, và với một ngày cụ thể thì mô hình đã cộng trừ những gì.
+
+SHAP Lundberg (2017) gán cho mỗi đặc trưng ở mỗi hàng một con số, là phần đóng góp của đặc trưng đó vào dự báo của hàng ấy. Với mô hình cây, thuật toán TreeSHAP Lundberg (2020) tính được giá trị này một cách chính xác thay vì xấp xỉ. Tính chất quan trọng nhất của nó là **tính cộng tính** với mức nền cộng tổng tất cả đóng góp phải bằng đúng dự báo của mô hình, không xê dịch.
+
+```python
+import shap
+
+model = get_models()["LightGBM"]
+model.fit(train[features], y_train_log)
+prediction_log = model.predict(test[features])
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(test[features])
+base_value = float(np.ravel(explainer.expected_value)[0])
+```
+
+#### Mức quan trọng của từng đặc trưng
+
+Để đo mức quan trọng trên toàn tập, chúng ta lấy trung bình trị tuyệt đối của SHAP theo từng cột. Dùng trị tuyệt đối vì một đặc trưng có thể đẩy dự báo lên ở ngày này và kéo xuống ở ngày khác, mà cả hai đều là đóng góp.
+
+```python
+mean_abs = pd.Series(np.abs(shap_values).mean(axis=0), index=features)
+total_abs = float(mean_abs.sum())
+ranking = mean_abs.sort_values(ascending=False)
+
+top12 = ranking.head(12).to_frame("TB |SHAP|")
+top12["tỉ trọng %"] = 100 * top12["TB |SHAP|"] / total_abs
+print(top12.round(4).to_string())
+```
+
+Kết quả:
+
+```text
+                  TB |SHAP|  tỉ trọng %
+lag364_smooth7       0.2495     25.3978
+lag_364              0.0863      8.7868
+roll_mean_364        0.0696      7.0894
+roll_mean_7          0.0441      4.4920
+lag_91               0.0398      4.0500
+lag364_smooth28      0.0390      3.9730
+fourier_sin1         0.0364      3.7010
+fourier_sin2         0.0348      3.5436
+dom_reverse          0.0300      3.0508
+lag_28               0.0297      3.0200
+promo_disc_max       0.0238      2.4224
+dow                  0.0221      2.2514
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-24-muoi-hai-dac-trung-dong-gop-nhieu-nhat.png"
+  alt="Hình 24: Mười hai đặc trưng đóng góp nhiều nhất: bốn trong sáu vị trí đầu đều xoay quanh mốc 364 ngày"
+  caption="Hình 24: Mười hai đặc trưng đóng góp nhiều nhất: bốn trong sáu vị trí đầu đều xoay quanh mốc 364 ngày."
+/>
+
+Theo Hình 24, cột `lag364_smooth7` đứng đầu với tỉ trọng 25.4%, gấp gần ba lần cột thứ hai. Bốn trong sáu cột đầu bảng đều xoay quanh mốc 364 ngày, nên kết quả này khớp đúng với dự đoán rút ra từ Mục IV.6 là cùng kỳ năm trước là nguồn tín hiệu hợp lệ mạnh nhất, và mô hình dựa vào nó nhiều nhất.
+
+Cột `dom_reverse` cũng lọt vào nhóm mười cột đầu bảng, nên quan sát về chu kỳ ngày trong tháng ở Mục IV.4 đã chuyển thành giá trị thật cho mô hình.
+
+#### Gộp theo bốn nhóm đặc trưng
+
+Tiếp theo chúng ta gộp theo nhóm. Xếp hạng từng cột chưa đủ để trả lời câu hỏi nhóm nào quan trọng hơn, vì một nhóm có nhiều cột sẽ tự nhiên chiếm tổng lớn hơn, nên chúng ta báo cáo cả tổng lẫn trung bình mỗi cột.
+
+```python
+group_shap = {}
+for group_name, columns in groups.items():
+    total = float(mean_abs[columns].sum())
+    group_shap[group_name] = {"total": total,
+                              "share_pct": 100 * total / total_abs,
+                              "n_columns": len(columns),
+                              "mean_per_column": total / len(columns)}
+print(pd.DataFrame(group_shap).T.round(4)
+      .astype({"n_columns": int}).to_string())
+```
+
+Kết quả:
+
+```text
+                       total  share_pct  n_columns  mean_per_column
+lịch sử doanh thu     0.7195    73.2448         24           0.0300
+lịch                  0.2086    21.2402         19           0.0110
+Tết và ngày đặc biệt  0.0152     1.5488          4           0.0038
+khuyến mãi            0.0390     3.9662          6           0.0065
+```
+
+Nhóm lịch sử doanh thu chiếm 73.2% tổng mức đóng góp. Nhóm này dẫn đầu theo cả hai cách đo: có tổng mức đóng góp lớn nhất và mức trung bình trên mỗi cột cao nhất, đạt 0.0300. Nhóm lịch đứng thứ hai với 21.2%.
+
+Hai nhóm cuối đóng góp rất ít, đúng như kỳ vọng đặt ra từ Mục IV.5.1 và Mục IV.5.2. Nhóm Tết chỉ chiếm 1.5%, khớp với kết luận rằng phần lớn hiệu ứng Tết thật ra là hiệu ứng tháng, mà hiệu ứng tháng thì nhóm lịch đã nắm rồi. Nhóm khuyến mãi chiếm 4.0%, cũng khớp với chênh lệch 1.9% đã đo được.
+
+Thứ tự hai nhóm đầu trùng với kết quả của phép thêm dần ở Mục VI.5. Riêng thứ tự giữa Tết và khuyến mãi thì chỉ SHAP tách được, vì phép thêm dần gộp cả hai vào chung bộ E. Sự trùng khớp ở hai nhóm đầu là một tín hiệu nhất quán, nhưng chưa phải xác nhận độc lập, vì cả hai phép đo đều chạy trên cùng bộ dữ liệu và cùng cửa sổ thời gian.
+
+#### Kiểm tính cộng tính của ma trận SHAP
+
+Trước khi tin vào các con số ở trên, chúng ta kiểm lại tính cộng tính đã nêu ở đầu mục:
+
+```python
+reconstructed = base_value + shap_values.sum(axis=1)
+max_error = float(np.abs(reconstructed - prediction_log).max())
+print(f" Ma trận SHAP {shap_values.shape},"
+      f" sai số lớn nhất {max_error:.3e}")
+print(f" Ngưỡng 1e-08: {'ĐẠT' if max_error < 1e-8 else 'HỎNG'}")
+```
+
+Kết quả:
+
+```text
+ Ma trận SHAP (184, 53), sai số lớn nhất 4.796e-14
+ Ngưỡng 1e-08: ĐẠT
+```
+
+Sai số lớn nhất là <InlineMath formula="4.8 \times 10^{-14}" />, tức đúng ở mức sai số làm tròn của số thực. Ma trận SHAP cộng lại đúng bằng dự báo trên cả 184 ngày, nên chúng ta có thể đọc từng con số trong đó như một phép cộng thật.
+
+#### Giải thích một dự báo cụ thể
+
+Phần trước cho biết mô hình nhìn chung dựa vào đâu. Phần này đi vào một ngày cụ thể để xem nó cộng trừ những gì. Chúng ta chọn ngày 29 tháng 8 năm 2022, một ngày thứ Hai mà mô hình dự báo thấp hơn thực tế khá nhiều, vì ngày như vậy cho thấy rõ cả đóng góp dương lẫn âm.
+
+```python
+target_date = "2022-08-29"
+index = int(np.where(test.date.values
+                     == np.datetime64(target_date))[0][0])
+contribution = pd.Series(shap_values[index], index=features)
+predicted = float(np.expm1(base_value + shap_values[index].sum()))
+actual = float(y_test[index])
+
+TOP_N = 5
+push_up = contribution[contribution > 0].sort_values(ascending=False)
+pull_down = contribution[contribution < 0].sort_values()
+top = pd.concat([push_up.head(TOP_N), pull_down.head(TOP_N)])
+top = top.to_frame("SHAP")
+top["giá trị của cột"] = [f"{test[c].values[index]:,.2f}"
+                          for c in top.index]
+print(top.round(4).to_string())
+print(f" {len(push_up) - TOP_N} cột đẩy lên còn lại"
+      f" {push_up[TOP_N:].sum():+.4f}")
+print(f" {len(pull_down) - TOP_N} cột kéo xuống còn lại"
+      f" {pull_down[TOP_N:].sum():+.4f}")
+```
+
+Kết quả:
+
+```text
+                   SHAP giá trị của cột
+dom_reverse      0.1618            2.00
+lag_91           0.1266    8,158,502.00
+fourier_sin2     0.1051            0.91
+lag_28           0.0418    4,081,818.17
+promo_disc_max   0.0269            0.00
+roll_mean_364   -0.0402    3,012,303.23
+lag364_smooth28 -0.0350    2,358,267.73
+lag364_smooth7  -0.0312    3,315,017.81
+lag_364         -0.0271    3,996,164.30
+trend_28_91     -0.0230     -898,767.06
+ 23 cột đẩy lên còn lại +0.1549
+ 19 cột kéo xuống còn lại -0.0986
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-25-giai-thich-mo-hinh-shap-ngay-29-08-2022.png"
+  alt="Hình 25: Từ mức nền 15.111, các đóng góp dương và âm cộng lại thành 15.473, đổi ngược thang log ra 5.25 triệu trong khi thực tế là 7.93 triệu"
+  caption="Hình 25: Từ mức nền 15.111, các đóng góp dương và âm cộng lại thành 15.473, đổi ngược thang log ra 5.25 triệu trong khi thực tế là 7.93 triệu."
+/>
+
+Hình 25 vẽ phép cộng dồn này:
+- Cột đẩy lên mạnh nhất là `dom_reverse` với giá trị 2, tức ngày 29 tháng 8 cách cuối tháng đúng hai ngày. Mô hình đã học được rằng cụm ngày cuối tháng có doanh thu cao, đúng như quan sát ở Mục IV.3, nên nó đẩy dự báo lên.
+- Cột thứ hai là `lag_91` với giá trị 8.16 triệu, một mức cao so với trung bình, nên nó cũng đẩy lên.
+- Ngược lại, bốn trong năm cột kéo xuống mạnh nhất đều xoay quanh cùng kỳ năm trước. Cả bốn đều mang giá trị quanh 2.4 đến 4.0 triệu, trong khi thực tế ngày đó là 7.93 triệu, nên chúng kéo dự báo xuống. Đây chính là cơ chế tạo ra thiên lệch mà chúng ta đã truy ra ở Mục VII.2, nhìn thấy được ở mức từng ngày.
+
+```python
+print(f" Nền {base_value:.4f} cộng đẩy lên {push_up.sum():+.4f}"
+      f" cộng kéo xuống {pull_down.sum():+.4f}")
+print(f" bằng {base_value + contribution.sum():.4f} trên thang log,"
+      f" đổi ngược lại thành {predicted:,.0f}")
+print(f" Thực tế ngày đó là {actual:,.0f},"
+      f" mô hình dự báo thấp hơn {100 * (1 - predicted / actual):.1f}%")
+```
+
+Kết quả:
+
+```text
+ Nền 15.1109 cộng đẩy lên +0.6171 cộng kéo xuống -0.2551
+ bằng 15.4729 trên thang log, đổi ngược lại thành 5,245,517
+ Thực tế ngày đó là 7,928,797, mô hình dự báo thấp hơn 33.8%
+```
+
+Kết quả phép cộng khớp chính xác với giá trị dự báo. Mức dự báo 5.25 triệu thấp hơn mức thực tế 7.93 triệu khoảng 33.8%.
+
+Qua ví dụ này chúng ta thấy SHAP không nói mô hình đúng hay sai, nó chỉ nói mô hình đã dựa vào đâu. Với ngày này, mô hình nhận ra đúng tín hiệu cuối tháng và đẩy dự báo lên, nhưng nhóm cùng kỳ năm trước kéo mạnh hơn nên kết quả cuối cùng vẫn thấp. Muốn sửa thì phải sửa ở chỗ dữ liệu huấn luyện, chứ không phải ở chỗ giải thích.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Kết luận Toàn diện và Khung Rubric Đánh giá
+
+Tài liệu đã trình bày toàn bộ quy trình, từ xử lý tệp dữ liệu thô đến xây dựng mô hình có thể giải thích được. Từ 3,851 dòng chứa bốn loại lỗi, chúng ta thu được chuỗi gồm 3,833 ngày liên tục, xây dựng 53 đặc trưng thuộc bốn nhóm và huấn luyện năm mô hình cây. LightGBM đạt WAPE **0.2038** trên 184 ngày của tập kiểm tra, tốt hơn mô hình cơ sở **30.7%**.
+
+Thứ chi phối toàn bộ quy trình là mốc thông tin <InlineMath formula="d - H" />. Nó quyết định đặc trưng nào được phép dựng, cách chia tập phải để đệm bao nhiêu ngày, và vì sao cột giá vốn, vốn có tương quan 0.976 với doanh thu, lại phải bị loại. Bốn trong sáu đặc trưng đứng đầu bảng SHAP đều xoay quanh mốc 364 ngày, cho thấy khi vùng gần bị chặn thì cùng kỳ năm trước là nguồn tín hiệu thay thế mạnh nhất.
+
+Quy trình cũng cho thấy giá trị của việc kiểm tra tự động. Phép thử phá hoại ở Mục V.3 chạy trên 24 cột tại 8 mốc thời gian và cho kết quả bằng đúng 0, còn phép kiểm tính cộng tính ở Mục VIII.1 cho sai số <InlineMath formula="4.8 \times 10^{-14}" />. Hai phép kiểm này chạy được mỗi lần sửa mã, nên chúng bắt lỗi sớm hơn nhiều so với việc đọc lại bằng mắt.
+
+Tuy nhiên, chúng ta cũng cần nêu rõ ba hạn chế còn lại:
+1. **Thiên lệch âm:** Mô hình dự báo thấp hơn thực tế 11.8% vì được huấn luyện bằng dữ liệu của ba năm có mức doanh thu thấp, rồi phải dự báo cho nửa năm đã hồi phục. Cách khắc phục là huấn luyện lại định kỳ, không phải nhân thêm một hệ số.
+2. **Kích thước tập kiểm tra:** Tập kiểm tra chỉ có 184 ngày nên chưa đủ để phân biệt dứt khoát bốn mô hình dẫn đầu, vốn chỉ cách nhau từ vài phần nghìn đến gần hai phần trăm WAPE; thứ hạng của chúng thay đổi theo cách gộp các lần cắt.
+3. **Phạm vi chuỗi đơn:** Toàn bộ kết quả dựa trên một chuỗi duy nhất của một doanh nghiệp. Vì vậy, không nên áp dụng trực tiếp các con số cụ thể cho bài toán khác, mặc dù quy trình vẫn có thể được áp dụng.
+
+Hướng phát triển tự nhiên là dự báo cho nhiều chuỗi cùng lúc thay vì một, thêm các nguồn dữ liệu ngoài như thời tiết hay giá của đối thủ, và thay dự báo điểm bằng dự báo khoảng để người dùng biết mức độ không chắc chắn. Cả ba hướng đều giữ nguyên ràng buộc về mốc thông tin.
+
+#### Phụ lục: Khung Rubric Đánh giá Dự án
+
+<ComparisonMatrix
+  ariaLabel="Khung Rubric Đánh giá Dự án Sales Forecasting"
+  columns={[
+    { title: 'Mục', key: 'section' },
+    { title: 'Kiến thức cốt lõi', key: 'knowledge' },
+    { title: 'Tiêu chí đánh giá', key: 'assessment' },
+  ]}
+  rows={[
+    {
+      section: 'I',
+      knowledge: 'Kiến thức về bài toán dự báo doanh thu chuỗi thời gian; Khái niệm khoảng dự báo và mốc thông tin d - H; Cấu trúc hai tệp sales.csv và promotions.csv.',
+      assessment: 'Hiểu đúng mục tiêu dự báo trước H = 28 ngày; Xác định thông tin được phép dùng; Phân biệt biến mục tiêu, dữ liệu lịch sử và biết trước.',
+    },
+    {
+      section: 'II–III',
+      knowledge: 'Kiểu dữ liệu số và ngày tháng trong pandas; Kiểm tra trùng lặp, thiếu ngày, thiếu giá trị; Chuẩn hóa định dạng ngày và phân cách nghìn.',
+      assessment: 'Phát hiện đúng các lỗi dữ liệu thô; Chuyển đổi đúng Revenue, COGS, Date; Gộp trùng lặp tạo chuỗi 3,833 ngày liên tục.',
+    },
+    {
+      section: 'IV',
+      knowledge: 'Phân tích xu hướng, phân phối lệch, ngày cao bất thường; Mùa vụ theo ngày, tháng, thứ; Tự tương quan, Tết, khuyến mãi và COGS.',
+      assessment: 'Giải thích quy luật chuỗi; Nhận diện lag 364 là tín hiệu hợp lệ mạnh nhất; Giải thích lý do giữ outlier và loại COGS cùng ngày.',
+    },
+    {
+      section: 'V',
+      knowledge: 'Đặc trưng trễ, thống kê trượt, lịch, Fourier, Tết, khuyến mãi; Khái niệm rò rỉ dữ liệu và phương pháp kiểm tra bằng phép thử rò rỉ.',
+      assessment: 'Xây dựng đúng 53 đặc trưng theo mốc d - H; Không chạm vùng bị chặn; Kiểm tra 24 đặc trưng lịch sử tại 8 mốc và xác nhận không rò rỉ.',
+    },
+    {
+      section: 'VI',
+      knowledge: 'Chia tập theo thời gian, vùng đệm an toàn; WAPE, bias, R2; Mô hình Decision Tree, Random Forest, Gradient Boosting, XGBoost, LightGBM.',
+      assessment: 'Thiết lập đúng các Fold và vùng đệm > H; Dựng 7 mô hình cơ sở; Dùng baselines làm chuẩn đối sánh kinh doanh và cầu nối thuyết phục stakeholders; Chọn mô hình bằng kiểm định chéo; Đánh giá đóng góp từng nhóm qua ablation.',
+    },
+    {
+      section: 'VII',
+      knowledge: 'Đánh giá mô hình trên TEST; Phân tích WAPE, bias, R2; Khái niệm dịch chuyển phân phối giữa huấn luyện và giai đoạn dự báo.',
+      assessment: 'Đọc và so sánh đúng kết quả 5 mô hình; Giải thích thiên lệch âm của LightGBM; Xác định nguyên nhân do doanh thu 2022 phục hồi.',
+    },
+    {
+      section: 'VIII',
+      knowledge: 'Kiến thức về SHAP và TreeSHAP; Mức quan trọng tổng thể và giải thích cục bộ; Tính cộng tính của giá trị SHAP.',
+      assessment: 'Xác định đặc trưng quan trọng nhất của LightGBM; Giải thích đóng góp 4 nhóm; Phân tích dự báo ngày cụ thể và kiểm tra tính cộng tính.',
+    },
+    {
+      section: 'IX',
+      knowledge: 'Tổng hợp kết quả, hạn chế và hướng phát triển; Huấn luyện lại mô hình khi phân phối dữ liệu thay đổi theo thời gian.',
+      assessment: 'Trình bày kết quả chính; Nêu đúng các hạn chế của dữ liệu và TEST; Đề xuất hướng mở rộng tuân thủ mốc thông tin d - H.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+### Tổng kết & Đánh giá: Điểm Sáng Huấn Luyện & Khuyến Nghị Nâng Cấp
+
+Giai đoạn huấn luyện mô hình, kiểm định chéo và giải thích bằng SHAP của nhóm tác giả là chuẩn mực về tính kỷ luật thực nghiệm trong bài toán dự báo chuỗi thời gian bán lẻ. Dưới đây là bức tranh toàn cảnh đánh giá các điểm sáng kỹ thuật cùng những khuyến nghị nâng cấp sống còn khi chuyển giao mô hình sang môi trường sản xuất (Production).
+
+---
+
+#### 1. Những Điểm Sáng Kỹ Thuật Của Nhóm Tác Giả
+
+<ConceptHierarchy
+  ariaLabel="4 điểm sáng kỹ thuật nổi bật của nhóm tác giả trong huấn luyện và đánh giá mô hình"
+  root={{
+    title: 'Kỷ Luật Đo Lường & Chuẩn Mực Thực Nghiệm',
+    detail: 'Quy trình đánh giá chặt chẽ, triệt tiêu rò rỉ và bóc tách tường minh đóng góp của từng thành phần thuật toán.',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: 'Thiết Lập 7 Mô Hình Cơ Sở (Baselines) Làm Điểm Tựa Khách Quan',
+      detail: 'Không vội vàng ca ngợi ML, nhóm tác giả xây dựng 7 quy tắc cơ sở heuristic từ naive lag đến seasonal average. Điều này tạo ra một mốc so sánh thực nghiệm minh bạch: LightGBM phải chứng minh nó vượt trội 30.7% so với quy tắc cùng kỳ năm ngoái (WAPE 0.3477 -> 0.2038).',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: 'Chiến Lược Cửa Sổ Mở Rộng Kèm Vùng Đệm 31 Ngày (Purging / Embargo)',
+      detail: 'Cửa sổ mở rộng (Expanding Window) tái hiện trung thực tiến trình tích lũy dữ liệu theo thời gian. Khoảng đệm 31 ngày (dài hơn H = 28) ngăn cách hoàn toàn giữa tập Train và Valid, triệt tiêu triệt để nguy cơ rò rỉ nhãn khi chạy multi-step forecasting.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: 'Thực Nghiệm Bóc Tách Độc Lập (Ablation Study) Từng Nhóm Đặc Trưng',
+      detail: 'Kiểm tra đóng góp biên của từng nhóm biến (Lịch, Fourier, Lag, Rolling, Event) bằng cách đo lường mức suy giảm WAPE khi loại bỏ từng nhóm. Nhờ đó, chứng minh được nhóm cùng kỳ năm trước là trụ cột quan trọng nhất khi vùng gần bị chặn.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: 'Ứng Dụng TreeSHAP Chuẩn Xác Với Tính Cộng Tính (Additivity)',
+      detail: 'Sử dụng thuật toán TreeSHAP tối ưu cho mô hình cây để tính toán chính xác tuyệt đối (sai số 4.8e-14) phần đóng góp của từng đặc trưng vào doanh thu từng ngày cụ thể, biến mô hình học máy phức tạp thành công cụ ra quyết định minh bạch.',
+      tone: 'neutral',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+#### 2. Những Khuyến Nghị Nâng Cấp Cho Môi Trường Sản Xuất
+
+<ConceptHierarchy
+  ariaLabel="6 khuyến nghị nâng cấp khi triển khai mô hình dự báo vào sản xuất"
+  root={{
+    title: 'Khung Nâng Cấp Vận Hành & Giao Tiếp Nghiệp Vụ',
+    detail: 'Chuyển hóa kết quả mô hình từ môi trường nghiên cứu (Jupyter Notebook) sang hệ thống vận hành thực tế tại doanh nghiệp.',
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: '1. Cầu Nối Thuyết Phục Stakeholders & Quy Đổi WAPE Sang Doanh Thu (ROI)',
+      detail: 'Team Business và Khách hàng không mua các thuật toán trừu tượng, họ mua giá trị kinh tế. Việc chứng minh WAPE giảm từ 34.8% xuống 20.4% cần được dịch sang tiền mặt: giảm bao nhiêu % chi phí tồn kho chết, tiết kiệm bao nhiêu tỷ đồng chi phí lưu kho và hạn chế bao nhiêu đơn hàng bị hủy do thiếu hàng (out-of-stock). Baselines chính là ngôn ngữ chung để giao tiếp với họ.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '2. Chiến Lược Triển Khai Song Song (Shadow Mode) & Cơ Chế Fallback Tự Động',
+      detail: 'Khi mới lên production, không nên thay thế đột ngột quy trình cũ. Cần chạy mô hình ở chế độ Shadow Deployment song song với quy tắc baseline tốt nhất (cùng kỳ năm trước nhân hệ số mức) trong 1–3 tháng. Nếu pipeline ML gặp sự cố sập kết nối hoặc data drift, hệ thống phải tự động fallback về baseline để giữ an toàn cho chuỗi cung ứng.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Cơ Chế Tự Động Huấn Luyện Lại (Continuous Retraining) Xử Lý Thiên Lệch',
+      detail: 'Mô hình bị thiên lệch âm 11.8% vì học trên 3 năm doanh thu thấp rồi dự báo cho thời kỳ hồi phục. Trong thực tế, cần thiết lập quy trình tự động huấn luyện lại định kỳ (hàng tháng hoặc hàng quý) theo cửa sổ trượt (Rolling Window) kết hợp bộ giám sát Drift Detection để tự động thích ứng khi thị trường đổi pha.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '4. Mở Rộng Sang Dự Báo Khoảng Bất Định (Probabilistic / Interval Forecasting)',
+      detail: 'Dự báo điểm (Point Forecast) chỉ cung cấp một con số kỳ vọng duy nhất, không thể hiện được độ rủi ro. Cần nâng cấp mô hình để dự báo các phân vị (p10, p50, p90) hoặc áp dụng Conformal Prediction, giúp bộ phận mua hàng (Procurement) tính toán chính xác mức tồn kho an toàn (Safety Stock).',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: '5. Vượt Qua Giới Hạn Của Feature Engineering Thủ Công (Automated & Deep Representations)',
+      detail: 'Tự tay viết mã 53 đặc trưng tĩnh rất tốn công sức, mang tính chủ quan và không thể mở rộng quy mô khi doanh nghiệp có hàng nghìn SKU hoặc chuỗi đa điểm. Cần mở rộng sang: (1) Thư viện tự động sinh đặc trưng (AutoML, tsfresh, Featuretools) kết hợp giải thuật lọc đặc trưng (Boruta, RFE); hoặc (2) Kiến trúc Deep Learning & Time Series Foundation Models (Temporal Fusion Transformer - TFT, PatchTST, Chronos, TimesFM) có khả năng tự động học biểu diễn đặc trưng phức tạp trực tiếp từ dữ liệu thô.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '6. Thời Gian Huấn Luyện Offline vs Độ Trễ Suy Luận Real-time (Inference Latency)',
+      detail: 'So sánh fit_seconds giữa các mô hình (LightGBM 1.3s vs Gradient Boosting 9.6s) không có nhiều ý nghĩa thực tiễn trong bài toán dự báo theo đợt (batch forecasting): mô hình huấn luyện offline ban đêm dù mất vài phút hay vài giờ thì mô hình nào cho WAPE bền vững hơn vẫn được chọn. Ngược lại, nếu chuyển sang bài toán thời gian thực (định giá động, gợi ý giỏ hàng tức thời), chỉ số sống còn bắt buộc phải đo lường là thời gian suy luận (Inference Latency) tính bằng mili-giây và thông lượng (Throughput).',
+      tone: 'teal',
+      align: 'left',
+    },
+  ]}
+/>
+
+**Triết lý thực chiến trong triển khai Data Science doanh nghiệp:**
+
+Mô hình học máy tốt nhất không phải là mô hình có điểm số WAPE thấp nhất trên một tập kiểm tra tĩnh, mà là mô hình được kiểm soát rủi ro toàn diện, có cơ chế dự phòng fail-safe rõ ràng và được các bên liên quan (Business Stakeholders) thấu hiểu, đồng thuận và tin dùng trong từng quyết định kinh doanh hàng ngày.
+
+</MdxPage>

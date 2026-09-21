@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-17
+updated: 2026-09-20
 ---
 
 # Learning Lab
@@ -19,12 +19,18 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 91 tracks, and 681 lesson nodes. One hundred
-forty-five Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, thirteen in
-`linear-algebra`, and four tagged exercise lessons in `cv`. The other 536 nodes
-are navigable placeholders and render one shared localized "content in progress" message.
-They do not carry legacy theory or practice payloads.
+The catalog contains 16 domains, 103 tracks, and 777 lesson nodes. Three hundred
+nine Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
+`mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
+overview followed by twenty-nine alternating theory/quiz pairs across 7 core
+chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
+eight in `ai-projects`, and four tagged exercise lessons in `cv`. The other 468 nodes are navigable placeholders and render one shared localized
+"content in progress" message. They do not carry legacy theory or practice
+payloads. These headline counts are verified against the typed catalog by
+`npm run check:catalog-stats`; see
+[catalog-stats](../reference/catalog-stats.md) for the generated per-domain
+breakdown.
 
 The authored LLM lessons are:
 
@@ -83,9 +89,13 @@ inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
 
-The Continual Learning course contains 39 adjacent Theory/Quiz pairs across its
+The Continual Learning course contains 42 adjacent Theory/Quiz pairs across its
 first six chapters, followed by one standalone Chapter 7 self-check lesson.
-Content through the Replay lab is the approved foundation;
+Content through the two Replay labs is the approved foundation. The second lab
+adapts O-LoRA task order 1 into a four-task Pythia-160M Colab baseline and keeps
+one stage-by-task evaluation contract for SeqFT, Replay, EWC, SI, and later CL
+methods. Gemma2 appears only as the released implementation source for the EWC
+port; it is not a checkpoint used by the course experiment;
 later chapters follow the Shi et al. (2025) survey notes covering regularization,
 architecture expansion, distillation, evaluation, vertical/horizontal continuity, CPT/DAP/CFT,
 discussion, and a final cross-course synthesis. The synthesis uses one persisted,
@@ -95,6 +105,25 @@ canonical lesson order. Both nodes publish atomically and carry the same stable
 `conceptIds`; the quiz question IDs must equal that concept set exactly. This
 prevents theory-only claims, orphan quizzes, and assessment content that was not
 taught by its paired lesson.
+
+The Linear Algebra course is scoped to the concepts needed for applied AI. It
+starts with one standalone overview, then continues through 58 paired lessons
+across 7 core chapters:
+- Chapter 0: Linear Algebra for AI overview (1 lesson)
+- Chapter 1: Vectors & Matrices (16 lessons)
+- Chapter 2: Solving Linear Equations (8 lessons)
+- Chapter 3: Vector Spaces & Subspaces (10 lessons)
+- Chapter 4: Orthogonality & Least Squares (8 lessons)
+- Chapter 5: Determinants (4 lessons)
+- Chapter 6: Eigenvalues, Eigenvectors & Trace (8 lessons)
+- Chapter 7: Singular Value Decomposition (4 lessons)
+
+All 2D Cartesian math visualizations are powered by Mafs 0.21.0 inside a bare
+`MathCanvas` wrapped by single-card `MathVisualCard` shells. Shared domain
+primitives (`MatrixEquationRow`, `MatrixGrid`, `AugmentedMatrixGrid`, `RightAngleMarker`,
+`MathSegmentedControl`) and pure calculations in `demoMath.ts` keep the domain
+maintainable and prevent duplicate rendering bugs. All Mafs assets and domain
+components remain lazy-loaded behind the linear-algebra domain loader.
 
 The authored CV exercise lessons are:
 
@@ -225,8 +254,8 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-185 authored citation occurrences across 40 theory/lab nodes: 183 reviewed
-evidence records and two explicit link-only exceptions. The three authored
+227 authored citation occurrences across 43 theory/lab nodes: 226 reviewed
+evidence records and one explicit link-only exception. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
 Inline citation text is numeric and lesson-local: `[1]`, `[2]`, and so on. The
@@ -240,14 +269,25 @@ page retain the readable paper identity.
 The optional hierarchical numeric prefix keeps authored files in typed-TOC
 order without becoming part of the canonical lesson ID. The LLM course uses
 chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
-`1.5.1-llm-data-pipeline-overview.vi.mdx`; other domains may continue using
-unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
-without this organizational prefix.
+`1.5.1-llm-data-pipeline-overview.vi.mdx`. Routes and `lessonMetadata.id`
+always use the lesson ID without this organizational prefix.
+
+New or deeply audited authored lessons can opt into strict heading validation
+with `lessonMetadata.headingContract: 'exact'`. For these lessons, the ordered
+`lessonMetadata.headings` array must match the authored Markdown heading list
+exactly; generic MDX validation fails on missing, renamed, or reordered
+headings. Existing lessons remain on the legacy metadata contract until they are
+audited, so enabling the flag is an explicit content-migration step.
 
 The Continual Learning domain applies the prefix consistently to every authored
 file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
 number mirror the domain TOC exactly, including adjacent Quiz nodes; Chapter 7
 ends at `7.1.1-continual-llm-synthesis.vi.mdx` because it has no Quiz node.
+
+The Linear Algebra domain uses the same `<chapter>.1.<node>-<lesson-id>.vi.mdx`
+convention for all 59 authored files. Its applied overview starts at
+`0.1.1-linear-algebra-for-ai-overview.vi.mdx`; Chapters 1 through 7 then mirror
+their TOC node order, including every adjacent Quiz node.
 
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation
@@ -358,19 +398,22 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-The Continual Learning paper audit additionally checks that all 40 non-Quiz
+The Continual Learning paper audit additionally checks that all 43 non-Quiz
 lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
 identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
 coverage, `paper-summary` decisions have a matching component, and optional MDX
 `referenceIds` match the structured citations authored in that file. It also
 rejects missing publication years and Scholar fallbacks on any source exposed by
 a lesson. The generated snapshot currently represents 225 papers cited across
-30 taught survey sections, plus six explicitly registered sources: the survey
+30 taught survey sections, plus twelve explicitly registered sources: the survey
 itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
+the Gemma2 EWC study, the children’s ASR EWC/SI study,
 the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
-foundational distillation paper, and FitNets for intermediate-representation
-distillation. Forty-one reviewed claim rows currently expose 196 of the 231
-registry records. The remaining records stay available as survey-intake candidates but
+foundational distillation paper, FitNets for intermediate-representation
+distillation, the Kaplan et al. scaling-laws paper, the Chinchilla
+compute-optimal training paper, Vi-Mistral-X for Vietnamese continual
+pre-training, and Qi et al.'s safety-compromise fine-tuning paper. Forty-four
+reviewed claim rows currently expose 198 of the 237 registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 
 The core metrics lesson treats metric names as incomplete without their
@@ -382,13 +425,18 @@ only when every task's best prior score is its diagonal score. Authored lessons
 and result tables should name the convention or show the formula whenever this
 distinction matters.
 
-The final Chapter 2 pair treats continual distillation as a functional
-retention constraint. A frozen earlier checkpoint supplies teacher targets while
-the updated student optimizes both its current-task loss and a weighted
-retention loss. The authored lesson distinguishes raw logits, softened
-probabilities, and intermediate representations; contrasts LwF's dependence on
-new-task query inputs with DER/DER++ replay of stored exemplars and historical
-logits; and states explicitly that matching observed signals does not guarantee
+The Chapter 2 `Regularization` overview separates the shared retention
+objective from its `Weight Regularization` and `Function Regularization`
+follow-ups. The Function Regularization node opens with a Task A to Task B
+scenario: nearby weights do not guarantee preserved responses or old-task
+performance, so the retention target shifts from parameter distance to model
+behavior. It then treats continual distillation as that functional retention
+constraint. A frozen earlier checkpoint supplies teacher targets while the
+updated student optimizes both its current-task loss and a weighted retention
+loss. The authored lesson distinguishes raw logits, softened probabilities,
+and intermediate representations; contrasts LwF's dependence on new-task query
+inputs with DER/DER++ replay of stored exemplars and historical logits; and
+states explicitly that matching observed signals does not guarantee
 preservation of all unobserved knowledge.
 
 Two nodes deliberately retain large evidence sets: `dap-domain-landscape`
@@ -401,7 +449,7 @@ currently unused `kandel2000principles` book record because the cited 2000
 edition has no stable open primary landing page in the survey metadata.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 536
+published MDX. The shared placeholder body is not indexed, preventing 429
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -425,7 +473,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
 | `src/components/learning/domains/llm-ai-engineering/rendererTheme.ts` | Semantic light/dark tokens shared by repeated LLM visual roles. |
 | `src/components/learning/domains/llm-ai-engineering/rendererPrimitives.tsx` | Typed token, ID, callout, and playback primitives used by LLM renderers. |
-| `src/components/learning/domains/llm-ai-engineering/diagramPrimitives.tsx` | Shared DOM measurement, connector SVG, and probability-curve infrastructure for LLM diagrams. |
+| `src/components/learning/domains/llm-ai-engineering/probabilityCharts.tsx` | Shared probability-curve, sign-comparison, and exponent-comparison charts for LLM diagrams. |
 | `src/components/learning/domains/cv/mdxComponents.tsx` | CV-only MDX adapter that lazy-loads shared exercise surfaces. |
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
@@ -434,7 +482,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/content/learning/continual-learning-llm/papers.generated.ts` | Generated pinned-survey bibliography and complete section citation sets; do not hand-edit. |
 | `src/content/learning/continual-learning-llm/citationEvidence.ts` | Hand-reviewed occurrence-level excerpts and verification targets for inline citations. |
 | `src/core/learning/citationEvidence.ts` | React-free shared citation-evidence contract and target labels. |
-| `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the fourteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
@@ -443,7 +491,14 @@ and Vietnamese-diacritic-insensitive.
 | `src/core/learning/lessonIdentity.ts` | Stable domain/lesson UI and completion identity. |
 | `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
 | `src/store/usePreferencesStore.ts` | Global language preference without Workspace dependencies. |
+| `src/components/learning/theme.ts` | Shared Learning theme tokens (`surface`, `button`, `semantic` status tones, `focusRing`). |
 | `src/components/learning/authoredTypes.ts` | Quiz and LLM renderer DTOs used by authored MDX adapters. |
+| `src/components/learning/learningMdxComponents.tsx` | Domain-neutral shared MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `MdxQuiz`). |
+| `src/components/learning/learningMdxReferences.tsx` | Lazy-loaded reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). |
+| `src/components/learning/learningMdxRegistry.tsx` | Capability-gated dynamic MDX page assembly and domain/reference loader integration. |
+| `src/components/learning/domains/continual-learning-llm/mdxComponents.tsx` | Continual Learning domain adapter (`StageContinuityMap`). |
+| `src/components/learning/domains/linear-algebra/mdxComponents.tsx` | Linear Algebra domain adapter with feature-module lazy loading (`lazyNamed`). |
+| `src/components/learning/domains/linear-algebra/primitives/` | Linear Algebra domain controls (`MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`). |
 | `src/components/learning/learningSearch.ts` | Cached per-domain UI adapter over generated Vite search documents. |
 | `src/components/learning/lesson/visibleLesson.ts` | Rail/detail visible-lesson selection policy. |
 | `scripts/learningContentMdx.ts` | Node/Vite MDX validation, generated runtime capabilities, per-domain search documents, and dev invalidation. |
@@ -456,9 +511,10 @@ and Vietnamese-diacritic-insensitive.
 Learning Lab visual primitives live in `src/components/learning/theme.ts`.
 Controls should use `getLearningLabTheme(theme)` and the semantic theme helpers
 instead of adding unrelated colors, radii, hover states, or focus styles.
-The active Learning Lab runtime is locked to light mode. The shared theme
-contract remains in place for existing components, but new lesson-only visuals
-should not add unreachable dark variants.
+The active Learning Lab runtime is locked to Light Mode only. All shared,
+domain, and lesson-level UI components must adhere strictly to the Light Mode
+palette (#205089, #B8C8DA, #EFF3F8); do not author unreachable dark variants,
+`dark:` classes, or theme-toggle branches.
 
 `LearningLabView` keeps a shallow left sidebar: Home followed by top-level
 domains. Track and lesson structure belongs in the main course/lesson surface.
@@ -476,19 +532,28 @@ without horizontal overflow.
 
 `LessonDetail` owns one outer panel. Markdown, formulas, visual components, and
 quizzes use spacing and dividers rather than nested decorative panels. Runtime
-lesson media belongs under `src/assets/learning/<domain>/`; `docs/assets/` is
-only for documentation artifacts.
+lesson media is served exclusively from the configured Cloudflare R2 CDN under
+`assets/learning/<domain>/`; it is not bundled from a local
+`src/assets/learning/` fallback. `docs/assets/` is only for documentation
+artifacts.
 
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
-ordered stages, `ComparisonMatrix` renders exact cross-field comparisons, and
+ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
+children, with optional muted peers, nested levels, and convergent connections.
+Its established spacing and typography remain the default; unusually dense
+paper-taxonomy diagrams may opt into `density="compact"` locally.
+`ComparisonMatrix` renders exact cross-field comparisons, and
 `ConceptSpectrum` renders an ordered constraint/trade-off continuum.
 `CourseCards` renders compact peer examples with an explicit example and
-takeaway inside each semantic card. They live in `learningMdxComponents.tsx`,
+takeaway inside each semantic card; a card may opt into a fixed code-native
+illustration band without changing the layout of cards that omit it. They live
+in `learningMdxComponents.tsx`,
 are registered in the global MDX allowlist, and accept only static MDX data.
 Domain lessons must reuse these grammars instead of shipping look-alike local
-card grids. `LessonImage` resolves a relative path
-under `src/assets/learning/` through a generic asset glob, so the shared renderer
-does not contain domain-specific asset keys.
+card grids. `LessonImage` resolves a relative `assets/learning/` path against
+the build-time CDN base URL and owns the common loading, error, and retry states.
+Domain renderers that need authored raster media reuse `LessonImage` rather than
+constructing CDN URLs or raw image loading behavior locally.
 
 System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow
@@ -519,6 +584,30 @@ nodes retain chapter-local numbering; Quiz nodes are excluded from visible
 numbering and use a dimmed question icon that regains emphasis on hover or
 selection. Selected rows use a solid blue surface, while completed markers
 remain green so progress continues to take precedence.
+
+### Learning UI Ownership and Component Reuse
+
+To maintain architectural clarity and prevent component sprawl, Learning Lab defines four distinct UI layers:
+
+| Layer | Files & Directories | Scope & Ownership | Reuse Rules |
+| :--- | :--- | :--- | :--- |
+| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `shell/InteractiveStepper.tsx`, `code/CodeLabStep.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
+| **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
+
+#### Component Reuse Guidelines for Coding Agents
+
+1. **Prefer Shared Authored Components:** Before inventing custom card grids or flow diagrams, reuse `CourseCards`, `EvidenceCards`, `ConceptFlow`, `ComparisonMatrix`, `PaperTradeoff`, or `DatasetComposition`.
+2. **Domain-Neutral Theme Reuse:** Domain-neutral surfaces, text hierarchy, borders, focus rings, and status states should reuse Learning theme tokens (`themeClasses.semantic`, `themeClasses.focusRing`). Domain-semantic visualization colors (vectors, matrix pivots, eigenvalues, SVD stages) remain local/domain-owned.
+3. **Strict Light Mode Only (No Dark Mode Variants):** Learning Lab is permanently locked to Light Mode. Components must not include `dark:` utility classes, dark-mode color branches, or unreachable dark variants. All UI directly uses the standard Light Mode theme tokens and palettes.
+4. **Domain Ownership based on Semantics, not Consumer Count:** A component belongs in a domain when its API, data structure, or mathematical meaning is domain-specific (e.g. `MathCanvas`, `MatrixGrid`, `StageContinuityMap`). A component belongs in global shared when its semantics are domain-neutral, regardless of whether it currently has one or multiple callers.
+5. **Reference Capability Isolation:** `learningMdxReferences.tsx` must not be eagerly imported into the shared Learning shell or `learningMdxComponents.tsx`. The registry dynamically imports it only when `needsReferenceRuntime` is true.
+6. **No File Proliferation:** Do not split monolithic renderers into dozens of single-component files. Keep related renderers grouped in feature modules (e.g. `vectorRenderers.tsx`, `matrixRenderers.tsx`, `systemRenderers.tsx`).
+7. **Matrix Component Deduplication:** All matrix displays must keep separate public APIs (`MatrixGrid`, `AugmentedMatrixGrid`) while sharing internal frame, divider, cell, and default class logic via `matrixPrimitives.tsx` (`getMatrixCellClasses`).
+8. **Accessible One-of-N Controls:** `MathSegmentedControl` enforces WAI-ARIA `radiogroup` / `radio` roving focus (`ArrowLeft`/`Right`/`Up`/`Down`, `Home`, `End`, synchronized `tabIndex`, option-level `colorScheme`).
+9. **Co-located Domain Explanatory Panels:** Explanatory info boxes in Linear Algebra reuse `MathInfoPanel` co-located inside `MathVisualCard.tsx` rather than creating separate files or global card abstractions.
+10. **Modular Lazy Loading:** Linear Algebra renderer modules are loaded on demand via `lazyNamed` wrappers in `linear-algebra/mdxComponents.tsx`. Authored MDX files may only use components declared in `getAllowedLearningMdxComponentNames(domainId)`.
 
 ## Invariants
 

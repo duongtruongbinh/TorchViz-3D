@@ -1,0 +1,154 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'linear-transformations',
+  locale: 'vi',
+  title: 'Linear Transformations',
+  headings: [
+    'Matrix như một phép biến đổi',
+    'Hai điều kiện tuyến tính',
+    'Các cột cho biết ảnh của Basis',
+    'Hình học của một Linear Transformation',
+    'Composition và Matrix Product',
+    'Kernel và Range',
+  ],
+  keywords: ['linear transformation', 'matrix map', 'basis', 'composition', 'kernel', 'range'],
+  conceptIds: [
+    'matrix-as-transformation',
+    'linearity-properties',
+    'basis-images',
+    'linear-transform-geometry',
+    'composition-matrix-product',
+    'kernel-range',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Matrix như một phép biến đổi
+
+Một matrix:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n}" />
+
+định nghĩa một hàm:
+
+<BlockMath formula="T:\mathbb{R}^n\to\mathbb{R}^m,\qquad T(\mathbf{x})=A\mathbf{x}" />
+
+Thay vì chỉ nhìn <InlineMath formula="A" /> như một bảng số, ta có thể nhìn nó như một phép biến đổi input vector thành output vector.
+
+Ví dụ, một matrix 2×2 có thể scale, shear, rotate hoặc kết hợp nhiều hiệu ứng tuyến tính trong mặt phẳng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai điều kiện tuyến tính
+
+Một transformation <InlineMath formula="T" /> là linear nếu:
+
+<BlockMath formula="T(\mathbf{u}+\mathbf{v})=T(\mathbf{u})+T(\mathbf{v})" />
+
+và:
+
+<BlockMath formula="T(c\mathbf{u})=cT(\mathbf{u})" />
+
+Tương đương:
+
+<BlockMath formula="T(c_1\mathbf{u}+c_2\mathbf{v})=c_1T(\mathbf{u})+c_2T(\mathbf{v})" />
+
+Matrix multiplication thỏa các tính chất này.
+
+Translation dạng <InlineMath formula="T(\mathbf{x})=A\mathbf{x}+\mathbf{b}" /> với <InlineMath formula="\mathbf{b}\neq\mathbf{0}" /> không phải linear transformation theo định nghĩa này vì <InlineMath formula="T(\mathbf{0})\neq\mathbf{0}" />.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Các cột cho biết ảnh của Basis
+
+Với standard basis:
+
+<BlockMath formula="\mathbf{e}_1=\begin{bmatrix}1\\0\end{bmatrix},\qquad\mathbf{e}_2=\begin{bmatrix}0\\1\end{bmatrix}" />
+
+và:
+
+<BlockMath formula="A=\begin{bmatrix}a&b\\c&d\end{bmatrix}" />
+
+ta có:
+
+<BlockMath formula="A\mathbf{e}_1=\begin{bmatrix}a\\c\end{bmatrix},\qquad A\mathbf{e}_2=\begin{bmatrix}b\\d\end{bmatrix}" />
+
+Hai cột của <InlineMath formula="A" /> chính là ảnh của hai standard basis vectors.
+
+Vì mọi vector là linear combination của basis vectors, biết ảnh của basis là đủ để biết transformation trên mọi vector.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Hình học của một Linear Transformation
+
+Xét:
+
+<BlockMath formula="A=\begin{bmatrix}2&1\\0&1\end{bmatrix}" />
+
+Unit square có bốn đỉnh:
+
+<BlockMath formula="\mathbf{0},\qquad\mathbf{e}_1,\qquad\mathbf{e}_2,\qquad\mathbf{e}_1+\mathbf{e}_2" />
+
+sau transformation trở thành một parallelogram.
+
+<LinearTransformationExplorer
+  ariaLabel="Một unit square được biến đổi thành parallelogram bởi matrix hai nhân hai"
+/>
+
+Đường thẳng qua gốc vẫn được biến thành đường thẳng qua gốc hoặc bị co lại thành vector không.
+
+Đây là một đặc trưng của linear transformation.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Composition và Matrix Product
+
+Giả sử:
+
+<BlockMath formula="T_A(\mathbf{x})=A\mathbf{x},\qquad T_B(\mathbf{x})=B\mathbf{x}" />
+
+Áp dụng <InlineMath formula="B" /> trước rồi <InlineMath formula="A" />:
+
+<BlockMath formula="T_A(T_B(\mathbf{x}))=A(B\mathbf{x})=(AB)\mathbf{x}" />
+
+Vì vậy matrix product biểu diễn composition của linear transformations.
+
+Thứ tự rất quan trọng.
+
+<BlockMath formula="AB\neq BA" />
+
+trong trường hợp tổng quát vì đổi thứ tự transformation có thể cho kết quả khác.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kernel và Range
+
+Hai khái niệm đã học có thể viết lại bằng ngôn ngữ transformation.
+
+**Kernel**:
+
+<BlockMath formula="\ker(T)=\left\{\mathbf{x}:T(\mathbf{x})=\mathbf{0}\right\}=\operatorname{Null}(A)" />
+
+**Range**:
+
+<BlockMath formula="\operatorname{range}(T)=\left\{T(\mathbf{x}):\mathbf{x}\in\mathbb{R}^n\right\}=\operatorname{Col}(A)" />
+
+Như vậy null space mô tả những hướng bị transformation làm mất.
+
+Column space mô tả toàn bộ output mà transformation có thể tạo ra.
+
+Chapter 3 kết thúc bằng cách nối matrix, subspace và transformation thành cùng một bức tranh.
+
+</MdxPage>

@@ -1,0 +1,115 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-preparation-eda',
+  locale: 'vi',
+  title: "Thu thập Dữ liệu & EDA",
+  headings: [
+    'Tầm quan trọng của Chất lượng Dữ liệu (Data-Centric AI)',
+    'Quy trình Thu thập & Hợp nhất Dữ liệu',
+    'Khám phá Phân bố & Mất cân bằng Nhãn (Class Imbalance)',
+    'Phát hiện Dữ liệu Nhiễu & Giá trị Bất thường',
+  ],
+  keywords: ['MLOps', 'EDA', 'Data-Centric', 'Class Imbalance', 'Data Quality', 'Pandas'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tầm quan trọng của Chất lượng Dữ liệu (Data-Centric AI)
+
+Theo triết lý **Data-Centric AI** (được Andrew Ng khởi xướng), việc cải thiện chất lượng dữ liệu thường mang lại hiệu quả cao hơn nhiều so với việc chỉ cố gắng thay đổi thuật toán mô hình.
+
+<CourseCards
+  ariaLabel="So sánh Model-Centric AI và Data-Centric AI"
+  exampleLabel="Trọng tâm cải tiến"
+  takeawayLabel="Hiệu quả thực tế"
+  items={[
+    {
+      title: 'Model-Centric AI',
+      example: 'Giữ cố định tập dữ liệu và liên tục thử nghiệm các thuật toán, tinh chỉnh siêu tham số phức tạp.',
+      takeaway: 'Thường đạt điểm bão hòa nhanh nếu dữ liệu đầu vào vốn đã chứa nhiều nhãn sai và nhiễu.',
+    },
+    {
+      title: 'Data-Centric AI',
+      example: 'Giữ thuật toán ổn định và tập trung vào làm sạch dữ liệu, chuẩn hóa nhãn gán và bổ sung edge cases.',
+      takeaway: 'Nâng cao độ chính xác và tính ổn định của mô hình một cách bền vững trên môi trường thực tế.',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Khẩu hiệu MLOps:** *"Garbage in, Garbage out"* — Một mô hình dù tối tân đến đâu cũng không thể dự đoán chính xác nếu được nạp dữ liệu gán nhãn sai hoặc thiếu nhất quán.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Quy trình Thu thập & Hợp nhất Dữ liệu
+
+Trong thực tế, dữ liệu thường nằm rải rác ở nhiều nguồn: cơ sở dữ liệu SQL, Log file người dùng, API bên ngoài hoặc Data Warehouse.
+
+<ConceptFlow
+  ariaLabel="3 bước cốt lõi trong thu thập và chuẩn hóa dữ liệu"
+  items={[
+    { title: '1. Extraction (Trích xuất)', detail: 'Lấy dữ liệu thô từ các nguồn phân tán về lưu trữ tạm thời.' },
+    { title: '2. Schema Alignment (Đồng nhất)', detail: 'Chuyển đổi kiểu dữ liệu (data types), chuẩn hóa tên cột và định dạng ngày giờ.' },
+    { title: '3. Deduplication (Khử trùng)', detail: 'Loại bỏ các bản ghi trùng lặp nội dung để tránh rò rỉ dữ liệu khi chia tập train/test.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khám phá Phân bố & Mất cân bằng Nhãn (Class Imbalance)
+
+Khám phá Dữ liệu (EDA) giúp chúng ta hiểu rõ phân bố của các nhãn mục tiêu và đặc trưng đầu vào.
+
+<ComparisonMatrix
+  ariaLabel="So sánh các mức độ mất cân bằng nhãn và giải pháp"
+  rowHeaderLabel="Tình trạng Phân bố"
+  columns={['Tác động đến Mô hình', 'Giải pháp Xử lý MLOps']}
+  rows={[
+    { label: 'Cân bằng (Balanced)', values: ['Mô hình học đồng đều các lớp', 'Dùng Cross-Entropy Loss và Accuracy tiêu chuẩn.'] },
+    { label: 'Mất cân bằng nhẹ (1:5)', values: ['Lớp thiểu số có thể bị giảm Recall', 'Áp dụng Class Weights hoặc Stratified K-Fold.'] },
+    { label: 'Mất cân bằng nặng (1:100+)', values: ['Mô hình có xu hướng luôn đoán lớp đa số', 'Dùng Focal Loss, Resampling (SMOTE) hoặc gom nhóm nhãn.'] },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Nếu tập dữ liệu mất cân bằng nghiêm trọng, chỉ số **Accuracy** sẽ trở nên vô nghĩa! Ví dụ: nếu lớp gian lận chỉ chiếm 1%, mô hình luôn đoán "Không gian lận" vẫn đạt Accuracy 99% nhưng hoàn toàn vô dụng.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Phát hiện Dữ liệu Nhiễu & Giá trị Bất thường
+
+Những sai sót phổ biến cần được phát hiện trong quá trình EDA bao gồm:
+
+<CourseCards
+  ariaLabel="Các dạng dữ liệu lỗi cần xử lý trong quá trình EDA"
+  exampleLabel="Biểu hiện lỗi"
+  takeawayLabel="Biện pháp xử lý"
+  items={[
+    {
+      title: 'Nhãn mâu thuẫn (Label Noise)',
+      example: 'Hai mẫu có nội dung giống nhau nhưng lại được gán 2 nhãn khác nhau bởi 2 người gán nhãn.',
+      takeaway: 'Cần xây dựng tài liệu chuẩn hóa gán nhãn (Labeling Guidelines) và cơ chế biểu quyết đa số.',
+    },
+    {
+      title: 'Giá trị rỗng (Missing Values / Nulls)',
+      example: 'Các trường quan trọng như tiêu đề hoặc mô tả bị rỗng hoặc chỉ chứa ký tự khoảng trắng.',
+      takeaway: 'Lọc bỏ các bản ghi thiếu thông tin cốt lõi hoặc điền giá trị mặc định hợp lệ.',
+    },
+    {
+      title: 'Độ dài bất thường (Outlier Lengths)',
+      example: 'Văn bản quá dài (>10,000 từ) hoặc quá ngắn (< 3 từ) làm méo phân bố token.',
+      takeaway: 'Áp dụng ngưỡng cắt ngắn (truncation) hoặc loại bỏ văn bản không đủ thông tin nhận diện.',
+    },
+  ]}
+/>
+
+</MdxPage>

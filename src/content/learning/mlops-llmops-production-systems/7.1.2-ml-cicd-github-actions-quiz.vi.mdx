@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'ml-cicd-github-actions-quiz',
+  locale: 'vi',
+  title: "Quiz: CI/CD cho ML",
+  headings: [
+    'Khái niệm Continuous Training (CT)',
+    'Model Gatekeeping trong CI/CD',
+    'Phân biệt CI/CD truyền thống và ML',
+    'Triggers trong GitHub Actions',
+  ],
+  keywords: ['MLOps', 'Quiz', 'CI/CD', 'GitHub Actions', 'Continuous Training', 'Gatekeeping'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="ml-cicd-github-actions-quiz" questions={[
+  {
+    id: 'continuous-training-concept',
+    title: 'Khái niệm Continuous Training (CT)',
+    prompt: 'Khái niệm Continuous Training (CT) trong MLOps thể hiện điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động hóa hoàn toàn quy trình kích hoạt huấn luyện lại mô hình, đánh giá và đăng ký phiên bản mới khi có dữ liệu mới hoặc phát hiện Data Drift.', isCorrect: true },
+      { id: 'opt2', label: 'Bắt buộc nhân viên phải ngồi làm việc liên tục 24 giờ mỗi ngày không nghỉ.' },
+      { id: 'opt3', label: 'Liên tục mua thêm GPU mới từ nhà sản xuất.' },
+      { id: 'opt4', label: 'Tự động viết lại code Python bằng AI.' },
+    ],
+    success: 'Chính xác! CT là khả năng tự động huấn luyện và đánh giá lại mô hình trên dữ liệu mới mà không cần can thiệp thủ công.',
+    error: 'Chưa chính xác. Continuous Training là quy trình tự động huấn luyện lại mô hình theo chu kỳ hoặc sự kiện.',
+  },
+  {
+    id: 'model-gatekeeping-purpose',
+    title: 'Model Gatekeeping trong CI/CD',
+    prompt: 'Mục đích chính của các cổng kiểm duyệt (Model Quality Gates) trong pipeline CI/CD là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Đảm bảo chỉ những mô hình mới có hiệu năng vượt trội hơn mô hình hiện tại trên Production và vượt qua toàn bộ bài test chất lượng mới được phép triển khai.', isCorrect: true },
+      { id: 'opt2', label: 'Chặn không cho lập trình viên commit code vào ban đêm.' },
+      { id: 'opt3', label: 'Tự động trừ lương nếu mô hình bị giảm độ chính xác.' },
+      { id: 'opt4', label: 'Khóa cửa phòng máy chủ.' },
+    ],
+    success: 'Đúng! Quality Gates ngăn chặn việc vô tình phát hành các mô hình bị suy thoái chất lượng (performance regression) ra môi trường người dùng.',
+    error: 'Chưa đúng. Quality Gates bảo vệ sản phẩm bằng cách chỉ cho phép mô hình đạt chuẩn chất lượng được deploy.',
+  },
+  {
+    id: 'mlops-cicd-distinction',
+    title: 'Phân biệt CI/CD truyền thống và ML',
+    prompt: 'Điểm khác biệt cốt lõi nhất giữa CI/CD cho phần mềm truyền thống và CI/CD cho hệ thống ML là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Hệ thống ML phải kiểm thử đồng thời 3 yếu tố: Code, Dữ liệu biến thiên theo thời gian và Hành vi suy luận của Mô hình.', isCorrect: true },
+      { id: 'opt2', label: 'Hệ thống ML không cần dùng kho lưu trữ Git.' },
+      { id: 'opt3', label: 'Hệ thống ML chỉ chạy được trên điện thoại thông minh.' },
+      { id: 'opt4', label: 'Phần mềm truyền thống không bao giờ có lỗi.' },
+    ],
+    success: 'Chính xác! Trong ML, hiệu năng phụ thuộc trực tiếp vào dữ liệu đầu vào chứ không chỉ đơn thuần là tính đúng đắn của code.',
+    error: 'Chưa chính xác. ML CI/CD phải xử lý cả dữ liệu và mô hình bên cạnh mã nguồn truyền thống.',
+  },
+  {
+    id: 'github-actions-triggers',
+    title: 'Triggers trong GitHub Actions',
+    prompt: 'Trigger nào trong GitHub Actions cho phép thiết lập lịch chạy tự động huấn luyện lại mô hình theo định kỳ (ví dụ mỗi tuần một lần)?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: '`on: schedule:` với cú pháp biểu thức Cron (ví dụ: `cron: "0 0 * * 0"`).', isCorrect: true },
+      { id: 'opt2', label: '`on: push:`' },
+      { id: 'opt3', label: '`on: pull_request:`' },
+      { id: 'opt4', label: '`on: delete:`' },
+    ],
+    success: 'Đúng! `schedule` sử dụng cú pháp cron chuẩn để chạy các workflow định kỳ trong nền.',
+    error: 'Chưa đúng. Sử dụng trigger `schedule` với biểu thức cron để lên lịch chạy tự động.',
+  },
+]} />

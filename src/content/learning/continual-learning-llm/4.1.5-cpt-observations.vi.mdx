@@ -6,12 +6,24 @@ export const lessonMetadata = {
 
 ## CPT hiện còn cách xa production
 
-Từ các nghiên cứu được tổng hợp, survey rút ra ba quan sát:
+### OBS-1: Phương pháp chuyên biệt còn ít
 
-<ComparisonMatrix ariaLabel="Ba quan sát về Continual Pre-training" columns={['Quan sát', 'Ý nghĩa']} rows={[
-  { label: 'OBS-1', values: ['Phương pháp chuyên biệt còn ít', 'Khoảng một nửa paper chỉ đo tác động hoặc áp dụng CL technique có sẵn'] },
-  { label: 'OBS-2', values: ['Kỹ thuật chưa đa dạng', 'Architecture expansion phổ biến hơn replay và parameter regularization'] },
-  { label: 'OBS-3', values: ['Thí nghiệm chưa giống production', 'Sequence thường ngắn và có task boundary rõ'] },
-]} />
+Khoảng một nửa paper chỉ đo tác động của CPT hoặc áp dụng các kỹ thuật Continual Learning quen thuộc có sẵn mà chưa thiết kế cơ chế chuyên biệt cho Continual Pre-training <Cite paper="shi2024continualSurvey" evidence="cpt-study-observations-01-shi2024continualSurvey" />.
 
-Ngoại trừ thí nghiệm **159 domain** của <Cite paper="yildiz2024investigating" evidence="cpt-study-observations-01-yildiz2024investigating" />, sequence dài nhất trong các nghiên cứu còn lại mà survey tổng hợp chỉ có **8 stage** <Cite paper="shi2024continualSurvey" evidence="cpt-study-observations-02-shi2024continualSurvey" />. Production có thể cập nhật trong nhiều tháng hoặc năm và không báo rõ lúc task/domain đổi. Vì vậy, kết quả trên sequence ngắn chưa đủ chứng minh method sẽ bền ở dài hạn.
+---
+
+### OBS-2: Kỹ thuật chưa đa dạng
+
+Kỹ thuật mở rộng kiến trúc (architecture expansion) xuất hiện phổ biến hơn đáng kể so với replay hay parameter regularization trong các nghiên cứu CPT <Cite paper="shi2024continualSurvey" evidence="cpt-study-observations-02-shi2024continualSurvey" />.
+
+---
+
+### OBS-3: Thí nghiệm chưa giống production
+
+Ngoại trừ thí nghiệm **159 domain** của <Cite paper="yildiz2024investigating" evidence="cpt-study-observations-03-yildiz2024investigating" />, sequence dài nhất trong các nghiên cứu còn lại mà survey tổng hợp chỉ có **8 stage** và thường giả định task boundary rõ ràng <Cite paper="shi2024continualSurvey" evidence="cpt-study-observations-04-shi2024continualSurvey" />. Production có thể cập nhật liên tục qua nhiều tháng hoặc năm và không báo trước thời điểm chuyển đổi dữ liệu. Vì vậy, kết quả trên sequence ngắn chưa đủ chứng minh method sẽ bền ở dài hạn.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-cpt-observations-doodle.png"
+  alt="Bốn doodle card minh họa ba quan sát CPT: CPT hướng tới production, khoảng một nửa nghiên cứu ít phương pháp mới, kỹ thuật mở rộng kiến trúc áp đảo, và số stage thực nghiệm còn ngắn so với thực tế"
+  caption="Ba khoảng trống lớn khiến các nghiên cứu CPT hiện tại còn cách xa bài toán production dài hạn."
+/>

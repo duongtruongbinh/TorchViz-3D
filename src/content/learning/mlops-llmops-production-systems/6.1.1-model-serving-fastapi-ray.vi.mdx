@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-serving-fastapi-ray',
+  locale: 'vi',
+  title: "Phục vụ với FastAPI & Ray Serve",
+  headings: [
+    'Tại sao cần Hệ thống Phục vụ Mô hình Chuyên dụng?',
+    'FastAPI: REST API Hiệu năng cao với Type Hints & Pydantic',
+    'Ray Serve: Phân tán, Dynamic Batching & Multi-Replica',
+    'Kiến trúc Triển khai Đầu-cuối (End-to-End Serving Architecture)',
+  ],
+  keywords: ['MLOps', 'Model Serving', 'FastAPI', 'Ray Serve', 'Dynamic Batching', 'Inference API'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao cần Hệ thống Phục vụ Mô hình Chuyên dụng?
+
+Chạy mô hình trong Jupyter Notebook là rất đơn giản, nhưng để phục vụ hàng triệu người dùng đồng thời (Concurrency) với độ trễ P99 dưới 100ms trên môi trường sản xuất đòi hỏi một hạ tầng phục vụ chuyên dụng.
+
+<CourseCards
+  ariaLabel="Thách thức khi phục vụ mô hình học máy trên Production"
+  exampleLabel="Thách thức vận hành"
+  takeawayLabel="Giải pháp Serving"
+  items={[
+    {
+      title: 'Xung đột Tài nguyên GPU/CPU',
+      example: 'Nhiều request API đồng thời cùng nạp model weights vào RAM/VRAM làm crash máy chủ.',
+      takeaway: 'Cần worker pool giữ sẵn model trong bộ nhớ và cơ chế phân phối tải (Load Balancing).',
+    },
+    {
+      title: 'Tối ưu Thông lượng (Throughput) & Dynamic Batching',
+      example: 'Mỗi request xử lý 1 câu đơn lẻ khiến GPU chỉ hoạt động 5% công suất (lãng phí phần cứng).',
+      takeaway: 'Gom các request đến cùng lúc thành 1 batch (Dynamic Batching) để GPU xử lý song song tốc độ tối đa.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## FastAPI: REST API Hiệu năng cao với Type Hints & Pydantic
+
+**FastAPI** là framework web Python tiêu chuẩn vàng để xây dựng microservices dự đoán nhờ:
+
+<ComparisonMatrix
+  ariaLabel="Các tính năng vượt trội của FastAPI trong ML Serving"
+  rowHeaderLabel="Tính năng FastAPI"
+  columns={['Cơ chế hoạt động', 'Lợi ích cho MLOps']}
+  rows={[
+    { label: 'Pydantic Data Validation', values: ['Tự động kiểm tra kiểu dữ liệu đầu vào (`title: str`, `tags: list[str]`).', 'Chặn đứng các request sai định dạng và trả về mã lỗi `422 Unprocessable Entity` rõ ràng.'] },
+    { label: 'Asynchronous (Async/Await)', values: ['Hỗ trợ I/O bất đồng bộ trên nền tảng Starlette và Uvicorn.', 'Xử lý hàng nghìn kết nối đồng thời mà không bị block luồng chính.'] },
+    { label: 'Auto Interactive OpenAPI Docs', values: ['Tự động sinh tài liệu Swagger UI tại `/docs` từ Type Hints.', 'Đội ngũ Frontend/Mobile có thể thử nghiệm API trực tiếp trên trình duyệt.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ray Serve: Phân tán, Dynamic Batching & Multi-Replica
+
+Khi nhu cầu truy cập tăng vọt, **Ray Serve** cung cấp khả năng co giãn phân tán (Distributed Autoscaling):
+
+<ConceptHierarchy
+  ariaLabel="3 cơ chế vượt trội của Ray Serve"
+  root={{ title: 'Ray Serve Architecture', detail: 'Hạ tầng phục vụ suy luận phân tán cho mô hình phức tạp' }}
+  children={[
+    { title: 'Multi-Replica Autoscaling', detail: 'Tự động tăng số lượng bản sao (replicas) mô hình từ 1 lên 10 khi lưu lượng request tăng cao.' },
+    { title: 'Dynamic Request Batching (`@serve.batch`)', detail: 'Tự động gom các request riêng lẻ trong cửa sổ 10ms thành 1 batch tensor đưa vào GPU.' },
+    { title: 'Fractional GPU Allocation', detail: 'Cho phép chia sẻ 1 GPU vật lý cho nhiều mô hình hoặc nhiều replicas (`ray_actor_options={"num_gpus": 0.5}`).' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiến trúc Triển khai Đầu-cuối (End-to-End Serving Architecture)
+
+Luồng xử lý một request dự đoán từ người dùng:
+
+<ConceptFlow
+  ariaLabel="Luồng xử lý từ Client đến Model Serving"
+  items={[
+    { title: '1. Ingress / API Gateway', detail: 'Tiếp nhận HTTPS request và xác thực token JWT.' },
+    { title: '2. FastAPI & Pydantic Validator', detail: 'Kiểm tra schema JSON đầu vào và làm sạch văn bản cơ bản.' },
+    { title: '3. Ray Serve Deployment', detail: 'Tokenize văn bản, gom batch động và thực hiện Forward pass trên GPU.' },
+    { title: '4. JSON Response & Metrics', detail: 'Trả về nhãn dự đoán kèm xác suất và ghi nhận độ trễ (latency metric) vào Prometheus.' },
+  ]}
+/>
+
+</MdxPage>

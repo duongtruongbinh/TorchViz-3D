@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-layer-design-code-lab',
+  locale: 'vi',
+  title: "Lab: Lưu trữ & Data Contracts",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Thiết lập Data Contracts với Pydantic',
+    'Kiểm định Dữ liệu Tự động Trước khi Xử lý',
+    'Đồng bộ Dữ liệu với MinIO / S3 Storage',
+  ],
+  keywords: ['MLOps', 'Data Layer', 'Pydantic', 'Data Contracts', 'MinIO', 'S3', 'Hands-on Lab'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, bạn sẽ xây dựng 2 thành phần cốt lõi của Tầng Dữ liệu:
+1. **Thiết lập Data Contract (Hợp đồng Dữ liệu):** Dùng `pydantic` để định nghĩa và kiểm tra tính hợp lệ của schema dữ liệu đầu vào.
+2. **Tích hợp Lưu trữ Đối tượng (Decoupled Storage):** Kết nối mã nguồn với MinIO / AWS S3 để tải và lưu trữ snapshot dữ liệu độc lập.
+
+<LessonNote tone="info">
+  **Quy tắc:** Mọi dữ liệu không vượt qua được bước xác thực Schema Contract sẽ bị từ chối ngay tại cửa ngõ (Ingestion Gateway), không bao giờ được phép đi vào pipeline huấn luyện.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thiết lập Data Contracts với Pydantic
+
+Tạo file `mlops_pipeline/schemas.py` để định nghĩa hợp đồng dữ liệu cho từng bản ghi:
+
+```python
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
+from typing import Optional
+
+class ProjectDataRecord(BaseModel):
+    """Data contract cho dữ liệu dự án AI."""
+    id: int = Field(..., description="ID định danh duy nhất của dự án")
+    title: str = Field(..., min_length=5, max_length=200, description="Tiêu đề dự án")
+    description: str = Field(..., min_length=10, description="Mô tả chi tiết dự án")
+    tag: str = Field(..., description="Nhãn phân loại (Category tag)")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    stars_count: Optional[int] = Field(default=0, ge=0)
+
+    @field_validator("tag")
+    @classmethod
+    def validate_tag_allowed(cls, v: str) -> str:
+        allowed_tags = {"computer-vision", "natural-language-processing", "mlops", "tabular"}
+        if v.lower() not in allowed_tags:
+            raise ValueError(f"Tag '{v}' không hợp lệ! Chỉ chấp nhận: {allowed_tags}")
+        return v.lower()
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiểm định Dữ liệu Tự động Trước khi Xử lý
+
+Tạo file `mlops_pipeline/data_validator.py` để kiểm định toàn bộ dataset:
+
+```python
+import pandas as pd
+from typing import List, Tuple
+from mlops_pipeline.schemas import ProjectDataRecord
+from mlops_pipeline.config import logger
+
+def validate_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[dict]]:
+    """Kiểm tra toàn bộ dataframe qua Data Contract.
+    
+    Returns:
+        valid_df: Các bản ghi hợp lệ
+        invalid_records: Danh sách bản ghi lỗi kèm lý do
+    """
+    valid_rows = []
+    invalid_records = []
+    
+    for idx, row in df.iterrows():
+        try:
+            record = ProjectDataRecord(**row.to_dict())
+            valid_rows.append(record.model_dump())
+        except Exception as err:
+            invalid_records.append({
+                "row_index": idx,
+                "data": row.to_dict(),
+                "error": str(err)
+            })
+            
+    logger.info(f"Tổng bản ghi: {len(df)} | Hợp lệ: {len(valid_rows)} | Bị từ chối: {len(invalid_records)}")
+    return pd.DataFrame(valid_rows), invalid_records
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đồng bộ Dữ liệu với MinIO / S3 Storage
+
+Tạo module `mlops_pipeline/storage.py` để tải và lưu dữ liệu độc lập lên Object Storage:
+
+```python
+import boto3
+import os
+from pathlib import Path
+from mlops_pipeline.config import logger, DATA_DIR
+
+def get_s3_client():
+    """Khởi tạo S3 client (tương thích AWS S3 và MinIO)."""
+    return boto3.client(
+        "s3",
+        endpoint_url=os.getenv("S3_ENDPOINT_URL", "http://localhost:9000"),
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "minioadmin"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "minioadmin"),
+    )
+
+def download_dataset(bucket_name: str, object_key: str, local_filename: str) -> Path:
+    """Tải dữ liệu từ Object Storage về thư mục cache cục bộ."""
+    s3 = get_s3_client()
+    local_path = DATA_DIR / local_filename
+    
+    logger.info(f"Đang tải {object_key} từ bucket '{bucket_name}'...")
+    s3.download_file(bucket_name, object_key, str(local_path))
+    logger.info(f"Đã lưu dữ liệu an toàn tại: {local_path}")
+    return local_path
+```
+
+<LessonNote tone="tip">
+  **Thực hành tốt:** Không bao giờ phụ thuộc vào ổ đĩa cục bộ. Luôn lấy dữ liệu từ Object Storage khi bắt đầu công việc và đẩy kết quả đã làm sạch trở lại Storage khi hoàn tất.
+</LessonNote>
+
+</MdxPage>

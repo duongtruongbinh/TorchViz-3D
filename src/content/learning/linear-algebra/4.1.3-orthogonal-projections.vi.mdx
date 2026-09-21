@@ -1,0 +1,154 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'orthogonal-projections',
+  locale: 'vi',
+  title: 'Orthogonal Projections',
+  headings: [
+    'Tách một Vector thành hai phần',
+    'Projection lên một Vector',
+    'Residual vuông góc',
+    'Projection lên Orthonormal Subspace',
+    'Projection Matrix',
+    'Tính Projection với NumPy',
+  ],
+  keywords: ['projection', 'orthogonal projection', 'residual', 'projection matrix', 'orthonormal basis', 'numpy'],
+  conceptIds: [
+    'projection-decomposition',
+    'projection-vector-formula',
+    'projection-residual',
+    'projection-orthonormal-subspace',
+    'projection-matrix',
+    'projection-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Tách một Vector thành hai phần
+
+Cho một vector <InlineMath formula="\mathbf{b}" /> và một subspace <InlineMath formula="S" />.
+
+Ta muốn tìm vector <InlineMath formula="\mathbf{p}\in S" /> gần <InlineMath formula="\mathbf{b}" /> nhất.
+
+Phần còn lại:
+
+<BlockMath formula="\mathbf{e}=\mathbf{b}-\mathbf{p}" />
+
+sẽ orthogonal với <InlineMath formula="S" />.
+
+Ta có decomposition:
+
+<BlockMath formula="\mathbf{b}=\mathbf{p}+\mathbf{e}" />
+
+với:
+
+<BlockMath formula="\mathbf{p}\in S,\qquad\mathbf{e}\perp S" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Projection lên một Vector
+
+Chiếu <InlineMath formula="\mathbf{b}" /> lên hướng của vector khác vector không <InlineMath formula="\mathbf{a}" />:
+
+<BlockMath formula="\operatorname{proj}_{\mathbf{a}}(\mathbf{b})=\frac{\mathbf{a}^\top\mathbf{b}}{\mathbf{a}^\top\mathbf{a}}\mathbf{a}" />
+
+Nếu <InlineMath formula="\mathbf{a}" /> đã là unit vector <InlineMath formula="\mathbf{q}" /> thì công thức đơn giản thành:
+
+<BlockMath formula="\operatorname{proj}_{\mathbf{q}}(\mathbf{b})=(\mathbf{q}^\top\mathbf{b})\mathbf{q}" />
+
+<ProjectionExplorer
+  ariaLabel="Vector b được tách thành projection p trên hướng a và residual e vuông góc với a"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Residual vuông góc
+
+Đặt:
+
+<BlockMath formula="\mathbf{p}=\frac{\mathbf{a}^\top\mathbf{b}}{\mathbf{a}^\top\mathbf{a}}\mathbf{a}" />
+
+và:
+
+<BlockMath formula="\mathbf{e}=\mathbf{b}-\mathbf{p}" />
+
+Ta có:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{e}=0" />
+
+Vì vậy residual orthogonal với hướng projection.
+
+Đây là điều kiện hình học quyết định projection gần nhất.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Projection lên Orthonormal Subspace
+
+Giả sử các cột của <InlineMath formula="Q" /> tạo một orthonormal basis của subspace <InlineMath formula="S" />.
+
+Coordinates của projection là:
+
+<BlockMath formula="Q^\top\mathbf{b}" />
+
+và projection trong không gian gốc là:
+
+<BlockMath formula="\mathbf{p}=QQ^\top\mathbf{b}" />
+
+Công thức này tổng quát projection từ một hướng sang nhiều hướng orthonormal.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Projection Matrix
+
+Matrix:
+
+<BlockMath formula="P=QQ^\top" />
+
+được gọi là projection matrix lên <InlineMath formula="\operatorname{Col}(Q)" />.
+
+Nó có hai tính chất quan trọng:
+
+<BlockMath formula="P^\top=P" />
+
+và:
+
+<BlockMath formula="P^2=P" />
+
+Ý nghĩa của <InlineMath formula="P^2=P" /> là sau khi một vector đã nằm trong subspace, chiếu thêm lần nữa không làm thay đổi nó.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tính Projection với NumPy
+
+```python
+import numpy as np
+
+a = np.array([2.0, 1.0])
+b = np.array([1.0, 3.0])
+
+p = (a @ b) / (a @ a) * a
+e = b - p
+
+print(p)
+print(e)
+print(a @ e)
+```
+
+Giá trị <InlineMath formula="\mathbf{a}^\top\mathbf{e}" /> chỉ gần 0 vì floating point error.
+
+Projection là nền tảng hình học của least squares.
+
+Trước khi đến least squares, bài tiếp theo xây dựng orthonormal basis từ một basis bất kỳ bằng Gram Schmidt.
+
+</MdxPage>

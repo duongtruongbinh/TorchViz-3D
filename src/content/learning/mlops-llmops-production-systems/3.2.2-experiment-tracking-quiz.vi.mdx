@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'experiment-tracking-quiz',
+  locale: 'vi',
+  title: "Quiz: Quản lý Thử nghiệm",
+  headings: [
+    'Mục đích của Experiment Tracking',
+    'Thông tin cần log trong mỗi Run',
+    'Vai trò của Model Registry',
+    'Truy xuất Run ID tốt nhất',
+  ],
+  keywords: ['MLOps', 'Quiz', 'MLflow', 'Tracking', 'Model Registry', 'Parameters'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="experiment-tracking-quiz" questions={[
+  {
+    id: 'why-track-experiments',
+    title: 'Mục đích của Experiment Tracking',
+    prompt: 'Tại sao việc sử dụng một hệ thống Experiment Tracking chuyên dụng (như MLflow hay W&B) là tối quan trọng trong MLOps?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động lưu vết cấu hình, siêu tham số, metrics và artifacts giúp đảm bảo tính tái lập 100% cho mọi mô hình.', isCorrect: true },
+      { id: 'opt2', label: 'Vì nó thay thế hoàn toàn thuật toán học máy.' },
+      { id: 'opt3', label: 'Vì nó làm cho mô hình không cần dùng dữ liệu huấn luyện.' },
+      { id: 'opt4', label: 'Để bắt buộc lập trình viên phải chuyển sang dùng ngôn ngữ Java.' },
+    ],
+    success: 'Chính xác! Experiment tracking ghi nhận toàn diện môi trường, tham số và kết quả để đảm bảo khả năng tái lập và so sánh khoa học.',
+    error: 'Chưa chính xác. Mục đích cốt lõi là đảm bảo tính tái lập (reproducibility) và quản lý lịch sử thử nghiệm minh bạch.',
+  },
+  {
+    id: 'tracking-fields-distinction',
+    title: 'Thông tin cần log trong mỗi Run',
+    prompt: 'Điểm khác biệt chính giữa `Parameters` và `Metrics` khi log vào MLflow là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Parameters là các giá trị cố định trước khi train (learning rate, batch size), còn Metrics là các giá trị thay đổi theo thời gian (loss, F1) sau mỗi epoch.', isCorrect: true },
+      { id: 'opt2', label: 'Parameters là file ảnh, còn Metrics là file âm thanh.' },
+      { id: 'opt3', label: 'Parameters chỉ dành cho CPU, còn Metrics chỉ dành cho GPU.' },
+      { id: 'opt4', label: 'Hai khái niệm này hoàn toàn giống hệt nhau.' },
+    ],
+    success: 'Đúng! Parameters là cấu hình đầu vào không đổi của một run, trong khi Metrics là các thước đo định lượng biến thiên trong quá trình huấn luyện.',
+    error: 'Chưa đúng. Parameters là giá trị khởi tạo (static inputs), còn Metrics là chỉ số đo lường hiệu năng (dynamic outputs).',
+  },
+  {
+    id: 'model-registry-lifecycle',
+    title: 'Vai trò của Model Registry',
+    prompt: 'Trong MLflow, Model Registry giải quyết bài toán nào sau đây?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Quản lý kho phiên bản mô hình tập trung, chuyển đổi trạng thái vòng đời (None -> Staging -> Production) có kiểm soát.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động format lại ổ cứng máy tính.' },
+      { id: 'opt3', label: 'Thay thế vai trò của người quản lý sản phẩm.' },
+      { id: 'opt4', label: 'Gửi email spam cho tất cả khách hàng.' },
+    ],
+    success: 'Chính xác! Model Registry là nơi lưu trữ tập trung các phiên bản model đã kiểm duyệt và quản lý các giai đoạn phát hành (Staging/Production).',
+    error: 'Chưa đúng. Model Registry quản lý phiên bản và trạng thái phát hành của các mô hình ứng viên sản xuất.',
+  },
+  {
+    id: 'querying-best-run-id',
+    title: 'Truy xuất Run ID tốt nhất',
+    prompt: 'Khi muốn tự động chọn mô hình tốt nhất để triển khai trong pipeline CI/CD, hệ thống nên truy vấn MLflow Tracking server như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tìm Run ID có `metrics.val_loss` thấp nhất (hoặc `metrics.val_f1` cao nhất) trong Experiment tương ứng.', isCorrect: true },
+      { id: 'opt2', label: 'Chọn Run ID được tạo ra đầu tiên trong lịch sử.' },
+      { id: 'opt3', label: 'Chọn ngẫu nhiên một Run ID bất kỳ.' },
+      { id: 'opt4', label: 'Chọn Run ID có tên tệp dài nhất.' },
+    ],
+    success: 'Đúng! Truy vấn sắp xếp theo metric mục tiêu trên tập validation (ví dụ `val_loss ASC` hoặc `val_f1 DESC`) để lấy ID tốt nhất.',
+    error: 'Chưa chính xác. Cần lọc và sắp xếp theo metric hiệu năng kiểm định (Validation Metric).',
+  },
+]} />

@@ -1,0 +1,836 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-eda-and-seasonality',
+  locale: 'vi',
+  title: 'Phần 4: Phân tích Chuỗi Doanh thu & Mùa vụ',
+  headings: [
+    'Thuộc tính Chung của Bộ Dữ liệu Sạch',
+    'Mức Doanh thu Qua các Năm và Cú Đứt gãy 2019',
+    'Phân phối Doanh thu và Phép Đổi Thang Log',
+    'Các Ngày Doanh thu Cao Bất thường',
+    'Ba Chu kỳ Mùa vụ trong Bán lẻ',
+    'Góc nhìn Chuyên sâu: Giải mã 3 Chu kỳ Mùa vụ',
+    'Tết, Khuyến mãi và Rủi ro Giá vốn COGS',
+    'Góc nhìn Chuyên sâu: Lịch Ngoại sinh, Khuyến mãi & Rủi ro Rò rỉ COGS',
+    'Tự tương quan theo Độ trễ và Quyết định Thiết kế',
+    'Tổng kết & Đánh giá: Điểm Sáng EDA & Khuyến Nghị Nâng Cấp',
+  ],
+  keywords: ['Time Series EDA', 'Structural Break', 'Seasonality', 'Tukey Bounds', 'Autocorrelation', 'ACF', 'LightGBM'],
+  pageCount: 9,
+};
+
+<MdxPage page={0}>
+
+Ở phần này chúng ta phân tích chuỗi doanh thu để hiểu nó biến động theo quy luật nào. Khác với Mục II vốn chỉ hỏi tệp dữ liệu có đọc được hay không, phần này hỏi về chính hiện tượng bán lẻ nằm sau con số.
+
+Trước hết chúng ta đọc tệp đã làm sạch và ghi lại vài thuộc tính chung của bộ dữ liệu:
+
+```python
+sales = pd.read_csv("sales_clean.csv", parse_dates=["date"])
+revenue = sales.revenue
+print(f"Đọc {len(sales):,} dòng từ sales_clean.csv,"
+      f" từ {sales.date.min().date()} đến {sales.date.max().date()}")
+```
+
+Kết quả:
+
+```text
+Đọc 3,833 dòng từ sales_clean.csv, từ 2012-07-04 đến 2022-12-31
+```
+
+### Thuộc tính Chung của Bộ Dữ liệu Sạch
+
+Bảng 2 thống kê sáu thuộc tính của bộ dữ liệu sạch:
+
+<ComparisonMatrix
+  ariaLabel="Bảng 2: Sáu thuộc tính của bộ dữ liệu sạch"
+  columns={[
+    { title: 'Thuộc tính', key: 'prop' },
+    { title: 'Giá trị', key: 'val' },
+    { title: 'Ý nghĩa với bài toán', key: 'meaning' },
+  ]}
+  rows={[
+    {
+      prop: 'Số ngày',
+      val: '3,833',
+      meaning: 'Đủ dài để quan sát mười chu kỳ năm',
+    },
+    {
+      prop: 'Khoảng thời gian',
+      val: '04/07/2012 – 31/12/2022',
+      meaning: 'Liên tục, không thiếu ngày',
+    },
+    {
+      prop: 'Số ngày doanh thu bằng 0',
+      val: '0',
+      meaning: 'Không phải bài toán nhu cầu gián đoạn',
+    },
+    {
+      prop: 'Doanh thu trung vị',
+      val: '3,647,304',
+      meaning: 'Đơn vị quy ước của bộ dữ liệu',
+    },
+    {
+      prop: 'Khoảng giá trị',
+      val: '279,814 – 20,905,271',
+      meaning: 'Chênh 75 lần nên MAPE không phù hợp',
+    },
+    {
+      prop: 'Hệ số biến thiên',
+      val: '0.612',
+      meaning: 'Biến động mạnh, nên độ đo phải bền với ngày cực trị',
+    },
+  ]}
+/>
+
+Hai dòng cuối của Bảng 2 (khoảng giá trị chênh lệch tới 75 lần và hệ số biến thiên 0.612) chính là căn cứ thực nghiệm để loại bỏ RMSE và MAPE, chọn WAPE làm độ đo chính của toàn bộ dự án.
+
+**Lựa chọn độ đo đánh giá: Vì sao là WAPE thay vì RMSE hay MAPE?**
+
+Khoảng giá trị doanh thu chênh lệch tới **75 lần** (từ 279 nghìn đến 20.9 triệu) cùng hệ số biến thiên lớn (**0.612**) khiến các độ đo truyền thống bộc lộ nhược điểm nghiêm trọng:
+- **RMSE** bình phương sai số nên bị chi phối hoàn toàn bởi các ngày khuyến mãi/lễ Tết cực đoan.
+- **MAPE** chia sai số cho từng giá trị thực tế hàng ngày nên bị "thổi phồng" cực đại (chia cho số gần 0) vào những ngày vắng khách.
+
+Phân tích chi tiết công thức toán học, cơ chế cộng dồn tuyệt đối và lý do thực nghiệm lựa chọn **WAPE (Weighted Absolute Percentage Error)** kèm độ lệch (bias) sẽ được nhóm tác giả giải thích và kiểm chứng chuyên sâu ở **Phần 6: Huấn luyện, Giải mã Thiên lệch & TreeSHAP (Mục VI.2)** khi bước vào giai đoạn thiết lập độ đo cho mô hình.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Trước hết chúng ta xem chuỗi có giữ một mức ổn định qua các năm hay không, vì nếu mức doanh thu đứt gãy giữa chừng thì cách chia tập và cách đọc kết quả kiểm định đều phải đổi theo.
+
+### Mức Doanh thu Qua các Năm và Cú Đứt gãy 2019
+
+Chúng ta tính doanh thu trung bình ngày theo từng năm:
+
+```python
+by_year = sales.groupby(sales.date.dt.year).revenue.agg(
+    daily_mean="mean", n_days="count")
+by_year["change_pct"] = by_year.daily_mean.pct_change() * 100
+print(by_year.round(1).rename_axis("năm").to_string())
+```
+
+Kết quả in ra:
+
+```text
+     daily_mean  n_days  change_pct
+năm
+2012  4096672.6     181         NaN
+2013  4540190.2     365        10.8
+2014  5128344.9     365        13.0
+2015  5177900.9     365         1.0
+2016  5750384.4     366        11.1
+2017  5236066.6     365        -8.9
+2018  5068828.6     365        -3.2
+2019  3114524.5     365       -38.6
+2020  2881180.8     366        -7.5
+2021  2857643.3     365        -0.8
+2022  3204791.3     365        12.1
+```
+
+Kết quả cho thấy năm 2019 sụt 38.6% so với năm trước, và mức thấp đó không hồi lại trong ba năm tiếp theo. Nếu lấy trung bình giai đoạn 2013 đến 2018 so với giai đoạn 2020 đến 2022 thì hai mức chênh nhau 1.73 lần. Nói cách khác, chuỗi này có hai miền chứ không phải một, và năm 2019 là chỗ chuyển giữa hai miền đó. Hình 6 vẽ lại điều này theo tháng:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-06-doanh-thu-trung-binh-ngay-theo-thang.png"
+  alt="Hình 6: Doanh thu trung bình ngày theo tháng"
+  caption="Hình 6: Doanh thu trung bình ngày theo tháng. Vùng tô đậm là năm 2019, chỗ chuỗi rớt từ miền 5.15 xuống 2.98 triệu một ngày và không hồi lại."
+/>
+
+Quan sát này dẫn tới một quyết định ở Mục VI đó là lần cắt kiểm định rơi vào năm 2019 sẽ được tách riêng, không gộp chung khi tính điểm trung bình. Lý do là mô hình huấn luyện trên miền cao rồi đem đo trên miền thấp thì sai số phản ánh cú đứt gãy chứ không phản ánh chất lượng mô hình.
+
+Một chi tiết nhỏ cần lưu ý là năm 2012 chỉ có 181 ngày, toàn bộ nằm ở nửa cuối năm. Vì vậy con số trung bình của năm 2012 không so sánh trực tiếp được với các năm sau, và cột `change_pct` của năm 2013 cũng cần đọc thận trọng.
+
+**Liên hệ thực tế: Vì sao cấu hình ban đầu chỉ chọn kiểm định từ năm 2019?**
+
+Giờ thì chúng ta đã hiểu tại sao ngay từ đầu ở Mục I (Khối cấu hình dùng chung), cấu hình kiểm định (`FOLDS`) lại chỉ bắt đầu chọn từ năm 2019:
+
+1. **Giai đoạn 2012–2018 làm dữ liệu lịch sử:** Mô hình cần ít nhất vài năm chuỗi thời gian liên tục để học các đặc trưng trễ dài hạn (như cùng kỳ năm trước `lag_364`), chu kỳ mùa vụ theo năm và hiệu ứng Tết Nguyên đán.
+2. **Cú đứt gãy 2019 và việc loại Fold 1 khỏi CV:** Năm 2019 chứng kiến cú sụt giảm 38.6%. Nhóm tác giả vẫn thiết lập `Fold 1` (nửa cuối năm 2019) để quan sát phản ứng mô hình nhưng loại khỏi điểm kiểm định chéo trung bình; `CV_FOLDS` chỉ tính trên `Fold 2` (2020) và `Fold 3` (2021) khi doanh thu đã ổn định ở mặt bằng mới, trước khi bước vào tập kiểm tra độc lập `TEST` (2022).
+
+Dưới đây là đoạn cấu hình chia tập từ Mục I được đối chiếu lại:
+
+```python
+# Bốn lần cắt theo cửa sổ mở rộng. Mục VI giải thích vì sao cắt như vậy và
+# điểm kiểm định chéo chỉ lấy trung bình Fold 2 với Fold 3.
+FOLDS = [("Fold 1", "2019-05-31", "2019-07-01", "2019-12-31"),
+         ("Fold 2", "2020-05-31", "2020-07-01", "2020-12-31"),
+         ("Fold 3", "2021-05-31", "2021-07-01", "2021-12-31")]
+TEST_FOLD = ("TEST", "2022-05-31", "2022-07-01", "2022-12-31")
+CV_FOLDS = ["Fold 2", "Fold 3"]
+```
+
+---
+
+### Phân phối Doanh thu và Phép Đổi Thang Log
+
+Tiếp theo chúng ta xem doanh thu phân bố như thế nào, vì hình dạng phân phối quyết định hai thứ: có nên đổi thang trước khi huấn luyện hay không, và nên chọn độ đo nào:
+
+```python
+from scipy import stats
+
+print(f"  Ngày doanh thu âm: {int((revenue < 0).sum())}"
+      f"  ngày bằng 0: {int((revenue == 0).sum())}")
+skew_raw = float(stats.skew(revenue))
+skew_log = float(stats.skew(np.log1p(revenue)))
+print(f"  Độ lệch thang gốc : {skew_raw:+.3f}")
+print(f"  Độ lệch sau log1p : {skew_log:+.3f}")
+max_over_median = revenue.max() / revenue.median()
+print(f"  Lớn nhất chia trung vị: {max_over_median:.2f} lần")
+```
+
+Kết quả:
+
+```text
+  Ngày doanh thu âm: 0  ngày bằng 0: 0
+  Độ lệch thang gốc : +1.669
+  Độ lệch sau log1p : -0.159
+  Lớn nhất chia trung vị: 5.73 lần
+```
+
+Hình 7 đặt hai thang cạnh nhau:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-07-phan-phoi-doanh-thu-goc-va-log1p.png"
+  alt="Hình 7: Phân phối doanh thu thang gốc và sau log1p"
+  caption="Hình 7: Phân phối lệch phải với độ lệch 1.669, nhưng sau khi đổi sang thang log thì gần như đối xứng, độ lệch còn -0.159."
+/>
+
+Trên thang gốc, phân phối lệch phải với độ lệch 1.669 và ngày cao nhất gấp 5.73 lần trung vị. Sau khi đổi sang thang log thì độ lệch còn -0.159, tức gần như đối xứng. Vì vậy chúng ta sẽ huấn luyện mô hình trên <InlineMath formula="\ln(1 + y)" /> rồi đổi ngược lại khi dự báo, để vài ngày cực trị không kéo lệch toàn bộ quá trình học.
+
+Phân phối lệch cũng loại RMSE và MAPE khỏi danh sách độ đo, nên chúng ta chọn WAPE, với lý do đầy đủ ở Mục VI.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Ở phần này chúng ta xem những ngày doanh thu cao hẳn so với phần còn lại, để biết chúng là lỗi ghi chép hay là hiện tượng thật. Nếu là lỗi thì chúng ta cắt đi, còn nếu là hiện tượng thật mà cắt thì mô hình sẽ học sai.
+
+### Các Ngày Doanh thu Cao Bất thường
+
+#### Phương pháp Hàng rào Tukey (Tukey's Fences) là gì?
+
+Do nhà thống kê John Tukey đề xuất năm 1977, đây là một phương pháp phi tham số (non-parametric) kinh điển giúp nhận diện giá trị ngoại lai (outliers) mà không yêu cầu dữ liệu phải tuân theo phân phối chuẩn (vốn không phù hợp với phân phối doanh thu bán lẻ bị lệch phải).
+
+Nguyên tắc dựa trên **khoảng tứ phân vị (Interquartile Range - IQR)**:
+
+<BlockMath formula="\text{IQR} = Q_3 - Q_1" />
+
+Trong đó:
+- <InlineMath formula="Q_1" /> (phân vị 25%): 25% số ngày quan sát có doanh thu thấp hơn mức này.
+- <InlineMath formula="Q_3" /> (phân vị 75%): 75% số ngày quan sát có doanh thu thấp hơn mức này.
+- <InlineMath formula="\text{IQR}" />: Độ trải rộng của 50% số ngày ở khoảng giữa phân phối.
+
+Từ đó, **Hàng rào trên (Upper Fence)** được xác định:
+
+<BlockMath formula="\text{Upper Fence} = Q_3 + 1.5 \times \text{IQR}" />
+
+Bất kỳ ngày nào có doanh thu vượt qua mốc này được xem là giá trị cao bất thường cần kiểm tra kỹ lưỡng xem là lỗi kỹ thuật hay quy luật kinh doanh thực tế.
+
+Chúng ta tính ngưỡng Tukey phía trên và tỉ lệ ngày cao rơi vào cụm giao tháng:
+
+```python
+q1, q3 = revenue.quantile([0.25, 0.75])
+upper = q3 + 1.5 * (q3 - q1)
+is_high = revenue > upper
+
+end_of_month = sales.date.dt.day.isin([29, 30, 31, 1, 2])
+share_eom = float(end_of_month[is_high].mean())
+
+print(f"  Ngưỡng Tukey phía trên: {upper:,.0f}")
+print(f"  Vượt ngưỡng: {int(is_high.sum())} ngày"
+      f" ({100 * is_high.mean():.1f}%)")
+print(f"  Tỉ lệ rơi vào cụm ngày 29, 30, 31, 1 và 2:"
+      f" {100 * share_eom:.1f}%")
+```
+
+Kết quả:
+
+```text
+  Ngưỡng Tukey phía trên: 9,670,560
+  Vượt ngưỡng: 169 ngày (4.4%)
+  Tỉ lệ rơi vào cụm ngày 29, 30, 31, 1 và 2: 63.9%
+```
+
+Hình 8 minh họa sự phân bố của 169 ngày vượt ngưỡng:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-08-169-ngay-vuot-nguong-tukey.png"
+  alt="Hình 8: 169 ngày vượt ngưỡng Tukey"
+  caption="Hình 8: 169 ngày vượt ngưỡng Tukey, chiếm 4.4% chuỗi, và 63.9% trong số đó rơi vào cụm ngày 29, 30, 31, mùng 1 và mùng 2."
+/>
+
+Hình 8 cho thấy 169 ngày vượt ngưỡng, chiếm 4.4% chuỗi, và 63.9% trong số đó rơi vào cụm ngày 29, 30, 31, mùng 1 và mùng 2. Các ngày cao không rải rác ngẫu nhiên mà tụ quanh chỗ giao tháng, nên đây là hiện tượng có quy luật chứ không phải lỗi ghi chép.
+
+Vì vậy chúng ta giữ nguyên toàn bộ 169 ngày và bổ sung cho mô hình một đặc trưng đếm ngược đến cuối tháng ở Mục V để mô hình học quy luật đó.
+
+**Lưu ý quan trọng về giá trị ngoại lai trong chuỗi thời gian:**
+
+Loại bỏ giá trị ngoại lai là một thao tác quen thuộc trong xử lý dữ liệu, nhưng có thể gây hại đối với chuỗi thời gian. Những ngày có doanh thu cao thường đặc biệt quan trọng với người sử dụng kết quả dự báo. Nếu các ngày này tuân theo quy luật, chúng ta cần mô tả quy luật đó bằng một đặc trưng thay vì loại bỏ các quan sát chứa thông tin cần học.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Ba Chu kỳ Mùa vụ trong Bán lẻ
+
+Trong bán lẻ và khoa học dữ liệu, chu kỳ mùa vụ (seasonality) không chỉ là "xuân, hạ, thu, đông", mà là mọi nhịp điệu dao động lặp đi lặp lại theo một chu kỳ thời gian cố định do thói quen sinh hoạt và dòng tiền của khách hàng tạo ra.
+
+Phân tích mùa vụ nhằm trả lời ba câu hỏi kinh doanh cốt lõi:
+
+<ConceptHierarchy
+  ariaLabel="3 câu hỏi hành vi khách hàng cốt lõi của bài toán phân tích chu kỳ mùa vụ"
+  root={{
+    title: '3 Câu Hỏi Trọng Tâm Về Hành Vi Khách Hàng',
+    detail: 'Khám phá thói quen và nhịp điệu chi tiêu của khách hàng theo các chu kỳ thời gian để định hình kế hoạch kinh doanh và đặc trưng mô hình.',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Khách hàng chi tiêu mạnh nhất vào ngày nào trong tháng?',
+      detail: 'Hành vi mua sắm bùng nổ theo kỳ nhận lương và thanh toán định kỳ cuối tháng, sau đó thắt chặt chi tiêu vào những ngày đầu tháng kế tiếp.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. Khách hàng tập trung mua sắm vào tháng nào trong năm?',
+      detail: 'Hành vi tiêu dùng biến chuyển theo mùa trong năm (như chuẩn bị bước vào mùa hè hay chuẩn bị đón Tết) để chủ động điều phối tồn kho.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Khách hàng hay đi mua sắm vào thứ mấy trong tuần?',
+      detail: 'Hành vi mua sắm diễn ra rải rác đều đặn mỗi ngày hay dồn vào ngày nghỉ cuối tuần (thứ 7, Chủ nhật) như thói quen đi siêu thị thông thường.',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+Chuỗi trải 10.5 chu kỳ năm nên đủ dài để quan sát mùa vụ. Chúng ta đo ba chu kỳ thường gặp trong bán lẻ là ngày trong tháng, tháng trong năm và thứ trong tuần. Để so sánh được giữa các năm có miền khác nhau, mỗi ngày được chia cho trung bình của chính năm đó trước khi lấy trung bình theo nhóm:
+
+```python
+sales["year_ratio"] = revenue / sales.groupby(
+    sales.date.dt.year).revenue.transform("mean")
+
+cycles = {}
+for name, key in [("ngày trong tháng", sales.date.dt.day),
+                  ("tháng", sales.date.dt.month),
+                  ("thứ trong tuần", sales.date.dt.dayofweek)]:
+    g = sales.groupby(key).year_ratio.mean()
+    cycles[name] = {"peak_at": int(g.idxmax()), "peak": float(g.max()),
+                    "trough_at": int(g.idxmin()), "trough": float(g.min()),
+                    "amplitude": float(g.max() / g.min())}
+print(pd.DataFrame(cycles).T.round(3)
+      .astype({"peak_at": int, "trough_at": int}).to_string())
+```
+
+Kết quả:
+
+```text
+                 peak_at   peak  trough_at  trough  amplitude
+ngày trong tháng      31  1.763          4   0.620      2.844
+tháng                  5  1.525         12   0.586      2.603
+thứ trong tuần         2  1.090          5   0.911      1.197
+```
+
+Hình 9 vẽ lại ba chu kỳ mùa vụ:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-09-ba-chu-ky-mua-vu.png"
+  alt="Hình 9: Ba chu kỳ mùa vụ"
+  caption="Hình 9: Ba chu kỳ mùa vụ. Cột tô khác màu là đỉnh của mỗi chu kỳ."
+/>
+
+Theo Hình 9, chu kỳ ngày trong tháng mạnh nhất với biên độ 2.84 lần giữa đỉnh và đáy, chu kỳ tháng đứng thứ hai với 2.60 lần, còn chu kỳ tuần gần như không đáng kể với 1.20 lần. Kết quả này thống nhất với những gì chúng ta thấy ở Mục IV.3, nơi các ngày cao tụ lại quanh chỗ giao tháng.
+
+Tuy nhiên, trước khi tin vào con số 2.84, chúng ta cần đối chiếu chéo thêm một lần. Ngày 31 chỉ xuất hiện trong 7/12 tháng, và bảy tháng đó không phải là một mẫu ngẫu nhiên đại diện cho cả năm. Vì vậy, đỉnh của chu kỳ này có thể bị nhầm với ảnh hưởng của tháng. Để loại trừ khả năng đó, chúng ta tính lại tỉ lệ của ngày 31 theo hai cách chuẩn hóa khác nhau:
+
+```python
+sales["month_ratio"] = revenue / sales.groupby(
+    sales.date.dt.to_period("M")).revenue.transform("mean")
+
+is_31 = sales.date.dt.day == 31
+by_year_ratio = sales.loc[is_31, "year_ratio"].mean()
+by_month_ratio = sales.loc[is_31, "month_ratio"].mean()
+print(f"  chuẩn hoá theo năm  : {by_year_ratio:.3f}")
+print(f"  chuẩn hoá theo tháng: {by_month_ratio:.3f}")
+```
+
+Kết quả:
+
+```text
+  chuẩn hoá theo năm  : 1.763
+  chuẩn hoá theo tháng: 1.784
+```
+
+Hai con số gần như bằng nhau, nên đỉnh của ngày 31 là hiệu ứng thực sự của ngày trong tháng chứ không phải ảnh hưởng của tháng. Từ đó, chúng ta quyết định bổ sung vào nhóm đặc trưng lịch một cột đếm ngược đến cuối tháng, thay vì chỉ dùng số thứ tự ngày.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Góc nhìn Chuyên sâu: Giải mã 3 Chu kỳ Mùa vụ
+
+**Lưu ý khi phân tích sâu chu kỳ mùa vụ**
+
+Trang trước đã trình bày trọn vẹn các phép tính và kết quả nguyên bản của nhóm tác giả. Dưới đây là phân tích chi tiết về bản chất kinh doanh bán lẻ, ý nghĩa của từng con số và quyết định thiết kế đặc trưng tương ứng cho mô hình học máy.
+
+#### 1. Tại sao phải chuẩn hóa bằng `year_ratio` trước khi tính chu kỳ?
+
+Doanh thu giai đoạn 2013–2018 đạt trung bình khoảng **5.15 triệu/ngày**, nhưng sau cú đứt gãy 2019 giảm xuống còn **3.1 triệu/ngày** (chênh lệch 1.73 lần giữa hai miền).
+
+Nếu cộng dồn tiền thô qua 10 năm để tính trung bình theo nhóm, các năm cũ (doanh thu cao) sẽ lấn át hoàn toàn các năm mới (doanh thu thấp). Do đó, dữ liệu bắt buộc phải được đưa về cùng một mặt bằng cơ sở:
+
+<BlockMath formula="\text{year\_ratio}_t = \frac{\text{Revenue on day } t}{\text{Mean revenue in year}(t)}" />
+
+- <InlineMath formula="\text{year\_ratio} = 1.0" />: Ngày bán đúng mức trung bình của năm.
+- <InlineMath formula="\text{year\_ratio} = 1.76" />: Ngày bán vượt **76%** so với trung bình năm.
+- <InlineMath formula="\text{year\_ratio} = 0.62" />: Ngày bán chậm, chỉ bằng **62%** trung bình năm.
+
+#### 2. So sánh Toàn diện 3 Chu kỳ Mùa vụ trong Dữ liệu
+
+<ComparisonMatrix
+  ariaLabel="Bảng so sánh 3 chu kỳ mùa vụ theo hành vi khách hàng"
+  columns={[
+    { title: 'Chu kỳ', key: 'cycle' },
+    { title: 'Đỉnh (Peak)', key: 'peak' },
+    { title: 'Đáy (Trough)', key: 'trough' },
+    { title: 'Biên độ', key: 'amp' },
+    { title: 'Hành vi khách hàng (Customer Behavior)', key: 'meaning' },
+  ]}
+  rows={[
+    {
+      cycle: 'Ngày trong tháng (Day-of-Month)',
+      peak: 'Ngày 31 (1.763)',
+      trough: 'Ngày 4 (0.620)',
+      amp: '2.844 lần (Rất mạnh)',
+      meaning: 'Khách hàng vừa nhận lương cuối tháng nên tâm lý chi tiêu thoải mái, tranh thủ mua sắm và thanh toán định kỳ; đến đầu tháng (ngày 3–4) thì thắt chặt chi tiêu sau đợt mua sắm lớn.',
+    },
+    {
+      cycle: 'Tháng trong năm (Month-of-Year)',
+      peak: 'Tháng 5 (1.525)',
+      trough: 'Tháng 12 (0.586)',
+      amp: '2.603 lần (Mạnh)',
+      meaning: 'Khách hàng tập trung mua sắm đồ dùng hè và chuẩn bị cho kỳ nghỉ/du lịch vào tháng 5; đến tháng 12 giảm sức mua đối với nhóm hàng này để ưu tiên ngân sách cho các danh mục lễ hội khác.',
+    },
+    {
+      cycle: 'Thứ trong tuần (Day-of-Week)',
+      peak: 'Thứ ba (1.090)',
+      trough: 'Thứ bảy (0.911)',
+      amp: '1.197 lần (Rất yếu)',
+      meaning: 'Khách hàng mua sắm đều đặn theo nhu cầu sinh hoạt phát sinh hàng ngày, không có thói quen chờ đến cuối tuần (thứ 7, Chủ nhật) mới đi mua sắm tập trung như siêu thị offline.',
+    },
+  ]}
+/>
+
+#### 3. Ý nghĩa của Phép Kiểm tra Đối chiếu Chéo Ngày 31
+
+Nhóm tác giả đã đặt ra một phản biện chặt chẽ:
+> *"Một năm chỉ có 7 tháng có ngày 31 (tháng 1, 3, 5, 7, 8, 10, 12). Liệu ngày 31 bán cao là do chính nó, hay do 7 tháng đó vốn dĩ là những tháng bán chạy (như tháng 5) kéo con số trung bình lên?"*
+
+Để trả lời, ta chia doanh thu ngày 31 cho trung bình của chính tháng chứa nó (<InlineMath formula="\text{month\_ratio}" />):
+- Chuẩn hóa theo năm (<InlineMath formula="\text{year\_ratio}" />): **1.763**
+- Chuẩn hóa theo tháng (<InlineMath formula="\text{month\_ratio}" />): **1.784**
+
+Hai con số gần như trùng khớp, chứng minh 100% rằng: **Hiệu ứng ngày cuối tháng là hiện tượng có thật**, xuất phát từ hành vi tiêu dùng định kỳ chứ không phải do sự thiên vị của các tháng có 31 ngày.
+
+#### 4. Quyết định Thiết kế Đặc trưng (Feature Engineering)
+
+**Bài học kinh nghiệm rút ra cho bài toán Machine Learning:**
+
+1. **Không lãng phí dung lượng mô hình cho thứ trong tuần:** Doanh thu các thứ trong tuần gần như phẳng lì (biên độ chỉ 1.20 lần). Vì vậy các đặc trưng one-hot theo thứ sẽ không đóng góp nhiều vào độ chính xác.
+2. **Ưu tiên tuyệt đối cho chu kỳ ngày trong tháng:** Thay vì chỉ cung cấp số thứ tự ngày từ 1 đến 31 (khiến mô hình khó liên kết ngày 30 của tháng 30 ngày với ngày 31 của tháng 31 ngày), nhóm tác giả quyết định tạo thêm đặc trưng:
+   - `days_to_month_end`: Số ngày đếm ngược đến cuối tháng (ngày cuối tháng luôn có giá trị 0).
+   Đặc trưng này giúp các mô hình cây (LightGBM/XGBoost) nhận diện chính xác điểm bùng nổ doanh thu mỗi cuối tháng.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Tết, Khuyến mãi và Rủi ro Giá vốn COGS
+
+Ba nguồn tín hiệu còn lại đều nằm ngoài chuỗi doanh thu, gồm lịch âm, lịch khuyến mãi và cột giá vốn. Khi xây dựng mô hình dự báo chuỗi thời gian, việc bổ sung các biến ngoại sinh (exogenous variables) có thể mang lại bước nhảy vọt về độ chính xác, nhưng cũng tiềm ẩn nguy cơ rò rỉ dữ liệu (data leakage) nghiêm trọng.
+
+Chúng ta xem xét lần lượt từng nguồn dữ liệu để quyết định có đưa vào mô hình hay không:
+
+#### 1. Lịch âm và Ngày Tết Nguyên đán
+
+Tết Nguyên đán trượt theo lịch dương nên không nằm cố định ở một ngày nào trong năm. Chúng ta đo bằng cách tính khoảng cách từ mỗi ngày đến mùng 1 Tết gần nhất, rồi lấy trung bình theo bốn cửa sổ quanh Tết. Cũng như ở Mục IV.4, chúng ta chuẩn hoá theo hai cách để phân biệt hiệu ứng Tết thật với hiệu ứng tháng:
+
+```python
+TET_DATES = ["2012-01-23", "2013-02-10", "2014-01-31", "2015-02-19",
+             "2016-02-08", "2017-01-28", "2018-02-16", "2019-02-05",
+             "2020-01-25", "2021-02-12", "2022-02-01", "2023-01-22"]
+tet = pd.to_datetime(TET_DATES)
+offset = np.stack([(sales.date - t).dt.days.values for t in tet])
+sales["days_to_tet"] = offset[np.abs(offset).argmin(axis=0), np.arange(len(sales))]
+
+tet_table = {}
+for name, lo, hi in [("30 đến 15 ngày trước", -30, -15),
+                     ("14 đến 1 ngày trước", -14, -1),
+                     ("mùng 1 đến mùng 7", 0, 7),
+                     ("8 đến 21 ngày sau", 8, 21)]:
+    w = sales.days_to_tet.between(lo, hi)
+    tet_table[name] = {
+        "by_year": float(sales.loc[w, "year_ratio"].mean()),
+        "by_month": float(sales.loc[w, "month_ratio"].mean())}
+print(pd.DataFrame(tet_table).T.round(3).to_string())
+```
+
+Kết quả:
+
+```text
+                    by_year  by_month
+30 đến 15 ngày trước   0.604     1.014
+14 đến 1 ngày trước    0.680     0.993
+mùng 1 đến mùng 7      0.771     1.011
+8 đến 21 ngày sau      0.826     0.959
+```
+
+Hình 10 vẽ lại doanh thu quanh Tết theo hai cách chuẩn hoá:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-10-doanh-thu-quanh-tet.png"
+  alt="Hình 10: Doanh thu quanh Tết theo hai cách chuẩn hoá"
+  caption="Hình 10: Doanh thu quanh Tết theo hai cách chuẩn hoá. Chuẩn theo năm cho thấy mức thấp rõ rệt, nhưng chuẩn theo tháng thì cả bốn cửa sổ đều xấp xỉ 1."
+/>
+
+> **Nghi vấn đặt ra sau khi quan sát biểu đồ:**
+> Khi quan sát biểu đồ doanh thu quanh Tết (Hình 10), ta thấy theo năm thì doanh số giảm rất mạnh (chỉ còn 0.604 đến 0.826). Nhưng khi chuẩn hóa theo tháng thì cả 4 cửa sổ đều xấp xỉ 1.0.
+> **Liệu cú sụt giảm này là do người tiêu dùng nghỉ Tết không mua sắm (hiệu ứng Tết độc lập), hay chỉ đơn thuần vì tháng 1 và 2 vốn dĩ đã là vùng trũng mùa vụ của cả năm?**
+
+Hai cột số trong bảng, vẽ lại ở Hình 10, kể hai câu chuyện khác hẳn nhau. Chuẩn hoá theo năm cho thấy giai đoạn quanh Tết thấp rõ rệt, chỉ bằng 0.604 đến 0.826 mức trung bình năm. Nhưng chuẩn hoá theo tháng thì cả bốn cửa sổ đều xấp xỉ 1, nghĩa là so với chính tháng chứa nó thì giai đoạn quanh Tết không có gì đặc biệt.
+
+Kết luận rút ra là phần lớn cái mà chúng ta tưởng là hiệu ứng Tết thật ra là hiệu ứng tháng, vì Tết luôn rơi vào tháng 1 hoặc tháng 2, mà hai tháng đó vốn đã thấp theo chu kỳ mùa vụ, lần lượt bằng 0.60 và 0.82 mức trung bình năm như Hình 9 cho thấy. Chúng ta vẫn giữ nhóm đặc trưng Tết trong mô hình, nhưng với kỳ vọng đóng góp thấp, và Mục VIII sẽ cho biết kỳ vọng đó có đúng hay không.
+
+#### 2. Lịch Khuyến mãi
+
+Tiếp theo là chương trình khuyến mãi: Tệp `promotions.csv` ghi 50 chương trình khuyến mãi. Điểm quan trọng của nguồn dữ liệu này là lịch được công bố trước, nên tại thời điểm chạy dự báo chúng ta đã biết ngày <InlineMath formula="d" /> có khuyến mãi hay không. Đây là loại thông tin dùng được mà không vi phạm mốc <InlineMath formula="d - H" />:
+
+```python
+promotions = pd.read_csv("promotions.csv", parse_dates=["start_date", "end_date"])
+sales["has_promo"] = 0
+for _, promo in promotions.iterrows():
+    w = (sales.date >= promo.start_date) & (sales.date <= promo.end_date)
+    sales.loc[w, "has_promo"] = 1
+
+with_promo = sales.loc[sales.has_promo == 1, "month_ratio"].mean()
+without_promo = sales.loc[sales.has_promo == 0, "month_ratio"].mean()
+print(f"  ngày có khuyến mãi : {with_promo:.3f}")
+print(f"  ngày không khuyến mãi: {without_promo:.3f}")
+print(f"  chênh lệch {100 * (with_promo / without_promo - 1):+.1f}%")
+```
+
+Kết quả:
+
+```text
+  50 chương trình, phủ từ 2013-01-31 đến 2022-12-31
+  ngày có khuyến mãi : 1.010
+  ngày không khuyến mãi: 0.992
+  chênh lệch +1.9%
+```
+
+> **Nghi vấn đặt ra sau khi có kết quả:**
+> Chênh lệch doanh thu giữa ngày có và không có khuyến mãi chỉ vỏn vẹn **+1.9%** (khung trái Hình 11).
+> **Liệu các chiến dịch khuyến mãi này có thực sự tạo ra cú hích doanh số đáng kể để mô hình bám vào hay không?**
+
+Chênh lệch chỉ 1.9%, vẽ ở khung trái của Hình 11, tức khuyến mãi trong bộ dữ liệu này nâng doanh thu rất ít. Chúng ta vẫn đưa nhóm khuyến mãi vào mô hình vì lịch phủ gần trọn chuỗi và thông tin hoàn toàn hợp lệ, nhưng cũng với kỳ vọng đóng góp nhỏ.
+
+#### 3. Cột Giá vốn (COGS)
+
+Cuối cùng chúng ta xem cột cogs, tức giá vốn hàng bán. Cột này tương quan rất mạnh với doanh thu, và chính vì mạnh như vậy mà nó đáng để xem kỹ:
+
+```python
+negative_margin = sales.cogs > revenue
+quintile = pd.qcut(revenue, 5, labels=False)
+share = (sales.assign(q=quintile, neg=negative_margin)
+         .groupby("q", observed=True).neg.mean() * 100)
+
+print(f"  Tương quan với doanh thu: {revenue.corr(sales.cogs):.4f}")
+print(f"  Ngày biên lợi nhuận âm: {int(negative_margin.sum())}"
+      f" ({100 * negative_margin.mean():.1f}%)")
+print("  Tỉ lệ theo nhóm năm phân vị doanh thu:")
+print("  " + "  ".join(f"{v:.1f}%" for v in share))
+```
+
+Kết quả:
+
+```text
+  Tương quan với doanh thu: 0.9760
+  Ngày biên lợi nhuận âm: 382 (10.0%)
+  Tỉ lệ theo nhóm năm phân vị doanh thu:
+  21.4%  14.0%  7.4%  3.9%  3.1%
+```
+
+Hình 11 đặt chênh lệch khuyến mãi và quan hệ giữa giá vốn với doanh thu:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-11-chenh-lech-khuyen-mai-va-gia-von.png"
+  alt="Hình 11: Chênh lệch khuyến mãi và quan hệ giá vốn với doanh thu"
+  caption="Hình 11: Chênh lệch doanh thu giữa ngày có và không có khuyến mãi, và quan hệ giữa giá vốn với doanh thu cùng ngày."
+/>
+
+> **Nghi vấn đặt ra sau khi quan sát output và biểu đồ:**
+> Nhìn vào output và khung phải của Hình 11, có hai điểm bất thường lớn mà người làm dữ liệu phải làm rõ:
+> 1. **Tại sao lại có tới 382 ngày (10% chuỗi) mà giá vốn vượt quá doanh thu (bán lỗ vốn)? Đây là lỗi kỹ thuật ghi chép dữ liệu hay là đặc thù kinh doanh thực tế?**
+> 2. **Với hệ số tương quan cực cao 0.976, ta có được phép đưa cột giá vốn vào làm đặc trưng để dự báo doanh thu trước 28 ngày hay không?**
+
+Khung phải của Hình 11 cho thấy có 382 ngày, tức 10% chuỗi, mà giá vốn vượt quá doanh thu. Tỉ lệ này giảm đều từ 21.4% ở nhóm doanh thu thấp nhất xuống 3.1% ở nhóm cao nhất, nên đây không phải nhiễu ngẫu nhiên mà là đặc điểm của những ngày bán chậm. Chúng ta không sửa gì ở đây, vì biến mục tiêu là doanh thu chứ không phải lợi nhuận.
+
+Điều đáng nói hơn nằm ở con số tương quan 0.976. Giá vốn gắn chặt với doanh thu đến mức chỉ cần đưa nó vào mô hình là điểm số sẽ đẹp lên rất nhiều. Nhưng giá vốn của ngày <InlineMath formula="d" /> chỉ biết được sau khi ngày <InlineMath formula="d" /> đã bán xong, tức tại thời điểm chạy dự báo trước 28 ngày thì con số ấy chưa tồn tại. Vì vậy cột cogs bị loại khỏi danh sách đặc trưng, và Mục V.5 sẽ cho thấy điểm số trông như thế nào nếu chúng ta để nó lọt vào.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Góc nhìn Chuyên sâu: Lịch Ngoại sinh, Khuyến mãi & Rủi ro Rò rỉ COGS
+
+#### Giải mã Hiện tượng 382 Ngày Bán Lỗ Vốn (COGS > Doanh thu)
+
+Trong hạch toán kinh doanh thông thường, doanh thu bán ra phải lớn hơn giá vốn (<InlineMath formula="\text{Revenue} > \text{COGS}" />) để tạo ra lợi nhuận gộp dương. Tuy nhiên, việc phát hiện **382 ngày (10% chuỗi)** có <InlineMath formula="\text{COGS} > \text{Revenue}" /> không phải là lỗi dữ liệu, mà xuất phát từ thực tế vận hành bán lẻ:
+
+1. **Thanh lý xả hàng cận date / cắt lỗ:** Vào những ngày vắng khách, cửa hàng áp dụng các chương trình giảm giá sâu dưới giá vốn để giải phóng mặt bằng kho và thu hồi dòng tiền.
+2. **Khách hàng đổi trả hàng (Returns & Refunds):** Các đơn trả hàng lớn phát sinh vào những ngày sức mua yếu khiến doanh thu ròng bị kéo tụt, trong khi chi phí giá vốn của đơn hàng trước đó vẫn được ghi nhận.
+3. **Kế toán hạch toán hàng hỏng và hao hụt:** Giá trị hàng tồn kho bị hỏng hóc hoặc hết hạn sử dụng thường được tất toán vào giá vốn tại các kỳ kiểm kê định kỳ.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+Câu hỏi cuối của mục này là sau mốc <InlineMath formula="d - H" /> thì còn lại bao nhiêu tín hiệu. Chúng ta trả lời bằng cách đo hệ số tự tương quan ở nhiều độ trễ, trên chuỗi đã khử miền năm để hai miền ở Mục IV.1 không làm sai lệch kết quả.
+
+### Tự tương quan theo Độ trễ và Quyết định Thiết kế
+
+Đo hệ số tự tương quan trên chuỗi `year_ratio`:
+
+```python
+z = sales.year_ratio
+lags = [1, 3, 7, 14, 21, 28, 35, 42, 56,
+        91, 182, 273, 364, 371, 546, 728]
+acf = {lag: float(z.autocorr(lag)) for lag in lags}
+
+acf_table = pd.DataFrame({"acf": acf})
+acf_table["trạng thái"] = np.where(acf_table.index >= H, "dùng được", "bị chặn")
+print(acf_table.round(3).rename_axis("độ trễ").to_string())
+```
+
+Kết quả:
+
+```text
+         acf trạng thái
+độ trễ
+1      0.833    bị chặn
+3      0.545    bị chặn
+7      0.391    bị chặn
+14     0.399    bị chặn
+21     0.325    bị chặn
+28     0.518  dùng được
+35     0.321  dùng được
+42     0.239  dùng được
+56     0.167  dùng được
+91     0.213  dùng được
+182   -0.184  dùng được
+273    0.194  dùng được
+364    0.751  dùng được
+371    0.353  dùng được
+546   -0.220  dùng được
+728    0.638  dùng được
+```
+
+Hình 12 biểu diễn hệ số tự tương quan:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-12-he-so-tu-tuong-quan-theo-do-tre.png"
+  alt="Hình 12: Hệ số tự tương quan theo độ trễ"
+  caption="Hình 12: Hệ số tự tương quan theo độ trễ. Trong vùng được phép, độ trễ 364 ngày giữ 0.751, gần bằng độ trễ 1 ngày vốn bị chặn."
+/>
+
+Hình 12 chia bảng làm hai vùng. Độ trễ mạnh nhất toàn bảng là 1 ngày với hệ số 0.833, nhưng nó nằm bên trái mốc <InlineMath formula="H = 28" /> nên không dùng được: tại thời điểm dự báo, chúng ta chưa biết doanh thu của hôm qua. Trong vùng được phép, độ trễ 364 ngày dẫn đầu với hệ số 0.751, gần bằng độ trễ 1 ngày.
+
+Cùng kỳ năm trước mang gần như trọn vẹn lượng tín hiệu mà chúng ta mất khi phải lùi 28 ngày, nên nhóm đặc trưng lịch sử ở Mục V sẽ tập trung quanh mốc 364 ngày thay vì cố khai thác vùng gần.
+
+Bảng 3 gom các quan sát của mục này cùng quyết định tương ứng:
+
+<ComparisonMatrix
+  ariaLabel="Bảng 3: Mỗi quan sát ở mục này chốt một quyết định cụ thể, kèm mục sẽ áp dụng quyết định đó"
+  columns={[
+    { title: 'Quan sát', key: 'obs' },
+    { title: 'Quyết định', key: 'decision' },
+    { title: 'Áp dụng ở', key: 'target' },
+  ]}
+  rows={[
+    {
+      obs: 'Mức doanh thu đứt gãy năm 2019',
+      decision: 'Tách riêng lần cắt kiểm định rơi vào năm đó',
+      target: 'Mục VI',
+    },
+    {
+      obs: 'Phân phối lệch phải, độ lệch 1.669',
+      decision: 'Huấn luyện trên thang log, đo bằng WAPE',
+      target: 'Mục VI',
+    },
+    {
+      obs: '169 ngày cao tụ quanh chỗ giao tháng',
+      decision: 'Giữ nguyên, không cắt ngoại lai',
+      target: 'Mục V',
+    },
+    {
+      obs: 'Chu kỳ ngày trong tháng, biên độ 2.84 lần',
+      decision: 'Thêm cột đếm ngược đến cuối tháng',
+      target: 'Mục V',
+    },
+    {
+      obs: 'Hiệu ứng Tết phần lớn là hiệu ứng tháng',
+      decision: 'Giữ nhóm Tết với kỳ vọng đóng góp thấp',
+      target: 'Mục V',
+    },
+    {
+      obs: 'Độ trễ 364 ngày mạnh nhất trong vùng hợp lệ',
+      decision: 'Nhóm lịch sử tập trung quanh mốc này',
+      target: 'Mục V',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+### Tổng kết & Đánh giá: Điểm Sáng EDA & Khuyến Nghị Nâng Cấp
+
+Giai đoạn Phân tích Khám phá Dữ liệu (EDA) của nhóm tác giả không chỉ dừng lại ở các biểu đồ thống kê mô tả thông thường, mà là một chuỗi phép thử kiểm chứng giả định và phòng vệ rủi ro có tính thực chiến rất cao. Dưới đây là tổng kết toàn diện về những kỹ thuật xuất sắc đã thực hiện và các định hướng nâng cấp trong môi trường Production.
+
+---
+
+#### 1. Những Điểm Nhóm Tác Giả Đã Làm Rất Tốt
+
+<ConceptHierarchy
+  ariaLabel="4 điểm sáng kỹ thuật và phương pháp luận EDA của nhóm tác giả"
+  root={{
+    title: 'Phương Pháp Luận EDA Thực Nghiệm Chuẩn Mực',
+    detail: 'Lấy mục tiêu bài toán kinh doanh làm kim chỉ nam, bám sát các ràng buộc thời gian thực tế và kiểm chứng mọi giả định bằng số liệu đối chiếu.',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: 'Chọn Độ Đo Dựa Trên Dữ Liệu Thực Chứng',
+      detail: 'Không chọn độ đo theo thói quen sách vở. Nhóm tác giả dùng chính các đặc tính phân phối thực tế (độ lệch 1.669, biên độ dao động 75 lần, giá trị cận 0) để chứng minh WAPE là độ đo tối ưu, triệt tiêu hoàn toàn bẫy phóng đại sai số của RMSE và bẫy nổ mẫu số của MAPE.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: 'Bảo Toàn Tín Hiệu Ngoại Lai Có Quy Luật',
+      detail: 'Không vội vàng cắt bỏ 169 ngày vượt ngưỡng Tukey (4.4% chuỗi). Chứng minh 63.9% ngày cao tụ quanh thời điểm giao tháng (kỳ nhận lương và chốt sổ) để chuyển hóa thành đặc trưng days_to_month_end thay vì triệt tiêu dữ liệu bán hàng quý giá.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: 'Kiểm Tra Chéo Loại Trừ Yếu Tố Nhiễu',
+      detail: 'Áp dụng đối chiếu chéo (Confounding Checks): so sánh year_ratio (1.763) với month_ratio (1.784) để khẳng định đỉnh ngày 31 là thực chất; đối chiếu quanh Tết để bóc tách hiệu ứng Tết khỏi nền tháng trũng (tháng 1 và 2).',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: 'Kỷ Luật Phòng Ngừa Rò Rỉ Dữ Liệu (Leakage)',
+      detail: 'Kiên quyết loại bỏ cột giá vốn cogs dù có tương quan 0.976 cực kỳ hấp dẫn, vì tại mốc d - H thông tin này chưa xảy ra. Kỷ luật ranh giới thông tin d - H bảo đảm mô hình hoạt động bền vững khi triển khai thực tế.',
+      tone: 'neutral',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+#### 2. Những Điểm Có Thể Cải Thiện
+
+<ConceptHierarchy
+  ariaLabel="4 điểm hạn chế và định hướng nâng cấp trong phương pháp tiếp cận EDA"
+  root={{
+    title: 'Bốn Hướng Hoàn Thiện & Mở Rộng',
+    detail: 'Khắc phục hạn chế về tư duy dẫn dắt, kết nối số liệu với góc nhìn kinh doanh, đồng thời bổ sung các công cụ kiểm định xu hướng và giám sát trôi dạt dữ liệu.',
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: '1. Thiếu Câu Hỏi Dẫn Dắt Trước Khi Viết Code',
+      detail: 'Trong notebook, nhóm tác giả chỉ code sau đó mới giải thích kết quả mà không nêu câu hỏi dẫn dắt là gì để reader hiểu. Điều này khiến người đọc bị đặt vào thế bị động: không rõ mục tiêu của đoạn code là gì, ta đang đi tìm câu trả lời cho vấn đề kinh doanh nào, mãi cho đến khi thấy kết quả mới vỡ lẽ. Nếu đặt câu hỏi nghi vấn trước (ví dụ: "Doanh thu có phụ thuộc vào ngày trong tuần không?", "Tháng 1-2 bán chậm là do Tết hay do bản chất tháng?"), người đọc sẽ nắm được mạch tư duy và chủ động quan sát số liệu hơn.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: '2. Có Kết Quả Chỉ Đưa Nhận Xét Nhưng Thiếu Insight Mapping Sang Business Để Hỏi Team Business',
+      detail: 'Khi chạy xong code và có số liệu thống kê, tác giả chỉ đưa ra các nhận xét kỹ thuật đơn thuần rồi nhảy ngay sang quyết định xử lý (ví dụ: thấy 2019 giảm thì cắt FOLDS, thấy 382 ngày lỗ vốn thì bỏ qua vì dự báo doanh thu). Thiếu sót lớn ở đây là không ánh xạ (mapping) con số đó qua thực tế kinh doanh: vì sao hiện tượng này xảy ra? Hành vi khách hàng hay quy trình vận hành nào tạo ra nó? Từ các nghi vấn đó, người làm dữ liệu cần ghi chú lại thành danh sách câu hỏi cụ thể để đi hỏi và đối chiếu lại với team Business (Sales, Kế toán, Vận hành) nhằm hiểu đúng gốc rễ vấn đề.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '3. Thiếu Kiểm Định Điểm Thay Đổi Xu Hướng Chính Quy (Changepoint Detection)',
+      detail: 'Cú sụt giảm năm 2019 (-38.6%) hiện mới chỉ được nhận ra bằng trực quan qua biểu đồ. Trong thực tế, nên triển khai thêm các phép kiểm định thay đổi cấu trúc / điểm đứt gãy xu hướng (như Chow Test, Bai-Perron Test hoặc thuật toán CUSUM) để tự động và chính xác xác định mốc thời gian bắt đầu gãy xu hướng, đo lường mức độ ảnh hưởng và có căn cứ toán học vững chắc khi quyết định chọn mốc cắt dữ liệu huấn luyện.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '4. Thiếu Cơ Chế Giám Sát Trôi Dạt Dữ Liệu Thực Tế (Data Drift Monitoring)',
+      detail: 'Khi mô hình được đưa vào vận hành và có dữ liệu bán hàng mới đổ về hàng ngày, các quy luật đã tìm thấy trong EDA (như đỉnh ngày 31, chu kỳ tuần hay tỷ lệ ngày bán chậm) có thể bị thay đổi theo thời gian. Cần thiết lập pipeline theo dõi trôi dạt phân phối doanh thu và hệ số tự tương quan (sử dụng Evidently AI hoặc Great Expectations) để kịp thời phát hiện biến động và kích hoạt chu trình tái huấn luyện (retraining trigger).',
+      tone: 'blue',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+#### 3. Thực Hành Thực Tế: Danh Sách Câu Hỏi Nghiệp Vụ Cần Đối Chiếu Cùng Team Business
+
+Dưới đây là bộ câu hỏi nghiệp vụ mở rộng được đúc kết từ các hiện tượng số liệu trong bài, giúp Data Scientist lưu lại để chủ động trao đổi và xác thực cùng các phòng ban liên quan:
+
+<ConceptHierarchy
+  ariaLabel="5 câu hỏi nghiệp vụ và kỹ thuật mở rộng cần lưu lại để đối chiếu cùng team Business"
+  root={{
+    title: 'Bộ Câu Hỏi Nghiệp Vụ & Giả Thuyết Cần Xác Thực',
+    detail: 'Từ các quan sát thống kê và dị thường trong dữ liệu, Data Scientist lập danh sách câu hỏi cụ thể để phỏng vấn các phòng ban trước khi thiết kế đặc trưng và huấn luyện mô hình.',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Nghịch lý chu kỳ tuần: Khách hàng của chúng ta là B2B hay B2C?',
+      detail: 'Hiện tượng: Thứ Bảy lại là ĐÁY (0.911) và Thứ Ba là ĐỈNH (1.090), ngược hoàn toàn với bán lẻ B2C thông thường. Câu hỏi cho team Kinh doanh/Bán hàng: Doanh nghiệp này phục vụ khách hàng B2B (bán buôn, cung ứng vật tư) nên khách thường đặt hàng đầu tuần và nghỉ cuối tuần, hay là mặt hàng công sở/văn phòng? Điều này quyết định việc có nên tạo đặc trưng phân biệt ngày làm việc và ngày nghỉ hay không.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. 36.1% ngày đột biến ngoài cuối tháng: Có sự kiện/chiến dịch gì đặc biệt?',
+      detail: 'Hiện tượng: Có 169 ngày vượt ngưỡng Tukey thì 63.9% rơi vào ngày giao tháng, nhưng vẫn còn 36.1% (khoảng 61 ngày) nằm rải rác ở giữa tháng. Câu hỏi cho team Marketing: Các ngày này có trùng với các đợt Siêu Sale sàn TMĐT (9/9, 11/11, 12/12), Black Friday, hay ngày hội thành viên định kỳ không? Nếu có, cần bổ sung biến cờ sự kiện (Event Flags) thay vì để mô hình coi đó là nhiễu ngẫu nhiên.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. 50 chương trình khuyến mãi bị gộp phẳng: Tác động thực sự của từng loại sale?',
+      detail: 'Hiện tượng: Gộp chung 50 đợt khuyến mãi thành biến 0/1 chỉ thấy doanh số tăng khiêm tốn +1.9%. Câu hỏi cho team Trade Marketing: Các chương trình này gồm những loại hình nào (Flash sale giảm giá sâu, xả kho, hay chỉ là tặng voucher nhỏ/freeship)? Khách hàng có tâm lý dừng mua trước đợt sale lớn để chờ giảm giá (pre-promotion dip) hay không? Việc phân loại quy mô khuyến mãi sẽ giúp tạo đặc trưng phân tầng chất lượng hơn.',
+      tone: 'violet',
+      align: 'left',
+    },
+    {
+      title: '4. Tận dụng COGS quá khứ: Biên lợi nhuận lịch sử có dự báo được hành vi bán hàng?',
+      detail: 'Hiện tượng: Có 382 ngày bán dưới giá vốn (COGS > Revenue) và cột COGS bị loại bỏ để chống rò rỉ ranh giới d - H. Câu hỏi cho team Kế toán/Kho: Những đợt bán lỗ này là do chiến dịch xả hàng tồn kho cận hạn sử dụng hay hạch toán bù trừ chi phí? Tại mốc d - H ta hoàn toàn biết COGS của quá khứ; liệu tỷ lệ ngày bán lỗ trong 30 ngày qua có thể làm đặc trưng trễ phản ánh sức ép giải phóng tồn kho của chuỗi hay không?',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '5. Cú sốc Covid-19 giai đoạn 2020–2021: Chuỗi doanh thu có bị gián đoạn cục bộ?',
+      detail: 'Hiện tượng: Tác giả dùng Fold 2 (2020) và Fold 3 (2021) làm tập kiểm định chéo chính (CV_FOLDS). Câu hỏi cho team Vận hành: Giai đoạn 2020–2021 có các đợt giãn cách xã hội nào làm đóng cửa điểm bán hoặc nghẽn giao hàng cục bộ không? Cần xác thực để tránh việc mô hình LightGBM vô tình học thuộc lòng các dị thường mùa dịch và áp dụng sai lệch cho điều kiện kinh doanh bình thường.',
+      tone: 'neutral',
+      align: 'left',
+    },
+  ]}
+/>
+
+---
+
+**Bài học cốt lõi từ Phần 4:**
+Quy trình EDA chuẩn mực trong thực tế không chỉ là viết code và nhìn biểu đồ, mà gồm 3 bước khép kín:
+1. **Nêu rõ câu hỏi dẫn dắt** trước khi viết code để reader hiểu rõ mục đích và theo sát bài toán.
+2. **Ánh xạ kết quả thống kê sang thực tế kinh doanh** (mapping to business context) thay vì chỉ dừng ở nhận xét số liệu bề mặt.
+3. **Lưu lại các nghi vấn** thành danh sách câu hỏi cụ thể để chủ động trao đổi và đối chiếu cùng team Business trước khi bước sang giai đoạn tạo đặc trưng (Feature Engineering).
+
+</MdxPage>

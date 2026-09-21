@@ -1,21 +1,21 @@
 ---
-title: Continual Learning Branch Completion
+title: Continual Learning Branch History
 status: done
 created: 2026-08-15T01:30:00+07:00
-updated: 2026-08-15T03:00:00+07:00
+updated: 2026-08-19T15:03:53+07:00
 author: Codex
-task: "Consolidate the August 13–15 Continual Learning work into one durable branch history"
+task: "Consolidate the Continual Learning feature branch into one durable history"
 supersedes:
   - docs/plans/2026-07-12-learning-lab-ui-ux-polish.md
 ---
 
 # Goal
 
-Record the final design and maintenance contracts delivered by the August
-13–15 Continual Learning branch without preserving ten overlapping execution
-plans. This document owns the durable history for Learning Home readiness,
-academic citations, metric conventions, distillation retention, and fair
-benchmark evaluation. The active subsystem state remains documented in
+Record the final design and maintenance contracts delivered by the Continual
+Learning feature branch without preserving overlapping execution plans. This
+document owns the durable branch history for Learning Home readiness, academic
+citations, metric conventions, regularization methods, and fair benchmark
+evaluation. The active subsystem state remains documented in
 [Learning Lab](../../wiki/concepts/learning-lab.md).
 
 # Lineage
@@ -49,11 +49,10 @@ The source pipeline has three ownership layers:
    Locale MDX owns claim placement and Vietnamese interpretation, while the TOC
    remains navigation metadata only.
 
-The final registry contains 231 papers; 196 are exposed by lessons. Forty
-non-Quiz Continual Learning nodes have reviewed claim coverage. The authored
-course contains 185 citation occurrences: 183 reviewed evidence records and two
-explicit link-only exceptions. Large evidence sets remain only where the lesson
-actually teaches a literature landscape, notably DAP Table 2.
+Every non-Quiz Continual Learning node has reviewed claim coverage. Large
+evidence sets remain only where the lesson actually teaches a literature
+landscape, notably DAP Table 2. Exact paper and occurrence counts are derived
+from the registries and tests rather than copied into documentation.
 
 ### Claim and citation rules
 
@@ -134,30 +133,48 @@ dedicated BWT page, explicit sign interpretation, and a paired Quiz question
 that tests baseline selection rather than memorized terminology. GEM, Chaudhry
 et al., and the survey have reviewed local evidence.
 
-## Distillation for retention
+## Regularization-based methods
 
-Chapter 2 is titled `Main Approaches` / `Các hướng tiếp cận chính`; its first
-node is `Replay`, and the final Theory/Quiz pair is `Other Methods` / `Các
-phương pháp khác`.
+Chapter 2 is titled `Main Approaches` / `Các hướng tiếp cận chính`; its methods
+track now orders `Replay`, `Experience Replay Lab`, `Regularization`, `Weight
+Regularization`, `Function Regularization`, then `Architecture Expansion`; each
+Theory node remains adjacent to its Quiz.
 
-The eight-page Theory lesson teaches:
+`Regularization` is a concise three-page overview of the shared
+`L_total = L_new + λ L_retention` objective, the parameter-space/function-space
+split, the stability–plasticity trade-off, and the checkpoint/storage boundary.
+It does not replay old raw data, but it does not claim zero storage cost.
 
-- an old checkpoint frozen as teacher and its trainable copy as student;
-- functional regularization versus EWC/SI parameter-space constraints;
-- logits, softened probabilities with temperature, and aligned intermediate
-  representations as distinct matching targets;
-- new-task loss plus a weighted retention/distillation loss;
-- DER replaying stored old inputs and logits, with DER++ additionally replaying
-  labels and supervised loss;
-- LwF querying the frozen teacher with new-task inputs when old inputs cannot be
-  stored;
-- output-space changes, teacher bias, query-set coverage, and the limit that
-  matching observed behavior does not guarantee retention of all knowledge.
+The restored detailed nodes preserve their canonical routes:
 
-The pair has six matching concepts/questions, four conventionally named lesson
-illustrations, and reviewed sources for Hinton KD, FitNets, LwF, and DER/DER++.
-The EWC lesson links the conceptual transition by name without introducing a
-fragile route URL.
+- `parameter-regularization-ewc` is now displayed as `Weight Regularization`;
+  it retains the EWC/Fisher and Synaptic Intelligence parameter-space lesson.
+- `distillation-for-retention` is now displayed as `Function Regularization`;
+  it restores the teacher/student, logits/probabilities/representations, LwF,
+  DER/DER++, and limitation content with all four distillation illustrations.
+
+The citation audit maps the survey-backed overview, parameter regularization,
+and distillation retention to separate reviewable claims. Existing routes for
+the detailed nodes remain stable.
+
+The overview cites Wang et al. §4.1 for the target-based Weight/Function split
+and keeps Shi et al. for the history-model penalty. The course overview also
+cites Kaplan et al. and Hoffmann et al. for the compute/data scaling argument
+against retraining a large language model from scratch.
+
+The methods taxonomy now uses one global static `ConceptHierarchy` primitive.
+It supports semantic node tones, muted peers, one controlled nested reveal, and
+code-native database/loss/neural-network visuals without a graph dependency.
+The same hierarchy progressively focuses Regularization, Weight Regularization,
+and Function Regularization across their lessons. Optimization-based and
+Representation-based remain ordinary `CourseCards` with optional code-native
+illustration bands.
+
+The Function Regularization lesson begins with the problem-led page “Tại sao
+weight regularization không đủ?”. A short Task A → Task B narrative explains
+that nearby parameters do not guarantee preserved responses or old-task
+performance before the lesson moves into distillation. The overview's storage
+boundary is reinforced by the approved 16:9 trade-off/checkpoint doodle.
 
 ## Fair evaluation and realistic benchmarks
 
@@ -197,22 +214,17 @@ question for each distinction.
 
 # Delivery and verification
 
-The branch delivered the work in six commits:
+The branch was rebased onto `origin/main` at `b8251fd`. Conflict resolution
+preserved main's lazy ownership boundaries: citation UI remains in
+`learningMdxReferences.tsx`, `StageContinuityMap` remains in the Continual
+Learning domain adapter, and only domain-neutral `ConceptHierarchy` is added to
+the shared authored-MDX grammar.
 
-- `3da1160` — paper registry, claim coverage, and structured citations;
-- `e459798` — occurrence evidence, previews, source audit, and numeric indexes;
-- `e012963` — Learning Home/course experience and citation/lesson polish;
-- `d637dfd` — BWT, Forgetting, and FWT conventions;
-- `99af365` — Distillation Theory/Quiz pair and sources;
-- `c1823ea` — fair protocol and realistic benchmark stress tests.
-
-Each implementation tranche passed its focused catalog, MDX, Theory/Quiz,
-paper-coverage, citation, and quiz-shape checks. Full verification passed
-TypeScript, 90 Node tests, MDX validation, and production build after the
-metrics and distillation changes. Citation audits verified all reviewed targets
-with the documented explicit exceptions; the fair-protocol follow-up passed its
-three focused contract tests. `git diff --check` passed after every tranche.
-The existing large Learning Lab chunk advisory remains non-blocking.
+The final feature commit before this documentation compaction is `0b8007b`
+(`feat(learning): refine regularization method lessons`). Full `npm run verify`
+passed TypeScript, all 146 tests, MDX/citation validation, and the production
+build. `git diff --check` also passed. Nothing was pushed; publishing the
+rebased branch requires an explicit force-with-lease decision.
 
 # Out of scope
 
@@ -246,3 +258,16 @@ The existing large Learning Lab chunk advisory remains non-blocking.
   excerpts, provenance, or total evidence count. The three source files are 78
   lines smaller. TypeScript, focused MDX/paper/index tests, and
   `git diff --check` passed.
+- 2026-08-19 — Absorbed five later branch plans into this file: the superseded
+  merge-regularization proposal, the final overview/subnode restoration, the
+  Kaplan/Hoffmann scaling-law citations, the Wang et al. taxonomy illustration,
+  and both main-rebase records.
+- 2026-08-19 — Compacted the detailed visual follow-ups into the final contracts
+  above: global hierarchy ownership, optional CourseCards illustrations,
+  progressive Weight/Function focus, the storage doodle, and the short Function
+  Regularization narrative. Removed intermediate phase lists, approval
+  boilerplate, obsolete merged-node designs, repeated source checks, and stale
+  verification counts.
+- 2026-08-19 — Preserved `wiki/concepts/learning-lab.md` as the independent
+  living architecture reference. It is not a branch plan and therefore is not
+  folded into this historical record.

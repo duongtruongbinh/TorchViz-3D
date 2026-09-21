@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'monitoring-drift-detection-quiz',
+  locale: 'vi',
+  title: "Quiz: Giám sát Hệ thống",
+  headings: [
+    'Phân biệt Data Drift và Concept Drift',
+    'Chỉ số Population Stability Index (PSI)',
+    'Hiện tượng Model Decay',
+    'Cơ chế Tự động Kích hoạt Retraining',
+    'Chẩn đoán: Báo động Drift Giả theo Chu kỳ Cuối tuần',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Drift Detection', 'PSI', 'Data Drift', 'Concept Drift', 'Diagnostic', 'Seasonality'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="monitoring-drift-detection-quiz" questions={[
+  {
+    id: 'data-vs-concept-drift',
+    title: 'Phân biệt Data Drift và Concept Drift',
+    prompt: 'Điểm khác nhau cơ bản nhất giữa Data Drift (Covariate Shift) và Concept Drift là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Data Drift là phân bố dữ liệu đầu vào P(X) thay đổi; còn Concept Drift là mối quan hệ giữa đầu vào và nhãn mục tiêu P(Y|X) bị thay đổi trong thế giới thực.', isCorrect: true },
+      { id: 'opt2', label: 'Data Drift chỉ xảy ra vào mùa đông, còn Concept Drift chỉ xảy ra vào mùa hè.' },
+      { id: 'opt3', label: 'Data Drift là lỗi phần cứng ổ cứng, còn Concept Drift là lỗi màn hình.' },
+      { id: 'opt4', label: 'Hai khái niệm này hoàn toàn giống nhau.' },
+    ],
+    success: 'Chính xác! Data Drift liên quan đến phân bố đầu vào X, trong khi Concept Drift liên quan đến quy luật ánh xạ từ X sang Y.',
+    error: 'Chưa chính xác. Data drift là sự thay đổi phân bố P(X), còn Concept drift là sự thay đổi quy luật P(Y|X).',
+  },
+  {
+    id: 'psi-thresholds-interpretation',
+    title: 'Chỉ số Population Stability Index (PSI)',
+    prompt: 'Khi tính toán chỉ số Population Stability Index (PSI) giữa tập dữ liệu tham chiếu và tập dữ liệu phục vụ hiện tại, giá trị PSI > 0.2 cảnh báo điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Đã xảy ra sự dịch chuyển phân bố dữ liệu nghiêm trọng (Significant Drift), cần kiểm tra và kích hoạt huấn luyện lại mô hình ngay.', isCorrect: true },
+      { id: 'opt2', label: 'Mô hình đang hoạt động hoàn hảo và không cần làm gì cả.' },
+      { id: 'opt3', label: 'Tất cả máy chủ đều bị mất điện.' },
+      { id: 'opt4', label: 'Dung lượng RAM của máy chủ còn trống 20%.' },
+    ],
+    success: 'Đúng! Ngưỡng chuẩn: PSI < 0.1 (Ổn định), 0.1 <= PSI <= 0.2 (Dịch chuyển nhẹ), PSI > 0.2 (Dịch chuyển lớn, báo động).',
+    error: 'Chưa đúng. PSI > 0.2 thể hiện sự thay đổi phân bố dữ liệu lớn và cần hành động khắc phục.',
+  },
+  {
+    id: 'model-decay-concept',
+    title: 'Hiện tượng Model Decay',
+    prompt: 'Hiện tượng "Model Decay" (hay Model Staleness) trong môi trường sản xuất mô tả điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Hiệu năng và độ chính xác thực tế của mô hình giảm dần theo thời gian do thế giới thực và hành vi người dùng liên tục biến đổi.', isCorrect: true },
+      { id: 'opt2', label: 'File trọng số của mô hình bị rỉ sét theo năm tháng.' },
+      { id: 'opt3', label: 'Mô hình tự động xóa các dòng code sau mỗi tháng.' },
+      { id: 'opt4', label: 'Nhiệt độ phòng máy chủ bị giảm xuống mức âm độ.' },
+    ],
+    success: 'Chính xác! Model decay là quy luật tất yếu trong ML sản xuất, đòi hỏi hệ thống giám sát và retraining liên tục.',
+    error: 'Chưa chính xác. Model decay là sự suy giảm độ chính xác của mô hình theo thời gian do biến động dữ liệu thực tế.',
+  },
+  {
+    id: 'automated-retraining-trigger',
+    title: 'Cơ chế Tự động Kích hoạt Retraining',
+    prompt: 'Hệ thống MLOps nên làm gì khi các kiểm định thống kê phát hiện Data Drift vượt quá ngưỡng cho phép?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động kích hoạt pipeline huấn luyện lại trên tập dữ liệu mới nhất, chạy kiểm thử đánh giá và chuyển giao bản rollout an toàn.', isCorrect: true },
+      { id: 'opt2', label: 'Ngắt kết nối mạng của toàn bộ công ty.' },
+      { id: 'opt3', label: 'Xóa toàn bộ mã nguồn trên GitHub.' },
+      { id: 'opt4', label: 'Bỏ qua và đợi khách hàng phàn nàn.' },
+    ],
+    success: 'Đúng! Kích hoạt quy trình Continuous Training để cập nhật tri thức mới cho mô hình một cách chủ động.',
+    error: 'Chưa đúng. Cần kích hoạt pipeline huấn luyện lại với dữ liệu mới để bù đắp sự trôi dạt phân bố.',
+  },
+  {
+    id: 'cyclical-drift-false-alarm-diagnosis',
+    title: 'Chẩn đoán: Báo động Drift Giả theo Chu kỳ Cuối tuần',
+    prompt: 'Hệ thống giám sát gửi cảnh báo khẩn cấp về Data Drift (PSI > 0.25) đều đặn vào mỗi tối Thứ Bảy và Chủ Nhật, nhưng đến sáng Thứ Hai thì chỉ số lại tự động trở về bình thường (<0.08). Nguyên nhân và giải pháp chuẩn xác là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Đây là hiện tượng Tính chu kỳ theo thời gian (Seasonality) do hành vi giải trí cuối tuần khác ngày làm việc. Cần chuyển sang Rolling Window so sánh cùng chu kỳ hoặc so sánh ngày cuối tuần với các cuối tuần trước đó thay vì so với tập tham chiếu tĩnh chung.', isCorrect: true },
+      { id: 'opt2', label: 'Do hacker tấn công máy chủ định kỳ vào mỗi cuối tuần.' },
+      { id: 'opt3', label: 'Do mô hình tự động nghỉ ngơi vào ngày nghỉ lễ.' },
+      { id: 'opt4', label: 'Tắt toàn bộ hệ thống cảnh báo để không bị làm phiền khi nghỉ ngơi.' },
+    ],
+    success: 'Chính xác! Seasonality là nguyên nhân phổ biến nhất gây báo động giả (False Alarm) trong giám sát drift. Sử dụng Rolling Reference Window giúp loại bỏ nhiễu do biến động chu kỳ tự nhiên.',
+    error: 'Chưa chính xác. Sự biến thiên định kỳ vào cuối tuần là dấu hiệu của Seasonality, cần khắc phục bằng chiến lược chọn Reference Window phù hợp theo chu kỳ.',
+  },
+]} />
+

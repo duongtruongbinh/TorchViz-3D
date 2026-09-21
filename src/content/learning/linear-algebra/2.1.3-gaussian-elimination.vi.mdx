@@ -1,0 +1,209 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'gaussian-elimination',
+  locale: 'vi',
+  title: 'Khử Gaussian',
+  headings: [
+    'Biến hệ khó thành hệ dễ hơn',
+    'Ba phép biến đổi hàng',
+    'Pivot và bước khử',
+    'Một ví dụ từ đầu đến cuối',
+    'Dạng hàng bậc thang và Back Substitution',
+    'Đọc số nghiệm sau khi khử',
+    'Pivoting trong tính toán',
+  ],
+  keywords: [
+    'Gaussian elimination',
+    'row operation',
+    'pivot',
+    'row echelon form',
+    'back substitution',
+    'pivoting',
+  ],
+  conceptIds: [
+    'gaussian-elimination-motivation',
+    'elementary-row-operations',
+    'pivot-elimination',
+    'gaussian-elimination-example',
+    'row-echelon-back-substitution',
+    'elimination-solution-cases',
+    'partial-pivoting-intuition',
+  ],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Biến hệ khó thành hệ dễ hơn
+
+Khử Gaussian không cố tìm nghiệm ngay lập tức.
+
+Ý tưởng là biến hệ ban đầu thành một hệ **tương đương** nhưng dễ giải hơn.
+
+Ví dụ, hệ:
+
+<BlockMath formula="\begin{cases}x+y+z=6\\2x+3y+z=11\\x-y+2z=5\end{cases}" />
+
+sẽ được biến dần thành một hệ tam giác:
+
+<BlockMath formula="\begin{cases}x+y+z=6\\y-z=-1\\-z=-3\end{cases}" />
+
+Hai hệ có cùng nghiệm:
+
+<BlockMath formula="x=1,\qquad y=2,\qquad z=3" />
+
+Khi đã có dạng tam giác, ta có thể giải từ phương trình cuối lên trên.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ba phép biến đổi hàng
+
+Có ba phép biến đổi hàng cơ bản giữ nguyên tập nghiệm của hệ.
+
+Đổi chỗ hai hàng:
+
+<BlockMath formula="R_i\leftrightarrow R_j" />
+
+Nhân một hàng với scalar khác 0:
+
+<BlockMath formula="R_i\leftarrow cR_i,\qquad c\neq0" />
+
+Cộng một bội của hàng khác vào một hàng:
+
+<BlockMath formula="R_j\leftarrow R_j+cR_i" />
+
+Trên ma trận bổ sung, mỗi hàng đại diện cho một phương trình. Vì vậy ta phải biến đổi cả phần hệ số và vế phải trên cùng hàng.
+
+<LessonNote>
+  Mục tiêu của các phép biến đổi này không phải làm matrix đẹp hơn. Mục tiêu là tạo các số 0 có chủ đích để hệ trở nên dễ giải.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Pivot và bước khử
+
+Xét hai hàng đầu:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\2&3&1&11\end{array}\right]" />
+
+Ta dùng phần tử <InlineMath formula="1" /> ở cột đầu làm **pivot**.
+
+Để khử số <InlineMath formula="2" /> bên dưới pivot:
+
+<BlockMath formula="R_2\leftarrow R_2-2R_1" />
+
+Kết quả:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\0&1&-1&-1\end{array}\right]" />
+
+Ta đã loại <InlineMath formula="x" /> khỏi phương trình thứ hai.
+
+Sau đó quá trình tiếp tục sang cột kế tiếp.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Một ví dụ từ đầu đến cuối
+
+Bắt đầu từ:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\2&3&1&11\\1&-1&2&5\end{array}\right]" />
+
+Thực hiện hai phép khử ở cột đầu:
+
+<BlockMath formula="R_2\leftarrow R_2-2R_1,\qquad R_3\leftarrow R_3-R_1" />
+
+Ta được:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\0&1&-1&-1\\0&-2&1&-1\end{array}\right]" />
+
+Tiếp tục khử phần tử <InlineMath formula="-2" /> ở hàng 3:
+
+<BlockMath formula="R_3\leftarrow R_3+2R_2" />
+
+Kết quả:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\0&1&-1&-1\\0&0&-1&-3\end{array}\right]" />
+
+<GaussianEliminationStepper
+  ariaLabel="Các bước khử Gaussian biến ma trận bổ sung ban đầu thành dạng hàng bậc thang"
+/>
+
+Mỗi bước chỉ dùng phép biến đổi hàng nên hệ nghiệm không thay đổi.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Dạng hàng bậc thang và Back Substitution
+
+Sau khi khử, ta có:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}1&1&1&6\\0&1&-1&-1\\0&0&-1&-3\end{array}\right]" />
+
+Đây là một **dạng hàng bậc thang**.
+
+Các pivot đi dần sang phải khi ta đi xuống các hàng. Các phần tử bên dưới mỗi pivot đã được khử về 0.
+
+Ta giải từ dưới lên.
+
+Hàng 3:
+
+<BlockMath formula="-z=-3\Rightarrow z=3" />
+
+Hàng 2:
+
+<BlockMath formula="y-z=-1\Rightarrow y=2" />
+
+Hàng 1:
+
+<BlockMath formula="x+y+z=6\Rightarrow x=1" />
+
+Quá trình này gọi là **back substitution**.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Đọc số nghiệm sau khi khử
+
+Dạng sau khi khử cho biết rất nhiều về hệ.
+
+Nếu xuất hiện một hàng dạng:
+
+<BlockMath formula="\left[\begin{array}{ccc|c}0&0&0&c\end{array}\right],\qquad c\neq0" />
+
+thì hàng đó tương ứng với phương trình <InlineMath formula="0=c" />. Hệ vô nghiệm.
+
+Nếu không có mâu thuẫn nhưng một biến không có pivot, biến đó có thể được chọn tự do. Hệ có vô số nghiệm.
+
+Nếu mỗi biến đều có pivot và không có hàng mâu thuẫn, hệ có một nghiệm duy nhất.
+
+Ta chưa cần dùng rank để mô tả các trường hợp này. Chapter 3 sẽ xây dựng ngôn ngữ tổng quát hơn cho pivot, dependence và solution space.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Pivoting trong tính toán
+
+Nếu phần tử đang định dùng làm pivot bằng 0, ta cần đổi hàng trước khi tiếp tục.
+
+Trong tính toán số, row swap còn được dùng khi pivot quá nhỏ so với các phần tử khác trong cùng cột.
+
+Một chiến lược phổ biến là **partial pivoting**. Ở mỗi bước, ta chọn một phần tử có độ lớn phù hợp trong cột hiện tại rồi đưa nó về vị trí pivot bằng row swap.
+
+Ta không cần tự triển khai một solver số ở đây.
+
+Điều cần giữ lại là:
+
+<BlockMath formula="\text{elimination}\quad\longrightarrow\quad\text{triangular system}\quad\longrightarrow\quad\text{back substitution}" />
+
+Bài tiếp theo gom chính các bước elimination này vào một factorization có tên **LU**.
+
+</MdxPage>

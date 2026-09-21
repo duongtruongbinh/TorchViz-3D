@@ -1,0 +1,178 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'meta-nca-abstract',
+  locale: 'vi',
+  title: 'Tóm tắt',
+  headings: [
+    'Bài toán mà MetaNCA đặt ra',
+    'Các câu hỏi nảy sinh khi đọc',
+    'Xem mỗi trọng số như một tế bào',
+    'Bốn con số cần nhớ',
+    'Paper đã chứng minh được gì',
+    'Ranh giới của kết quả',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'MetaNCA',
+    'Neural Cellular Automata',
+    'Weight Transformer',
+    'Weight-Space Learning',
+    'Architecture Generalization',
+    'Genomic Bottleneck',
+  ],
+  pageCount: 6,
+};
+
+<MdxPage page={0}>
+
+- **Paper:** [Architecture Generalization with MetaNCA](https://direct.mit.edu/isal/proceedings/isal2026/38/99/138156)
+- **Tác giả:** Meet Barot, Daniel Berenberg, Sina Khajehabdollahi
+- **Mã nguồn:** [Mythos-Scientific/meta-nca](https://github.com/Mythos-Scientific/meta-nca)
+
+### Bài toán mà MetaNCA đặt ra
+
+**1. Vấn đề của cách làm truyền thống:**
+Để một mô hình hoạt động, ta phải huấn luyện hàng triệu tham số bằng Backpropagation rất tốn kém, rồi lưu trữ toàn bộ checkpoint cồng kềnh. Nếu đổi kiến trúc mạng (tăng layer, đổi chiều rộng), toàn bộ checkpoint cũ xem như vô dụng và ta phải train lại từ đầu.
+
+**2. Ý tưởng từ sinh học (NCA):**
+Trong tự nhiên, cơ thể không lưu trữ vị trí của từng tế bào mà chỉ lưu mã gene (DNA) chứa **quy tắc phát triển cục bộ**. Các tế bào tự trao đổi tín hiệu với lân cận và cùng tuân theo quy tắc đó để tự lớn lên thành một cơ thể hoàn chỉnh.
+
+**3. Mục tiêu của MetaNCA:**
+Thay thế toàn bộ checkpoint khổng lồ bằng một **mạng quy tắc nhỏ gọn (rule network)**:
+- **Khởi tạo:** Mạng nơ-ron mục tiêu bắt đầu từ các trọng số ngẫu nhiên.
+- **Tự phát triển:** Sau meta-training, mỗi trọng số trao đổi thông tin với các kết nối lân cận và được rule network cập nhật qua 10 bước mà không chạy backpropagation để sinh bộ trọng số đích.
+- **Tổng quát hóa kiến trúc:** Trong từng họ MLP, CNN và ResNet được khảo sát, cùng một rule có thể chạy trên một số cấu hình chưa xuất hiện khi meta-train.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/01-meta-nca-problem-concept.jpg"
+  alt="So sánh giữa Checkpoint cố định truyền thống, Ẩn dụ sinh học (DNA) và Cơ chế quy tắc cục bộ của MetaNCA"
+  caption="So sánh phương pháp lưu trữ tham số truyền thống với cơ chế quy tắc cục bộ của MetaNCA lấy cảm hứng từ sinh học."
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Các câu hỏi nảy sinh khi đọc
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Các câu hỏi mở sau khi tiếp cận bài toán"
+  root={{ title: 'Ba câu hỏi lớn cần giải mã', subtitle: 'Những thắc mắc tự nhiên khi tiếp cận ý tưởng MetaNCA', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Cơ chế trao đổi thông tin cục bộ',
+      detail: 'Làm thế nào các trọng số chỉ trao đổi thông tin với các kết nối lân cận trực tiếp mà toàn bộ mạng lưới vẫn phối hợp đồng bộ để giải quyết tác vụ?',
+      tone: 'teal',
+    },
+    {
+      title: '2. Tự hoàn thiện mà không cần Gradient',
+      detail: 'Nếu không chạy backpropagation khi sinh trọng số sau meta-training, cơ chế nào biến trạng thái khởi tạo thành một task network có ích?',
+      tone: 'amber',
+    },
+    {
+      title: '3. Giới hạn của việc tổng quát hóa kiến trúc',
+      detail: 'Một quy tắc học được có thực sự áp dụng thành công trên các kiến trúc mạng mới mà nó chưa từng gặp trong giai đoạn huấn luyện?',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Xem mỗi trọng số như một tế bào
+
+Để hiện thực hóa cơ chế trên, MetaNCA coi mỗi kết nối trên đồ thị mạng như một tế bào độc lập. Thay vì chỉ là một con số đơn lẻ, mỗi tế bào được ghép giữa trọng số thực tế và một vector trạng thái ẩn đóng vai trò như bộ nhớ cục bộ:
+
+<BlockMath formula="\text{cell}_i = \big[ w_i \parallel \mathbf{h}_i \big], \qquad w_i \in \mathbb{R}, \quad \mathbf{h}_i \in \mathbb{R}^{16}" />
+
+- <InlineMath formula="w_i \in \mathbb{R}" /> là trọng số thực sự được mạng sử dụng trong forward pass.
+- <InlineMath formula="\mathbf{h}_i \in \mathbb{R}^{16}" /> là hidden state mang thông tin cục bộ qua từng bước cập nhật. Trạng thái ban đầu được tạo từ sinusoidal absolute positional encoding, không phải một vector zero tùy ý.
+
+Sau đó, ta chỉ cần huấn luyện một mạng quy tắc nhỏ (như một mạng MLP đơn giản) dùng chung cho mọi trọng số. Mạng này sẽ học cách thu thập thông tin từ các lân cận, liên tục bổ sung tri thức vào hidden state và điều chỉnh giá trị trọng số gốc <InlineMath formula="w_i" /> cho đến khi mô hình thực hiện tốt nhiệm vụ.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Bốn con số cần nhớ
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Bốn con số cốt lõi trong nghiên cứu MetaNCA"
+  root={{ title: 'Bốn mốc định lượng', subtitle: 'Các thiết lập và quy mô được paper báo cáo', tone: 'blue' }}
+  nodes={[
+    { title: '1. 2M parameters', detail: 'Các CNN lớn nhất trong lưới thí nghiệm đạt khoảng 2 triệu tham số.', tone: 'teal' },
+    { title: '2. 10 update steps', detail: 'Rule network được rollout với T = 10 bước cập nhật cục bộ.', tone: 'violet' },
+    { title: '3. 80% weights', detail: 'Mỗi bước áp dụng update ngẫu nhiên lên 80% trọng số; paper không báo cáo ablation cho tỷ lệ này.', tone: 'amber' },
+    { title: '4. 5 vị trí', detail: 'Vị trí gồm layer, forward neuron, backward neuron và hai tọa độ kernel.', tone: 'blue' },
+  ]}
+/>
+
+Năm chỉ số vị trí tạo thành vector:
+
+<BlockMath formula="\mathbf{s}_i = [l, u, v, k_x, k_y] \in \mathbb{R}^{5}" />
+
+Vector này được dùng cho sinusoidal absolute initialization của <InlineMath formula="\mathbf{h}_i^{(0)}" />. Trong Weight Transformer, năm positional heads còn áp dụng RoPE lên feature-mapped Query và Key. Hai vai trò đó cần được phân biệt.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Paper đã chứng minh được gì
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Các kết quả chứng minh của MetaNCA"
+  root={{ title: 'Kết quả chứng minh của MetaNCA', subtitle: 'Kiểm chứng thực nghiệm trên MLP, CNN và ResNet', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Local update ở quy mô 2M',
+      detail: 'Rule network 126K parameters sinh trọng số cho CNN lên tới khoảng 2M parameters qua 10 local updates.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Thích ứng kiến trúc mới (Generalization)',
+      detail: 'Trong từng thí nghiệm, một rule được đánh giá trên các width, kernel size hoặc base-channel value chưa dùng để meta-train.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Ranh giới so sánh',
+      detail: 'MLP [784, 50, 50, 10] đạt 97% với cả MetaNCA và Adam; trên CIFAR-100, MetaNCA 29.9% vẫn thấp hơn baseline Adam cùng ResNet.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Ranh giới của kết quả
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ranh giới bằng chứng của MetaNCA"
+  root={{ title: 'Đọc kết quả đúng phạm vi', subtitle: 'Phân biệt điều paper cho thấy và điều chưa kiểm chứng', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Cơ chế trao đổi thông tin cục bộ',
+      detail: 'Mỗi trọng số mang hidden state 16 chiều; hai attention block tổng hợp forward và backward neighborhoods.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Tự hoàn thiện mà không cần Gradient',
+      detail: 'Meta-training vẫn backpropagate qua task network và chuỗi local updates. Sau đó, task-weight generation chỉ rollout rule đã học.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Khả năng tổng quát hóa kiến trúc',
+      detail: 'Paper dùng rule riêng cho từng family và chủ yếu kiểm tra các cấu hình gần vùng meta-training; chưa có một rule chung chuyển từ CNN sang ResNet.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>

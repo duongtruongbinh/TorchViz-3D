@@ -1,0 +1,142 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'meta-nca-introduction',
+  locale: 'vi',
+  title: 'Bối cảnh',
+  headings: [
+    'Từ tối ưu trọng số đến học quy tắc sinh trọng số',
+    'Cảm hứng sinh học: Genomic Bottleneck',
+    'Các hướng nghiên cứu liên quan',
+    'Phạm vi câu hỏi của paper',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'MetaNCA',
+    'Genomic Bottleneck',
+    'Hypernetworks',
+    'Weight-Space Learning',
+    'Growing NCA',
+    'HyperNCA',
+    'Neural Developmental Programs',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Từ tối ưu trọng số đến học quy tắc sinh trọng số
+
+**Một nghịch lý thú vị trong Deep Learning:**
+Để giải cùng một bài toán (như nhận diện ảnh chữ số hay phân loại đồ vật), ta có thể sử dụng nhiều kiến trúc khác nhau:
+- Một mạng **MLP 2 tầng** (vài nghìn tham số).
+- Một mạng **MLP 4 tầng** (hàng chục nghìn tham số).
+- Hoặc một mạng **CNN / ResNet** có topology khác.
+
+Mỗi mô hình có cấu trúc hoàn toàn khác nhau, kích thước ma trận khác nhau và giá trị các con số bên trong không hề giống nhau. **Thế nhưng, tất cả chúng đều giải được cùng một bài toán!**
+
+**Câu hỏi mà các nhà nghiên cứu NCA đặt ra:**
+Từ trước đến nay, cách phổ biến là huấn luyện **từng bộ tham số tĩnh** cho một cấu hình mạng cố định. MetaNCA đặt câu hỏi nghiên cứu hẹp hơn: liệu có thể học một local rule tái sử dụng trên nhiều cấu hình trong một họ kiến trúc hay không?
+
+MetaNCA vì thế học một **local rule** có thể tạo weights cho nhiều cấu hình được khảo sát. Paper không chứng minh rule này dùng được cho mọi kiến trúc.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/02-meta-nca-intro-paradox.jpg"
+  alt="Minh họa nghịch lý Deep Learning: Các kiến trúc khác nhau cùng giải 1 bài toán, sự bất tiện của Checkpoint tĩnh và giải pháp Một quy tắc động của MetaNCA"
+  caption="Nhiều kiến trúc khác nhau cùng giải quyết một tác vụ — gợi ý về sự tồn tại của một quy tắc động tổng quát."
+/>
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Cảm hứng sinh học: Genomic Bottleneck
+
+Paper viện dẫn **Genomic Bottleneck**: dung lượng thông tin của genome nhỏ hơn nhiều so với độ phức tạp của neural circuitry. Đây là động lực thiết kế, không phải bằng chứng rằng MetaNCA mô phỏng chính xác quá trình phát triển sinh học.
+
+Đây chính là nguồn cảm hứng cốt lõi của MetaNCA:
+- **Ý tưởng:** Thay vì mã hóa trực tiếp một vector weight có kích thước cố định, học một rule có số tham số không đổi theo task-network size.
+- **Cách vận hành:** Từ quy tắc nhỏ này, các trọng số nơ-ron sẽ tự trao đổi thông tin với lân cận để "phát triển" thành một mô hình hoàn chỉnh.
+
+Trong thí nghiệm, rule network có 82K parameters cho MLP và 126K cho CNN/ResNet; CNN lớn nhất có khoảng 2M parameters.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/03-meta-nca-genomic-bottleneck.jpg"
+  alt="Minh họa Genomic Bottleneck: Bộ gene nhỏ bé phát triển thành não bộ 86 tỷ nơ-ron, tương tự Rule Network nhỏ của MetaNCA sinh ra mô hình 2 triệu tham số"
+  caption="Genomic Bottleneck: Bản mã gene nhỏ gọn điều khiển quá trình phát triển nên cấu trúc phức tạp."
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Các hướng nghiên cứu liên quan
+
+Trước MetaNCA, ý tưởng *"dùng một mô hình nhỏ để tự động sinh ra trọng số cho mô hình khác"* đã được khám phá qua nhiều hướng tiếp cận, nhưng đều vấp phải những rào cản lớn:
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="So sánh các phương pháp sinh trọng số trước MetaNCA"
+  root={{ title: 'Các hướng sinh trọng số trước MetaNCA', subtitle: 'Ba cách tiếp cận và điểm nghẽn của từng phương pháp', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Hypernetworks (2016)',
+      detail: 'Sinh tham số từ một biểu diễn gọn, thường theo layer, chunk hoặc parameter subset và do đó thường gắn với target shape.',
+      tone: 'amber',
+    },
+    {
+      title: '2. HyperNEAT / CPPN (2009)',
+      detail: 'Dùng hàm số tính trọng số từ tọa độ (x, y) của 2 nơ-ron. Điểm nghẽn: Tính 1 lần đơn độc theo vị trí, các liên kết hoàn toàn không trao đổi thông tin với lân cận xung quanh.',
+      tone: 'teal',
+    },
+    {
+      title: '3. HyperNCA (2023)',
+      detail: 'Dùng NCA phát triển một seed state rồi đọc pattern thành weights; local rule không cập nhật trực tiếp các cạnh của target graph.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/04-meta-nca-prior-methods.jpg"
+  alt="Minh họa 3 phương pháp tiền nhiệm: Hypernetwork (ma trận bị khóa cứng), HyperNEAT (tra cứu tọa độ tĩnh), HyperNCA (đi đường vòng qua lưới 2D)"
+  caption="So sánh 3 cách tiếp cận sinh trọng số trước MetaNCA và giới hạn cố hữu của từng phương pháp."
+/>
+
+| Tiêu chí | HyperNEAT (2009) | HyperNCA (2023) | MetaNCA (Hiện tại) |
+| :--- | :--- | :--- | :--- |
+| **Cách tiếp cận** | Tra cứu tĩnh theo tọa độ | Tế bào trên lưới 2D/3D | Trao đổi cục bộ trên đồ thị |
+| **Công thức cốt lõi** | <InlineMath formula="w_{AB} = f(x_A, y_A, x_B, y_B)" /> | <InlineMath formula="\text{Grid}_{2\text{D}} \xrightarrow{\text{NCA}} \mathbf{M} \xrightarrow{\text{Slice}} w_{ij}" /> | <InlineMath formula="\text{cell}_i=[w_i\parallel\mathbf{h}_i],\;\mathbf{s}_i=[l,u,v,k_x,k_y]" /> |
+| **Bản chất biến số** | <InlineMath formula="w_{AB}" />: trọng số nối nơ-ron A–B; <InlineMath formula="(x, y)" />: tọa độ tĩnh | <InlineMath formula="\text{Grid}_{2\text{D}}" />: lưới pixel nhân tạo; <InlineMath formula="w_{ij}" />: trọng số cắt lát gián tiếp | <InlineMath formula="w_i" />: trọng số thực tế; <InlineMath formula="h_i" />: vector bộ nhớ ẩn |
+| **Bộ nhớ & lân cận** | Không có vector bộ nhớ ẩn. Tính 1 lần đơn độc, không biết liên kết xung quanh. | Có bộ nhớ nhưng chỉ trao đổi với 8 pixel lân cận trên mặt phẳng 2D. | Mỗi liên kết có bộ nhớ ẩn, liên tục trao đổi thông điệp với nơ-ron trước và sau trên đồ thị. |
+| **Ẩn dụ thực tế** | Tra từ điển: nhìn vị trí tọa độ ra 1 con số cố định một lần duy nhất. | Vẽ tranh trên giấy rồi ép vào khuôn: đi qua lưới 2D trung gian nhân tạo. | Thảo luận nhóm trực tiếp: các liên kết trao đổi thông tin để cùng ăn khớp. |
+| **Phạm vi paper** | Static coordinate query | Developmental substrate | Trực tiếp trên target graph; CNN lớn nhất khoảng 2M parameters |
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Phạm vi câu hỏi của paper
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Phạm vi câu hỏi nghiên cứu của MetaNCA"
+  root={{ title: 'Ba câu hỏi cần theo dõi', subtitle: 'Các tuyên bố sẽ được kiểm tra ở phần phương pháp và thực nghiệm', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Rule nhận thông tin gì?',
+      detail: 'Cần xác định cell state, graph neighborhoods và positional encoding mà mỗi local update được phép dùng.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Rule được học như thế nào?',
+      detail: 'Cần phân biệt local computation khi sinh task weights với global loss và backpropagation trong meta-training.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Generalization đi xa đến đâu?',
+      detail: 'Cần tách unseen configuration trong cùng family khỏi việc chuyển một rule sang family hoặc task hoàn toàn mới.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>

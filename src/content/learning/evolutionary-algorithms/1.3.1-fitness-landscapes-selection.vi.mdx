@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'fitness-landscapes-selection',
+  locale: 'vi',
+  title: "Fitness Landscape & Áp lực Chọn lọc",
+  headings: [
+    'Bản đồ Địa hình: Khái niệm Fitness Landscape',
+    'Áp lực Chọn lọc (Selection Pressure) và Hội tụ Sớm',
+    'Cân bằng Thám hiểm (Exploration) vs Khai thác (Exploitation)',
+  ],
+  keywords: ['Fitness Landscape', 'Selection Pressure', 'Exploration', 'Exploitation', 'Premature Convergence'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Bản đồ Địa hình: Khái niệm Fitness Landscape
+
+Ở bài thực hành trước, với seed và ngân sách đã chọn, quần thể tiến hóa thăm dò nhiều vùng của hàm Rastrigin trong khi một quỹ đạo Gradient Descent hội tụ vào cực tiểu địa phương.
+
+Sự khác biệt mang tính quyết định đó bắt nguồn từ chính **địa hình không gian tìm kiếm**:
+- Trong Học máy truyền thống, không gian đó thường được hình dung qua bề mặt hàm mất mát (**Loss Surface**), nơi ta tìm cách lăn xuống đáy thung lũng sâu nhất.
+- Trong Thuật toán Tiến hóa, khái niệm tương đương là **Fitness Landscape**. Nếu quy ước cực đại hóa Fitness thì vùng cao tốt hơn; nếu cực tiểu hóa Loss thì vùng thấp tốt hơn. Luôn nêu rõ quy ước trước khi diễn giải địa hình.
+
+<ConceptHierarchy
+  ariaLabel="3 dạng địa hình phổ biến của Fitness Landscape"
+  root={{
+    title: '3 Dạng Địa hình Fitness Landscape',
+    detail: 'Quyết định độ khó và chiến lược di chuyển của các cá thể trong không gian tìm kiếm',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Đơn cực (Unimodal)',
+      align: 'left',
+      detail: 'Chỉ có một cực trị tối ưu nhưng không nhất thiết là hàm lồi. Cấu trúc này thường dễ tìm kiếm hơn, song tốc độ hội tụ còn phụ thuộc biểu diễn và toán tử.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Lởm chởm (Multi-modal)',
+      align: 'left',
+      detail: 'Có nhiều cực trị địa phương. Quần thể đa dạng có thể thăm dò nhiều basin đồng thời, nhưng không bảo đảm vượt mọi bẫy cục bộ.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Cao nguyên (Flat Plateau)',
+      align: 'left',
+      detail: 'Hàm trả về giá trị bậc thang khiến gradient bằng 0. Thuật toán tiến hóa dùng đột biến ngẫu nhiên để trôi dạt tìm lối thoát.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Áp lực Chọn lọc (Selection Pressure) và Hội tụ Sớm
+
+**Áp lực Chọn lọc (Selection Pressure)** là mức độ ưu ái mà thuật toán dành cho các cá thể có Fitness cao so với các cá thể trung bình.
+
+Việc điều chỉnh áp lực chọn lọc là yếu tố quyết định sự thành bại của thuật toán tiến hóa:
+
+<ComparisonMatrix
+  ariaLabel="So sánh Áp lực Chọn lọc Quá cao và Quá thấp"
+  rowHeaderLabel="Mức độ Áp lực"
+  columns={['Hành vi của Quần thể', 'Hệ quả thực tế']}
+  rows={[
+    {
+      label: 'Quá Cao (High Pressure)',
+      values: [
+        'Chỉ cho phép vài cá thể tốt nhất sinh sản, loại bỏ ngay cá thể trung bình.',
+        'Hội tụ sớm: độ đa dạng giảm nhanh, làm xác suất thoát khỏi vùng nghiệm hiện tại thấp đi.',
+      ],
+    },
+    {
+      label: 'Quá Thấp (Low Pressure)',
+      values: [
+        'Cá thể tốt và cá thể kém có cơ hội sống sót và sinh sản gần như ngang nhau.',
+        'Tìm kiếm Hỗn loạn (Random Walk): Quá trình tiến hóa diễn ra rất chậm chạp, không tạo ra hướng đi rõ ràng.',
+      ],
+    },
+    {
+      label: 'Cân Bằng Hợp Lý',
+      values: [
+        'Dành ưu tiên cho cá thể tốt nhưng vẫn tạo cơ hội cho cá thể đa dạng khác đóng góp gen.',
+        'Quần thể liên tục tiến bộ trong khi vẫn duy trì quỹ gen phong phú để thích ứng.',
+      ],
+    },
+  ]}
+/>
+
+
+**Hội tụ sớm (Premature Convergence)** là rủi ro đặc thù khi quần thể mất đa dạng trước khi khám phá đủ không gian. Nó khác về cơ chế với overfitting và vanishing gradient trong Deep Learning.
+
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cân bằng Thám hiểm (Exploration) vs Khai thác (Exploitation)
+
+Bất kỳ hệ thống học máy nào (từ Reinforcement Learning đến Evolutionary Algorithms) đều phải giải quyết bài toán cốt lõi: **Exploration vs Exploitation**:
+
+<ConceptFlow
+  ariaLabel="Cân bằng giữa Thám hiểm và Khai thác trong tiến hóa"
+  items={[
+    {
+      title: 'Exploration (Thám hiểm)',
+      detail: 'Tung các cá thể đi xa, thử nghiệm các vùng đất hoàn toàn mới trên bản đồ (nhờ kích thước quần thể lớn, bước đột biến rộng).',
+    },
+    {
+      title: 'Exploitation (Khai thác)',
+      detail: 'Tập trung đào sâu, tinh chỉnh và leo lên điểm cao nhất xung quanh ngọn núi vừa tìm được (nhờ chọn lọc chặt chẽ, bước đột biến nhỏ).',
+    },
+    {
+      title: 'Chiến lược Thích ứng (Adaptive)',
+      detail: 'Có thể thay đổi áp lực chọn lọc và độ lớn biến dị theo trạng thái tìm kiếm; không phải mọi bài toán đều phù hợp với một lịch giảm đơn điệu.',
+    },
+  ]}
+/>
+
+
+**Kết nối với Machine Learning:** Giảm độ lệch chuẩn đột biến có vai trò gần với giảm learning rate: chuyển dần sang tìm kiếm cục bộ. Tuy vậy, EA còn có thể tự thích nghi step size hoặc tăng lại mức biến dị khi độ đa dạng xuống thấp.
+
+
+</MdxPage>

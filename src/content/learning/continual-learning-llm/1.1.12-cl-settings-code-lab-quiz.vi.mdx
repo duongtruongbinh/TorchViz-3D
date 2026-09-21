@@ -1,0 +1,189 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-settings-code-lab-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Ghép logit của ba head',
+    'Task ID sửa được lỗi nào?',
+    'Miền mới tăng, miền cũ giảm',
+    'Khi cả hai miền cùng tăng',
+    'Vì sao lớp mới được ưu tiên?',
+    'So sánh có và không giới hạn lớp',
+  ],
+  keywords: ['Continual Learning', 'TIL', 'DIL', 'CIL', 'Code Lab', 'Quiz'],
+  conceptIds: [
+    'til-routing-observation',
+    'til-within-head-error-observation',
+    'dil-domain-shift-observation',
+    'dil-transfer-interpretation',
+    'cil-new-class-bias-observation',
+    'cil-class-competition-observation',
+  ],
+  pageCount: 6,
+}
+
+<MdxQuiz id="cl-settings-code-lab-quiz" questions={[
+  {
+    "id": "til-routing-observation",
+    "title": "Ghép logit của ba head",
+    "prompt": "Trong phép thử không có task ID, lab chạy cả ba head TIL rồi chọn logit lớn nhất trong sáu đầu ra. Vì sao độ chính xác có thể giảm dù từng head phân loại tốt hai ý định của mình?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Task ID chỉ đánh dấu dữ liệu lúc huấn luyện, nên bỏ nó khi suy luận không thể thay đổi head được gọi."
+      },
+      {
+        "id": "opt2",
+        "label": "Các head chỉ học bài toán cục bộ; chúng chưa học cạnh tranh xuyên tác vụ và logit giữa các head chưa được hiệu chỉnh để so trực tiếp.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Bộ mã hóa đóng băng tạo vector khác nhau cho mỗi task, nên các vector không thể đưa vào cùng phép so sánh."
+      },
+      {
+        "id": "opt4",
+        "label": "Ghép sáu logit làm mất hai đầu ra của mỗi head, nên hệ thống không còn đủ sáu ý định để lựa chọn."
+      }
+    ],
+    "success": "Đúng. Đây là phép thử chẩn đoán ngoài giao thức TIL chuẩn: các head chỉ học phân biệt trong nhóm và logit của chúng không được tối ưu để cạnh tranh xuyên nhóm.",
+    "error": "Hãy xem lại dữ liệu mỗi head đã thấy và liệu ba head có từng được huấn luyện cùng nhau hay không."
+  },
+  {
+    "id": "til-within-head-error-observation",
+    "title": "Task ID sửa được lỗi nào?",
+    "prompt": "Một câu thuộc nhóm calendar bị head báo thức thắng khi không có task ID, nhưng được dự đoán đúng khi chọn head calendar. Một câu khác vẫn bị nhầm giữa `calendar_set` và `calendar_remove` sau khi đã chọn đúng head calendar. Kết luận nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Task ID sửa được cả hai lỗi vì nó vừa chọn head, vừa cung cấp sẵn nhãn ý định chính xác bên trong head."
+      },
+      {
+        "id": "opt2",
+        "label": "Cả hai đều là lỗi chọn sai tác vụ vì sau khi có task ID, head được chọn không thể dự đoán sai nữa."
+      },
+      {
+        "id": "opt3",
+        "label": "Task ID không giúp trường hợp nào vì bộ mã hóa tạo cùng một vector dù hệ thống chọn head nào."
+      },
+      {
+        "id": "opt4",
+        "label": "Task ID sửa lỗi chọn nhầm head ở câu đầu, nhưng không sửa lỗi phân biệt hai ý định trong đúng head ở câu sau.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Task ID giải quyết bước chọn bộ phân loại; chất lượng phân biệt các nhãn bên trong bộ đó vẫn phụ thuộc vào dữ liệu và head đã học.",
+    "error": "Hãy tách hai quyết định: chọn đúng head trước, rồi chọn đúng ý định bên trong head đó."
+  },
+  {
+    "id": "dil-domain-shift-observation",
+    "title": "Miền mới tăng, miền cũ giảm",
+    "prompt": "Sau khi bộ phân loại DIL tiếp tục học review điện tử, độ chính xác điện tử tăng từ 0.854 lên 0.896 còn độ chính xác sách giảm từ 0.911 xuống 0.889. Kết luận nào phù hợp nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mô hình thích nghi với miền mới nhưng quên một phần năng lực trên miền cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Điểm điện tử 0.854 là kết quả sau khi mô hình đã huấn luyện xong trên điện tử."
+      },
+      {
+        "id": "opt3",
+        "label": "Đây là CIL vì chuyển loại sản phẩm luôn làm xuất hiện nhãn đầu ra mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Hai miền phải dùng hai head riêng vì một head chung không thuộc thiết lập DIL."
+      }
+    ],
+    "success": "Đúng. Điểm 0.854 là mức chuyển giao trước khi học điện tử; stage thứ hai cải thiện miền mới nhưng làm miền sách giảm 2.2 điểm phần trăm.",
+    "error": "Hãy xác định model đã học miền nào ở từng dòng, rồi so riêng thay đổi của miền cũ và miền mới."
+  },
+  {
+    "id": "dil-transfer-interpretation",
+    "title": "Khi cả hai miền cùng tăng",
+    "prompt": "Nếu sau khi học review điện tử, độ chính xác của cả điện tử lẫn sách đều tăng thì nên diễn giải thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Thí nghiệm không còn là Continual Learning vì không xuất hiện hiện tượng quên."
+      },
+      {
+        "id": "opt2",
+        "label": "Phải đổi thiết lập thành TIL vì mô hình đã học được hai loại sản phẩm."
+      },
+      {
+        "id": "opt3",
+        "label": "Lần chạy này cho thấy chuyển giao tích cực giữa hai miền; DIL không bắt buộc miền cũ phải giảm.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Kết quả chứng minh mọi chuỗi domain khác cũng sẽ cùng tăng độ chính xác."
+      }
+    ],
+    "success": "Đúng. Continual Learning mô tả quá trình cập nhật; hiện tượng quên là một kết quả có thể xảy ra chứ không phải điều kiện bắt buộc.",
+    "error": "Không nên coi hiện tượng quên là điều kiện để một thí nghiệm được gọi là Continual Learning."
+  },
+  {
+    "id": "cil-new-class-bias-observation",
+    "title": "Vì sao lớp mới được ưu tiên?",
+    "prompt": "Sau stage bốn lớp, CIL đạt 1.000 trên hai lớp mới nhưng chỉ 0.026 trên hai lớp cũ. Chi tiết huấn luyện nào giải thích hợp lý nhất cho chênh lệch này?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "`expand_head` xóa toàn bộ trọng số lớp cũ rồi khởi tạo lại cả head trước khi học hai lớp mới."
+      },
+      {
+        "id": "opt2",
+        "label": "Stage mới chỉ có mẫu lớp mới nhưng loss vẫn dùng đầu ra chung, nên lớp mới có thể lấn át lớp cũ vì không có replay.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Bộ mã hóa xóa các vector lớp cũ khỏi tập đánh giá mỗi khi head được mở rộng thêm hai đầu ra."
+      },
+      {
+        "id": "opt4",
+        "label": "Độ chính xác 1.000 trên lớp mới cho thấy các trọng số lớp cũ cũng được tối ưu bằng đúng dữ liệu của stage mới."
+      }
+    ],
+    "success": "Đúng. Trọng số cũ được sao chép, nhưng stage mới chỉ huấn luyện bằng dữ liệu lớp mới và không replay mẫu cũ, nên đầu ra mới có thể lấn át đầu ra cũ.",
+    "error": "Hãy kiểm tra `train_new_classes` chứa mẫu nào và có mẫu lớp cũ được đưa lại vào stage mới hay không."
+  },
+  {
+    "id": "cil-class-competition-observation",
+    "title": "So sánh có và không giới hạn lớp",
+    "prompt": "Cùng head CIL đạt 0.598 khi chọn trong cả sáu lớp, nhưng đạt 0.991 khi oracle task mask chỉ giữ hai lớp thuộc đúng nhóm. Chênh lệch này cho thấy điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Model đã quên cách phân biệt hai ý định bên trong mọi nhóm, còn mask học lại các cặp đó từ đầu."
+      },
+      {
+        "id": "opt2",
+        "label": "Mask làm bộ mã hóa tạo lại vector tốt hơn cho từng câu trước khi head tính sáu logit mới."
+      },
+      {
+        "id": "opt3",
+        "label": "Mask khôi phục các trọng số lớp cũ đã bị xóa, rồi chấm lại cả sáu lớp bằng head đã phục hồi."
+      },
+      {
+        "id": "opt4",
+        "label": "Model còn phân biệt tốt trong từng nhóm; phần lớn lỗi xuất hiện khi lớp của nhiều nhóm cùng cạnh tranh trong đầu ra chung.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Mask chỉ loại bốn lớp ngoài nhóm; nó không đổi vector hay trọng số. Kết quả cao cho thấy phần lớn khoảng cách đến từ cạnh tranh xuyên nhóm.",
+    "error": "Hãy xác định mask loại lựa chọn nào và những phần nào của model vẫn được giữ nguyên."
+  }
+]} />

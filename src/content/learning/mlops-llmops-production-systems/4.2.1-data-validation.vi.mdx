@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-validation',
+  locale: 'vi',
+  title: "Kiểm thử Dữ liệu (Data Testing)",
+  headings: [
+    'Tại sao Kiểm thử Dữ liệu lại Quan trọng hơn Kiểm thử Code?',
+    'Các Lỗi Thường gặp trong Dữ liệu Sản xuất',
+    'Nguyên lý Hoạt động của Great Expectations',
+    'Tích hợp Data Validation vào Pipeline Ingestion',
+  ],
+  keywords: ['MLOps', 'Data Validation', 'Great Expectations', 'Schema Testing', 'Data Quality', 'Expectation Suite'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Kiểm thử Dữ liệu lại Quan trọng hơn Kiểm thử Code?
+
+Trong kỹ thuật phần mềm, code bị lỗi thường ném ra Exception và làm ứng dụng crash ngay lập tức (dễ phát hiện). Nhưng trong Machine Learning, **dữ liệu bị lỗi vẫn chạy qua pipeline một cách êm thấm (Silent Failure)**, dẫn đến mô hình đưa ra dự đoán sai lệch nghiêm trọng mà không hề có cảnh báo.
+
+<CourseCards
+  ariaLabel="So sánh Silent Failure và Explicit Failure trong MLOps"
+  exampleLabel="Dấu hiệu lỗi"
+  takeawayLabel="Hệ quả thực tế"
+  items={[
+    {
+      title: 'Explicit Code Crash (Lỗi Code rõ ràng)',
+      example: 'Lỗi chia cho 0 hoặc gọi hàm không tồn tại -> Chương trình dừng và in Stack trace.',
+      takeaway: 'Dễ dàng phát hiện và sửa chữa trong vòng vài phút trước khi deploy.',
+    },
+    {
+      title: 'Silent Data Corruption (Lỗi Dữ liệu âm thầm)',
+      example: 'Cột tuổi người dùng bị đổi từ năm sinh (1995) sang số tuổi (29), hoặc phân vị giá bị nhân đôi.',
+      takeaway: 'Pipeline vẫn chạy bình thường, nhưng mô hình sinh kết quả sai hoàn toàn trên toàn bộ khách hàng.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Các Lỗi Thường gặp trong Dữ liệu Sản xuất
+
+Các sự cố chất lượng dữ liệu phổ biến cần được chặn đứng ở bước tiếp nhận (Ingestion):
+
+<ComparisonMatrix
+  ariaLabel="Các dạng lỗi chất lượng dữ liệu phổ biến"
+  rowHeaderLabel="Loại Lỗi Dữ liệu"
+  columns={['Biểu hiện cụ thể', 'Kỳ vọng kiểm tra (Expectation)']}
+  rows={[
+    { label: 'Thay đổi Schema (Schema Drift)', values: ['Cột `tag` bị đổi tên thành `category`, hoặc kiểu dữ liệu từ float thành string.', 'Cấu trúc bảng phải khớp 100% với danh sách cột định trước.'] },
+    { label: 'Tỷ lệ Null tăng đột biến', values: ['Tỷ lệ ô trống ở cột tiêu đề tăng từ 0.1% lên 25% do lỗi ở ứng dụng frontend.', 'Tỷ lệ null ở các trường bắt buộc không được vượt quá 1%.'] },
+    { label: 'Giá trị nằm ngoài miền hợp lệ', values: ['Điểm đánh giá có giá trị âm hoặc vượt quá 5 sao.', 'Mọi giá trị trong cột phải nằm trong khoảng `[min, max]`.'] },
+    { label: 'Tập nhãn xuất hiện giá trị lạ', values: ['Xuất hiện nhãn `unknown` chưa từng được định nghĩa trong ontology.', 'Các giá trị phải thuộc tập hợp cho phép (Set of allowed values).'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Nguyên lý Hoạt động của Great Expectations
+
+**Great Expectations (GX)** là framework kiểm thử dữ liệu hàng đầu trong hệ sinh thái MLOps:
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc của Great Expectations Suite"
+  root={{ title: 'Expectation Suite', detail: 'Tập hợp các giả định (assertions) về dữ liệu được diễn đạt dưới dạng khai báo' }}
+  children={[
+    { title: '`expect_column_to_exist`', detail: 'Khẳng định cột bắt buộc phải có mặt trong tập dữ liệu.' },
+    { title: '`expect_column_values_to_not_be_null`', detail: 'Khẳng định giá trị của cột không được phép để trống.' },
+    { title: '`expect_column_values_to_be_in_set`', detail: 'Khẳng định nhãn mục tiêu phải thuộc danh sách lớp đã biết trước.' },
+    { title: '`expect_column_value_lengths_to_be_between`', detail: 'Khẳng định độ dài văn bản nằm trong khoảng an toàn.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tích hợp Data Validation vào Pipeline Ingestion
+
+Đặt Data Validation ở bước đầu tiên của mọi luồng ETL/ELT:
+
+<ConceptFlow
+  ariaLabel="Quy trình chặn dữ liệu bẩn tại cửa ngõ Ingestion"
+  items={[
+    { title: '1. Raw Data Drop', detail: 'Dữ liệu mới đổ về từ Data Lake hoặc API định kỳ.' },
+    { title: '2. Run Validation Suite', detail: 'Kiểm tra dữ liệu mới với bộ Expectation Suite đã đăng ký.' },
+    { title: '3. Gate Check', detail: 'Nếu PASS -> chuyển tiếp vào pipeline huấn luyện / suy luận. Nếu FAIL -> gửi cảnh báo tới Slack/PagerDuty và cách ly dữ liệu lỗi.' },
+  ]}
+/>
+
+</MdxPage>

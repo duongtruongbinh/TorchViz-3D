@@ -30,12 +30,13 @@ npm run dev      # http://localhost:3000
 ```
 
 Requirements: a current Node.js LTS (CI runs Node 24). The app is **desktop +
-online only** — it loads Pyodide, Tailwind, and fonts from CDNs at runtime.
+local-first** — Pyodide, Monaco, and fonts are bundled and served locally by
+Vite; the only runtime CDN fetch is the on-demand Mermaid diagram loader.
 
 ## Before you open a PR
 
 ```bash
-npm test         # unit tests (node --test on src/lib/*.test.ts)
+npm test         # unit tests (node --test on src/**/*.test.ts)
 npm run build    # must succeed
 ```
 

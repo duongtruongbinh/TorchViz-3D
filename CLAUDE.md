@@ -62,6 +62,13 @@ Read [wiki/architecture.md](wiki/architecture.md) for the full pipeline, and the
 | `src/content/learning/*/table-of-contents.ts` | Typed Learning Lab navigation metadata. |
 | `src/content/learning/*/*.mdx` | Locale-authored Learning Lab lessons. |
 | `src/core/learning/*` | React-free catalog contracts, materialization, and selectors. |
+| `wiki/concepts/learning-lab.md` | Canonical Learning Lab UI ownership, component reuse rules, and file map. |
+
+For Learning Lab UI/component ownership and reuse rules, consult [wiki/concepts/learning-lab.md](wiki/concepts/learning-lab.md) and [docs/plans/2026-08-19-learning-lab-ui-refactor.md](docs/plans/2026-08-19-learning-lab-ui-refactor.md) before adding or modifying visual primitives.
+
+## Learning Lab Image Generation
+
+When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
 
 ## Gotchas
 
@@ -76,7 +83,7 @@ is desktop-oriented; Landing and Learning Lab remain responsive.
 
 ```bash
 npm run dev      # local dev server (http://localhost:3000)
-npm test         # node --test on src/lib/*.test.ts
+npm test         # node --test on src/**/*.test.ts
 npm run build    # production build to dist/
 npm run verify   # typecheck + tests + production build
 ```

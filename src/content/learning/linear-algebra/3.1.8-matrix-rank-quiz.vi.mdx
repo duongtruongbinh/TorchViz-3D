@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'matrix-rank-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Rank và Pivot', 'Rank và Column Space', 'Full Column Rank', 'Rank Deficiency'],
+  keywords: ['rank', 'pivot', 'column space', 'full rank', 'quiz'],
+  conceptIds: ['rank-pivots', 'rank-column-space', 'full-column-rank', 'rank-deficiency'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="matrix-rank-quiz" questions={[
+  {
+    id: 'rank-pivots',
+    title: 'Rank và Pivot',
+    prompt: 'Một row echelon matrix có 3 pivot. Rank của matrix là bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '3', isCorrect: true },
+      { id: 'b', label: '1' },
+      { id: 'c', label: 'Số cột bất kể pivot.' },
+      { id: 'd', label: 'Không thể xác định từ pivot.' },
+    ],
+    success: 'Đúng. Số pivot bằng matrix rank.',
+    error: 'Rank có thể đọc trực tiếp từ số pivot.',
+  },
+  {
+    id: 'rank-column-space',
+    title: 'Rank và Column Space',
+    prompt: 'rank(A) bằng đại lượng nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Norm của cột dài nhất.' },
+      { id: 'b', label: 'dim(Col(A))', isCorrect: true },
+      { id: 'c', label: 'Số phần tử khác 0 của A.' },
+      { id: 'd', label: 'det(A) trong mọi shape.' },
+    ],
+    success: 'Đúng. Rank là dimension của column space.',
+    error: 'Rank đếm số hướng độc lập trong các cột.',
+  },
+  {
+    id: 'full-column-rank',
+    title: 'Full Column Rank',
+    prompt: 'A có shape 5×3 và rank(A) = 3. Phát biểu nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A có 5 pivot columns.' },
+      { id: 'b', label: 'Null(A) chắc chắn có dimension 3.' },
+      { id: 'c', label: 'A có full column rank.', isCorrect: true },
+      { id: 'd', label: 'A phải là square matrix.' },
+    ],
+    success: 'Đúng. Rank bằng số cột nên các cột độc lập tuyến tính.',
+    error: 'So sánh rank với số cột.',
+  },
+  {
+    id: 'rank-deficiency',
+    title: 'Rank Deficiency',
+    prompt: 'A có n cột và rank(A) < n. Điều nào chắc chắn đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Ax = b vô nghiệm với mọi b.' },
+      { id: 'b', label: 'A là identity matrix.' },
+      { id: 'c', label: 'Mọi cột của A đều bằng 0.' },
+      { id: 'd', label: 'Null(A) chứa ít nhất một vector khác vector không.', isCorrect: true },
+    ],
+    success: 'Đúng. Có ít hơn n pivot nên tồn tại free variable trong Ax = 0.',
+    error: 'Liên hệ rank deficiency với null space.',
+  },
+]} />

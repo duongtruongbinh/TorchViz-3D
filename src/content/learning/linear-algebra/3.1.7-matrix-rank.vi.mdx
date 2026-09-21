@@ -1,0 +1,151 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'matrix-rank',
+  locale: 'vi',
+  title: 'Matrix Rank',
+  headings: [
+    'Rank đếm số hướng độc lập',
+    'Rank và Pivot',
+    'Rank và Column Space',
+    'Full Rank',
+    'Rank và nghiệm của Ax bằng b',
+    'Numerical Rank trong NumPy',
+  ],
+  keywords: ['matrix rank', 'pivot', 'column space', 'full rank', 'rank deficiency', 'numpy'],
+  conceptIds: [
+    'rank-intuition',
+    'rank-pivots',
+    'rank-column-space',
+    'full-rank',
+    'rank-linear-system',
+    'numerical-rank',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Rank đếm số hướng độc lập
+
+Một matrix có thể chứa nhiều cột nhưng không phải cột nào cũng đóng góp một hướng mới.
+
+Xét:
+
+<BlockMath formula="A=\begin{bmatrix}1&2&0\\0&0&1\end{bmatrix}" />
+
+Cột thứ hai bằng hai lần cột thứ nhất.
+
+Vì vậy ba cột chỉ tạo ra hai hướng độc lập.
+
+Ta nói:
+
+<BlockMath formula="\operatorname{rank}(A)=2" />
+
+Rank đo dimension của column space.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Rank và Pivot
+
+Khi row reduce một matrix về row echelon form, số pivot bằng rank.
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1&2&0\\0&0&1\end{bmatrix}" />
+
+đã có hai pivot.
+
+<RankPivotExplorer
+  ariaLabel="Các pivot trong row echelon form xác định matrix rank và các pivot columns tương ứng"
+/>
+
+Pivot columns của matrix gốc tạo một basis cho column space.
+
+Cần lấy các cột tương ứng từ matrix gốc, không lấy các cột của row reduced matrix làm basis cho column space của matrix ban đầu.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Rank và Column Space
+
+Với <InlineMath formula="A\in\mathbb{R}^{m\times n}" />, ta có:
+
+<BlockMath formula="\operatorname{rank}(A)=\dim(\operatorname{Col}(A))" />
+
+Một kết quả quan trọng khác là row space có cùng dimension với column space.
+
+Do đó row rank và column rank luôn bằng nhau.
+
+Trong course này, khi nói rank của matrix ta chỉ cần dùng một con số duy nhất.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Full Rank
+
+Vì:
+
+<BlockMath formula="\operatorname{rank}(A)\leq\min(m,n)" />
+
+nên rank lớn nhất có thể đạt là <InlineMath formula="\min(m,n)" />.
+
+Nếu đạt giá trị này, ta gọi matrix là **full rank**.
+
+Với matrix cao <InlineMath formula="m>n" />, full column rank nghĩa là:
+
+<BlockMath formula="\operatorname{rank}(A)=n" />
+
+Với matrix rộng <InlineMath formula="m<n" />, full row rank nghĩa là:
+
+<BlockMath formula="\operatorname{rank}(A)=m" />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Rank và nghiệm của Ax bằng b
+
+Rank giúp ta đọc cấu trúc nghiệm.
+
+Nếu <InlineMath formula="A" /> có full column rank thì:
+
+<BlockMath formula="\operatorname{Null}(A)=\{\mathbf{0}\}" />
+
+Vì vậy hệ <InlineMath formula="A\mathbf{x}=\mathbf{b}" /> có nhiều nhất một nghiệm.
+
+Nếu rank nhỏ hơn số cột, null space chứa vector khác vector không. Khi một nghiệm tồn tại, ta có thể cộng thêm null space directions để tạo các nghiệm khác.
+
+Câu hỏi hệ có nghiệm hay không vẫn phụ thuộc vào việc <InlineMath formula="\mathbf{b}" /> có thuộc column space hay không.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Numerical Rank trong NumPy
+
+NumPy cung cấp:
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 2.0, 0.0],
+    [0.0, 0.0, 1.0],
+])
+
+rank = np.linalg.matrix_rank(A)
+print(rank)
+# 2
+```
+
+Trong floating point computation, rank không nên được xác định bằng cách hỏi một giá trị có đúng bằng 0 hay không.
+
+`np.linalg.matrix_rank` dùng singular values và một threshold để ước lượng numerical rank.
+
+SVD sẽ được học đầy đủ ở Chapter 7.
+
+</MdxPage>

@@ -1,0 +1,338 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-conformal-prediction-intervals-code-lab',
+  locale: 'vi',
+  title: 'Code: Khoảng Dự báo bằng Conformal Calibration',
+  headings: [
+    'Từ một con số đến một khoảng quyết định',
+    'Thu residual ngoài mẫu theo trục thời gian',
+    'Hiệu chỉnh bán kính và tạo khoảng dự báo',
+    'Đo coverage trước khi đưa vào vận hành',
+    'Human-in-the-loop: review ít ngày, giảm thiệt hại',
+  ],
+  keywords: ['LightGBM', 'Prediction Interval', 'Conformal Prediction', 'Coverage', 'Time Series', 'Data Leakage'],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+Mô hình hiện tại trả về một dự báo điểm, chẳng hạn 4,2 triệu đồng cho ngày mai. Con số này chưa cho đội vận hành biết sai số có thể lớn tới đâu. Trong lab ngắn này, ta giữ nguyên LightGBM và bọc quanh dự báo điểm một **khoảng dự báo** được hiệu chỉnh từ sai số ngoài mẫu trong quá khứ.
+
+## Từ một con số đến một khoảng quyết định
+
+Với mức bao phủ mục tiêu 90%, đầu ra cho mỗi ngày có ba cột:
+
+| Cột | Cách đọc |
+| :--- | :--- |
+| `prediction` | Dự báo điểm của LightGBM. |
+| `lower` | Cận dưới đã chặn tại 0 vì doanh thu không thể âm. |
+| `upper` | Cận trên dùng cho kịch bản cần thêm năng lực hoặc tồn kho. |
+
+Ta dùng conformal calibration với điểm không phù hợp là sai số tuyệt đối:
+
+<BlockMath formula="s_i = |y_i - \hat{y}_i|" />
+
+Sau khi lấy phân vị bảo thủ <InlineMath formula="\hat{q}" /> của các điểm <InlineMath formula="s_i" />, khoảng cho dự báo mới là:
+
+<BlockMath formula="[\max(0,\hat{y}-\hat{q}),\;\hat{y}+\hat{q}]" />
+
+Điểm quan trọng không nằm ở công thức mà ở nguồn residual: chúng phải đến từ những giai đoạn mô hình chưa nhìn thấy khi huấn luyện. Vì vậy ta dùng Fold 2 và Fold 3 đã có trong project, không dùng residual trên chính tập train và không nhìn nhãn TEST để hiệu chỉnh khoảng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Bước đầu tiên là tạo dự báo ngoài mẫu theo đúng expanding window. Mỗi model chỉ học dữ liệu trước `train_end`, sau đó mới dự báo cửa sổ validation tương ứng.
+
+## Thu residual ngoài mẫu theo trục thời gian
+
+Cell dưới đây dùng lại `df`, `features`, `FOLDS`, `CV_FOLDS`, `get_models` và `split_by_date` từ notebook:
+
+```python
+def collect_oof_residuals(frame, columns, model_name="LightGBM"):
+    """Thu absolute residual chỉ từ các fold ổn định và ngoài mẫu."""
+    fold_outputs = []
+
+    for fold in FOLDS:
+        fold_name, train_end, valid_start, valid_end = fold
+        if fold_name not in CV_FOLDS:
+            continue
+
+        train, valid = split_by_date(
+            frame, train_end, valid_start, valid_end
+        )
+        model = get_models()[model_name]
+        model.fit(train[columns], np.log1p(train.revenue.values))
+
+        prediction = np.clip(
+            np.expm1(model.predict(valid[columns])), 0, None
+        )
+        fold_outputs.append(pd.DataFrame({
+            "date": valid.date.to_numpy(),
+            "fold": fold_name,
+            "actual": valid.revenue.to_numpy(),
+            "prediction": prediction,
+            "abs_error": np.abs(valid.revenue.to_numpy() - prediction),
+        }))
+
+    return pd.concat(fold_outputs, ignore_index=True)
+
+
+calibration = collect_oof_residuals(df, features)
+print(calibration.groupby("fold").agg(
+    rows=("abs_error", "size"),
+    median_error=("abs_error", "median"),
+    p90_error=("abs_error", lambda x: x.quantile(0.90)),
+).round(0))
+```
+
+Output khi chạy lại với `sales.csv` và `promotions.csv`:
+
+```output
+        rows  median_error  p90_error
+fold
+Fold 2   184      437912.0  1276396.0
+Fold 3   184      399355.0  1035785.0
+```
+
+Hai chốt chặn giúp cell này không rò rỉ:
+
+1. `fold_name not in CV_FOLDS` loại Fold 1 có structural break theo quyết định đánh giá của project.
+2. Model mới được tạo bên trong từng vòng lặp, nên Fold 3 không kế thừa trạng thái đã học từ Fold 2.
+
+Không lấy `abs(y_train - model.predict(X_train))`: residual trong tập train thường quá nhỏ và sẽ tạo khoảng tự tin giả.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Ta cần chọn đúng một residual theo thứ hạng thay vì gọi tùy ý phân vị 90%. Hiệu chỉnh hữu hạn mẫu đẩy thứ hạng lên một chút để tránh khoảng quá hẹp khi số mẫu calibration còn giới hạn.
+
+## Hiệu chỉnh bán kính và tạo khoảng dự báo
+
+Với <InlineMath formula="n" /> residual và coverage mục tiêu <InlineMath formula="1-\alpha" />, thứ hạng bảo thủ là:
+
+<BlockMath formula="k = \min\left(n,\left\lceil(n+1)(1-\alpha)\right\rceil\right)" />
+
+`np.partition` lấy đúng phần tử thứ <InlineMath formula="k" /> mà không phụ thuộc vào quy ước nội suy của hàm quantile:
+
+```python
+def conformal_radius(abs_errors, coverage=0.90):
+    errors = np.asarray(abs_errors, dtype=float)
+    if errors.ndim != 1 or len(errors) == 0:
+        raise ValueError("abs_errors phải là mảng một chiều không rỗng")
+    if not 0 < coverage < 1:
+        raise ValueError("coverage phải nằm giữa 0 và 1")
+
+    rank = min(len(errors), int(np.ceil((len(errors) + 1) * coverage)))
+    return float(np.partition(errors, rank - 1)[rank - 1])
+
+
+coverage_target = 0.90
+q_hat = conformal_radius(calibration.abs_error, coverage_target)
+print(f"Bán kính interval {coverage_target:.0%}: {q_hat:,.0f}")
+```
+
+```output
+Bán kính interval 90%: 1,215,280
+```
+
+Sau đó huấn luyện lại model cuối trên đúng phần train của `TEST_FOLD`. Cách này giữ nguyên phép đánh giá cuối trong notebook: mọi quyết định đến từ lịch sử, còn TEST vẫn chưa được dùng để chọn bán kính.
+
+```python
+_, train_end, test_start, test_end = TEST_FOLD
+train_final, test = split_by_date(df, train_end, test_start, test_end)
+
+final_model = get_models()["LightGBM"]
+final_model.fit(
+    train_final[features],
+    np.log1p(train_final.revenue.values),
+)
+
+point_prediction = np.clip(
+    np.expm1(final_model.predict(test[features])), 0, None
+)
+forecast = pd.DataFrame({
+    "date": test.date.to_numpy(),
+    "actual": test.revenue.to_numpy(),
+    "prediction": point_prediction,
+    "lower": np.clip(point_prediction - q_hat, 0, None),
+    "upper": point_prediction + q_hat,
+})
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+Coverage trả lời “bao nhiêu phần trăm giá trị thật nằm trong khoảng?”, còn mean width trả lời “khoảng rộng đến mức nào?”. Chỉ báo cáo coverage sẽ khuyến khích một khoảng cực rộng nhưng vô dụng; chỉ báo cáo width sẽ khuyến khích một khoảng hẹp nhưng bỏ sót rủi ro.
+
+## Đo coverage trước khi đưa vào vận hành
+
+```python
+inside = forecast.actual.between(forecast.lower, forecast.upper)
+diagnostics = {
+    "target_coverage": coverage_target,
+    "empirical_coverage": float(inside.mean()),
+    "conformal_radius": q_hat,
+    "mean_width": float((forecast.upper - forecast.lower).mean()),
+    "point_WAPE": metrics(
+        forecast.actual.values,
+        forecast.prediction.values,
+    )["WAPE"],
+    "missed_days": int((~inside).sum()),
+}
+print(f"Coverage target   : {coverage_target:.1%}")
+print(f"Coverage thực tế  : {inside.mean():.1%} ({inside.sum()}/{len(inside)} ngày)")
+print(f"Ngày ngoài khoảng : {(~inside).sum()}")
+print(f"Bán kính          : {q_hat:,.0f} đồng")
+print(f"Độ rộng trung bình: {diagnostics['mean_width']:,.0f} đồng")
+print(f"Point WAPE        : {diagnostics['point_WAPE']:.4f}")
+
+# Bảng tối thiểu cho downstream planning; không xuất cột actual khi production.
+production_forecast = forecast[
+    ["date", "prediction", "lower", "upper"]
+].copy()
+assert (production_forecast.lower >= 0).all()
+assert (production_forecast.lower <= production_forecast.prediction).all()
+assert (production_forecast.prediction <= production_forecast.upper).all()
+```
+
+```output
+Coverage target   : 90.0%
+Coverage thực tế  : 92.4% (170/184 ngày)
+Ngày ngoài khoảng : 14
+Bán kính          : 1,215,280 đồng
+Độ rộng trung bình: 2,412,217 đồng
+Point WAPE        : 0.2038
+```
+
+Cell sau tái tạo plot từ chính bảng `forecast`. Dải xanh nhạt là interval, đường cam là doanh thu thật và các chấm đỏ là 14 ngày nằm ngoài khoảng.
+
+```python
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+
+scale = 1_000_000
+fig, ax = plt.subplots(figsize=(16, 9), dpi=100)
+fig.patch.set_facecolor("white")
+ax.set_facecolor("#F8FAFC")
+ax.fill_between(
+    forecast.date, forecast.lower / scale, forecast.upper / scale,
+    color="#B8C8DA", alpha=0.55, linewidth=0,
+    label="Khoảng conformal 90%",
+)
+ax.plot(forecast.date, forecast.actual / scale,
+        color="#C77655", linewidth=2.2, label="Doanh thu thực tế")
+ax.plot(forecast.date, forecast.prediction / scale,
+        color="#205089", linewidth=2.0, label="LightGBM")
+
+missed = forecast.loc[~inside]
+ax.scatter(missed.date, missed.actual / scale, s=30, color="#A33D3D",
+           edgecolor="white", linewidth=0.7, zorder=4,
+           label=f"Ngoài khoảng ({len(missed)} ngày)")
+ax.set_title("LightGBM với khoảng dự báo conformal trên tập TEST 2022",
+             loc="left", fontsize=20, weight="bold", color="#17324D", pad=28)
+ax.text(0, 1.015,
+        f"Coverage thực tế {inside.mean():.1%} · Mục tiêu "
+        f"{coverage_target:.0%} · Bán kính {q_hat / scale:.2f} triệu đồng",
+        transform=ax.transAxes, fontsize=12, color="#52677D")
+ax.set(xlabel="Ngày", ylabel="Doanh thu (triệu đồng)")
+ax.xaxis.set_major_locator(mdates.MonthLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y"))
+ax.grid(axis="y", color="#DCE5EE")
+ax.grid(axis="x", visible=False)
+ax.spines[["top", "right"]].set_visible(False)
+ax.spines[["left", "bottom"]].set_color("#B8C8DA")
+ax.tick_params(colors="#52677D")
+ax.legend(loc="upper right", frameon=True, facecolor="white",
+          edgecolor="#DCE5EE", ncol=2)
+fig.subplots_adjust(left=0.08, right=0.97, top=0.86, bottom=0.12)
+plt.show()
+```
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-26-khoang-du-bao-conformal-test-2022.png"
+  alt="Biểu đồ doanh thu thật, dự báo LightGBM và khoảng conformal 90% trên 184 ngày của tập kiểm tra nửa cuối năm 2022; 14 điểm màu đỏ nằm ngoài khoảng"
+  caption="Hình 26: Khoảng conformal bao phủ 170/184 ngày, tương đương 92,4%, cao hơn nhẹ so với mục tiêu 90%. Các đỉnh cuối tháng vẫn là nhóm dễ vượt cận trên nhất."
+/>
+
+Độ rộng trung bình 2,41 triệu đồng nhỏ hơn hai lần bán kính vì cận dưới được chặn tại 0 ở những ngày dự báo thấp. Plot cũng cho thấy coverage tổng thể đạt mục tiêu nhưng sai số chưa phân bố đều: nhiều điểm trượt tập trung quanh các đỉnh doanh thu, gợi ý bước tiếp theo nên là interval thích nghi theo mức dự báo hoặc mùa vụ.
+
+Khi chạy notebook, hãy đọc bốn tín hiệu cùng nhau:
+
+- `empirical_coverage` thấp hơn nhiều 0,90: residual lịch sử không còn đại diện cho giai đoạn mới; cần hiệu chỉnh lại trên cửa sổ gần hơn hoặc thêm cơ chế phát hiện regime shift.
+- `mean_width` quá lớn so với doanh thu trung bình: khoảng an toàn nhưng ít giá trị ra quyết định; thử residual chuẩn hóa theo mức doanh thu hoặc interval theo từng mùa.
+- `point_WAPE` xấu đồng thời với coverage thấp: vấn đề nằm ở model hoặc dữ liệu, không nên chỉ nới interval để che lỗi.
+- Các `assert` thất bại: dừng pipeline trước khi xuất dữ liệu cho hệ thống lập kế hoạch.
+
+Conformal prediction có bảo đảm hữu hạn mẫu khi calibration và tương lai có tính hoán đổi phù hợp. Chuỗi doanh thu có thể đổi chế độ theo thời gian, nên mức 90% ở đây là **mục tiêu cần giám sát**, không phải lời hứa vô điều kiện. Cải tiến nhỏ này có giá trị vì nó biến sự không chắc chắn thành một đại lượng đo được mà vẫn giữ nguyên model LightGBM và phần giải thích SHAP hiện có.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+Interval hữu ích nhất khi nó không tự động thay con người, mà giúp chọn đúng vài ngày đáng xem. Scenario dưới đây giả sử hệ thống chỉ cần human review khi chưa chắc doanh thu có vượt ngưỡng năng lực 5 triệu đồng/ngày hay không.
+
+## Human-in-the-loop: review ít ngày, giảm thiệt hại
+
+Một ngày đi vào review queue khi interval cắt ngưỡng: cận dưới chưa vượt 5 triệu nhưng cận trên đã vượt. Reviewer kiểm tra thêm lịch khuyến mãi, tồn kho và sự kiện rồi có thể chọn phương án an toàn. Để backtest đơn giản và tái lập, ta mô phỏng quyết định an toàn đó bằng cách dùng `upper`; những ngày còn lại vẫn dùng point forecast.
+
+```python
+CAPACITY_LIMIT = 5_000_000
+UNDER_WEIGHT = 2.0   # thiếu 1 đồng gây thiệt hại gấp đôi dư 1 đồng
+OVER_WEIGHT = 1.0
+
+needs_review = (
+    (forecast.lower <= CAPACITY_LIMIT)
+    & (forecast.upper >= CAPACITY_LIMIT)
+)
+fallback_plan = forecast.prediction.copy()
+fallback_plan.loc[needs_review] = forecast.loc[needs_review, "upper"]
+
+def business_loss(actual, planned):
+    shortage = np.clip(np.asarray(actual) - np.asarray(planned), 0, None)
+    excess = np.clip(np.asarray(planned) - np.asarray(actual), 0, None)
+    return UNDER_WEIGHT * shortage + OVER_WEIGHT * excess
+
+point_loss = business_loss(forecast.actual, forecast.prediction)
+fallback_loss = business_loss(forecast.actual, fallback_plan)
+reduction = point_loss.sum() - fallback_loss.sum()
+
+point_shortage = np.clip(
+    forecast.actual.to_numpy() - forecast.prediction.to_numpy(), 0, None
+).sum()
+fallback_shortage = np.clip(
+    forecast.actual.to_numpy() - fallback_plan.to_numpy(), 0, None
+).sum()
+point_excess = np.clip(
+    forecast.prediction.to_numpy() - forecast.actual.to_numpy(), 0, None
+).sum()
+fallback_excess = np.clip(
+    fallback_plan.to_numpy() - forecast.actual.to_numpy(), 0, None
+).sum()
+
+print(f"Human review       : {needs_review.sum()}/{len(forecast)} ngày "
+      f"({needs_review.mean():.1%})")
+print(f"Loss point forecast: {point_loss.sum():,.0f}")
+print(f"Loss có fallback   : {fallback_loss.sum():,.0f}")
+print(f"Loss giảm          : {reduction:,.0f} "
+      f"({reduction / point_loss.sum():.2%})")
+print(f"Shortage giảm      : {1 - fallback_shortage / point_shortage:.2%}")
+print(f"Overplanning tăng  : {fallback_excess / point_excess - 1:.2%}")
+```
+
+```output
+Human review       : 15/184 ngày (8.2%)
+Loss point forecast: 174,108,392
+Loss có fallback   : 166,172,836
+Loss giảm          : 7,935,556 (4.56%)
+Shortage giảm      : 11.35%
+Overplanning tăng  : 46.48%
+```
+
+Kết quả scenario cho thấy interval thu hẹp khối lượng human review xuống **8,2% số ngày** nhưng vẫn giảm 4,56% asymmetric loss và giảm 11,35% tổng thiếu hụt. Đổi lại, lượng dự báo dư tăng 46,48%; đây là lý do fallback cần human judgement thay vì luôn tự động chọn cận trên.
+
+Ngưỡng 5 triệu và trọng số 2:1 chỉ là giả định minh họa, không được tối ưu trên TEST. Khi triển khai thật, doanh nghiệp phải thay chúng bằng giới hạn năng lực và chi phí thiếu hàng/tồn kho đã thống nhất trước, sau đó backtest trên nhiều cửa sổ thời gian. Con số 4,56% mô tả scenario này, không phải cam kết rằng mọi human-in-the-loop system sẽ giảm thiệt hại ở cùng mức.
+
+</MdxPage>

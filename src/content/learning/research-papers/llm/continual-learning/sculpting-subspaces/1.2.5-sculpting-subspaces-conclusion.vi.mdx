@@ -1,0 +1,241 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-conclusion',
+  locale: 'vi',
+  title: 'Phần 5: Kết luận & Hướng phát triển',
+  headings: [
+    'Tổng kết Đóng góp của Công trình',
+    '3 Thách thức & Hạn chế Cần Nghiên cứu Thêm',
+    'So sánh Triết lý: Sculpting Subspaces vs SDC-LoRA vs O-LoRA',
+    'Hướng dẫn Lựa chọn Giải pháp cho Kỹ sư Production',
+    'Phân tích Dung lượng Không gian con Lý thuyết (7B – 70B)',
+    'Tầm nhìn Tương lai của Học Liên tục trên LLM',
+    'Tổng kết Toàn bộ Hệ thống Câu hỏi Nghiên cứu',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Conclusion',
+    'Limitations',
+    'Future Work',
+    'SDC-LoRA',
+    'O-LoRA',
+    'Production Decision',
+    'SVD Overhead',
+    'Continual Learning Frontiers',
+    'Synthesis',
+    'Research Questions',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### Tổng kết Đóng góp của Công trình
+
+Bài báo **"Sculpting Subspaces: Constrained Full Fine-Tuning in LLMs for Continual Learning"** đã tạo nên một bước chuyển dịch tư duy quan trọng trong lĩnh vực học liên tục trên mô hình ngôn ngữ lớn:
+
+<ConceptHierarchy
+  ariaLabel="Bước Chuyển dịch Tư duy trong Continual Learning"
+  root={{
+    title: 'Bước Chuyển dịch Tư duy trong Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Quan niệm Truyền thống (Trường phái PEFT)',
+      detail: (
+        <span>
+          <strong>Phương thức:</strong> Đóng băng trọng số gốc <InlineMath formula="W_0" /> và gắn thêm adapter nhỏ riêng biệt cho từng tác vụ mới.<br />
+          <strong>Hạn chế:</strong> Nghẽn dung lượng biểu diễn (Capacity Bottleneck), bùng nổ tham số khi chuỗi học kéo dài và suy giảm khả năng theo dõi chỉ dẫn.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Đóng góp Mới (Sculpting Subspaces - OSFT)',
+      detail: (
+        <span>
+          <strong>Phương thức:</strong> Cập nhật trực tiếp trên toàn bộ ma trận trọng số <InlineMath formula="W" /> (Full Fine-Tuning) dưới ràng buộc trực giao.<br />
+          <strong>Ưu thế:</strong> <strong>0% Tăng trưởng Tham số</strong>, khai phóng 100% dung lượng biểu diễn và triệt tiêu quên lãng thảm khốc nhờ bảo vệ không gian High-Rank SVD.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Bằng cách tận dụng tính dư thừa phổ (**Spectral Redundancy**) qua **Adaptive SVD** và áp đặt **Chiếu Gradient Trực giao** (**Orthogonal Projection**), phương pháp giải quyết triệt để sự giằng co giữa tính mềm dẻo thích nghi (**Plasticity**) và khả năng lưu giữ tri thức (**Stability**), mở ra con đường huấn luyện liên tục trên một mô hình duy nhất không thay đổi kiến trúc.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 3 Thách thức & Hạn chế Cần Nghiên cứu Thêm
+
+Mặc dù đạt hiệu năng vượt trội, công trình vẫn tồn tại một số rào cản kỹ thuật cần được khai phá sâu hơn trong tương lai:
+
+1. **Chi phí Tính toán Phân rã SVD:**
+   - Việc thực hiện SVD trên các ma trận kích thước lớn (ví dụ <InlineMath formula="11008 \times 4096" /> ở tầng MLP) đòi hỏi tài nguyên tính toán đáng kể. Dù chỉ cần tính một lần ở đầu mỗi tác vụ, việc mở rộng lên các siêu mô hình (70B–405B) sẽ cần các thuật toán xấp xỉ SVD nhanh (*Randomized SVD*).
+
+2. **Dung lượng Tham số khi Chuỗi Tác vụ Cực dài (> 50 Tác vụ):**
+   - Khi số lượng tác vụ tiếp tục tăng lên hàng chục hoặc hàng trăm bài toán, tổng số hướng con cần bảo vệ <InlineMath formula="k^{(l)}" /> sẽ dần chiếm trọn không gian rank của ma trận, dẫn đến hiện tượng **cạn kiệt dung lượng học** (**Capacity Saturation**). Cần cơ chế nén hoặc tái cấu trúc tri thức định kỳ.
+
+3. **Yêu cầu về Dữ liệu Calibration:**
+   - Bước đo lường độ quan trọng tầng <InlineMath formula="I^{(l)}" /> cần một lượng nhỏ mẫu dữ liệu của tác vụ trước để đo góc kích hoạt. Trong các kịch bản bảo mật nghiêm ngặt cấm hoàn toàn việc lưu trữ mẫu cũ, cần có phương pháp ước lượng không cần dữ liệu (*Data-free Importance Estimation*).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### So sánh Triết lý: Sculpting Subspaces vs SDC-LoRA vs O-LoRA
+
+| Khía cạnh Kỹ thuật | O-LoRA (EMNLP 2023) | SDC-LoRA (ACL 2026) | **Sculpting Subspaces (2025)** |
+| :--- | :---: | :---: | :---: |
+| **Bản chất Kiến trúc** | PEFT / LoRA | PEFT / LoRA | **Full Fine-Tuning** |
+| **Không gian Trọng số** | Đóng băng <InlineMath formula="W_0" /> | Đóng băng <InlineMath formula="W_0" /> | **Cập nhật trực tiếp <InlineMath formula="W" />** |
+| **Cơ chế Chống quên** | Ép trực giao giữa các adapter <InlineMath formula="A_t, B_t" /> | Kiểm soát góc trôi dạt <InlineMath formula="\Delta \Theta" /> của subspace | **Chiếu gradient trực giao trên SVD subspace** |
+| **Tăng trưởng Tham số** | Có (+Adapter theo task) | Có (+Adapter theo task) | **0% (Zero Parameter Growth)** |
+| **Phân bổ Rank Tầng** | Đồng đều (Fixed) | Đồng đều / Thủ công | **Tự động theo Độ quan trọng Tầng <InlineMath formula="I^{(l)}" />** |
+| **Độ phức tạp Phục vụ** | Cần cơ chế switch adapter | Cần cơ chế switch adapter | **1 Checkpoint mô hình duy nhất** |
+
+---
+
+### Hướng dẫn Lựa chọn Giải pháp cho Kỹ sư Production
+
+<ConceptHierarchy
+  ariaLabel="Cây Quyết định Lựa chọn Giải pháp Cho Production"
+  root={{
+    title: 'Decision Tree cho Continual Learning LLM',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Chọn Sculpting Subspaces khi:',
+      detail: 'Hệ thống cần phục vụ duy nhất 1 mô hình chuẩn hóa, không thể chấp nhận độ trễ chuyển đổi adapter, và cần tối đa hóa năng lực biểu diễn trên các tác vụ suy luận sâu.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Chọn SDC-LoRA / O-LoRA khi:',
+      detail: 'Hạ tầng GPU huấn luyện có VRAM hạn chế không đủ chạy Full Backpropagation, hoặc hệ thống yêu cầu cô lập hoàn toàn adapter cho từng khách hàng/tenant riêng biệt.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Phân tích Dung lượng Không gian con Lý thuyết (7B – 70B)
+
+Với cấu hình mặc định <InlineMath formula="\text{trr} = 0.80" /> và <InlineMath formula="\text{mrr} = 0.10" />, ta có thể ước tính ngân sách rank khả dụng cho tác vụ mới (Low-Rank Budget) trên các quy mô mô hình khác nhau:
+
+| Mô hình | <InlineMath formula="d = \min(d_O, d_I)" /> | Low-Rank Budget tối đa mỗi tầng (<InlineMath formula="20\% \times d" />) | Số tầng | Tổng hướng Low-Rank toàn mạng |
+| :--- | :---: | :---: | :---: | :---: |
+| **LLaMA-2 7B** | 4096 | **~819 hướng** | 32 | ~26,208 hướng |
+| **LLaMA-2 13B** | 5120 | **~1024 hướng** | 40 | ~40,960 hướng |
+| **LLaMA-2 70B** | 8192 | **~1638 hướng** | 80 | ~131,072 hướng |
+
+> **Ý nghĩa thực tiễn:**
+>
+> * Mỗi tác vụ mới cần chiếm một phần trong ngân sách Low-Rank này. Nếu mỗi task tiêu thụ trung bình ~100–200 hướng hữu hiệu trên mỗi tầng, mô hình **7B** có thể hỗ trợ thoải mái **4–8 tác vụ** trước khi bắt đầu thấy áp lực dung lượng.
+> * Mô hình **70B** có ngân sách Low-Rank gấp **5 lần** so với 7B (1638 vs 819 hướng mỗi tầng), mở ra khả năng hỗ trợ chuỗi **20+ tác vụ** mà chưa cần cơ chế nén phổ định kỳ.
+> * Trong thực tế, nhiều tầng giữa của Attention có <InlineMath formula="I^{(l)}" /> rất thấp và giải phóng tới **60–90%** rank, nên ngân sách thực tế lớn hơn đáng kể so với ước tính trung bình 20%.
+
+---
+
+### Tầm nhìn Tương lai của Học Liên tục trên LLM
+
+Sự ra đời của **Sculpting Subspaces** mở ra nhiều hướng nghiên cứu triển vọng:
+- **Tự động Nén Tri thức Định kỳ:** Tích hợp kỹ thuật gộp phổ (Spectral Merging) để giải phóng lại các hướng con đã bảo vệ sau khi các tác vụ cũ được củng cố.
+- **Mở rộng sang Mô hình Đa phương thức (Multimodal LLMs):** Áp dụng cơ chế điêu khắc không gian con lên các tầng Vision-Language Connector và Audio Encoders.
+- **Tối ưu hóa Huấn luyện Phân tán:** Kết hợp phép chiếu gradient trực giao với các giao thức song song hóa mô hình (Tensor Parallelism, Pipeline Parallelism) cho các mô hình quy mô 70B+.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Tổng kết Toàn bộ Hệ thống Câu hỏi Nghiên cứu
+
+Trải qua trọn vẹn 5 phần của chuyên đề nghiên cứu **Sculpting Subspaces (OSFT)**, toàn bộ 7 câu hỏi nền tảng đã được giải đáp đầy đủ cả về mặt lý thuyết toán học, thiết kế thuật toán lẫn kiểm chứng thực nghiệm:
+
+<ConceptHierarchy
+  ariaLabel="Tổng kết Trọn vẹn 7 Câu hỏi Nghiên cứu"
+  root={{
+    title: 'Hệ thống 7 Câu hỏi Nghiên cứu Đã Được Giải Mã Hoàn Tất',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Tại sao phải Full Fine-Tuning thay vì PEFT / LoRA?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> Phá bỏ giới hạn dung lượng (Capacity Bottleneck) của LoRA rank hẹp, khai phóng 100% không gian biểu diễn, vượt O-LoRA <strong>+7.1%</strong> trên TRACE và đạt <strong>0% tăng trưởng tham số</strong>.
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '2. Tại sao lại lựa chọn Không gian SVD để bảo tồn?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> SVD phân rã ranh giới hình học tự nhiên giữa <strong>High-Rank</strong> (mật độ năng lượng cao, tương quan với các hướng cong Hessian nguy hiểm nhất) và <strong>Low-Rank</strong> (năng lượng thấp).
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. Khóa hướng cũ thì học bài mới ở đâu?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> Tái sử dụng <strong>không gian Low-Rank</strong> có chuẩn kích hoạt tiệm cận 0 với tác vụ cũ (đã kiểm chứng trên Granite 8B) để học bài mới mà không gây can thiệp.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '4. Giải thuật thực thi cụ thể ra sao?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> SVD 1 lần trước mỗi task, đo độ nhạy cảm tầng <InlineMath formula="I^{(l)}" /> qua Cosine Similarity để cấp rank thích ứng <InlineMath formula="r^{(l)}" />, và chiếu gradient trực giao 2 phía <InlineMath formula="\nabla W_{\text{proj}} = \nabla W - U_{\text{high}} U_{\text{high}}^\top \nabla W V_{\text{high}} V_{\text{high}}^\top" />.
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '5. Mô hình có thật sự độc lập khi triển khai?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> Hoạt động theo chuẩn <strong>Task-Agnostic Inference</strong> — không cần Task-ID khi suy luận, không lưu trữ dữ liệu cũ (No Replay) và chỉ duy trì 1 checkpoint mô hình duy nhất.
+        </span>
+      ),
+      tone: 'blue',
+    },
+    {
+      title: '6. Làm sao giữ vững Safety (96%) và Instruction Following (80%)?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> Không gian High-Rank khóa chặt các vector căn chỉnh đạo đức RLHF ban đầu, ngăn gradient tác vụ mới ghi đè làm sụp đổ rào chắn an toàn (so với mức dưới 30% của Full FT).
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '7. Giới hạn dung lượng dài hạn và hướng phát triển tương lai?',
+      detail: (
+        <span>
+          <strong>Giải đáp:</strong> Tránh Capacity Saturation bằng kỹ thuật nén phổ định kỳ (Spectral Merging), mở rộng sang Vision-Language và ứng dụng Randomized SVD cho các siêu mô hình 70B+.
+        </span>
+      ),
+      tone: 'amber',
+    },
+  ]}
+/>
+
+---
+
+<LessonNote tone="tip">
+  **Đúc kết Toàn Chuyên đề:** **Sculpting Subspaces (OSFT)** là minh chứng thuyết phục rằng: Không cần phải đánh đổi giữa **dung lượng biểu diễn (Full FT)** và **tính ổn định tham số (PEFT)**. Bằng việc "điêu khắc" chính xác các không gian con thông qua SVD và trực giao hóa gradient, ta có thể xây dựng những hệ thống LLM liên tục tiến hóa mà không bao giờ lãng quên.
+</LessonNote>
+
+</MdxPage>

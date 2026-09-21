@@ -4,6 +4,7 @@ import { compile } from '@mdx-js/mdx';
 import remarkGfm from 'remark-gfm';
 import type { Plugin, ViteDevServer } from 'vite';
 import {
+  REFERENCE_AUTHORED_MDX_COMPONENT_NAMES,
   getLearningMdxComponentNames,
   parseLearningMdxPath,
   type LearningMdxMetadata,
@@ -21,18 +22,24 @@ const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
   'interactionPlacement', 'categoryId', 'correctOrder', 'isCorrect', 'compact',
   'hideUnsortedLabel', 'page', 'pageCount', 'step', 'icon',
+  'headingContract',
   'evidence', 'exception',
   'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
+const CONCEPT_HIERARCHY_TONES = new Set(['blue', 'amber', 'teal', 'violet', 'neutral']);
 
-type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; argument?: Node; operator?: string; source?: Node };
+type Node = { type?: string; name?: string; value?: unknown; depth?: number; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; expressions?: Node[]; quasis?: Array<{ value?: { raw?: string; cooked?: string } }>; argument?: Node; operator?: string; source?: Node };
 
 function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) => void, parent?: Node): void {
   if (!node || typeof node !== 'object') return;
   visit(node, parent);
   for (const value of Object.values(node)) {
-    if (Array.isArray(value)) value.forEach((child) => walk(child as Node, visit, node));
+    if (Array.isArray(value)) {
+      value.forEach((child) => {
+        walk(child as Node, visit, node);
+      });
+    }
     else if (value && typeof value === 'object') walk(value as Node, visit, node);
   }
 }
@@ -44,11 +51,19 @@ function propertyName(node: Node | undefined): string | null {
   return null;
 }
 
+function mdastText(node: Node | null | undefined): string {
+  if (!node) return '';
+  if ((node.type === 'text' || node.type === 'inlineCode') && typeof node.value === 'string') return node.value;
+  return (node.children ?? []).map(mdastText).join('');
+}
+
 function assertStaticExpression(node: Node | null | undefined, label: string): void {
   if (!node) throw new Error(`${label}: empty MDX expression`);
-  if (node.type === 'Literal') return;
+  if (node.type === 'Literal' || node.type === 'JSXElement' || node.type === 'JSXFragment' || node.type === 'JSXText') return;
   if (node.type === 'ArrayExpression') {
-    node.elements?.forEach((item) => assertStaticExpression(item, label));
+    node.elements?.forEach((item) => {
+      assertStaticExpression(item, label);
+    });
     return;
   }
   if (node.type === 'ObjectExpression') {
@@ -56,6 +71,12 @@ function assertStaticExpression(node: Node | null | undefined, label: string): v
       if (property.type !== 'Property' || property.computed) throw new Error(`${label}: unsupported object property`);
       if (!propertyName(property.key)) throw new Error(`${label}: invalid object key`);
       assertStaticExpression(property.value as Node, label);
+    });
+    return;
+  }
+  if (node.type === 'TemplateLiteral') {
+    node.expressions?.forEach((item) => {
+      assertStaticExpression(item, label);
     });
     return;
   }
@@ -76,7 +97,11 @@ function stringsFromExpression(node: Node | null | undefined, output: string[], 
     return;
   }
   for (const value of Object.values(node)) {
-    if (Array.isArray(value)) value.forEach((child) => stringsFromExpression(child as Node, output, parentKey));
+    if (Array.isArray(value)) {
+      value.forEach((child) => {
+        stringsFromExpression(child as Node, output, parentKey);
+      });
+    }
     else if (value && typeof value === 'object') stringsFromExpression(value as Node, output, parentKey);
   }
 }
@@ -84,14 +109,36 @@ function stringsFromExpression(node: Node | null | undefined, output: string[], 
 function staticValue(node: Node | null | undefined): unknown {
   if (!node) return undefined;
   if (node.type === 'Literal') return node.value;
+  if (node.type === 'TemplateLiteral') {
+    return (node.quasis ?? []).map((quasi, i) => (quasi.value?.raw ?? '') + (staticValue(node.expressions?.[i]) ?? '')).join('');
+  }
   if (node.type === 'ArrayExpression') return node.elements?.map(staticValue) ?? [];
   if (node.type === 'ObjectExpression') return Object.fromEntries((node.properties ?? []).map((property) => [propertyName(property.key)!, staticValue(property.value as Node)]));
   if (node.type === 'UnaryExpression' && node.operator === '-') return -Number(staticValue(node.argument));
   return undefined;
 }
 
+function assertConceptHierarchyData(value: unknown, filePath: string): void {
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      assertConceptHierarchyData(item, filePath);
+    });
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  const record = value as Record<string, unknown>;
+  if (record.tone !== undefined && (typeof record.tone !== 'string' || !CONCEPT_HIERARCHY_TONES.has(record.tone))) {
+    throw new Error(`${filePath}: unsupported ConceptHierarchy tone ${String(record.tone)}`);
+  }
+  Object.values(record).forEach((item) => {
+    assertConceptHierarchyData(item, filePath);
+  });
+}
+
 export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
+  authoredHeadings: string[];
+  pageHeadings: Array<string | null>;
   pageIndexes: number[];
   quizQuestionIds: string[];
   quizQuestions: LearningMdxQuizQuestionInspection[];
@@ -101,6 +148,44 @@ export type LearningMdxInspection = {
   citationReferences: LearningMdxCitationInspection[];
   searchText: string;
 };
+
+function getMdxPageIndex(node: Node): number | null {
+  const pageAttribute = node.attributes?.find((attribute) => attribute.name === 'page');
+  if (!pageAttribute) return null;
+  if (typeof pageAttribute.value === 'string') {
+    const parsed = Number(pageAttribute.value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  }
+  const expression = typeof pageAttribute.value === 'object'
+    ? (pageAttribute.value as Node).data?.estree?.body?.[0]?.expression
+    : undefined;
+  const value = staticValue(expression);
+  return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : null;
+}
+
+function findFirstPageHeading(node: Node): string | null {
+  if (node.type === 'heading' && typeof node.depth === 'number' && node.depth >= 2 && node.depth <= 6) {
+    return mdastText(node).trim() || null;
+  }
+  for (const child of node.children ?? []) {
+    const heading = findFirstPageHeading(child);
+    if (heading) return heading;
+  }
+  return null;
+}
+
+function getPageHeadings(tree: Node): Array<string | null> {
+  const pages: Array<{ index: number; heading: string | null }> = [];
+  walk(tree, (node) => {
+    if (node.type !== 'mdxJsxFlowElement' || node.name !== 'MdxPage') return;
+    const index = getMdxPageIndex(node);
+    if (index !== null) pages.push({ index, heading: findFirstPageHeading(node) });
+  });
+  if (!pages.length) return [findFirstPageHeading(tree)];
+  const headings = Array<string | null>(Math.max(...pages.map((page) => page.index)) + 1).fill(null);
+  for (const page of pages) headings[page.index] = page.heading;
+  return headings;
+}
 
 export type LearningMdxCitationInspection = {
   paperId: string;
@@ -118,6 +203,7 @@ export type LearningMdxQuizQuestionInspection = {
   id: string;
   mode: string;
   optionCount: number;
+  optionLabelLengths: number[];
   correctOptionIndexes: number[];
 };
 
@@ -130,6 +216,9 @@ export async function inspectLearningMdx(
   const searchParts: string[] = [];
   let metadataExports = 0;
   let metadata: Record<string, unknown> = {};
+  const levelTwoHeadings: string[] = [];
+  const levelThreeHeadings: string[] = [];
+  let pageHeadings: Array<string | null> = [];
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
   const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
@@ -139,8 +228,13 @@ export async function inspectLearningMdx(
   const citationReferences: LearningMdxCitationInspection[] = [];
   await compile(source, {
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
+      pageHeadings = getPageHeadings(tree);
       walk(tree, (node) => {
         if (node.type === 'text' && typeof node.value === 'string') searchParts.push(node.value);
+        if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
+          const heading = mdastText(node).trim();
+          if (heading) (node.depth === 3 ? levelThreeHeadings : levelTwoHeadings).push(heading);
+        }
         if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {
           if (!node.name || !allowedComponents.has(node.name)) {
             throw new Error(`${filePath}: unexpected MDX component ${node.name ?? '<fragment>'}`);
@@ -185,6 +279,9 @@ export async function inspectLearningMdx(
           }
           for (const attribute of node.attributes ?? []) {
             if (attribute.type === 'mdxJsxExpressionAttribute') throw new Error(`${filePath}: spread attributes are not allowed`);
+            if (node.name === 'ConceptHierarchy' && attribute.name === 'density' && typeof attribute.value === 'string' && !['default', 'compact'].includes(attribute.value)) {
+              throw new Error(`${filePath}: unsupported ConceptHierarchy density ${attribute.value}`);
+            }
             if (typeof attribute.value === 'string' && !STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
             const expression = attribute.value && typeof attribute.value === 'object'
               ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
@@ -195,13 +292,16 @@ export async function inspectLearningMdx(
             }
             if (!expression) continue;
             assertStaticExpression(expression, filePath);
+            if (node.name === 'ConceptHierarchy' && ['root', 'children', 'nodes', 'connections'].includes(attribute.name ?? '')) {
+              assertConceptHierarchyData(staticValue(expression), filePath);
+            }
             stringsFromExpression(expression, searchParts, attribute.name);
             if (node.name === 'MdxPage' && attribute.name === 'page') pageIndexes.push(Number(staticValue(expression)));
             if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
               const questions = staticValue(expression) as Array<{
                 id?: unknown;
                 mode?: unknown;
-                options?: Array<{ isCorrect?: unknown }>;
+                options?: Array<{ label?: unknown; isCorrect?: unknown }>;
               }>;
               for (const question of questions) {
                 const options = Array.isArray(question.options) ? question.options : [];
@@ -211,6 +311,9 @@ export async function inspectLearningMdx(
                   id,
                   mode: String(question.mode ?? ''),
                   optionCount: options.length,
+                  optionLabelLengths: options.map((option) => (
+                    typeof option.label === 'string' ? [...option.label.trim()].length : 0
+                  )),
                   correctOptionIndexes: options.flatMap((option, index) => option.isCorrect === true ? [index] : []),
                 });
               }
@@ -250,6 +353,8 @@ export async function inspectLearningMdx(
   if (metadataExports !== 1) throw new Error(`${filePath}: expected exactly one lessonMetadata export`);
   return {
     metadata,
+    authoredHeadings: levelThreeHeadings.length ? levelThreeHeadings : levelTwoHeadings,
+    pageHeadings,
     pageIndexes,
     quizQuestionIds,
     quizQuestions,
@@ -306,9 +411,11 @@ export function getLearningMdxRuntimeCapabilities(
   referenceLessonKeys: ReadonlySet<string>,
 ): LearningMdxRuntimeCapabilities {
   const usedComponents = new Set(getLearningMdxComponentNames(source));
+  const hasDomainComponents = getLearningDomainMdxComponentNames(domainId).some((name) => usedComponents.has(name));
+  const hasReferenceComponents = REFERENCE_AUTHORED_MDX_COMPONENT_NAMES.some((name) => usedComponents.has(name));
   return {
-    needsDomainAdapter: getLearningDomainMdxComponentNames(domainId).some((name) => usedComponents.has(name)),
-    needsReferenceRuntime: referenceLessonKeys.has(`${domainId}/${lessonId}`),
+    needsDomainAdapter: hasDomainComponents,
+    needsReferenceRuntime: referenceLessonKeys.has(`${domainId}/${lessonId}`) || hasReferenceComponents,
   };
 }
 
@@ -316,7 +423,7 @@ export function learningMdxRuntimePlugin(referenceLessonKeys: ReadonlySet<string
   return {
     name: 'torchviz-learning-mdx-runtime-capabilities',
     enforce: 'pre',
-    transform(source, id) {
+    async transform(source, id) {
       const filePath = id.split('?')[0];
       const parsed = parseLearningMdxPath(filePath);
       if (!parsed) return null;
@@ -326,7 +433,8 @@ export function learningMdxRuntimePlugin(referenceLessonKeys: ReadonlySet<string
         parsed.lessonId,
         referenceLessonKeys,
       );
-      return `${source}\nexport const lessonRuntime = ${JSON.stringify(capabilities)};\n`;
+      const { pageHeadings } = await inspectLearningMdx(source, filePath, parsed.domainId);
+      return `${source}\nexport const lessonRuntime = ${JSON.stringify(capabilities)};\nexport const lessonPageHeadings = ${JSON.stringify(pageHeadings)};\n`;
     },
   };
 }
@@ -347,6 +455,9 @@ export async function validateLearningMdxSource(
   }
   const inspection = await inspectLearningMdx(source, filePath, parsed.domainId);
   assertLearningMdxMetadata(inspection.metadata, parsed, filePath);
+  if (inspection.metadata.headingContract === 'exact' && JSON.stringify(inspection.metadata.headings) !== JSON.stringify(inspection.authoredHeadings)) {
+    throw new Error(`${filePath}: metadata headings must exactly match authored headings`);
+  }
   const catalogTitle = (lesson.text?.title as Record<string, string> | undefined)?.[parsed.locale];
   if (catalogTitle && inspection.metadata.title !== catalogTitle) {
     throw new Error(`${filePath}: metadata title does not match the catalog title for ${parsed.locale}`);
@@ -409,6 +520,9 @@ function assertLearningMdxMetadata(
     if (!Array.isArray(values) || !values.length || values.some((value) => typeof value !== 'string' || !value.trim())) {
       throw new Error(`${filePath}: ${key} must be a non-empty string array`);
     }
+  }
+  if (metadata.headingContract !== undefined && metadata.headingContract !== 'exact') {
+    throw new Error(`${filePath}: headingContract must be exact when provided`);
   }
   if (metadata.conceptIds !== undefined) {
     const conceptIds = metadata.conceptIds;

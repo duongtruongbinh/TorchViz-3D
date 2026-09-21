@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'dot-product-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Tính Dot Product', 'Dấu và Góc', 'Orthogonality'],
+  keywords: ['dot product', 'angle', 'orthogonality', 'quiz'],
+  conceptIds: ['dot-product-calculation', 'dot-product-angle', 'dot-product-orthogonality'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="dot-product-quiz" questions={[
+  {
+    id: 'dot-product-calculation',
+    title: 'Tính Dot Product',
+    prompt: 'Cho hai vector $a = \\begin{bmatrix} 1 \\\\ 2 \\end{bmatrix}$ và $b = \\begin{bmatrix} 3 \\\\ 4 \\end{bmatrix}$. Giá trị tích vô hướng $a^T b$ bằng bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$10$' },
+      { id: 'b', label: '$11$', isCorrect: true },
+      { id: 'c', label: '$\\begin{bmatrix} 3 \\\\ 8 \\end{bmatrix}$' },
+      { id: 'd', label: '$14$' },
+    ],
+    success: 'Đúng. $a^T b = (1 \\times 3) + (2 \\times 4) = 3 + 8 = 11$.',
+    error: 'Nhân các phần tử tương ứng rồi cộng lại: $a^T b = \\sum a_i b_i$.',
+  },
+  {
+    id: 'dot-product-angle',
+    title: 'Dấu và Góc',
+    prompt: 'Hai vector khác không có tích vô hướng âm ($a^T b < 0$). Phát biểu nào sau đây chắc chắn đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Góc giữa chúng là góc nhọn ($\\theta < 90^\\circ$).' },
+      { id: 'b', label: 'Góc giữa chúng đúng bằng $90^\\circ$.' },
+      { id: 'c', label: 'Góc giữa chúng là góc tù ($90^\\circ < \\theta \\le 180^\\circ$).', isCorrect: true },
+      { id: 'd', label: 'Hai vector có cùng độ dài.' },
+    ],
+    success: 'Đúng. Vì $a^T b = \\|a\\| \\|b\\| \\cos \\theta$, khi $a^T b < 0 \\implies \\cos \\theta < 0 \\implies \\theta > 90^\\circ$ (góc tù).',
+    error: 'Dùng công thức hình học: $a^T b = \\|a\\|_2 \\|b\\|_2 \\cos \\theta$.',
+  },
+  {
+    id: 'dot-product-orthogonality',
+    title: 'Orthogonality',
+    prompt: 'Cho $a$ và $b$ đều là các vector khác không thỏa mãn $a^T b = 0$. Kết luận nào sau đây đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$a$ và $b$ cùng hướng (song song).' },
+      { id: 'b', label: '$a$ và $b$ có cùng độ dài ($\\text{norm}$).' },
+      { id: 'c', label: '$a = b$' },
+      { id: 'd', label: '$a$ và $b$ vuông góc (trực giao) với nhau.', isCorrect: true },
+    ],
+    success: 'Đúng. Với hai vector khác không, $a^T b = 0 \\iff \\cos \\theta = 0 \\iff \\theta = 90^\\circ$ (vuông góc).',
+    error: 'Tích vô hướng bằng 0 ứng với $\\cos \\theta = 0 \\implies \\theta = 90^\\circ$.',
+  },
+]} />

@@ -1,0 +1,103 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-preparation-eda-code-lab',
+  locale: 'vi',
+  title: "Lab: Phân tích Dữ liệu với Pandas",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Tải & Khảo sát Dataset',
+    'Làm sạch & Khử Trùng lặp',
+    'Trực quan hóa Phân bố Nhãn & Độ dài',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Pandas', 'EDA', 'Data Cleaning', 'Class Distribution'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ tải tập dữ liệu thực tế từ Made-With-ML (`dataset.csv`), thực hiện các thao tác tiền xử lý, kiểm tra dữ liệu rỗng, khử trùng lặp và phân tích phân bố các nhãn mục tiêu bằng **Pandas**.
+
+<LessonNote tone="info">
+  **Dataset URL:** `https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/dataset.csv`
+  - Các cột dữ liệu chính: `id`, `created_on`, `title`, `description`, `tag`.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tải & Khảo sát Dataset
+
+Tạo file script `eda.py` và nạp dữ liệu trực tiếp từ remote URL:
+
+```python
+import pandas as pd
+import numpy as np
+
+# Đọc dữ liệu từ GitHub repository
+DATASET_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/dataset.csv"
+df = pd.read_csv(DATASET_URL)
+
+print(f"📊 Tổng số bản ghi ban đầu: {len(df)}")
+print("\n=== 5 DÒNG ĐẦU TIÊN ===")
+print(df[["title", "tag"]].head())
+
+print("\n=== KIỂM TRA GIÁ TRỊ RỖNG (NULL VALUES) ===")
+print(df.isnull().sum())
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Làm sạch & Khử Trùng lặp
+
+Thực hiện loại bỏ các bản ghi có mô tả rỗng và khử trùng lặp dựa trên nội dung bài viết:
+
+```python
+# 1. Điền giá trị rỗng cho description nếu có
+df["description"] = df["description"].fillna("")
+
+# 2. Tạo cột văn bản tổng hợp (Text feature)
+df["text"] = df["title"] + " " + df["description"]
+
+# 3. Khử trùng lặp dựa trên nội dung văn bản
+initial_count = len(df)
+df = df.drop_duplicates(subset=["text"])
+print(f"🧹 Đã loại bỏ {initial_count - len(df)} bản ghi trùng lặp nội dung.")
+
+# 4. Lọc bỏ các bài viết quá ngắn (< 10 ký tự)
+df = df[df["text"].str.len() >= 10]
+print(f"✅ Số lượng bản ghi sau làm sạch: {len(df)}")
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Trực quan hóa Phân bố Nhãn & Độ dài
+
+Phân tích tỷ lệ các nhãn mục tiêu và độ dài số lượng từ trung bình:
+
+```python
+# Đếm số lượng mẫu của từng nhãn
+tag_counts = df["tag"].value_counts()
+tag_percentages = df["tag"].value_counts(normalize=True) * 100
+
+summary_df = pd.DataFrame({"Số lượng (Count)": tag_counts, "Tỷ lệ (%)": tag_percentages.round(2)})
+print("\n=== PHÂN BỐ CÁC NHÃN (CLASS DISTRIBUTION) ===")
+print(summary_df)
+
+# Tính độ dài số từ trung bình
+df["word_count"] = df["text"].apply(lambda x: len(x.split()))
+print("\n=== THỐNG KÊ ĐỘ DÀI TỪ (WORD COUNT) ===")
+print(df["word_count"].describe())
+```
+
+<LessonNote tone="tip">
+  **Nhận xét:** Khi thấy phân bố giữa các nhãn tương đối đồng đều (mỗi nhãn chiếm ~20-30%), chúng ta có thể yên tâm sử dụng Stratified Splitting để chia dữ liệu cho bước huấn luyện!
+</LessonNote>
+
+</MdxPage>

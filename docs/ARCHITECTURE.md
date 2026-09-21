@@ -200,17 +200,21 @@ The app opens on the Landing Page, then enters the existing editor/canvas/
 inspector workspace through the active TorchViz-3D card.
 
 The Learning Lab is reachable from Landing as the single learning container.
-It uses a domain-first flow backed by twelve typed, React-free domain TOCs and a
+It uses a domain-first flow backed by typed, React-free domain TOCs and a
 stable catalog export in `src/content/learning/index.ts`, constructed and
-validated by pure helpers in `src/core/learning/*`. The catalog has 632 navigable
-nodes, including four canonical CV exercise lessons. Twenty-six
-Vietnamese-first LLM lessons and four Vietnamese-first CV exercise lessons have
-authored MDX; the other 602 nodes use one shared localized placeholder. TOCs own
-localized navigation metadata, locale MDX owns authored lesson content, and
-`src/lib/localization.ts` owns system/UI copy. Learning Lab has no practice
-registry or practice subnodes. Review mode is derived from published lessons
-tagged `exercise`, and applicable Workspace Forward Pass nodes open those
-canonical lesson routes through React-free catalog entry-point metadata.
+validated by pure helpers in `src/core/learning/*`. TOCs own localized
+navigation metadata, locale MDX owns authored lesson content, and
+`src/lib/localization.ts` owns system/UI copy. Unpublished nodes use one shared
+localized placeholder. Learning Lab has no practice registry or practice
+subnodes; review mode is derived from published lessons tagged `exercise`, and
+applicable Workspace Forward Pass nodes open those canonical lesson routes
+through React-free catalog entry-point metadata.
+
+Learning Lab runtime behavior is capability-gated:
+- Reference engines (`Cite`, `PaperSummary`, `LessonReferences`, Floating UI) load dynamically only when `needsReferenceRuntime` is true.
+- Domain adapters (`continual-learning-llm`, `linear-algebra`, `cv`, `llm-ai-engineering`) are lazy-loaded per domain.
+- Linear Algebra renderers are further split into chapter feature modules loaded on demand (`lazyNamed`).
+- Detailed UI ownership layers and component reuse guidelines are documented in [`wiki/concepts/learning-lab.md`](../wiki/concepts/learning-lab.md).
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The
@@ -233,11 +237,11 @@ logic under `src/` unless a future import-path-only cleanup moves these
 entrypoints in one dedicated change.
 
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
-the initial system prompt, then read the OKF page
+the initial system prompt, then read the canonical guide
 [`wiki/concepts/learning-lab.md`](../wiki/concepts/learning-lab.md)
-for the active file map and content ownership contract. The current migration
-record is
-[`docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md`](plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
+for the active file map, UI ownership layers, and content ownership contract.
+The current UI architecture decision record is
+[`docs/plans/2026-08-19-learning-lab-ui-refactor.md`](plans/2026-08-19-learning-lab-ui-refactor.md).
 
 ---
 

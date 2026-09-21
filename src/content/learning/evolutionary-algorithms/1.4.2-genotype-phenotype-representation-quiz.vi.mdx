@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'genotype-phenotype-representation-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Bản chất của Genotype và Phenotype',
+    'Cơ chế Mã hóa và Giải mã Feature Selection',
+    'Bài toán One-Max: Genotype trùng Phenotype',
+    'Các Dạng Biểu diễn Genotype Mở rộng',
+    'Khi nào nên Phân tách Biểu diễn?',
+  ],
+  keywords: ['Quiz', 'Genotype', 'Phenotype', 'Decoding Function', 'One-Max', 'Representation', 'Permutation', 'Modularity'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="genotype-phenotype-representation-quiz" questions={[
+  {
+    id: 'genotype-phenotype-essence',
+    title: 'Bản chất của Genotype và Phenotype',
+    prompt: 'Trong ngữ cảnh thuật toán tiến hóa và học máy, phát biểu nào sau đây phân biệt CHÍNH XÁC NHẤT giữa Genotype và Phenotype?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Genotype là mô hình đã hoàn tất huấn luyện; Phenotype là tập dữ liệu huấn luyện đầu vào.' },
+      { id: 'opt3', label: 'Genotype và Phenotype là hai thuật ngữ đồng nghĩa và máy tính lưu trữ chúng theo cùng một cấu trúc.' },
+      { id: 'opt4', label: 'Genotype là hàm mất mát (loss function); Phenotype là thuật toán tối ưu hóa như SGD hay Adam.' },
+      { id: 'opt1', label: 'Genotype là biểu diễn được biến đổi; Phenotype là nghiệm sau ánh xạ dùng để đánh giá.', isCorrect: true },
+    ],
+    success: 'Chính xác! Tương tự như mã ADN (Genotype) và cơ thể sống thực tế (Phenotype), thuật toán lưu trữ và thao tác trên bản thiết kế nhưng đánh giá chất lượng trên giải pháp thực.',
+    error: 'Chưa chính xác. Hãy nhớ lại: Genotype là biểu diễn dữ liệu trừu tượng (như chuỗi bit nhị phân), còn Phenotype là thực thể giải pháp thực tế (như mô hình hồi quy) được đưa vào môi trường để đánh giá điểm số.',
+  },
+  {
+    id: 'decoding-mechanism-feature-selection',
+    title: 'Cơ chế Mã hóa và Giải mã Feature Selection',
+    prompt: 'Xét bài toán chọn lọc đặc trưng với 6 cột: $[\\text{sqft}, \\text{noisy\\_beds}, \\text{location\\_idx}, \\text{noisy\\_year}, \\text{bathrooms}, \\text{noisy\\_dist}]$. Nếu cá thể có Genotype $\\mathbf{g} = [1, 0, 1, 0, 1, 0]$, hàm giải mã sẽ sinh ra Phenotype nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Một mô hình hồi quy sử dụng cả 6 đặc trưng nhưng chia đôi hệ số trọng số của các cột mang bit 0.' },
+      { id: 'opt1', label: 'Mô hình chỉ dùng sqft, location_idx và bathrooms.', isCorrect: true },
+      { id: 'opt3', label: 'Một chuỗi văn bản gồm 6 ký tự nhị phân để in ra màn hình console.' },
+      { id: 'opt4', label: 'Một vector gradient chứa các đạo hàm riêng của 3 cột có bit 1.' },
+    ],
+    success: 'Rất chuẩn! Bit 1 nghĩa là giữ lại cột và bit 0 nghĩa là loại bỏ. Hàm Decode trích xuất đúng 3 cột có bit 1 để dựng và huấn luyện mô hình học máy tương ứng.',
+    error: 'Chưa đúng. Hàm giải mã có nhiệm vụ chuyển đổi chuỗi bit thành thực thể giải pháp thực tế: ở đây là mô hình hồi quy được huấn luyện trên đúng các cột ứng với bit 1.',
+  },
+  {
+    id: 'one-max-problem',
+    title: 'Bài toán One-Max: Genotype trùng Phenotype',
+    prompt: 'Trong bài toán One-Max với độ dài $L = 6$ bit, hàm thích nghi được định nghĩa là $\\text{Fitness}(\\mathbf{x}) = \\sum_{i=1}^L x_i$. Điều gì làm cho One-Max trở thành bài toán nhập môn lý tưởng?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Bài toán luôn đảm bảo đạt nghiệm tối ưu toàn cục chỉ sau đúng 1 thế hệ duy nhất.' },
+      { id: 'opt3', label: 'One-Max không thể dùng chuỗi bit nhị phân mà bắt buộc phải biểu diễn bằng cây biểu thức toán học.' },
+      { id: 'opt1', label: 'Chuỗi bit là nghiệm trực tiếp và fitness là tổng số bit 1.', isCorrect: true },
+      { id: 'opt4', label: 'Bài toán chứng minh rằng đột biến lật bit không bao giờ làm thay đổi điểm số của cá thể.' },
+    ],
+    success: 'Hoàn toàn chính xác! Trong One-Max, chuỗi bit trong RAM chính là giải pháp, và điểm số được tính trực tiếp từ số bit 1 mà không cần bước giải mã trung gian.',
+    error: 'Chưa chính xác. One-Max là bài toán "Hello World" kinh điển vì Genotype trùng trực tiếp với Phenotype, chuỗi bit chính là cá thể và Fitness bằng đúng tổng số bit 1.',
+  },
+  {
+    id: 'expanded-genotype-representations',
+    title: 'Các Dạng Biểu diễn Genotype Mở rộng',
+    prompt: 'Dạng bài toán nào sau đây yêu cầu biểu diễn Genotype dưới dạng Mảng Hoán vị (Permutation) thay vì Chuỗi Bit nhị phân?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'TSP cần một thứ tự ghé thăm mỗi thành phố đúng một lần.', isCorrect: true },
+      { id: 'opt2', label: 'Bài toán Chọn lọc đặc trưng (Feature Selection) giữ lại hay loại bỏ các cột trong bảng dữ liệu.' },
+      { id: 'opt3', label: 'Tối ưu hóa các trọng số thực liên tục $w \\in \\mathbb{R}^D$ trong mạng nơ-ron sâu.' },
+      { id: 'opt4', label: 'Bài toán One-Max đếm số lượng bit 1.' },
+    ],
+    success: 'Chính xác! Lộ trình giao hàng yêu cầu ghé thăm mỗi thành phố đúng một lần theo một trình tự nhất định, nên mảng hoán vị (ví dụ [3, 1, 2]) là cấu trúc dữ liệu tự nhiên và an toàn nhất.',
+    error: 'Chưa đúng. Chuỗi bit dùng cho chọn/bỏ cột (Feature Selection), vector số thực $\\mathbb{R}^D$ dùng cho trọng số ML, còn sắp xếp lộ trình thành phố (TSP) đòi hỏi mảng hoán vị (Permutation).',
+  },
+  {
+    id: 'core-benefits-separation',
+    title: 'Khi nào nên Phân tách Biểu diễn?',
+    prompt: 'Phát biểu nào mô tả đúng lợi ích và giới hạn của việc tách Genotype khỏi Phenotype?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Nó bảo đảm mọi phép crossover trên genotype luôn sinh phenotype hợp lệ mà không cần decoder hoặc repair.' },
+      { id: 'opt3', label: 'Vì nó biến mọi bài toán tối ưu phi tuyến thành bài toán quy hoạch tuyến tính có nghiệm đóng.' },
+      { id: 'opt4', label: 'Vì máy tính không có khả năng lưu trữ các cấu trúc dữ liệu như vector hay đồ thị trong bộ nhớ RAM.' },
+      { id: 'opt1', label: 'Biểu diễn gọn giúp biến đổi hiệu quả, nhưng decoder và toán tử vẫn phải giữ hoặc sửa tính khả thi.', isCorrect: true },
+    ],
+    success: 'Đúng. Phân tách là một lựa chọn kiến trúc hữu ích, không phải điều bắt buộc; tính hợp lệ vẫn phụ thuộc representation, decoder, repair và variation operator.',
+    error: 'Phân tách có thể làm thao tác gọn hơn nhưng không tự bảo đảm nghiệm hợp lệ và không loại bỏ bước đánh giá fitness.',
+  },
+]} />

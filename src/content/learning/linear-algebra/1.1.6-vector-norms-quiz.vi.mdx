@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-norms-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['L2 Norm', 'Khoảng cách', 'So sánh các Norm'],
+  keywords: ['L1 norm', 'L2 norm', 'L infinity norm', 'distance', 'quiz'],
+  conceptIds: ['l2-norm-calculation', 'distance-from-norm', 'norm-choice'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="vector-norms-quiz" questions={[
+  {
+    id: 'l2-norm-calculation',
+    title: 'L2 Norm',
+    prompt: 'Chuẩn $L_2$ norm của vector $x = [3, 4]^T$ bằng bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$7$' },
+      { id: 'b', label: '$5$', isCorrect: true },
+      { id: 'c', label: '$4$' },
+      { id: 'd', label: '$25$' },
+    ],
+    success: 'Đúng. $\\|x\\|_2 = \\sqrt{3^2 + 4^2} = \\sqrt{25} = 5$.',
+    error: 'Chuẩn $L_2$ lấy căn bậc hai của tổng bình phương các thành phần: $\\sqrt{\\sum x_i^2}$.',
+  },
+  {
+    id: 'distance-from-norm',
+    title: 'Khoảng cách',
+    prompt: 'Khoảng cách Euclid giữa hai điểm $x$ và $y$ được biểu diễn bởi công thức nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$\\|x + y\\|_2$' },
+      { id: 'b', label: '$\\|x\\|_2 - \\|y\\|_2$' },
+      { id: 'c', label: '$\\|x - y\\|_2$', isCorrect: true },
+      { id: 'd', label: '$\\|x\\|_2 + \\|y\\|_2$' },
+    ],
+    success: 'Đúng. Vector hiệu $x - y$ nối hai điểm và chuẩn $\\|x - y\\|_2$ cho độ dài khoảng cách giữa chúng.',
+    error: 'Khoảng cách giữa hai điểm là chuẩn của vector hiệu: $d(x, y) = \\|x - y\\|_2$.',
+  },
+  {
+    id: 'norm-choice',
+    title: 'So sánh các Norm',
+    prompt: 'Với vector $x = [3, -4]^T$, bộ giá trị $(L_1, L_2, L_\\infty)$ nào sau đây đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$L_1 = 5, L_2 = 7, L_\\infty = 4$' },
+      { id: 'b', label: '$L_1 = 4, L_2 = 5, L_\\infty = 7$' },
+      { id: 'c', label: 'Ba chuẩn luôn cho cùng một giá trị duy nhất với mọi vector.' },
+      { id: 'd', label: '$L_1 = 7, L_2 = 5, L_\\infty = 4$', isCorrect: true },
+    ],
+    success: 'Đúng. $L_1 = |3| + |-4| = 7$, $L_2 = \\sqrt{3^2 + (-4)^2} = 5$, và $L_\\infty = \\max(|3|, |-4|) = 4$.',
+    error: 'Tính riêng $L_1 = \\sum |x_i|$, $L_2 = \\sqrt{\\sum x_i^2}$, và $L_\\infty = \\max |x_i|$.',
+  },
+]} />

@@ -52,5 +52,4 @@ The wiki **cites** the long-form prose docs rather than replacing them:
 - [docs/plans/](../docs/plans/) — compacted decision and execution history.
 
 > Where this bundle and the prose docs disagree, **the code wins** — and this
-> bundle is authored against the current code (see [gotchas](reference/gotchas.md)
-> for two places the prose docs lag the implementation).
+> bundle is authored against the current code (see [gotchas](reference/gotchas.md)).

@@ -6,12 +6,15 @@ import {
   Code2,
   Cpu,
   Eye,
+  GraduationCap,
   MessageSquareText,
   Network,
   RefreshCw,
   Route,
   ServerCog,
   ShieldCheck,
+  Dna,
+  FolderKanban,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -31,6 +34,9 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'ai-ethics-safety-governance': ShieldCheck,
   'reinforcement-learning': Route,
   'robot-learning': Bot,
+  'evolutionary-algorithms': Dna,
+  'research-papers': GraduationCap,
+  'ai-projects': FolderKanban,
 };
 
 export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
@@ -117,4 +123,38 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     icon: 'bg-[#F1FAFC] text-[#49636B]',
     accent: 'bg-[#6D8991]',
   },
+  'evolutionary-algorithms': {
+    visual: 'bg-[#B4D6C1]',
+    glow: 'bg-[#EBF7F0]/42',
+    icon: 'bg-[#EEF8F2] text-[#2C5E40]',
+    accent: 'bg-[#4B8B64]',
+  },
+  'research-papers': {
+    visual: 'bg-[#C2D1E8]',
+    glow: 'bg-[#F0F5FF]/42',
+    icon: 'bg-[#F0F5FF] text-[#34527D]',
+    accent: 'bg-[#5376A8]',
+  },
+  'ai-projects': {
+    visual: 'bg-[#9DC7C8]',
+    glow: 'bg-[#E6F8F9]/40',
+    icon: 'bg-[#EBF9FA] text-[#1E5D63]',
+    accent: 'bg-[#35858E]',
+  },
 };
+
+const DEFAULT_PALETTE = {
+  visual: 'bg-[#A7C8CF]',
+  glow: 'bg-[#E9FCFF]/38',
+  icon: 'bg-[#ECFBFD] text-[#32636C]',
+  accent: 'bg-[#4F8A94]',
+};
+
+export function getDomainCardPalette(domainId: string) {
+  return DOMAIN_CARD_PALETTES[domainId as LearningDomainId] ?? DEFAULT_PALETTE;
+}
+
+export function getDomainIcon(domainId: string): LucideIcon {
+  return DOMAIN_ICONS[domainId as LearningDomainId] ?? BookOpen;
+}
+

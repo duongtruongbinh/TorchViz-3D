@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'elementwise-vs-matrix-product-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Hadamard hay Matrix Product', 'Shape của Matrix Product', 'Một phần tử của AB', 'Thứ tự phép nhân'],
+  keywords: ['Hadamard product', 'matrix multiplication', 'shape', 'quiz'],
+  conceptIds: ['hadamard-vs-matmul', 'matrix-product-shape', 'matrix-product-entry', 'matrix-product-order'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="elementwise-vs-matrix-product-quiz" questions={[
+  {
+    id: 'hadamard-vs-matmul',
+    title: 'Hadamard hay Matrix Product',
+    prompt: 'Với hai ma trận $A$ và $B$ cùng kích thước $2 \\times 2$, phát biểu nào sau đây phân biệt đúng giữa phép nhân từng phần tử và nhân ma trận?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$A \\odot B$ và $AB$ luôn cho cùng kết quả.' },
+      { id: 'b', label: '$A \\odot B$ là tích ngoài (outer product), còn $AB$ là tích vô hướng.' },
+      { id: 'c', label: '$A \\odot B$ là phép nhân từng phần tử (Hadamard product), còn $AB$ là phép nhân ma trận (Matrix multiplication).', isCorrect: true },
+      { id: 'd', label: '$AB$ chỉ hợp lệ khi $A$ và $B$ là vector 1D.' },
+    ],
+    success: 'Đúng. `A * B` ($A \\odot B$) nhân tương ứng từng ô vị trí, còn `A @ B` ($AB$) là tích ma trận hàng nhân cột.',
+    error: 'Phân biệt: Hadamard ($A \\odot B$) nhân theo từng ô, Matrix Multiplication ($AB$) kết hợp hàng và cột.',
+  },
+  {
+    id: 'matrix-product-shape',
+    title: 'Shape của Matrix Product',
+    prompt: 'Ma trận $A$ có shape $3 \\times 5$ và ma trận $B$ có shape $5 \\times 2$. Kích thước của ma trận tích $AB$ là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$5 \\times 5$' },
+      { id: 'b', label: '$3 \\times 5$' },
+      { id: 'c', label: '$5 \\times 2$' },
+      { id: 'd', label: '$3 \\times 2$', isCorrect: true },
+    ],
+    success: 'Đúng. Kích thước trong khớp nhau ($5 = 5$) và ma trận tích nhận kích thước ngoài ($3 \\times 2$).',
+    error: 'Quy tắc kích thước tích ma trận: $(m \\times k)(k \\times n) \\implies m \\times n$.',
+  },
+  {
+    id: 'matrix-product-entry',
+    title: 'Một phần tử của AB',
+    prompt: 'Phần tử tại hàng $i$, cột $j$ của ma trận tích $(AB)_{ij}$ được tính bằng công thức nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Lấy dot product giữa hàng i của A và cột j của B.', isCorrect: true },
+      { id: 'b', label: 'Nhân phần tử $A_{ij}$ với phần tử $B_{ij}$.' },
+      { id: 'c', label: 'Cộng toàn bộ hàng $i$ của $A$ với toàn bộ cột $j$ của $B$.' },
+      { id: 'd', label: 'Lấy tích ngoài giữa hàng $i$ của $A$ và cột $j$ của $B$.' },
+    ],
+    success: 'Đúng. Mỗi ô $(AB)_{ij}$ là tích vô hướng giữa hàng thứ $i$ của $A$ và cột thứ $j$ của $B$.',
+    error: 'Công thức nhân ma trận: $(AB)_{ij} = \\text{row}_i(A) \\cdot \\text{col}_j(B) = \\sum_{k} A_{ik} B_{kj}$.',
+  },
+  {
+    id: 'matrix-product-order',
+    title: 'Thứ tự phép nhân',
+    prompt: 'Với hai ma trận vuông $A$ và $B$ sao cho cả $AB$ và $BA$ đều xác định, phát biểu nào sau đây đúng trong trường hợp tổng quát?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '$AB = BA$ luôn luôn đúng vì phép nhân ma trận có tính giao hoán.' },
+      { id: 'b', label: '$AB \\neq BA$ nói chung (phép nhân ma trận KHÔNG có tính giao hoán).', isCorrect: true },
+      { id: 'c', label: '$AB$ và $BA$ luôn có cùng kích thước nên bắt buộc có cùng giá trị.' },
+      { id: 'd', label: '$AB$ chỉ khác $BA$ khi $A$ hoặc $B$ chứa số âm.' },
+    ],
+    success: 'Đúng. Phép nhân ma trận nói chung không có tính chất giao hoán ($AB \\neq BA$).',
+    error: 'Không áp dụng tính giao hoán của số thực cho ma trận: thứ tự nhân quyết định kết quả.',
+  },
+]} />

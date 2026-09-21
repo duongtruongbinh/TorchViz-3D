@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import {
   DEMO_FLATTEN_SOURCE_MATRIX,
@@ -131,7 +132,7 @@ export const UpsampleEffect: React.FC<OperationEffectProps> = ({ node, segmentPr
     [0.78, 0.42, 0.64],
     [0.26, 0.70, 0.90],
   ];
-  const outputMatrix = useMemo(() => upsampleNearest(inputMatrix), []);
+  const outputMatrix = useMemo(() => upsampleNearest(inputMatrix), [inputMatrix]);
   const inputRows = inputMatrix.length;
   const inputCols = inputMatrix[0].length;
   const outputRows = outputMatrix.length;

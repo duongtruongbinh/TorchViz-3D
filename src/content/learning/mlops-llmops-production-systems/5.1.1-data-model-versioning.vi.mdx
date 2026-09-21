@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-model-versioning',
+  locale: 'vi',
+  title: "Versioning Dữ liệu & Model",
+  headings: [
+    'Tại sao Git Không Phù hợp cho Dữ liệu Lớn?',
+    'Kiến trúc DVC (Data Version Control)',
+    'Liên kết Git Commit với Dữ liệu & Checkpoints',
+    'Lưu trữ Từ xa (Remote Storage: S3 / GCS / Google Drive)',
+    'Nguyên lý Bất biến & Tái lập Checkpoint Toàn diện (Checkpoint Invariants)',
+  ],
+  keywords: ['MLOps', 'DVC', 'Data Versioning', 'Model Artifacts', 'S3', 'Git', 'Checkpoint Invariants', 'Tool Independence'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Git Không Phù hợp cho Dữ liệu Lớn?
+
+Git được thiết kế tối ưu cho mã nguồn văn bản (Text files). Khi cố gắng đưa các file dữ liệu lớn (CSV, Parquet, Video) hoặc file nhị phân trọng số (PyTorch Checkpoints `.pt`, `.bin`) nặng hàng trăm MB / GB vào Git:
+
+<CourseCards
+  ariaLabel="Các vấn đề khi lưu trữ file lớn trong Git"
+  exampleLabel="Vấn đề phát sinh"
+  takeawayLabel="Hệ quả thực tế"
+  items={[
+    {
+      title: 'Phình to Dung lượng Kho Git (.git bloat)',
+      example: 'Mỗi lần sửa 1 dòng trong dataset 2GB, Git sẽ lưu thêm một bản sao 2GB mới vào lịch sử commit.',
+      takeaway: 'Repository phình to lên hàng chục GB, làm lệnh `git clone`, `git push` bị nghẽn mạng và timeout.',
+    },
+    {
+      title: 'Giới hạn File Size của GitHub / GitLab',
+      example: 'GitHub từ chối các file lớn hơn 100MB qua cơ chế push thông thường.',
+      takeaway: 'Bắt buộc phải có một công cụ chuyên biệt để quản lý dữ liệu lớn độc lập với mã nguồn.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Kiến trúc DVC (Data Version Control)
+
+**DVC (Data Version Control)** giải quyết triệt để bài toán này bằng cơ chế trỏ liên kết (Pointer Files):
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế tách biệt giữa DVC Pointer và Remote Storage"
+  root={{ title: 'Cơ chế Hoạt động của DVC', detail: 'Quản lý phiên bản dữ liệu lớn như quản lý Git commits' }}
+  children={[
+    { title: 'Tệp Pointer siêu nhẹ (`.dvc`)', detail: 'Chỉ chứa chuỗi băm md5 (ví dụ: `a4f8...`) nặng vài bytes được commit vào Git repo.' },
+    { title: 'Dữ liệu lớn thực tế', detail: 'Được DVC tự động đẩy (push) lên kho lưu trữ đám mây (AWS S3, Google Cloud Storage, MinIO).' },
+    { title: 'Đồng bộ tức thì', detail: 'Khi checkout commit Git nào, chạy `dvc pull` để kéo chính xác phiên bản dữ liệu tương ứng.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Liên kết Git Commit với Dữ liệu & Checkpoints
+
+Nhờ DVC, mỗi phiên bản mô hình được liên kết chặt chẽ với:
+
+<ComparisonMatrix
+  ariaLabel="Ma trận liên kết đa thành phần trong DVC"
+  rowHeaderLabel="Thành phần Hệ thống"
+  columns={['Nơi Lưu trữ', 'Cách thức Truy vết Phiên bản']}
+  rows={[
+    { label: 'Mã nguồn & Pipeline', values: ['Git Repository (GitHub/GitLab)', 'Commit Hash (ví dụ: `c7e2b1a`)'] },
+    { label: 'Tệp Dữ liệu Huấn luyện', values: ['S3 Bucket qua DVC', 'Tệp `datasets/dataset.csv.dvc`'] },
+    { label: 'Trọng số Checkpoints', values: ['MLflow Registry / S3', 'Model Version `v1.2.0` gắn với Run ID'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Sự kết hợp giữa **Git + DVC + MLflow** tạo nên "Tam giác Tái lập" hoàn hảo: bất kỳ ai trong nhóm cũng có thể tái tạo lại 100% mô hình của năm trước chỉ với 2 lệnh: `git checkout <hash>` và `dvc pull`.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Lưu trữ Từ xa (Remote Storage: S3 / GCS / Google Drive)
+
+DVC hỗ trợ đa dạng hạ tầng lưu trữ đám mây từ quy mô cá nhân đến doanh nghiệp:
+
+<ConceptFlow
+  ariaLabel="Luồng làm việc cơ bản với DVC Remote Storage"
+  items={[
+    { title: '1. dvc add datasets/data.csv', detail: 'Tạo file metadata `datasets/data.csv.dvc` và thêm `data.csv` vào `.gitignore`.' },
+    { title: '2. git commit && git push', detail: 'Đẩy code và file `.dvc` lên kho GitHub.' },
+    { title: '3. dvc push', detail: 'Tải các tệp dữ liệu dung lượng lớn lên Cloud Storage an toàn.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Nguyên lý Bất biến & Tái lập Checkpoint Toàn diện (Checkpoint Invariants)
+
+Để đảm bảo khả năng tái lập tuyệt đối (100% Reproducibility), một Checkpoint sản xuất phải chứa nhiều hơn là chỉ ma trận trọng số (`state_dict`):
+
+<ComparisonMatrix
+  ariaLabel="Các thành phần bắt buộc trong một Production Checkpoint"
+  rowHeaderLabel="Trạng thái Cần Lưu"
+  columns={['Mục đích Kỹ thuật', 'Hậu quả nếu bỏ quên']}
+  rows={[
+    { label: 'Model Weights (`model.state_dict()`)', values: ['Lưu trữ ma trận trọng số mạng nơ-ron.', 'Mô hình không thể thực hiện inference.'] },
+    { label: 'Optimizer & Scheduler State', values: ['Lưu momentum, moment bậc 2 (Adam) và learning rate scheduler step.', 'Khi huấn luyện bị gián đoạn (crash/preemption), resume lại sẽ bị sốc gradient và làm hỏng mô hình.'] },
+    { label: 'RNG State (Torch, CUDA, Python seeds)', values: ['Lưu trạng thái bộ sinh số ngẫu nhiên của CPU và GPU.', 'Không thể tái lập chính xác thứ tự batch dữ liệu và dropout masks khi resume.'] },
+    { label: 'Content-Addressed Immutability', values: ['Đặt tên file dựa trên hash nội dung (SHA256/MD5).', 'Ngăn chặn việc ghi đè vô tình (accidental overwrite) checkpoint cũ khi retrain.'] },
+  ]}
+/>
+
+</MdxPage>

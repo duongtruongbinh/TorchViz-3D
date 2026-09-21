@@ -1,5 +1,5 @@
-import React from 'react';
-import { IRGraph } from '../lib/irTypes';
+import type React from 'react';
+import type { IRGraph } from '../lib/irTypes';
 import { getStrings } from '../lib/localization';
 import type { AppError } from '../lib/appError';
 import { usePreferencesStore } from '../store/usePreferencesStore';

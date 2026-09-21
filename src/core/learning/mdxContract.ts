@@ -8,7 +8,7 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'CourseCards',
   'EvidenceCards',
   'ConceptFlow',
-  'StageContinuityMap',
+  'ConceptHierarchy',
   'ExperimentChecklist',
   'SelfCheckList',
   'ComparisonMatrix',
@@ -16,11 +16,19 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'DatasetComposition',
   'MetricBars',
   'ConceptSpectrum',
-  'Cite',
-  'PaperSummary',
-  'LessonReferences',
   'InlineMath',
   'BlockMath',
+  'EquationCallout',
+  'CodeLabStep',
+  'InteractiveStepper',
+  'Mermaid',
+  'MermaidDiagram',
+  'Flowchart',
+] as const;
+
+export const REFERENCE_AUTHORED_MDX_COMPONENT_NAMES = [
+  'Cite',
+  'PaperSummary',
 ] as const;
 
 export type LearningMdxMetadata = {
@@ -29,6 +37,7 @@ export type LearningMdxMetadata = {
   locale: string;
   title: string;
   headings: string[];
+  headingContract?: 'exact';
   keywords: string[];
   conceptIds?: string[];
   referenceIds?: string[];
@@ -52,7 +61,7 @@ export type LearningMdxSearchDocument = LearningMdxPath & {
 
 export function parseLearningMdxPath(filePath: string): LearningMdxPath | null {
   const normalizedPath = filePath.replaceAll('\\', '/');
-  const match = normalizedPath.match(/(?:^|\/)learning\/([^/]+)\/([^/]+?)\.([a-z]{2,3}(?:-[a-z0-9]+)*)\.mdx$/i);
+  const match = normalizedPath.match(/(?:^|\/)learning\/([^/]+)\/(?:.*\/)?([^/]+?)\.([a-z]{2,3}(?:-[a-z0-9]+)*)\.mdx$/i);
   return match ? {
     domainId: match[1],
     lessonId: match[2].replace(/^\d+(?:\.\d+)+-/, ''),

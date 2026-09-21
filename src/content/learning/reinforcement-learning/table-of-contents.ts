@@ -81,7 +81,7 @@ export const learningTableOfContents = {
     title: { en: "Reinforcement Learning", vi: "Reinforcement Learning" },
     description: { en: "Learn decision-making systems step by step: agents, environments, rewards, MDPs, value functions, Bellman updates, Q-tables, Q-Learning, SARSA, policy behavior, and the bridge toward RLHF.", vi: "Học hệ thống ra quyết định từng bước: agent, environment, reward, MDP, value function, Bellman update, Q-table, Q-Learning, SARSA, policy behavior và cầu nối đến RLHF." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
   routeAliases: [

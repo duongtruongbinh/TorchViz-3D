@@ -1,7 +1,7 @@
 import React from 'react';
 import { CubicBezierLine, Line } from '@react-three/drei';
 import * as THREE from 'three';
-import { LayoutEdge } from '../../lib/irTypes';
+import type { LayoutEdge } from '../../lib/irTypes';
 import { EDGE_COLOR_RESIDUAL, EDGE_COLOR_STD } from '../../lib/constants';
 
 interface EdgeLineProps {

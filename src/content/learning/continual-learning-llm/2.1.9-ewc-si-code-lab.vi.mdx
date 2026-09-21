@@ -1,0 +1,1081 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'ewc-si-code-lab',
+  locale: 'vi',
+  title: 'Lab EWC và Synaptic Intelligence',
+  headings: [
+    'Câu hỏi nghiên cứu',
+    'Kế thừa baseline',
+    'Strategy hooks',
+    'EWC tại task boundary',
+    'SI trên optimization trajectory',
+    'Controls và strength sweep',
+    'Final seed-42 run',
+    'Cách đọc importance control',
+    'Đối chiếu giả thuyết',
+  ],
+  keywords: ['EWC', 'Synaptic Intelligence', 'Empirical Fisher', 'Importance', 'Sequential Fine-tuning', 'Experience Replay', 'Hypothesis Testing'],
+  referenceIds: ['sliogeris2025gemmaEwc', 'ahadzi2025childrenAsr', 'kirkpatrick2017overcoming', 'zenke2017continual'],
+  conceptIds: [
+    'ewc-si-lab-hypothesis-contract',
+    'ewc-si-lab-baseline-contract',
+    'ewc-si-lab-strategy-hooks',
+    'ewc-si-lab-ewc-boundary',
+    'ewc-si-lab-si-trajectory',
+    'ewc-si-lab-mechanism-controls',
+    'ewc-si-lab-seed42-evaluation',
+    'ewc-si-lab-importance-control',
+    'ewc-si-lab-hypothesis-audit',
+  ],
+  pageCount: 9,
+}
+
+<MdxPage page={0}>
+
+## Câu hỏi nghiên cứu
+
+Lab trước đã tạo một experiment contract dùng chung cho SeqFT và Experience Replay. Lần này ta giữ nguyên task stream, sample ID, training budget và evaluator, rồi chỉ thay cơ chế bảo vệ model bằng Elastic Weight Consolidation (EWC) và Synaptic Intelligence (SI).
+
+Mục tiêu không phải ép EWC hoặc SI đạt điểm cao nhất. Ta muốn biết cơ chế bảo vệ theo parameter importance có cải thiện retention hơn một lực neo đồng đều hay không, và mức bảo vệ đó đánh đổi với khả năng học task mới như thế nào.
+
+Bài lab kế thừa nền tảng lý thuyết từ công trình khởi xướng EWC <Cite paper="kirkpatrick2017overcoming" evidence="ewc-si-lab-methods-03-kirkpatrick2017overcoming" /> và Synaptic Intelligence <Cite paper="zenke2017continual" evidence="ewc-si-lab-methods-04-zenke2017continual" />, kết hợp cùng kinh nghiệm triển khai weight regularization trên mô hình chuỗi và LLM thực tế <Cite paper="sliogeris2025gemmaEwc" evidence="ewc-si-lab-methods-01-sliogeris2025gemmaEwc" /> <Cite paper="ahadzi2025childrenAsr" evidence="ewc-si-lab-methods-02-ahadzi2025childrenAsr" />.
+
+Bốn giả thuyết nghiên cứu hướng dẫn toàn bộ thực nghiệm:
+
+<ConceptFlow
+  ariaLabel="Bốn giả thuyết kiểm định cơ chế EWC và SI"
+  items={[
+    {
+      title: 'H1 · Regularization vs Forgetting',
+      detail: 'Weight regularization giảm forgetting tốt hơn SeqFT mà không làm tê liệt quá trình học task mới.',
+      tone: 'blue',
+      example: 'EWC hoặc SI đạt BWT cao hơn SeqFT nhưng vẫn giữ được năng lực tiếp thu.',
+    },
+    {
+      title: 'H2 · Specific vs Uniform L2',
+      detail: 'Bảo vệ chọn lọc theo parameter importance vượt trội hơn ràng buộc đều Uniform L2.',
+      tone: 'teal',
+      example: 'So sánh EWC với Uniform L2 khi cả hai có cùng ngân sách cập nhật.',
+    },
+    {
+      title: 'H3 · Boundary Fisher vs Path Integral',
+      detail: 'Đo lường tầm quan trọng tích lũy online (SI) cạnh tranh tương đương với Fisher tại task boundary (EWC).',
+      tone: 'amber',
+      example: 'SI tận dụng quỹ đạo tối ưu thay vì chạy thêm một lượt forward-backward để ước lượng Fisher.',
+    },
+    {
+      title: 'H4 · Causal Location vs Magnitude',
+      detail: 'Lợi ích của EWC đến từ đúng vị trí tham số, không chỉ đơn thuần là độ lớn của lực kéo penalty.',
+      tone: 'violet',
+      example: 'Nếu Shuffled-EWC kém EWC, vị trí của importance có thêm bằng chứng nhân quả.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Kế thừa baseline
+
+Chạy tuần tự 2 cell dưới đây để cài đặt thư viện, nạp artifact `seqft_replay_seed42.json` từ lab Replay, tái lập dữ liệu huấn luyện và tách 64 mẫu validation độc lập cho mỗi task.
+
+### Cell 1 · Cài đặt thư viện
+
+Tái sử dụng thư viện có sẵn trên Colab và chỉ cài hai gói Hugging Face khi runtime chưa cung cấp:
+
+```python
+# Chỉ cài dependency còn thiếu; giữ nguyên runtime do Colab quản lý
+import importlib.util
+import subprocess
+import sys
+
+REQUIREMENTS = [
+    ("transformers", "4.49.0"),
+    ("datasets", "3.3.2"),
+]
+missing = [
+    (name, version) for name, version in REQUIREMENTS
+    if importlib.util.find_spec(name) is None
+]
+if missing:
+    cmd = [
+        sys.executable, "-m", "pip", "install", "--quiet", "--prefer-binary",
+        "--upgrade-strategy", "only-if-needed",
+    ] + [name + ("=" * 2) + version for name, version in missing]
+    subprocess.check_call(cmd)
+    print("Đã cài dependency còn thiếu. Hãy restart session một lần rồi chạy Cell 2.")
+else:
+    print("Runtime đã có đủ dependency; chuyển thẳng sang Cell 2.")
+```
+
+### Cell 2 · Cấu hình, nạp artifact baseline, tái dựng dữ liệu và Preflight check
+
+```python
+import gc
+import hashlib
+import importlib.metadata
+import json
+import os
+import random
+import time
+
+import numpy as np
+import pandas as pd
+import torch
+from datasets import load_dataset
+from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+PLATFORM_PACKAGES = ("torch", "transformers", "datasets", "pandas", "numpy", "tqdm")
+runtime_versions = {}
+for package in PLATFORM_PACKAGES:
+    actual = importlib.metadata.version(package)
+    runtime_versions[package] = actual
+
+SEED = 42
+
+def seed_everything(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+seed_everything(SEED)
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+USE_AMP = DEVICE == "cuda"
+AMP_INITIAL_SCALE = 128.0
+
+MODEL_NAME = "EleutherAI/pythia-160m-deduped"
+MODEL_REVISION = "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e"
+DATASET_REVISIONS = {
+    "dbpedia": "9abd46cf7fc8b4c64290f26993c540b92aa145ac",
+    "amazon": "9d9c45c18f8c3cf1b23a3c27917b60cbf28f3289",
+    "yahoo": "6652a1e7c94f7260a0bfd0c9092dd48e2d536ea1",
+    "ag_news": "eb185aade064a813bc0b7f42de02595523103ca4",
+}
+TASK_ORDER = ["dbpedia", "amazon", "yahoo", "ag_news"]
+TRAIN_PER_TASK = 2048
+EVAL_PER_TASK = 64
+VAL_PER_TASK = 64
+MAX_LENGTH = 192
+BATCH_SIZE = 4
+GRAD_ACCUM_STEPS = 4
+LEARNING_RATE = 5e-5
+EPOCHS_PER_TASK = 1
+BUFFER_CAPACITY = 256
+REPLAY_RATIO = 0.25
+BASELINE_METHODS = ["seqft", "replay"]
+
+try:
+    from google.colab import drive
+    drive.mount("/content/drive")
+    BASELINE_DIR = "/content/drive/MyDrive/continual-learning-baseline"
+except ImportError:
+    BASELINE_DIR = "./continual-learning-baseline"
+
+BASELINE_ARTIFACT_PATH = os.path.join(BASELINE_DIR, "seqft_replay_seed42.json")
+OUTPUT_DIR = os.path.join(BASELINE_DIR, "ewc-si")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+if not os.path.isfile(BASELINE_ARTIFACT_PATH):
+    raise FileNotFoundError(
+        f"Không tìm thấy {BASELINE_ARTIFACT_PATH}. "
+        "Hãy chạy cell lưu artifact ở lab Replay trước."
+    )
+
+with open(BASELINE_ARTIFACT_PATH, "rb") as handle:
+    baseline_bytes = handle.read()
+BASELINE_ARTIFACT_SHA256 = hashlib.sha256(baseline_bytes).hexdigest()
+try:
+    baseline_artifact = json.loads(baseline_bytes.decode("utf-8"))
+except (UnicodeDecodeError, json.JSONDecodeError) as error:
+    raise RuntimeError(f"Artifact baseline không phải JSON UTF-8 hợp lệ: {BASELINE_ARTIFACT_PATH}") from error
+
+def validate_baseline_artifact(artifact):
+    required = {"config", "sample_ids", "sampled_rows", "results"}
+    missing = sorted(required - set(artifact))
+    if missing:
+        raise RuntimeError(f"Baseline artifact thiếu key: {missing}")
+
+    config = artifact["config"]
+    expected = {
+        "seed": SEED,
+        "model_name": MODEL_NAME,
+        "model_revision": MODEL_REVISION,
+        "dataset_revisions": DATASET_REVISIONS,
+        "task_order": TASK_ORDER,
+        "train_per_task": 2_048,
+        "eval_per_task": 64,
+        "max_length": MAX_LENGTH,
+        "batch_size": BATCH_SIZE,
+        "grad_accum_steps": GRAD_ACCUM_STEPS,
+        "learning_rate": LEARNING_RATE,
+        "epochs_per_task": EPOCHS_PER_TASK,
+        "buffer_capacity": BUFFER_CAPACITY,
+        "replay_ratio": REPLAY_RATIO,
+    }
+    mismatches = {
+        key: {"expected": value, "actual": config.get(key)}
+        for key, value in expected.items()
+        if config.get(key) != value
+    }
+    if mismatches:
+        raise RuntimeError(f"Baseline artifact không cùng contract: {mismatches}")
+
+    for method in BASELINE_METHODS:
+        result = artifact["results"].get(method)
+        if not isinstance(result, dict):
+            raise RuntimeError(f"Baseline artifact thiếu results[{method!r}]")
+        matrix = np.asarray(result.get("matrix"), dtype=float)
+        if matrix.shape != (len(TASK_ORDER) + 1, len(TASK_ORDER)):
+            raise RuntimeError(f"Ma trận {method} có shape sai: {matrix.shape}")
+        if not bool(np.isfinite(matrix).all()):
+            raise RuntimeError(f"Ma trận {method} chứa giá trị không hữu hạn")
+        metrics = result.get("metrics")
+        required_metrics = {
+            "final_avg", "mean_acq", "mean_learning_gain", "min_learning_gain",
+            "bwt", "fwt", "peak_forgetting",
+        }
+        if not isinstance(metrics, dict) or not required_metrics.issubset(metrics):
+            raise RuntimeError(f"Baseline artifact thiếu metrics bắt buộc cho {method}")
+        costs = result.get("costs")
+        if not isinstance(costs, list) or len(costs) != len(TASK_ORDER):
+            raise RuntimeError(f"Baseline artifact có cost records sai cho {method}")
+        if any(cost.get("updates") != 128 for cost in costs):
+            raise RuntimeError(f"Baseline artifact không giữ đủ 128 updates/stage cho {method}")
+    seqft_base = np.asarray(artifact["results"]["seqft"]["matrix"][0], dtype=float)
+    replay_base = np.asarray(artifact["results"]["replay"]["matrix"][0], dtype=float)
+    if not np.array_equal(seqft_base, replay_base):
+        raise RuntimeError("SeqFT và Replay artifact không có cùng base-evaluation row")
+
+    for task_id in TASK_ORDER:
+        splits = artifact["sampled_rows"].get(task_id)
+        ids = artifact["sample_ids"].get(task_id)
+        if not isinstance(splits, dict) or not isinstance(ids, dict):
+            raise RuntimeError(f"Thiếu sampled rows hoặc sample IDs cho {task_id}")
+        for split in ["train", "eval"]:
+            count = 2_048 if split == "train" else 64
+            rows = splits.get(split)
+            saved_ids = ids.get(split)
+            if not isinstance(rows, list) or len(rows) != count:
+                raise RuntimeError(f"{task_id}/{split} phải có {count} rows")
+            for row_index, row in enumerate(rows):
+                row_keys = {"task_id", "sample_id", "text", "label"}
+                if not isinstance(row, dict) or not row_keys.issubset(row):
+                    raise RuntimeError(f"Row lỗi tại {task_id}/{split}/{row_index}")
+                if row["task_id"] != task_id:
+                    raise RuntimeError(f"task_id sai tại {task_id}/{split}/{row_index}")
+            row_ids = [row.get("sample_id") for row in rows]
+            if row_ids != saved_ids:
+                raise RuntimeError(f"sample_ids không khớp sampled_rows tại {task_id}/{split}")
+            if len(row_ids) != len(set(row_ids)):
+                raise RuntimeError(f"Trùng sample_id trong {task_id}/{split}")
+        train_text = {" ".join(str(row["text"]).split()) for row in splits["train"]}
+        eval_text = {" ".join(str(row["text"]).split()) for row in splits["eval"]}
+        if train_text & eval_text:
+            raise RuntimeError(f"Content leakage giữa train/eval của {task_id}")
+
+validate_baseline_artifact(baseline_artifact)
+baseline_results = baseline_artifact["results"]
+baseline_rows = baseline_artifact["sampled_rows"]
+
+TASK_SPECS = {
+    "dbpedia": {
+        "dataset": "fancyzhx/dbpedia_14", "revision": DATASET_REVISIONS["dbpedia"],
+        "eval_split": "test", "labels": [
+            "company", "school", "artist", "athlete", "politics", "transport",
+            "building", "nature", "village", "animal", "plant", "album", "film", "book",
+        ],
+        "text": lambda row: f"{row['title']}. {row['content']}", "label": lambda row: row["label"],
+    },
+    "amazon": {
+        "dataset": "fancyzhx/amazon_polarity", "revision": DATASET_REVISIONS["amazon"],
+        "eval_split": "test", "labels": ["negative", "positive"],
+        "text": lambda row: f"{row['title']}. {row['content']}", "label": lambda row: row["label"],
+    },
+    "yahoo": {
+        "dataset": "community-datasets/yahoo_answers_topics", "revision": DATASET_REVISIONS["yahoo"],
+        "eval_split": "test", "labels": [
+            "society & culture", "science & mathematics", "health", "education & reference",
+            "computers & internet", "sports", "business & finance", "entertainment & music",
+            "family & relationships", "politics & government",
+        ],
+        "text": lambda row: f"{row['question_title']}. {row['question_content']} {row['best_answer']}",
+        "label": lambda row: row["topic"],
+    },
+    "ag_news": {
+        "dataset": "fancyzhx/ag_news", "revision": DATASET_REVISIONS["ag_news"],
+        "eval_split": "test", "labels": ["world", "sports", "business", "technology"],
+        "text": lambda row: row["text"], "label": lambda row: row["label"],
+    },
+}
+
+def canonical_text(text):
+    return " ".join(str(text).split())[:1200]
+
+def content_id(task_id, text):
+    return hashlib.sha1(f"{task_id}|{canonical_text(text)}".encode("utf-8")).hexdigest()[:16]
+
+task_data = {}
+summary_rows = []
+for task_index, task_id in enumerate(TASK_ORDER):
+    spec = TASK_SPECS[task_id]
+    train_rows = [
+        {"task_id": task_id, "sample_id": r["sample_id"], "text": canonical_text(r["text"]), "label": int(r["label"])}
+        for r in baseline_rows[task_id]["train"]
+    ]
+    eval_rows = [
+        {"task_id": task_id, "sample_id": r["sample_id"], "text": canonical_text(r["text"]), "label": int(r["label"])}
+        for r in baseline_rows[task_id]["eval"]
+    ]
+    excluded_texts = {r["text"] for r in train_rows} | {r["text"] for r in eval_rows}
+
+    stream = load_dataset(spec["dataset"], revision=spec["revision"], split=spec["eval_split"], streaming=True).shuffle(
+        seed=SEED + 10_000 + task_index, buffer_size=10_000
+    )
+    val_rows = []
+    for raw in stream:
+        txt = canonical_text(spec["text"](raw))
+        if txt in excluded_texts:
+            continue
+        val_rows.append({
+            "task_id": task_id, "sample_id": content_id(task_id, txt),
+            "text": txt, "label": int(spec["label"](raw)),
+        })
+        excluded_texts.add(txt)
+        if len(val_rows) == VAL_PER_TASK:
+            break
+    if len(val_rows) < VAL_PER_TASK:
+        raise RuntimeError(f"Không lấy đủ {VAL_PER_TASK} validation rows cho {task_id}")
+
+    task_data[task_id] = {"train": train_rows, "eval": eval_rows, "validation": val_rows}
+    summary_rows.append({
+        "order": f"Task {chr(65 + task_index)}", "task_id": task_id,
+        "train": len(train_rows), "eval": len(eval_rows), "validation": len(val_rows),
+    })
+
+print(pd.DataFrame(summary_rows))
+
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, revision=MODEL_REVISION)
+if tokenizer.eos_token_id is None:
+    raise RuntimeError("Pythia tokenizer must define EOS")
+if tokenizer.pad_token_id is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+def encode_answer(task_id, text, label_text, max_length=MAX_LENGTH):
+    labels = TASK_SPECS[task_id]["labels"]
+    target = "sentiment" if task_id == "amazon" else "topic"
+    prefix = f"Instruction: Classify the {target} of the text.\nOptions: {', '.join(labels)}. Choose exactly one option.\nText: "
+    suffix = "\nAnswer:"
+    prefix_ids = tokenizer(prefix, add_special_tokens=False)["input_ids"]
+    suffix_ids = tokenizer(suffix, add_special_tokens=False)["input_ids"]
+    answer_ids = tokenizer(f" {label_text}{tokenizer.eos_token}", add_special_tokens=False)["input_ids"]
+    max_text = max_length - len(prefix_ids) - len(suffix_ids) - len(answer_ids)
+    text_ids = tokenizer(text, add_special_tokens=False, truncation=True, max_length=max(max_text, 16))["input_ids"]
+    prompt_ids = prefix_ids + text_ids + suffix_ids
+    input_ids = prompt_ids + answer_ids
+    return {
+        "input_ids": input_ids, "attention_mask": [1] * len(input_ids),
+        "labels": [-100] * len(prompt_ids) + answer_ids,
+    }
+
+def encode_train_row(row):
+    return encode_answer(row["task_id"], row["text"], TASK_SPECS[row["task_id"]]["labels"][row["label"]])
+
+def collate_batch(items):
+    width = max(len(item["input_ids"]) for item in items)
+    output = {"input_ids": [], "attention_mask": [], "labels": []}
+    for item in items:
+        pad = width - len(item["input_ids"])
+        output["input_ids"].append(item["input_ids"] + [tokenizer.pad_token_id] * pad)
+        output["attention_mask"].append(item["attention_mask"] + [0] * pad)
+        output["labels"].append(item["labels"] + [-100] * pad)
+    return {key: torch.tensor(value, dtype=torch.long) for key, value in output.items()}
+
+def evaluate_task_quick(model, task_id, rows):
+    model.eval()
+    candidates, gold = [], []
+    for idx, row in enumerate(rows):
+        gold.append(row["label"])
+        for li, lt in enumerate(TASK_SPECS[task_id]["labels"]):
+            enc = encode_answer(task_id, row["text"], lt)
+            enc["idx"], enc["li"] = idx, li
+            candidates.append(enc)
+    def collate_cand(items):
+        b = collate_batch(items)
+        b["idx"] = torch.tensor([it["idx"] for it in items])
+        b["li"] = torch.tensor([it["li"] for it in items])
+        return b
+    loader = DataLoader(candidates, batch_size=64, shuffle=False, collate_fn=collate_cand)
+    scores = {}
+    with torch.no_grad():
+        for b in loader:
+            example_ids, label_ids = b.pop("idx").tolist(), b.pop("li").tolist()
+            b = {k: v.to(DEVICE) for k, v in b.items()}
+            with torch.amp.autocast("cuda", dtype=torch.float16, enabled=USE_AMP):
+                logits = model(input_ids=b["input_ids"], attention_mask=b["attention_mask"]).logits[:, :-1]
+            targets = b["labels"][:, 1:]
+            mask = targets.ne(-100)
+            safe_t = targets.masked_fill(~mask, 0)
+            logp = logits.log_softmax(-1).gather(-1, safe_t.unsqueeze(-1)).squeeze(-1)
+            mean_logp = (logp * mask).sum(-1) / mask.sum(-1).clamp_min(1)
+            for eid, lid, s in zip(example_ids, label_ids, mean_logp.tolist()):
+                scores[(eid, lid)] = s
+    preds = [int(np.argmax([scores[(i, li)] for li in range(len(TASK_SPECS[task_id]["labels"]))])) for i in range(len(rows))]
+    return float(np.mean(np.array(preds) == np.array(gold)))
+
+print(">>> Chạy Preflight kiểm tra Base Model trên 64 eval rows...")
+base_preflight_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, revision=MODEL_REVISION).to(DEVICE)
+actual_base = [evaluate_task_quick(base_preflight_model, tid, task_data[tid]["eval"]) for tid in TASK_ORDER]
+expected_base = baseline_artifact["results"]["seqft"]["matrix"][0]
+del base_preflight_model
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+
+if not np.allclose(actual_base, expected_base, atol=1e-3):
+    raise RuntimeError(f"Preflight không khớp baseline artifact row 0: actual={actual_base}, expected={expected_base}")
+print(f"Preflight OK: Base Model scores khớp artifact {actual_base}")
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Strategy hooks
+
+Để so sánh công bằng giữa các giải thuật, chúng ta thiết lập kiến trúc `ContinualStrategy` gồm các điểm can thiệp (hooks) đồng nhất trong suốt vòng đời huấn luyện:
+
+1. `before_training(model)`: Khởi tạo bộ nhớ tham số hoặc trạng thái tích lũy.
+2. `before_stage(stage_index, task_id, model)`: Chuẩn bị điểm neo trước khi bước vào task mới.
+3. `on_batch_loss(model, task_loss, stage_index, task_id)`: Tính toán số hạng phạt điều hòa <InlineMath formula="\mathcal{L}_{\text{penalty}}" /> và cộng vào loss chính của mini-batch.
+4. `on_optimizer_step(model)`: Cập nhật tích phân đường hoặc thống kê online sau mỗi bước gradient đã được áp dụng.
+5. `after_stage(stage_index, task_id, model, stage_rows)`: Cập nhật ma trận tầm quan trọng (Fisher hoặc Omega) tại ranh giới kết thúc task.
+
+Tổng loss tối ưu hóa tại mỗi bước có dạng:
+
+<BlockMath formula="\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{task}} + \mathcal{L}_{\text{penalty}}" />
+
+Trong đó <InlineMath formula="\mathcal{L}_{\text{penalty}}" /> sẽ được từng chiến lược cụ thể hóa.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## EWC tại task boundary
+
+**Elastic Weight Consolidation (EWC)** bảo vệ tri thức cũ bằng xấp xỉ bậc hai của hàm mất mát quanh điểm tối ưu của các task trước. Hàm phạt có dạng:
+
+<BlockMath formula="\mathcal{L}_{\text{EWC}}(\theta) = \frac{1}{2} \sum_{i} \Omega_i (\theta_i - \theta_i^*)^2" />
+
+Trong cell thực thi, Fisher được ước lượng theo mini-batch tại task boundary. Với loss trung bình <InlineMath formula="\mathcal{L}_b" /> của mini-batch <InlineMath formula="b" />, phép ước lượng dùng đúng dạng mà code tính:
+
+<BlockMath formula="\widehat{F}_i = \sum_b \frac{|b|}{N} \left( \frac{\partial \mathcal{L}_b}{\partial \theta_i} \right)^2" />
+
+Lab dùng biến thể **online EWC**: tại mỗi stage, <InlineMath formula="\Omega_i \leftarrow \Omega_i + \lambda \widehat{F}_i" /> và điểm neo được chuyển tới checkpoint mới nhất <InlineMath formula="\theta_i^* = \theta_i" />. Đây là xấp xỉ có bộ nhớ cố định; nó không lưu một điểm tối ưu riêng cho từng task cũ.
+
+Đối chứng **Shuffled-EWC** dùng cùng ước lượng Fisher nhưng hoán vị ngẫu nhiên các phần tử bên trong từng tensor trước khi cộng dồn. So sánh này kiểm tra xem hiệu quả bảo vệ có đến từ đúng vị trí trọng số hay chỉ từ phân phối độ lớn của penalty.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## SI trên optimization trajectory
+
+Khác với EWC, **Synaptic Intelligence (SI)** không cần chạy thêm một lượt tính Fisher tốn kém tại task boundary. Thay vào đó, SI theo dõi trực tiếp độ đóng góp của từng trọng số dọc theo quỹ đạo tối ưu:
+
+<BlockMath formula="\omega_i = \sum_{t} - g_{i}^{(t)} \cdot \Delta \theta_{i}^{(t)}" />
+
+Kết thúc mỗi task, tầm quan trọng chuẩn hóa được tính bằng:
+
+<BlockMath formula="\Omega_i^{(k)} = \frac{\max(0, \omega_i)}{(\Delta \theta_i^{\text{task}})^2 + \xi}" />
+
+Trong đó <InlineMath formula="\xi" /> là hệ số damping chống chia cho 0. Cell 3 hiện thực hóa toàn bộ các chiến lược này cùng vòng lặp huấn luyện chuẩn xác.
+
+### Cell 3 · Hiện thực hóa Strategy Core và bộ đánh giá
+
+```python
+def load_fresh_model():
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        revision=MODEL_REVISION,
+    )
+    model.config.use_cache = False
+    model.gradient_checkpointing_enable()
+    return model.to(DEVICE)
+
+@torch.no_grad()
+def evaluate_task(model, task_id, rows):
+    model.eval()
+    candidates, gold = [], []
+    for idx, row in enumerate(rows):
+        gold.append(row["label"])
+        for li, lt in enumerate(TASK_SPECS[task_id]["labels"]):
+            enc = encode_answer(task_id, row["text"], lt)
+            enc["idx"], enc["li"] = idx, li
+            candidates.append(enc)
+    def collate_cand(items):
+        b = collate_batch(items)
+        b["idx"] = torch.tensor([it["idx"] for it in items])
+        b["li"] = torch.tensor([it["li"] for it in items])
+        return b
+    loader = DataLoader(candidates, batch_size=64, shuffle=False, collate_fn=collate_cand)
+    scores = {}
+    for b in tqdm(loader, desc=f"  Eval {task_id}", leave=False):
+        example_ids, label_ids = b.pop("idx").tolist(), b.pop("li").tolist()
+        b = {k: v.to(DEVICE) for k, v in b.items()}
+        with torch.amp.autocast("cuda", dtype=torch.float16, enabled=USE_AMP):
+            logits = model(input_ids=b["input_ids"], attention_mask=b["attention_mask"]).logits[:, :-1]
+        targets = b["labels"][:, 1:]
+        mask = targets.ne(-100)
+        safe_t = targets.masked_fill(~mask, 0)
+        logp = logits.log_softmax(-1).gather(-1, safe_t.unsqueeze(-1)).squeeze(-1)
+        mean_logp = (logp * mask).sum(-1) / mask.sum(-1).clamp_min(1)
+        for eid, lid, s in zip(example_ids, label_ids, mean_logp.tolist()):
+            scores[(eid, lid)] = s
+    preds = [int(np.argmax([scores[(i, li)] for li in range(len(TASK_SPECS[task_id]["labels"]))])) for i in range(len(rows))]
+    return float(np.mean(np.array(preds) == np.array(gold)))
+
+def evaluate_all(model, task_order, task_data, split="eval"):
+    return [evaluate_task(model, tid, task_data[tid][split]) for tid in task_order]
+
+def compute_cl_metrics(matrix):
+    R = np.asarray(matrix, dtype=float)
+    task_count = R.shape[1]
+    final_avg = float(R[-1].mean())
+    learned_once = np.array([R[i + 1, i] for i in range(task_count)])
+    learning_gains = learned_once - R[0]
+    bwt = float(np.mean([R[-1, i] - R[i + 1, i] for i in range(task_count - 1)]))
+    fwt = float(np.mean([R[i, i] - R[0, i] for i in range(1, task_count)]))
+    peak_forgetting = float(np.mean([R[i + 1:, i].max() - R[-1, i] for i in range(task_count - 1)]))
+    return {
+        "final_avg": round(final_avg, 4),
+        "mean_acq": round(float(learned_once.mean()), 4),
+        "mean_learning_gain": round(float(learning_gains.mean()), 4),
+        "min_learning_gain": round(float(learning_gains.min()), 4),
+        "bwt": round(bwt, 4),
+        "fwt": round(fwt, 4),
+        "peak_forgetting": round(peak_forgetting, 4),
+    }
+
+class ContinualStrategy:
+    name = "base"
+    def before_training(self, model): pass
+    def before_stage(self, stage_index, task_id, model): pass
+    def on_batch_loss(self, model, task_loss, stage_index, task_id): return task_loss
+    def on_optimizer_step(self, model): pass
+    def after_stage(self, stage_index, task_id, model, stage_rows): pass
+
+class QuadraticStrategy(ContinualStrategy):
+    name = "quadratic"
+    def __init__(self):
+        self.reference_params = {}
+        self.importance = {}
+
+    def before_training(self, model):
+        self.reference_params = {}
+        self.importance = {}
+
+    def compute_penalty(self, model):
+        penalty = torch.tensor(0.0, device=DEVICE)
+        if not self.reference_params:
+            return penalty
+        for name, param in model.named_parameters():
+            if not param.requires_grad or name not in self.importance:
+                continue
+            ref = self.reference_params[name]
+            omega = self.importance[name]
+            penalty = penalty + 0.5 * (omega * (param - ref) ** 2).sum()
+        return penalty
+
+    def on_batch_loss(self, model, task_loss, stage_index, task_id):
+        penalty = self.compute_penalty(model)
+        return task_loss + penalty
+
+class UniformL2Strategy(QuadraticStrategy):
+    name = "uniform_l2"
+    def __init__(self, strength=0.01):
+        super().__init__()
+        self.strength = strength
+
+    def after_stage(self, stage_index, task_id, model, stage_rows):
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            p_data = param.detach().clone()
+            if name not in self.importance:
+                self.importance[name] = torch.zeros_like(p_data)
+            self.importance[name] = self.importance[name] + self.strength
+            self.reference_params[name] = p_data
+
+class EWCStrategy(QuadraticStrategy):
+    name = "ewc"
+    def __init__(self, strength=1000.0):
+        super().__init__()
+        self.strength = strength
+
+    def compute_fisher(self, model, rows):
+        model.eval()
+        fisher = {name: torch.zeros_like(param) for name, param in model.named_parameters() if param.requires_grad}
+        encoded = [encode_train_row(r) for r in rows]
+        loader = DataLoader(encoded, batch_size=4, shuffle=False, collate_fn=collate_batch)
+        for batch in loader:
+            batch = {k: v.to(DEVICE) for k, v in batch.items()}
+            model.zero_grad(set_to_none=True)
+            with torch.amp.autocast("cuda", dtype=torch.float16, enabled=USE_AMP):
+                out = model(**batch)
+                loss = out.loss
+            loss.backward()
+            for name, param in model.named_parameters():
+                if param.requires_grad and param.grad is not None:
+                    fisher[name] += (param.grad.detach() ** 2) * (len(batch["input_ids"]) / len(rows))
+        model.zero_grad(set_to_none=True)
+        return fisher
+
+    def after_stage(self, stage_index, task_id, model, stage_rows):
+        f_mat = self.compute_fisher(model, stage_rows)
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            p_data = param.detach().clone()
+            if name not in self.importance:
+                self.importance[name] = torch.zeros_like(p_data)
+            self.importance[name] = self.importance[name] + self.strength * f_mat[name]
+            self.reference_params[name] = p_data
+
+class ShuffledEWCStrategy(EWCStrategy):
+    name = "shuffled_ewc"
+    def __init__(self, strength=1000.0, seed=42):
+        super().__init__(strength=strength)
+        self.shuffle_seed = seed
+
+    def after_stage(self, stage_index, task_id, model, stage_rows):
+        f_mat = self.compute_fisher(model, stage_rows)
+        rng = torch.Generator().manual_seed(self.shuffle_seed + stage_index)
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            p_data = param.detach().clone()
+            f_tensor = f_mat[name]
+            perm = torch.randperm(f_tensor.numel(), generator=rng)
+            shuffled_f = f_tensor.reshape(-1)[perm].reshape_as(f_tensor)
+            if name not in self.importance:
+                self.importance[name] = torch.zeros_like(p_data)
+            self.importance[name] = self.importance[name] + self.strength * shuffled_f
+            self.reference_params[name] = p_data
+
+class SIStrategy(ContinualStrategy):
+    name = "si"
+    def __init__(self, strength=0.1, damping=1e-6):
+        self.strength = strength
+        self.damping = damping
+        self.reference_params = {}
+        self.importance = {}
+        self.small_omega = {}
+        self.prev_params = {}
+
+    def before_training(self, model):
+        self.reference_params = {}
+        self.importance = {}
+        self.small_omega = {}
+        self.prev_params = {}
+
+    def before_stage(self, stage_index, task_id, model):
+        self.small_omega = {n: torch.zeros_like(p) for n, p in model.named_parameters() if p.requires_grad}
+        self.prev_params = {n: p.detach().clone() for n, p in model.named_parameters() if p.requires_grad}
+
+    def on_batch_loss(self, model, task_loss, stage_index, task_id):
+        penalty = torch.tensor(0.0, device=DEVICE)
+        if self.reference_params:
+            for name, param in model.named_parameters():
+                if param.requires_grad and name in self.importance:
+                    ref = self.reference_params[name]
+                    omega = self.importance[name]
+                    penalty = penalty + 0.5 * (omega * (param - ref) ** 2).sum()
+        return task_loss + penalty
+
+    def on_optimizer_step(self, model):
+        for name, param in model.named_parameters():
+            if param.requires_grad and param.grad is not None:
+                delta = param.detach() - self.prev_params[name]
+                self.small_omega[name] += (-param.grad.detach() * delta)
+                self.prev_params[name] = param.detach().clone()
+
+    def after_stage(self, stage_index, task_id, model, stage_rows):
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            p_data = param.detach().clone()
+            ref = self.reference_params.get(name, self.prev_params.get(name, p_data))
+            stage_delta = p_data - ref
+            omega_k = torch.clamp(self.small_omega[name], min=0.0) / (stage_delta ** 2 + self.damping)
+            self.importance[name] = self.importance.get(name, torch.zeros_like(p_data)) + self.strength * omega_k
+            self.reference_params[name] = p_data
+
+def train_continual_experiment(strategy, task_order, task_data, eval_split="eval", lr=5e-5, epochs=1, batch_size=4, grad_accum_steps=4):
+    seed_everything(SEED)
+    model = load_fresh_model()
+    strategy.before_training(model)
+    matrix = [evaluate_all(model, task_order, task_data, split=eval_split)]
+    costs = []
+
+    for stage_index, task_id in enumerate(task_order):
+        stage_rows = task_data[task_id]["train"]
+        strategy.before_stage(stage_index, task_id, model)
+        rng = random.Random(SEED + 2000 + stage_index)
+        shuffled = list(stage_rows)
+        rng.shuffle(shuffled)
+        encoded = [encode_train_row(r) for r in shuffled]
+        loader = DataLoader(encoded, batch_size=batch_size, shuffle=False, collate_fn=collate_batch)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.01)
+        scaler = torch.amp.GradScaler("cuda", init_scale=AMP_INITIAL_SCALE, enabled=USE_AMP)
+
+        started = time.perf_counter()
+        running_loss = 0.0
+        update_count = 0
+        model.train()
+        optimizer.zero_grad(set_to_none=True)
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
+
+        for epoch in range(epochs):
+            for step, batch in enumerate(loader):
+                batch = {k: v.to(DEVICE) for k, v in batch.items()}
+                with torch.amp.autocast("cuda", dtype=torch.float16, enabled=USE_AMP):
+                    out = model(**batch)
+                    raw_loss = out.loss
+                    total_loss = strategy.on_batch_loss(model, raw_loss, stage_index, task_id)
+                    loss = total_loss / grad_accum_steps
+                scaler.scale(loss).backward()
+                running_loss += raw_loss.item()
+
+                if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(loader):
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    scale_before = scaler.get_scale()
+                    scaler.step(optimizer)
+                    scaler.update()
+                    if USE_AMP and scaler.get_scale() < scale_before:
+                        raise RuntimeError(
+                            "AMP đã bỏ qua một optimizer update. Hãy giảm AMP_INITIAL_SCALE "
+                            "để giữ cùng update budget giữa các phương pháp."
+                        )
+                    strategy.on_optimizer_step(model)
+                    optimizer.zero_grad(set_to_none=True)
+                    update_count += 1
+
+        expected_updates = epochs * ((len(loader) + grad_accum_steps - 1) // grad_accum_steps)
+        if update_count != expected_updates:
+            raise RuntimeError(f"Update budget sai: expected={expected_updates}, actual={update_count}")
+        strategy.after_stage(stage_index, task_id, model, stage_rows)
+        elapsed = time.perf_counter() - started
+        peak_gb = torch.cuda.max_memory_allocated() / 1024**3 if torch.cuda.is_available() else 0.0
+        costs.append({
+            "stage": task_id, "updates": update_count,
+            "seconds": round(elapsed, 1), "peak_gpu_gb": round(peak_gb, 2),
+            "avg_loss": round(running_loss / max(len(loader) * epochs, 1), 4),
+        })
+        matrix.append(evaluate_all(model, task_order, task_data, split=eval_split))
+
+    del model
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    return {
+        "matrix": matrix,
+        "metrics": compute_cl_metrics(matrix),
+        "costs": costs,
+    }
+```
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Controls và strength sweep
+
+Để bảo đảm tính khách quan và ngăn chặn test leakage, toàn bộ siêu tham số (regularization strength <InlineMath formula="\lambda" /> và damping <InlineMath formula="\xi" />) phải được dò quét (sweep) trên tập `validation` độc lập (64 mẫu/task), tuyệt đối không dùng tập test để chọn hyperparameter.
+
+Không gian tìm kiếm cho từng phương pháp:
+
+- **Uniform L2:** <InlineMath formula="\lambda \in \{0.0, 0.01, 0.1, 1.0\}" />.
+- **EWC:** <InlineMath formula="\lambda \in \{0.0, 100, 1000, 10000\}" />.
+- **Synaptic Intelligence:** <InlineMath formula="\lambda \in \{0.0, 0.01, 0.1, 1.0\}" /> kết hợp cùng <InlineMath formula="\xi \in \{10^{-6}, 10^{-7}\}" />.
+
+Cấu hình tốt nhất được chọn dựa trên chỉ số Final Average Accuracy cao nhất trên tập validation, kèm điều kiện bắt buộc là độ dẻo tiếp thu (diagonal learning gain) phải dương.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Final seed-42 run
+
+Cell 4 thực hiện toàn bộ quy trình: chạy sweep trên tập validation, khóa cấu hình tối ưu, sau đó chạy thực nghiệm chính thức trên toàn bộ 2.048 mẫu train và đánh giá trên 64 mẫu test độc lập cho Uniform L2, EWC, SI và Shuffled-EWC.
+
+Toàn bộ tiến trình được lưu vào file checkpoint nguyên tử:
+```text
+/content/drive/MyDrive/continual-learning-baseline/ewc-si/ewc_si_seed42_checkpoint.json
+```
+Nếu phiên Colab bị gián đoạn, cell này tự động nạp lại checkpoint và tiếp tục các phương pháp còn lại mà không chạy lại từ đầu.
+
+### Cell 4 · Resumable checkpoint runner (Validation sweep & Final run)
+
+```python
+CHECKPOINT_PATH = os.path.join(OUTPUT_DIR, "ewc_si_seed42_checkpoint.json")
+
+SWEEP_CONFIGS = {
+    "uniform_l2": [{"strength": s} for s in [0.0, 0.01, 0.1, 1.0]],
+    "ewc": [{"strength": s} for s in [0.0, 100.0, 1000.0, 10000.0]],
+    "si": [
+        {"strength": s, "damping": d}
+        for s in [0.0, 0.01, 0.1, 1.0]
+        for d in [1e-6, 1e-7]
+    ],
+}
+
+CHECKPOINT_CONTRACT = {
+    "schema_version": 2,
+    "algorithm_version": "online-ewc-minibatch-fisher-si-v2",
+    "baseline_sha256": BASELINE_ARTIFACT_SHA256,
+    "model_name": MODEL_NAME,
+    "model_revision": MODEL_REVISION,
+    "dataset_revisions": DATASET_REVISIONS,
+    "task_order": TASK_ORDER,
+    "train_per_task": TRAIN_PER_TASK,
+    "eval_per_task": EVAL_PER_TASK,
+    "val_per_task": VAL_PER_TASK,
+    "max_length": MAX_LENGTH,
+    "batch_size": BATCH_SIZE,
+    "grad_accum_steps": GRAD_ACCUM_STEPS,
+    "learning_rate": LEARNING_RATE,
+    "epochs_per_task": EPOCHS_PER_TASK,
+    "sweep_configs": SWEEP_CONFIGS,
+    "selection_gate": "all-diagonal-learning-gains-positive",
+}
+CHECKPOINT_CONTRACT_ID = hashlib.sha256(
+    json.dumps(CHECKPOINT_CONTRACT, sort_keys=True).encode("utf-8")
+).hexdigest()
+
+def empty_checkpoint():
+    return {
+        "contract_id": CHECKPOINT_CONTRACT_ID,
+        "sweep": {},
+        "selected": {},
+        "final": {},
+    }
+
+def validate_cached_result(record, label):
+    if not isinstance(record, dict):
+        raise RuntimeError(f"Checkpoint record {label} phải là object")
+    matrix = np.asarray(record.get("matrix"), dtype=float)
+    expected_shape = (len(TASK_ORDER) + 1, len(TASK_ORDER))
+    if matrix.shape != expected_shape or not bool(np.isfinite(matrix).all()):
+        raise RuntimeError(f"Checkpoint record {label} có matrix không hợp lệ")
+    metrics = record.get("metrics")
+    required_metrics = {
+        "final_avg", "mean_acq", "mean_learning_gain", "min_learning_gain",
+        "bwt", "fwt", "peak_forgetting",
+    }
+    if not isinstance(metrics, dict) or not required_metrics.issubset(metrics):
+        raise RuntimeError(f"Checkpoint record {label} thiếu metrics bắt buộc")
+
+def load_checkpoint():
+    if not os.path.isfile(CHECKPOINT_PATH):
+        return empty_checkpoint()
+    try:
+        with open(CHECKPOINT_PATH, "r", encoding="utf-8") as f:
+            state = json.load(f)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"Checkpoint hỏng hoặc không đọc được: {CHECKPOINT_PATH}") from error
+    if not isinstance(state, dict) or state.get("contract_id") != CHECKPOINT_CONTRACT_ID:
+        raise RuntimeError(
+            "Checkpoint không cùng experiment contract. Hãy đổi tên hoặc xóa file cũ "
+            f"trước khi chạy lại: {CHECKPOINT_PATH}"
+        )
+    for section in ["sweep", "selected", "final"]:
+        if not isinstance(state.get(section), dict):
+            raise RuntimeError(f"Checkpoint section {section!r} không hợp lệ")
+    for key, record in state["sweep"].items():
+        validate_cached_result(record, f"sweep/{key}")
+    for key, record in state["final"].items():
+        validate_cached_result(record, f"final/{key}")
+    return state
+
+def save_checkpoint(state):
+    state["contract_id"] = CHECKPOINT_CONTRACT_ID
+    temp = CHECKPOINT_PATH + ".tmp"
+    with open(temp, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(temp, CHECKPOINT_PATH)
+
+checkpoint_state = load_checkpoint()
+
+def create_strategy(method, cfg):
+    if method == "uniform_l2": return UniformL2Strategy(strength=cfg["strength"])
+    if method == "ewc": return EWCStrategy(strength=cfg["strength"])
+    if method == "si": return SIStrategy(strength=cfg["strength"], damping=cfg["damping"])
+    if method == "shuffled_ewc": return ShuffledEWCStrategy(strength=cfg["strength"], seed=SEED)
+    raise ValueError(f"Unknown method {method}")
+
+# 1. Validation Sweep
+print("=== 1. CHẠY VALIDATION SWEEP (64 VAL ROWS) ===")
+for method, configs in SWEEP_CONFIGS.items():
+    for cfg in configs:
+        cfg_key = f"{method}:{json.dumps(cfg, sort_keys=True)}"
+        if cfg_key in checkpoint_state["sweep"]:
+            print(f"  [Cached] {cfg_key}")
+            continue
+        print(f"  [Running Sweep] {cfg_key}...")
+        strat = create_strategy(method, cfg)
+        res = train_continual_experiment(strat, TASK_ORDER, task_data, eval_split="validation")
+        checkpoint_state["sweep"][cfg_key] = {
+            "matrix": res["matrix"],
+            "metrics": res["metrics"],
+        }
+        save_checkpoint(checkpoint_state)
+
+# 2. Khóa cấu hình tốt nhất
+for method in SWEEP_CONFIGS.keys():
+    eligible = []
+    for cfg in SWEEP_CONFIGS[method]:
+        cfg_key = f"{method}:{json.dumps(cfg, sort_keys=True)}"
+        metrics = checkpoint_state["sweep"][cfg_key]["metrics"]
+        if metrics["min_learning_gain"] > 0.0:
+            eligible.append((metrics["final_avg"], metrics["mean_learning_gain"], cfg))
+    if not eligible:
+        raise RuntimeError(
+            f"Không có cấu hình {method} nào đạt learning gain dương trên mọi task validation"
+        )
+    best_score, _, best_cfg = max(eligible, key=lambda item: (item[0], item[1]))
+    checkpoint_state["selected"][method] = best_cfg
+    print(f"  ✓ {method.upper()} selected: {best_cfg} (Val Final Avg: {best_score:.4f})")
+save_checkpoint(checkpoint_state)
+
+# 3. Final Test Runs (64 Held-out Test Rows)
+print("\n=== 2. CHẠY FINAL BENCHMARK TRÊN HELD-OUT TEST (64 ROWS) ===")
+FINAL_METHODS = ["uniform_l2", "ewc", "si", "shuffled_ewc"]
+for method in FINAL_METHODS:
+    if method in checkpoint_state["final"]:
+        print(f"  [Cached Final] {method.upper()}")
+        continue
+    cfg = checkpoint_state["selected"]["ewc"] if method == "shuffled_ewc" else checkpoint_state["selected"][method]
+    print(f"  [Running Final] {method.upper()} with {cfg}...")
+    strat = create_strategy(method, cfg)
+    res = train_continual_experiment(strat, TASK_ORDER, task_data, eval_split="eval")
+    checkpoint_state["final"][method] = {
+        "config": cfg,
+        "matrix": res["matrix"],
+        "metrics": res["metrics"],
+        "costs": res["costs"],
+    }
+    save_checkpoint(checkpoint_state)
+    print(f"  ✓ {method.upper()} Final Avg: {res['metrics']['final_avg']:.4f} | BWT: {res['metrics']['bwt']:.4f}")
+```
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Cách đọc importance control
+
+Lab tối giản không xuất thống kê layerwise, parameter drift hay phân phối Fisher. Vì vậy không được suy ra importance tập trung ở layer nào hoặc bao nhiêu phần trăm tham số chỉ từ bảng accuracy. Đối chứng Shuffled-EWC chỉ hỗ trợ một phép đọc hẹp:
+
+- Nếu EWC giữ retention tốt hơn Shuffled-EWC trong khi acquisition tương đương, H4 có thêm bằng chứng rằng vị trí của importance hữu ích.
+- Nếu hai phương pháp gần nhau, H4 vẫn chưa được phân giải trong fixture này.
+- Nếu Shuffled-EWC tốt hơn, kết quả đi ngược dự đoán của H4 và cần kiểm tra lại nhiễu seed, strength cùng cách ước lượng Fisher trước khi khái quát.
+
+Đây là control theo kết quả hành vi, không phải phép đo trực tiếp độ nhạy của từng tham số.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Đối chiếu giả thuyết
+
+Cell 5 kết hợp kết quả của hai baseline đã nạp từ artifact với 4 phương pháp vừa huấn luyện để xuất ra bảng so sánh tổng hợp 6 phương pháp trên đúng 64 mẫu test độc lập, đồng thời lưu trữ artifact hoàn chỉnh `ewc_si_seed42.json`.
+
+### Cell 5 · Xuất bảng tổng hợp 6 phương pháp và lưu trữ Artifact
+
+```python
+# 1. Gom toàn bộ kết quả 6 phương pháp
+all_method_results = {
+    "seqft": baseline_results["seqft"],
+    "replay": baseline_results["replay"],
+    **checkpoint_state["final"],
+}
+
+# 2. Lưu artifact tổng kết
+final_artifact = {
+    "config": {
+        "seed": SEED,
+        "model_name": MODEL_NAME,
+        "model_revision": MODEL_REVISION,
+        "dataset_revisions": DATASET_REVISIONS,
+        "task_order": TASK_ORDER,
+        "train_per_task": TRAIN_PER_TASK,
+        "eval_per_task": EVAL_PER_TASK,
+        "val_per_task": VAL_PER_TASK,
+        "max_length": MAX_LENGTH,
+        "batch_size": BATCH_SIZE,
+        "grad_accum_steps": GRAD_ACCUM_STEPS,
+        "learning_rate": LEARNING_RATE,
+        "epochs_per_task": EPOCHS_PER_TASK,
+    },
+    "provenance": {
+        "baseline_artifact_path": BASELINE_ARTIFACT_PATH,
+        "baseline_artifact_sha256": BASELINE_ARTIFACT_SHA256,
+        "checkpoint_contract_id": CHECKPOINT_CONTRACT_ID,
+        "runtime_versions": runtime_versions,
+    },
+    "selected_configs": checkpoint_state["selected"],
+    "results": all_method_results,
+}
+
+final_artifact_path = os.path.join(OUTPUT_DIR, "ewc_si_seed42.json")
+temp_final = final_artifact_path + ".tmp"
+with open(temp_final, "w", encoding="utf-8") as f:
+    json.dump(final_artifact, f, ensure_ascii=False, indent=2)
+    f.flush()
+    os.fsync(f.fileno())
+os.replace(temp_final, final_artifact_path)
+print(f"Đã lưu thành công artifact EWC/SI vào: {final_artifact_path}\n")
+
+# 3. Bảng so sánh 6 phương pháp đối đầu (toàn bộ trên 64 held-out test rows)
+summary_table = []
+for m in ["seqft", "replay", "uniform_l2", "ewc", "si", "shuffled_ewc"]:
+    r = all_method_results[m]
+    met = r["metrics"]
+    prov = "loaded_replay_artifact" if m in ["seqft", "replay"] else "newly_executed_seed42"
+    summary_table.append({
+        "Method": m.upper(),
+        "Provenance": prov,
+        "Final Avg": met["final_avg"],
+        "BWT": met["bwt"],
+        "FWT": met["fwt"],
+        "Mean Acq": met["mean_acq"],
+        "Mean Learning Gain": met["mean_learning_gain"],
+        "Min Learning Gain": met["min_learning_gain"],
+        "Peak Forgetting": met["peak_forgetting"],
+    })
+
+df_report = pd.DataFrame(summary_table)
+print("=== BẢNG SO SÁNH 6 PHƯƠNG PHÁP CONTINUAL LEARNING (SEED 42) ===")
+print(df_report.to_string(index=False))
+```
+
+### Quy tắc kết luận giả thuyết
+
+1. **H1 (Regularization vs Forgetting):** Chỉ ghi `Supported` khi EWC hoặc SI cải thiện BWT so với SeqFT và mọi task vẫn có learning gain dương; nếu retention tăng nhưng acquisition sụp, ghi `Mixed`.
+2. **H2 (Specific vs Uniform L2):** Chỉ ghi `Supported` khi EWC hoặc SI vượt Uniform L2 trên retention với acquisition tương đương; chênh lệch nhỏ được ghi `Unresolved`.
+3. **H3 (Boundary Fisher vs Path Integral):** So sánh trực tiếp SI với EWC trên retention, acquisition và compute cost; không mặc định hai cơ chế tương đương trước khi đọc bảng.
+4. **H4 (Causal Location):** Chỉ ghi `Supported` khi EWC vượt Shuffled-EWC mà không được giải thích bằng acquisition kém hơn hoặc cấu hình không tương thích.
+
+Run seed 42 với 2.048 mẫu mỗi task chỉ là một fixture kiểm tra cơ chế. Nó không ước lượng biến thiên theo seed và không đủ để khái quát phương pháp nào vượt trội ở quy mô khác.
+
+</MdxPage>

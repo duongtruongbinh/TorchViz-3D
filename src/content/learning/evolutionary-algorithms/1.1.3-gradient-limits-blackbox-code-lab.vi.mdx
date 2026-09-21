@@ -1,0 +1,261 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'gradient-limits-blackbox-code-lab',
+  locale: 'vi',
+  title: "Code",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Định nghĩa Rastrigin Landscape (Nhiều Cực tiểu)',
+    'Mô phỏng Gradient Descent bị Kẹt Cục bộ',
+    'Thử nghiệm Thăm dò Toàn cục Đơn giản (Zero-Order)',
+    'Các câu hỏi chưa được trả lời sau khi chạy code',
+  ],
+  keywords: ['Code Lab', 'Rastrigin', 'SGD Failure', 'Local Minima', 'Zero-Order Search', 'Python'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ dùng Python và NumPy để trực tiếp quan sát điểm yếu chí tử của **Gradient Descent** trên một hàm mục tiêu **non-convex** (đa cực trị kinh điển trong lý thuyết tối ưu): **Hàm Rastrigin**.
+
+<BlockMath formula="f(x) = 10 + x^2 - 10 \cos(2\pi x)" />
+
+
+Hàm số này có nghiệm tối ưu toàn cục tại <InlineMath formula="x^* = 0" /> với <InlineMath formula="f(0) = 0" />. Tuy nhiên, thành phần hình sin <InlineMath formula="-10\cos(2\pi x)" /> tạo ra hàng loạt "cái bẫy" cực tiểu cục bộ cứ mỗi khoảng chu kỳ 1.0 đơn vị.
+
+
+Chúng ta sẽ kiểm chứng xem điều gì xảy ra khi khởi tạo Gradient Descent từ một vị trí bất kỳ, và vì sao tư duy tìm kiếm dựa trên mẫu ứng viên (Zero-Order) mở đường cho Thuật toán Tiến hóa.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Định nghĩa Rastrigin Landscape (Nhiều Cực tiểu)
+
+Viết hàm tính giá trị <InlineMath formula="f(x)" /> và đạo hàm giải tích <InlineMath formula="f'(x) = 2x + 20\pi \sin(2\pi x)" />:
+
+```python
+import numpy as np
+
+def rastrigin(x):
+    """Hàm Rastrigin 1 chiều: Cực tiểu toàn cục tại x = 0, f(0) = 0."""
+    return 10.0 + x**2 - 10.0 * np.cos(2.0 * np.pi * x)
+
+def rastrigin_grad(x):
+    """Đạo hàm giải tích f'(x)."""
+    return 2.0 * x + 20.0 * np.pi * np.sin(2.0 * np.pi * x)
+
+# Thử nghiệm giá trị tại một số điểm
+print(f"Giá trị tại điểm tối ưu toàn cục x=0: {rastrigin(0.0):.4f}")
+print(f"Giá trị tại x=1.5: {rastrigin(1.5):.4f}")
+print(f"Giá trị tại x=2.0 (cực tiểu cục bộ): {rastrigin(2.0):.4f}")
+```
+
+```output
+Giá trị tại điểm tối ưu toàn cục x=0: 0.0000
+Giá trị tại x=1.5: 22.2500
+Giá trị tại x=2.0 (cực tiểu cục bộ): 4.0000
+```
+
+Vẽ đồ thị minh họa hình dạng hàm Rastrigin 1 chiều bằng `matplotlib`:
+
+```python
+import matplotlib.pyplot as plt
+
+# Tạo 1000 điểm trên khoảng [-3.5, 3.5]
+x = np.linspace(-3.5, 3.5, 1000)
+y = rastrigin(x)
+
+plt.figure(figsize=(9, 4.5))
+plt.plot(x, y, color="#205089", linewidth=2.5)
+
+# Cực tiểu toàn cục & các bẫy cục bộ
+plt.scatter([0], [0], color="#10B981", s=120, zorder=6, label="Global minimum")
+local_xs = [-3.0, -2.0, -1.0, 1.0, 2.0, 3.0]
+plt.scatter(local_xs, [rastrigin(xi) for xi in local_xs], color="#E11D48", s=70, zorder=5, label="Local minimum")
+
+plt.title("Rastrigin Function Landscape (1D)")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.grid(True, linestyle="--", alpha=0.4, color="#E2E8F0")
+plt.legend(frameon=False)
+plt.box(False)
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/01-rastrigin-landscape-1d.png"
+  alt="Hình dạng đồ thị hàm Rastrigin 1 chiều với Global minimum tại x=0 và các Local minimum xung quanh"
+  caption="Đồ thị hàm Rastrigin 1D: Bề mặt non-convex với Global minimum tại x* = 0 (chấm xanh) và chuỗi Local minimum (chấm đỏ) cứ mỗi 1 đơn vị."
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Mô phỏng Gradient Descent bị Kẹt Cục bộ
+
+Cho Gradient Descent xuất phát từ điểm <InlineMath formula="x_0 = 2.3" /> (khá gần điểm 0, nhưng nằm bên sườn đồi của một cực tiểu cục bộ):
+
+```python
+def gradient_descent(x_init, lr=0.01, steps=100):
+    x = x_init
+    history = [x]
+    for _ in range(steps):
+        grad = rastrigin_grad(x)
+        x = x - lr * grad
+        history.append(x)
+    return x, rastrigin(x)
+
+# Thử nghiệm với các điểm xuất phát khác nhau
+for start_x in [0.3, 1.4, 2.3, 3.8]:
+    final_x, final_loss = gradient_descent(start_x, lr=0.005, steps=200)
+    print(f"Xuất phát x0 = {start_x:4.1f} -> Dừng lại tại x = {final_x:6.3f} | Loss = {final_loss:6.3f}")
+```
+
+```output
+Xuất phát x0 =  0.3 -> Dừng lại tại x =  0.000 | Loss =  0.000
+Xuất phát x0 =  1.4 -> Dừng lại tại x =  0.994 | Loss =  0.995
+Xuất phát x0 =  2.3 -> Dừng lại tại x =  1.990 | Loss =  3.980
+Xuất phát x0 =  3.8 -> Dừng lại tại x =  3.980 | Loss = 15.919
+```
+
+Vẽ quỹ đạo di chuyển của Gradient Descent từ các điểm xuất phát:
+
+```python
+x_range = np.linspace(-0.5, 4.5, 1000)
+y_range = rastrigin(x_range)
+
+plt.figure(figsize=(9, 4.5))
+plt.plot(x_range, y_range, color="#94A3B8", linewidth=2, alpha=0.8)
+
+# Chạy và vẽ quỹ đạo của từng điểm xuất phát
+start_points = [0.3, 1.4, 2.3, 3.8]
+colors = ["#10B981", "#E11D48", "#E11D48", "#E11D48"]
+
+for x0, color in zip(start_points, colors):
+    x_curr = x0
+    traj = [x_curr]
+    for _ in range(120):
+        x_curr = x_curr - 0.005 * rastrigin_grad(x_curr)
+        traj.append(x_curr)
+
+    traj = np.array(traj)
+    traj_y = rastrigin(traj)
+
+    plt.plot(traj, traj_y, color=color, linewidth=2.5, alpha=0.9)
+    plt.scatter(traj[0], traj_y[0], color=color, s=70, zorder=5) # Điểm xuất phát
+    plt.scatter(traj[-1], traj_y[-1], color=color, s=90, marker="X", zorder=6) # Điểm dừng
+
+plt.scatter([], [], color="#10B981", marker="X", s=80, label="Global minimum")
+plt.scatter([], [], color="#E11D48", marker="X", s=80, label="Local minimum")
+
+plt.title("Gradient Descent Trapped in Local Minima")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.grid(True, linestyle="--", alpha=0.4, color="#E2E8F0")
+plt.legend(frameon=False, loc="upper left")
+plt.box(False)
+plt.tight_layout()
+plt.show()
+```
+
+<LessonImage
+  assetPath="evolutionary-algorithms/02-gradient-descent-trapped.png"
+  alt="Quỹ đạo di chuyển của Gradient Descent bị mắc kẹt ở các bẫy cực tiểu địa phương"
+  caption="Quỹ đạo Gradient Descent: Chỉ có điểm xuất phát gần x0 = 0.3 (xanh lá) lăn về Global minimum, các điểm x0 = 1.4, 2.3, 3.8 (đỏ) đều rơi vào các hố Local minimum."
+/>
+
+
+**Kết quả thực nghiệm:**
+- Nếu xuất phát tại <InlineMath formula="x_0 = 0.3" />: GD may mắn hội tụ về <InlineMath formula="x \approx 0.0" /> (Loss = 0.0).
+- Nhưng xuất phát tại <InlineMath formula="x_0 = 2.3" />: GD rơi ngay vào hố <InlineMath formula="x \approx 1.99" /> (Loss = 3.98) và **không thể thoát ra**.
+- Xuất phát tại <InlineMath formula="x_0 = 3.8" />: GD kẹt tại <InlineMath formula="x \approx 3.98" /> (Loss = 15.92)!
+
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thử nghiệm Thăm dò Toàn cục Đơn giản (Zero-Order)
+
+Trong tình huống đặc biệt này, hàm Rastrigin luôn không âm <InlineMath formula="f(x) \ge 0" />, ta có thể tận dụng nó như một hàm Loss trong Machine Learning cần tối thiểu hóa về 0.
+
+Bây giờ hãy thử nghiệm cách tiếp cận **hoàn toàn không dùng đạo hàm**: Tung ra một tập hợp 50 ứng viên ngẫu nhiên trên toàn miền <InlineMath formula="[-5, 5]" /> và chọn ra cá thể xuất sắc nhất (output từ <InlineMath formula="f(x)" /> nhỏ nhất):
+
+```python
+def random_population_search(pop_size=50, low=-5.0, high=5.0):
+    # Khởi tạo một quần thể ngẫu nhiên các cá thể ứng viên
+    candidates = np.random.uniform(low, high, size=pop_size)
+
+    # Đánh giá điểm (Zero-Order evaluation)
+    scores = rastrigin(candidates)
+
+    # Tìm ứng viên tốt nhất
+    best_idx = np.argmin(scores)
+    best_x = candidates[best_idx]
+    best_score = scores[best_idx]
+
+    return best_x, best_score
+
+np.random.seed(42)
+best_x, best_score = random_population_search(pop_size=50)
+print(f"Quần thể 50 ứng viên ngẫu nhiên:")
+print(f"-> Ứng viên tốt nhất x = {best_x:.4f} | Loss = {best_score:.4f}")
+```
+
+```output
+Quần thể 50 ứng viên ngẫu nhiên:
+-> Ứng viên tốt nhất x = -0.0482 | Loss = 0.4580
+```
+
+
+**Bài học quan trọng:** Dù tìm kiếm ngẫu nhiên thuần túy chưa phải là tối ưu, nó cho thấy sức mạnh của việc **tìm kiếm theo quần thể (population-based)**: không bao giờ phụ thuộc vào một quỹ đạo duy nhất. Nếu ta thêm cơ chế sinh sản và đột biến thông minh, ta sẽ có **Thuật toán Tiến hóa**!
+
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Các câu hỏi chưa được trả lời sau khi chạy code
+
+Thực nghiệm cho thấy: **Gradient Descent** dễ bị kẹt trong bẫy cục bộ, trong khi **thăm dò quần thể ngẫu nhiên (Zero-Order)** lại có cơ hội tìm ra vùng nghiệm tốt hơn.
+
+Tuy nhiên, cách tiếp cận này để lại 3 câu hỏi lớn chưa có lời giải:
+
+<ConceptHierarchy
+  ariaLabel="3 Câu hỏi chưa được giải quyết sau thực nghiệm"
+  root={{
+    title: '3 Câu hỏi Cốt lõi',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Làm sao tránh lãng phí tri thức?',
+      align: 'left',
+      detail: 'Tung 50 điểm ngẫu nhiên hoàn toàn độc lập, không kế thừa thông tin từ các điểm tốt trước đó. Làm sao để thế hệ sau thông minh hơn thế hệ trước?',
+      tone: 'amber',
+    },
+    {
+      title: '2. Làm sao tinh chỉnh cục bộ chính xác?',
+      align: 'left',
+      detail: 'Tìm kiếm ngẫu nhiên phân tán khó chạm tới nghiệm tuyệt đối x* = 0.0000. Cần cơ chế nào để vừa "thám hiểm diện rộng", vừa "đào sâu cục bộ"?',
+      tone: 'teal',
+    },
+    {
+      title: '3. Lời nguyền số chiều (Curse of Dimensionality)?',
+      align: 'left',
+      detail: 'Với 1 chiều, 50 điểm là đủ. Nhưng với 100 hay 10.000 tham số, không gian bùng nổ theo hàm mũ. Làm sao định hướng tìm kiếm mà không cần gradient?',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+
+**Chuyển tiếp sang Chủ đề 1.2:** Cơ chế quần thể, chọn lọc và biến dị cung cấp một hướng tìm kiếm khác cho ba câu hỏi này. Bài tiếp theo ánh xạ các khái niệm đó sang bài toán Machine Learning.
+
+
+</MdxPage>

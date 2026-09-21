@@ -1,0 +1,544 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'crossover-mutation-operators-code-lab',
+  locale: 'vi',
+  title: "Code",
+  headings: [
+    'Mục tiêu: Xây dựng Bộ Lọc Đặc trưng Tự động với GA',
+    'Thử nghiệm Lọc Cột trên DataFrame & Đánh giá Fitness',
+    'Rã từng bước Toán tử Đấu loại, Lai ghép & Đột biến',
+    'Đóng gói Vòng lặp Tiến hóa qua 25 Thế hệ',
+    'Trực quan hóa & Phân tích Động lực Đào thải Đặc trưng',
+    'Đối chiếu Thực tế: Kiểm chứng với Thư viện Chuyên dụng (pymoo)',
+  ],
+  keywords: ['Code Lab', 'Feature Selection', 'Genetic Algorithm', 'Crossover', 'Mutation', 'Tournament Selection', 'Binary Chromosome', 'NumPy', 'pymoo'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu: Xây dựng Bộ Lọc Đặc trưng Tự động với GA
+
+Ở bài lý thuyết trước, chúng ta đã thấy hai toán tử biến dị cốt lõi: **Lai ghép (Crossover)** tái tổ hợp allele từ cha mẹ và **Đột biến (Mutation)** tạo thay đổi ngẫu nhiên.
+
+---
+
+Trong bài thực hành này, chúng ta sẽ trực tiếp lập trình một **Bộ máy Tối ưu hóa Di truyền hoàn chỉnh (Full Genetic Algorithm Engine)** bằng Python và NumPy thuần túy:
+
+1. Duy trì một quần thể gồm **30 cá thể nhị phân** đa dạng.
+2. Áp dụng cơ chế **Áp lực Chọn lọc (Parsimony Pressure)** để tự động phạt các mô hình chứa quá nhiều đặc trưng rác theo nguyên lý Dao cạo Ockham.
+3. Vận hành qua **25 thế hệ** với Tournament Selection, lai ghép 1 điểm cắt và đột biến lật bit.
+4. Quan sát cấu hình tốt nhất trong lần chạy cố định và đối chiếu với ba biến thật đã dùng để sinh dữ liệu.
+
+**Khởi tạo dữ liệu thực nghiệm (6 đặc trưng):**
+
+Xét tập dữ liệu hồi quy gồm 100 mẫu bất động sản với 6 biến đầu vào. Mối quan hệ chân lý (Ground Truth) được tạo lập theo công thức:
+
+<BlockMath formula="y = 3.0 \cdot x_0 - 2.5 \cdot x_2 + 4.0 \cdot x_4 + \epsilon, \quad \epsilon \sim \mathcal{N}(0, 0.5^2)" />
+
+```python
+import numpy as np
+import pandas as pd
+
+# Cố định seed ngẫu nhiên
+np.random.seed(42)
+
+# Sinh 100 mẫu dữ liệu với 3 đặc trưng cốt lõi
+X = np.random.randn(100, 6)
+y = 3.0 * X[:, 0] - 2.5 * X[:, 2] + 4.0 * X[:, 4] + np.random.randn(100) * 0.5
+feature_names = ['sqft', 'noisy_beds', 'location_idx', 'noisy_year', 'bathrooms', 'noisy_dist']
+
+# Xem trước 5 dòng dữ liệu đầu tiên
+df = pd.DataFrame(X, columns=feature_names)
+df['price'] = y
+print(df.head().round(2))
+```
+
+```output
+   sqft  noisy_beds  location_idx  noisy_year  bathrooms  noisy_dist  price
+0  0.50       -0.14          0.65       -0.53      -0.23       -0.23  -1.22
+1 -0.23       -0.23          1.58       -0.07      -0.91       -0.24  -8.11
+2  0.54       -0.47         -0.46        0.54      -0.47        0.24   0.88
+3 -1.91       -1.72         -0.56       -1.01       0.31       -0.91  -2.73
+4 -1.41        0.66          0.57       -0.60       0.54       -0.57  -3.21
+```
+
+Vì đây là dữ liệu tổng hợp, ta biết trước mặt nạ chứa ba biến sinh tín hiệu là <InlineMath formula="[1, 0, 1, 0, 1, 0]" />. Lab dùng thông tin đó để kiểm tra cơ chế GA; trong dữ liệu thực, không được coi mặt nạ này là chân lý đã biết.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thử nghiệm Lọc Cột trên DataFrame & Đánh giá Fitness
+
+Trước khi viết hàm tổng quát, hãy thử nghiệm từng bước với một cá thể cụ thể trên DataFrame `df`:
+
+Giả sử ta có cá thể tối ưu mang chuỗi bit <InlineMath formula="\mathbf{g} = [1, 0, 1, 0, 1, 0]" />:
+
+```python
+# 1. Trích xuất các cột tương ứng với bit 1
+chromosome = np.array([1, 0, 1, 0, 1, 0])
+selected_cols = [feature_names[i] for i in range(6) if chromosome[i] == 1]
+print("Các cột được chọn:", selected_cols)
+```
+
+```output
+Các cột được chọn: ['sqft', 'location_idx', 'bathrooms']
+```
+
+**Khớp nghiệm giải tích chính xác với `np.linalg.lstsq`:**
+
+Để đánh giá tập cột, ta tìm vector trọng số bình phương tối thiểu. Nếu ma trận có hạng đầy đủ, nghiệm có thể viết:
+
+<BlockMath formula="\mathbf{w}^* = (X_{\text{sub}}^T X_{\text{sub}})^{-1} X_{\text{sub}}^T y" />
+
+Trong code nên dùng `np.linalg.lstsq` thay vì nghịch đảo tường minh; hàm giải bài toán least squares ổn định hơn và vẫn xử lý được trường hợp không có nghiệm duy nhất:
+
+```python
+# 2. Tìm nghiệm giải tích chính xác w* từ ma trận con
+X_sub = df[selected_cols].values
+w, _, _, _ = np.linalg.lstsq(X_sub, y, rcond=None)
+
+print("Bộ trọng số chính xác w*:", np.round(w, 2))
+```
+
+```output
+Bộ trọng số chính xác w*: [ 2.94 -2.5   4.08]
+```
+
+Phương trình hồi quy thu được đối chiếu với chân lý (Ground Truth):
+
+<BlockMath formula="\begin{aligned}
+\text{Mô hình OLS:} \quad & \hat{y} = \mathbf{2.94} \cdot \text{sqft} - \mathbf{2.50} \cdot \text{location\_idx} + \mathbf{4.08} \cdot \text{bathrooms} \\
+\text{Ground Truth:} \quad & y = \mathbf{3.00} \cdot x_0 - \mathbf{2.50} \cdot x_2 + \mathbf{4.00} \cdot x_4 + \epsilon
+\end{aligned}" />
+
+Với seed này, nghiệm <InlineMath formula="\mathbf{w}^* \approx [2.94, -2.50, 4.08]" /> gần tham số sinh dữ liệu mà không cần chạy Gradient Descent.
+
+Tiếp theo, ta tính điểm <InlineMath formula="R^2" /> và áp lực tinh giản để xác định Fitness:
+
+```python
+# 3. Tính dự đoán và độ chính xác R2
+preds = X_sub @ w
+ss_res = np.sum((y - preds) ** 2)
+ss_tot = np.sum((y - np.mean(y)) ** 2)
+r2 = 1.0 - (ss_res / ss_tot)
+
+# 4. Áp dụng phạt tinh giản: Fitness = R2 - lambda * k
+k = len(selected_cols)
+fitness = r2 - 0.015 * k
+
+print(f"Số cột: {k} | R2: {r2:.4f} | Fitness: {fitness:.4f}")
+```
+
+```output
+Số cột: 3 | R2: 0.9914 | Fitness: 0.9464
+```
+
+Để thấy rõ tác động của phạt tinh giản, hãy thử nghiệm đồng loạt trên các tổ hợp cá thể khác nhau:
+
+```python
+# Khảo sát 5 tổ hợp đặc trưng tiêu biểu
+candidates = [
+    [1, 0, 0, 0, 0, 0],
+    [1, 0, 1, 0, 0, 0],
+    [1, 0, 1, 0, 1, 0],  # Cấu hình tối ưu
+    [1, 1, 1, 0, 1, 0],  # Dính thêm noisy_beds
+    [1, 1, 1, 1, 1, 1],  # Lấy toàn bộ 6 cột
+]
+
+for chrom in candidates:
+    cols = [feature_names[i] for i in range(6) if chrom[i] == 1]
+    X_c = df[cols].values
+    w_c, _, _, _ = np.linalg.lstsq(X_c, y, rcond=None)
+    r2_c = 1.0 - np.sum((y - X_c @ w_c) ** 2) / ss_tot
+    k_c = len(cols)
+    fit_c = r2_c - 0.015 * k_c
+    cols_str = ', '.join(cols)
+    print(f"{str(chrom):<20} | k={k_c} | R2={r2_c:.4f} | Fit={fit_c:.4f} | Cột: [{cols_str}]")
+```
+
+```output
+[1, 0, 0, 0, 0, 0]   | k=1 | R2=0.2438 | Fit=0.2288 | Cột: [sqft]
+[1, 0, 1, 0, 0, 0]   | k=2 | R2=0.3807 | Fit=0.3507 | Cột: [sqft, location_idx]
+[1, 0, 1, 0, 1, 0]   ==| k=3 | R2=0.9914 | Fit=0.9464 |== Cột: [sqft, location_idx, bathrooms]
+[1, 1, 1, 0, 1, 0]   | k=4 | R2=0.9915 | Fit=0.9315 | Cột: [sqft, noisy_beds, location_idx, bathrooms]
+[1, 1, 1, 1, 1, 1]   ==| k=6 | R2=0.9915 | Fit=0.9015 |== Cột: [sqft, noisy_beds, location_idx, noisy_year, bathrooms, noisy_dist]
+```
+
+> **Quy luật quan sát được:**
+> - Khi bổ sung đúng cột cốt lõi (từ <InlineMath formula="k=1 \to 3" />), <InlineMath formula="R^2" /> tăng vọt từ <InlineMath formula="0.24 \to 0.99" />, vượt xa mức phạt <InlineMath formula="0.015" />.
+> - Nhưng khi nhồi nhét thêm cột nhiễu (<InlineMath formula="k=4" /> hay <InlineMath formula="k=6" />), <InlineMath formula="R^2" /> hầu như dậm chân tại chỗ (<InlineMath formula="0.9915" />) trong khi điểm phạt tăng lên.
+
+---
+
+Để tập trung vào variation operators, hàm dưới đây chấm điểm ngay trên cùng dữ liệu dùng để fit. Đây chỉ là minh họa in-sample trên dữ liệu tổng hợp. Một wrapper feature-selection đúng cho dữ liệu thực phải fit trên train, tính fitness bằng validation hoặc cross-validation, và chỉ dùng test set sau khi đã khóa cấu hình.
+
+Bây giờ ta đóng gói quy trình minh họa thành hàm `evaluate_fitness` và khởi tạo quần thể ban đầu gồm 30 cá thể:
+
+```python
+def evaluate_fitness(chromosome, X, y, penalty_lambda=0.015):
+    indices = np.where(chromosome == 1)[0]
+    k = len(indices)
+    if k == 0:
+        return -999.0  # Phạt nặng nếu không chọn cột nào
+
+    X_sub = X[:, indices]
+    w, _, _, _ = np.linalg.lstsq(X_sub, y, rcond=None)
+    preds = X_sub @ w
+    ss_res = np.sum((y - preds) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r2 = 1.0 - (ss_res / ss_tot)
+    return r2 - penalty_lambda * k
+
+# Khởi tạo quần thể gồm 30 cá thể nhị phân ngẫu nhiên (6 bit)
+pop_size = 30
+pop = np.random.randint(0, 2, size=(pop_size, 6))
+
+# Đảm bảo không có cá thể nào mang toàn bit 0 ban đầu
+for i in range(pop_size):
+    if np.sum(pop[i]) == 0:
+        pop[i, np.random.randint(0, 6)] = 1
+
+initial_fits = np.array([evaluate_fitness(ind, X, y) for ind in pop])
+best_idx = np.argmax(initial_fits)
+worst_idx = np.argmin(initial_fits)
+
+best_cols = [feature_names[i] for i in range(6) if pop[best_idx][i] == 1]
+worst_cols = [feature_names[i] for i in range(6) if pop[worst_idx][i] == 1]
+
+print(f"Quần thể ban đầu: {pop_size} cá thể")
+print(f"Cá thể cao nhất:  {pop[best_idx].tolist()} | Fit: {initial_fits[best_idx]:.4f} | Cột: {best_cols}")
+print(f"Cá thể thấp nhất: {pop[worst_idx].tolist()} | Fit: {initial_fits[worst_idx]:.4f} | Cột: {worst_cols}")
+print(f"Fitness trung bình Gen 0: {np.mean(initial_fits):.4f}")
+```
+
+```output
+Quần thể ban đầu: 30 cá thể
+Cá thể cao nhất:  [1, 0, 1, 1, 1, 0] | Fit: 0.9315 | Cột: ['sqft', 'location_idx', 'noisy_year', 'bathrooms']
+Cá thể thấp nhất: [0, 0, 0, 1, 0, 1] | Fit: -0.0263 | Cột: ['noisy_year', 'noisy_dist']
+Fitness trung bình Gen 0: 0.5146
+```
+
+> **Nhận xét thế hệ khởi đầu (Gen 0):**
+> - **Cá thể tốt nhất** tình cờ chọn được trọn vẹn 3 biến cốt lõi (`sqft`, `location_idx`, `bathrooms`) nhưng bị dính thêm 1 cột nhiễu (`noisy_year`), đạt điểm thích nghi cao (<InlineMath formula="0.9315" />).
+> - **Cá thể kém nhất** chỉ chọn trúng 2 cột hoàn toàn là nhiễu trắng (`noisy_year`, `noisy_dist`), dẫn đến <InlineMath formula="R^2 \approx 0" /> và nhận điểm thích nghi âm (<InlineMath formula="-0.0263" />).
+> - Các thế hệ tiếp theo dùng Tournament Selection, Crossover và Mutation để tạo ứng viên; fitness mới quyết định biến thể nào được giữ.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Rã từng bước Toán tử Đấu loại, Lai ghép & Đột biến
+
+Thay vì gom chung các toán tử vào một hàm lớn, ta sẽ thực thi và quan sát từng bước trên chính quần thể `pop` hiện tại:
+
+---
+
+### Bước 1: Thử nghiệm Chọn lọc Đấu loại (Tournament Selection với <InlineMath formula="k = 3" />)
+
+Chọn lọc đấu loại mô phỏng một cuộc thi đấu nhỏ: bốc ngẫu nhiên <InlineMath formula="k = 3" /> cá thể từ quần thể, so sánh điểm thích nghi và chọn cá thể có Fitness cao nhất làm cha/mẹ:
+
+```python
+# 1. Bốc ngẫu nhiên k = 3 cá thể vào sàn đấu
+k = 3
+arena_indices = np.random.choice(len(pop), size=k, replace=False)
+
+print("--- SÀN ĐẤU TOURNAMENT (k = 3) ---")
+for idx in arena_indices:
+    cols = [feature_names[j] for j in range(6) if pop[idx][j] == 1]
+    print(f"Cá thể #{idx:2d}: {pop[idx].tolist()} | Fit: {initial_fits[idx]:.4f} | Cột: {cols}")
+
+# 2. Chọn đấu thủ có Fitness cao nhất
+winner_idx = arena_indices[np.argmax(initial_fits[arena_indices])]
+print(f"\n-> Người chiến thắng: Cá thể #{winner_idx} (Fit = {initial_fits[winner_idx]:.4f})")
+```
+
+```output
+--- SÀN ĐẤU TOURNAMENT (k = 3) ---
+Cá thể # 3: [1, 0, 1, 0, 1, 1] | Fit: 0.9314 | Cột: ['sqft', 'location_idx', 'bathrooms', 'noisy_dist']
+Cá thể #13: [1, 1, 0, 0, 0, 0] | Fit: 0.2316 | Cột: ['sqft', 'noisy_beds']
+Cá thể #25: [1, 1, 0, 0, 0, 1] | Fit: 0.2168 | Cột: ['sqft', 'noisy_beds', 'noisy_dist']
+
+-> Người chiến thắng: ==Cá thể #3 (Fit = 0.9314)==
+```
+
+Đóng gói cơ chế đấu loại thành hàm `tournament_select` và chọn ra cặp cha mẹ:
+
+```python
+def tournament_select(pop, fitnesses, k=3):
+    """Bốc ngẫu nhiên k cá thể và chọn cá thể có fitness cao nhất."""
+    candidates_idx = np.random.choice(len(pop), size=k, replace=False)
+    best_candidate_idx = candidates_idx[np.argmax(fitnesses[candidates_idx])]
+    return pop[best_candidate_idx].copy()
+
+parent1 = tournament_select(pop, initial_fits)
+parent2 = tournament_select(pop, initial_fits)
+
+print("Parent 1:", parent1.tolist(), "| Fit:", round(evaluate_fitness(parent1, X, y), 4))
+print("Parent 2:", parent2.tolist(), "| Fit:", round(evaluate_fitness(parent2, X, y), 4))
+```
+
+```output
+Parent 1: [1, 0, 1, 0, 1, 1] | Fit: 0.9314
+Parent 2: [0, 0, 1, 0, 1, 0] | Fit: 0.7607
+```
+
+---
+
+### Bước 2: Thử nghiệm Lai ghép 1 điểm cắt (Single-point Crossover)
+
+Ta kết hợp đoạn đầu từ Parent 1 và đoạn cuối từ Parent 2 tại điểm cắt <InlineMath formula="pt = 4" />:
+
+```python
+# Cắt tại vị trí pt = 4 (lấy 4 gen đầu của p1, 2 gen cuối của p2)
+pt = 4
+child_crossover = np.concatenate([parent1[:pt], parent2[pt:]])
+
+print(f"Parent 1:          {parent1.tolist()} -> Lấy 4 gen đầu:  {parent1[:pt].tolist()}")
+print(f"Parent 2:          {parent2.tolist()} -> Lấy 2 gen cuối: {parent2[pt:].tolist()}")
+print(f"Con sau Crossover: {child_crossover.tolist()}")
+```
+
+```output
+Parent 1:          [==1, 0, 1, 0==, 1, 1] -> Lấy 4 gen đầu:  ==[1, 0, 1, 0]==
+Parent 2:          [0, 0, 1, 0, ==1, 0==] -> Lấy 2 gen cuối: ==[1, 0]==
+Con sau Crossover: ==[1, 0, 1, 0, 1, 0]==
+```
+
+> **Sức mạnh kết hợp của Crossover:**
+> - Parent 1 mang 2 gen cốt lõi (`sqft`, `location_idx`) nhưng bị lẫn biến nhiễu `noisy_dist` ở đuôi.
+> - Parent 2 mang biến cốt lõi `bathrooms` ở đoạn sau và không chọn `noisy_dist`.
+> - Với đúng cặp cha mẹ và điểm cắt này, cá thể con nhận được cả ba biến tín hiệu mà không chọn biến nhiễu: <InlineMath formula="[1, 0, 1, 0, 1, 0]" />. Crossover không bảo đảm kết quả này ở lần lấy mẫu khác.
+
+---
+
+### Bước 3: Thử nghiệm Đột biến lật bit (Bit-flip Mutation)
+
+Mỗi vị trí bit được duyệt qua với xác suất đột biến <InlineMath formula="p_{\text{mut}} = 0.15" /> để đảo trạng thái (<InlineMath formula="0 \leftrightarrow 1" />):
+
+```python
+p_mut = 0.15
+child_mutated = child_crossover.copy()
+mutated_indices = []
+
+for b in range(len(child_mutated)):
+    if np.random.rand() < p_mut:
+        child_mutated[b] = 1 - child_mutated[b]
+        mutated_indices.append(b)
+
+# Phòng ngừa cá thể rỗng (toàn 0)
+if np.sum(child_mutated) == 0:
+    child_mutated[np.random.randint(0, len(child_mutated))] = 1
+
+mut_msg = str(mutated_indices) if mutated_indices else "Không có"
+print(f"Trước đột biến:   {child_crossover.tolist()}")
+print(f"Các vị trí bị lật: {mut_msg}")
+print(f"Sau đột biến:     {child_mutated.tolist()}")
+
+child_cols = [feature_names[j] for j in range(6) if child_mutated[j] == 1]
+print(f"Cột của con:      {child_cols} | Fit = {evaluate_fitness(child_mutated, X, y):.4f}")
+```
+
+```output
+Trước đột biến:   [1, 0, 1, 0, 1, 0]
+Các vị trí bị lật: Không có
+Sau đột biến:     ==[1, 0, 1, 0, 1, 0]==
+Cột của con:      ['sqft', 'location_idx', 'bathrooms'] | ==Fit = 0.9464==
+```
+
+---
+
+### Bước 4: Đóng gói thành hàm `crossover_and_mutate` hoàn chỉnh
+
+Sau khi hiểu rõ từng công đoạn, ta đóng gói thành hàm liên hoàn sẵn sàng cho vòng lặp thế hệ:
+
+```python
+def crossover_and_mutate(p1, p2, p_cross=0.8, p_mut=0.15):
+    """Lai ghép 1 điểm cắt (xác suất p_cross) kết hợp đột biến lật bit (xác suất p_mut)."""
+    # 1. Lai ghép (Crossover)
+    if np.random.rand() < p_cross:
+        pt = np.random.randint(1, len(p1))
+        child = np.concatenate([p1[:pt], p2[pt:]])
+    else:
+        child = p1.copy()
+
+    # 2. Đột biến lật bit (Bit-flip Mutation)
+    for b in range(len(child)):
+        if np.random.rand() < p_mut:
+            child[b] = 1 - child[b]
+
+    # Đảm bảo cá thể con có ít nhất 1 đặc trưng
+    if np.sum(child) == 0:
+        child[np.random.randint(0, len(child))] = 1
+
+    return child
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đóng gói Vòng lặp Tiến hóa qua 25 Thế hệ
+
+Bây giờ ta ghép toàn bộ các thành phần thành vòng lặp tiến hóa hoàn chỉnh, kết hợp chiến lược **Bảo tồn Ưu tú (Elitism)** giữ lại 2 cá thể tốt nhất mỗi thế hệ:
+
+```python
+generations = 25
+history_best = []
+history_mean = []
+history_feature_rate = []
+
+print("=== BẮT ĐẦU VÒNG LẶP TIẾN HÓA GA ===")
+for gen in range(generations):
+    # 1. Đánh giá toàn bộ quần thể
+    fits = np.array([evaluate_fitness(ind, X, y) for ind in pop])
+    best_idx = np.argmax(fits)
+    history_best.append(fits[best_idx])
+    history_mean.append(np.mean(fits))
+    history_feature_rate.append(np.mean(pop, axis=0))
+
+    if (gen + 1) in [1, 5, 10, 15, 20, 25]:
+        best_chrom = pop[best_idx]
+        selected = [feature_names[j] for j in range(6) if best_chrom[j] == 1]
+        print(f"Gen {gen+1:02d} | Best Fit = {fits[best_idx]:.4f} | Genotype: {best_chrom} | Cột: {selected}")
+
+    # 2. Bảo tồn Ưu tú (Elitism): Giữ lại Top 2 cá thể tốt nhất
+    sorted_idx = np.argsort(fits)[::-1]
+    new_pop = [pop[sorted_idx[0]].copy(), pop[sorted_idx[1]].copy()]
+
+    # 3. Sinh sản quần thể mới qua Tournament & Crossover/Mutation
+    while len(new_pop) < pop_size:
+        p1 = tournament_select(pop, fits)
+        p2 = tournament_select(pop, fits)
+        child = crossover_and_mutate(p1, p2)
+        new_pop.append(child)
+
+    pop = np.array(new_pop)
+```
+
+```output
+=== BẮT ĐẦU VÒNG LẶP TIẾN HÓA GA ===
+Gen 01 | Best Fit = 0.9315 | Genotype: [1 0 1 1 1 0] | Cột: ['sqft', 'location_idx', 'noisy_year', 'bathrooms']
+Gen 05 | Best Fit = 0.9464 | Genotype: [1 0 1 0 1 0] | Cột: ['sqft', 'location_idx', 'bathrooms']
+Gen 10 | Best Fit = 0.9464 | Genotype: [1 0 1 0 1 0] | Cột: ['sqft', 'location_idx', 'bathrooms']
+Gen 15 | Best Fit = 0.9464 | Genotype: [1 0 1 0 1 0] | Cột: ['sqft', 'location_idx', 'bathrooms']
+Gen 20 | Best Fit = 0.9464 | Genotype: [1 0 1 0 1 0] | Cột: ['sqft', 'location_idx', 'bathrooms']
+Gen 25 | Best Fit = 0.9464 | Genotype: [1 0 1 0 1 0] | Cột: ['sqft', 'location_idx', 'bathrooms']
+```
+
+**Kết quả của lần chạy cố định:**
+- Đến thế hệ 5, quần thể tìm thấy mặt nạ <InlineMath formula="[1, 0, 1, 0, 1, 0]" /> và elitism giữ lại mặt nạ này.
+- Fitness in-sample của mặt nạ là <InlineMath formula="0.9464" />, cao hơn cấu hình dùng cả 6 cột (<InlineMath formula="0.9015" />) dưới penalty đã chọn. Đây không phải giá trị tối đa lý thuyết cho mọi dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Trực quan hóa & Phân tích Động lực Đào thải Đặc trưng
+
+Hãy theo dõi sự biến chuyển của toàn bộ 30 cá thể trong quần thể qua đồ thị chẩn đoán tiến hóa:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/18-ga-feature-selection-convergence.png"
+  alt="Biểu đồ tiến trình hội tụ Fitness và tần suất đào thải đặc trưng qua 25 thế hệ"
+  caption="Trong lần chạy cố định, best fitness đạt mặt nạ ba biến tín hiệu ở thế hệ 5 và được elitism giữ lại. Tần suất theo quần thể cho thấy các biến tín hiệu thường xuất hiện nhiều hơn biến nhiễu, nhưng mutation vẫn duy trì cả hai loại qua các thế hệ."
+/>
+
+**Đúc kết Kỹ nghệ Machine Learning:**
+- Trong các bài toán có số lượng đặc trưng lớn (<InlineMath formula="D > 100" />), việc duyệt vét cạn <InlineMath formula="2^{100}" /> là bất khả thi, còn các phương pháp lọc đơn lẻ (Filter methods) lại dễ bỏ lỡ tương tác phi tuyến giữa các biến.
+- Genetic Algorithm với genotype nhị phân là một lựa chọn Wrapper Feature Selection linh hoạt, nhưng phải được so sánh với baseline đơn giản hơn và đánh giá bằng validation/CV để tránh overfitting.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Đối chiếu Thực tế: Kiểm chứng với Thư viện Chuyên dụng (pymoo)
+
+Sau khi hiểu cơ chế NumPy, ta có thể đóng gói cùng bài toán minh họa bằng thư viện **`pymoo`**. Đoạn dưới vẫn dùng fitness in-sample để khớp với các trang trước; khi dùng thực tế cần thay phần đánh giá bằng validation/CV.
+
+Dưới đây là cách đóng gói trực tiếp DataFrame `df` vào lớp bài toán của `pymoo`:
+
+```python
+import numpy as np
+from pymoo.core.problem import ElementwiseProblem
+from pymoo.algorithms.soo.nonconvex.ga import GA
+from pymoo.operators.crossover.pntx import PointCrossover
+from pymoo.operators.mutation.bitflip import BitflipMutation
+from pymoo.optimize import minimize
+
+# 1. Định nghĩa bài toán Lựa chọn Đặc trưng từ DataFrame df
+class FeatureSelectionProblem(ElementwiseProblem):
+    def __init__(self, df, feature_names, target_col='price', penalty_lambda=0.015):
+        # 6 biến quyết định nhị phân (0 hoặc 1), 1 mục tiêu
+        super().__init__(n_var=len(feature_names), n_obj=1, xl=0, xu=1, vtype=bool)
+        self.df = df
+        self.feature_names = feature_names
+        self.y = df[target_col].values
+        self.penalty_lambda = penalty_lambda
+        self.ss_tot = np.sum((self.y - np.mean(self.y)) ** 2)
+
+    def _evaluate(self, x, out, *args, **kwargs):
+        # Lọc các cột từ df ứng với bit 1
+        cols = [self.feature_names[i] for i in range(len(x)) if x[i]]
+        k = len(cols)
+        if k == 0:
+            out["F"] = 999.0  # Phạt nặng cá thể rỗng
+            return
+
+        # Tính nghiệm đóng OLS giải tích trên ma trận con
+        X_sub = self.df[cols].values
+        w, _, _, _ = np.linalg.lstsq(X_sub, self.y, rcond=None)
+        ss_res = np.sum((self.y - X_sub @ w) ** 2)
+        r2 = 1.0 - (ss_res / self.ss_tot)
+        fitness = r2 - self.penalty_lambda * k
+
+        # pymoo mặc định tìm nghiệm cực tiểu (minimize),
+        # do đó ta đặt F = -fitness (cực tiểu -Fit tương đương cực đại Fit)
+        out["F"] = -fitness
+
+# 2. Khởi tạo bài toán với DataFrame df đã tạo
+problem = FeatureSelectionProblem(
+    df=df,
+    feature_names=feature_names,
+    target_col='price',
+    penalty_lambda=0.015
+)
+
+# 3. Cấu hình giải thuật GA với các tham số tương đồng
+algorithm = GA(
+    pop_size=30,
+    crossover=PointCrossover(n_points=1, prob=0.8),
+    mutation=BitflipMutation(prob_var=0.15),
+    eliminate_duplicates=True
+)
+
+# 4. Thực thi tối ưu hóa qua 25 thế hệ
+res = minimize(
+    problem,
+    algorithm,
+    termination=('n_gen', 25),
+    seed=42,
+    verbose=False
+)
+
+best_mask = res.X.astype(int)
+best_cols = [feature_names[i] for i in range(6) if best_mask[i] == 1]
+print("Nghiệm tối ưu từ pymoo:", best_mask.tolist())
+print("Các cột được giữ lại:  ", best_cols)
+print(f"Fitness tối đa:         {-res.F[0]:.4f}")
+```
+
+```output
+Nghiệm tối ưu từ pymoo: ==[1, 0, 1, 0, 1, 0]==
+Các cột được giữ lại:   ==['sqft', 'location_idx', 'bathrooms']==
+Fitness tối đa:         ==0.9464==
+```
+
+Thư viện chuyên dụng (`pymoo`) cung cấp sẵn cơ chế song song hóa đa nhân (multiprocessing), logging và đặc biệt là khả năng mở rộng sang
+
+- Tối ưu hóa Đa mục tiêu (Multi-objective Optimization - NSGA-II/NSGA-III)
+
+Trong bài toán này, chúng ta có thể chủ động lựa chọn số lượng đặc trưng \(k\) mong muốn, sau đó thuật toán sẽ tự động tìm ra bộ đặc trưng tối ưu nhất tương ứng với số lượng đó.
+
+</MdxPage>

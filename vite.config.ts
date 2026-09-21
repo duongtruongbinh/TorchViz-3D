@@ -2,12 +2,13 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin, type ResolvedConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 import react from '@vitejs/plugin-react';
-import { learningMdxRuntimePlugin, learningMdxSearchPlugin } from './scripts/learningContentMdx';
-import { learningHomeCatalogPlugin } from './scripts/learningHomeCatalog';
+import tailwindcss from '@tailwindcss/vite';
+import { learningMdxRuntimePlugin, learningMdxSearchPlugin } from './scripts/learningContentMdx.ts';
+import { learningHomeCatalogPlugin } from './scripts/learningHomeCatalog.ts';
 import { learningCatalog } from './src/content/learning/index.ts';
 import { continualLearningLessonReferenceCoverage } from './src/content/learning/continual-learning-llm/papers.ts';
 
@@ -18,7 +19,7 @@ const referenceLessonKeys = new Set(continualLearningLessonReferenceCoverage.map
   `continual-learning-llm/${lessonId}`
 )));
 const pyodideRoot = path.dirname(require.resolve('pyodide/pyodide.js'));
-const monacoVsRoot = path.dirname(require.resolve('monaco-editor/min/vs/loader.js'));
+const monacoVsRoot = path.dirname(require.resolve('monaco-editor'));
 const interFontSource = require.resolve('@fontsource/inter/files/inter-vietnamese-600-normal.woff');
 const interFontFileName = path.basename(interFontSource);
 const unicodeFontJson: Record<string, string> = {
@@ -185,16 +186,27 @@ function pyodideAssetsPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, configDir, '');
+  const resolvedAssetsCdnUrl = (process.env.ASSETS_CDN_URL ?? env.ASSETS_CDN_URL ?? '')
+    .trim()
+    .replace(/\/+$/, '');
+
+  return {
   server: {
     port: 3000,
     host: '0.0.0.0',
+  },
+  define: {
+    // Inject only the public CDN base URL, resolved from Vercel/CI or local .env.
+    __ASSETS_CDN_URL__: JSON.stringify(resolvedAssetsCdnUrl),
   },
   plugins: [
     learningHomeCatalogPlugin(learningCatalog, learningContentRoot),
     learningMdxSearchPlugin(learningContentRoot, learningCatalog),
     learningMdxRuntimePlugin(referenceLessonKeys),
     mdx({ remarkPlugins: [remarkGfm] }),
+    tailwindcss(),
     react(),
     pyodideAssetsPlugin(),
   ],
@@ -204,15 +216,22 @@ export default defineConfig({
     }
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
-          'monaco-vendor': ['@monaco-editor/react'],
+        manualChunks(id: string) {
+          if (id.includes('node_modules/three') || id.includes('node_modules/@react-three')) {
+            return 'three-vendor';
+          }
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/@monaco-editor/') || id.includes('node_modules/monaco-editor/')) {
+            return 'monaco-vendor';
+          }
         },
       },
     },
   },
+  };
 });

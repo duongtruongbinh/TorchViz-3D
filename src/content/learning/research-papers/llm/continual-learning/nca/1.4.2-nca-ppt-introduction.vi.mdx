@@ -1,0 +1,249 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nca-ppt-introduction',
+  locale: 'vi',
+  title: 'Phần 2: Giới thiệu & Động lực Lý thuyết',
+  headings: [
+    'Khủng hoảng Cạn kiệt Dữ liệu & Bẫy Lối tắt Ngữ nghĩa',
+    'Bản chất của Học trong Ngữ cảnh dưới Góc nhìn Bayes',
+    'Lý thuyết Epiplexity & Động lực học Tế bào',
+    'Ý nghĩa Chiến lược đối với Continual Learning',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Data Exhaustion',
+    'Semantic Shortcuts',
+    'Bayesian In-Context Learning',
+    'Epiplexity',
+    'Cellular Automata',
+    'Continual Learning',
+    'Inductive Biases',
+    'Representation Learning',
+  ],
+  conceptIds: [
+    'bayesian-latent-rule-inference',
+    'epiplexity-bounded-observer',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+Sự bùng nổ của các mô hình ngôn ngữ lớn (LLM) trong những năm qua gắn liền với Định luật Mở rộng Quy mô (Scaling Laws): kích thước mô hình càng lớn và lượng văn bản nạp vào càng nhiều thì mô hình càng thông minh. Tuy nhiên, nguồn nhiên liệu duy trì định luật này — kho văn bản do nhân loại tạo ra — đang chạm dần tới giới hạn vật lý.
+
+Thách thức này thúc đẩy các nhà nghiên cứu tại MIT và Improbable AI Lab đặt ra một câu hỏi mang tính nền tảng: Liệu chúng ta có thể rèn giũa năng lực tư duy trừu tượng cho mạng nơ-ron trước khi cho nó học chữ viết của con người hay không?
+
+---
+
+### Khủng hoảng Cạn kiệt Dữ liệu & Bẫy Lối tắt Ngữ nghĩa
+
+Dự báo của Villalobos et al. (2022) chỉ ra rằng kho dữ liệu văn bản ngôn ngữ tự nhiên chất lượng cao trên internet có nguy cơ cạn kiệt hoàn toàn trong giai đoạn 2026–2028. Việc cào quét thêm dữ liệu từ web ngày càng thu về nhiều nội dung trùng lặp, nhiễu loạn hoặc bị ô nhiễm bởi văn bản do chính AI tạo ra.
+
+Tuy nhiên, cạn kiệt số lượng chỉ là bề nổi của tảng băng. Trở ngại nghiêm trọng hơn nằm ở sự đan xen cố hữu giữa hai thành phần trong ngôn ngữ con người:
+
+<ConceptHierarchy
+  ariaLabel="So sánh sự đan xen trong văn bản tự nhiên với tính thuần khiết của dữ liệu số NCA"
+  root={{
+    title: 'Phân định Bản chất Dữ liệu Huấn luyện',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Văn bản Tự nhiên: Đan xen Tri thức & Tư duy',
+      detail: 'Mỗi câu văn tự nhiên luôn đồng thời chứa cả dữ kiện thực tế (Paris là thủ đô nước Pháp) lẫn cấu trúc logic (nếu A thì B). Sự đan xen này khiến mô hình dễ rơi vào Bẫy lối tắt ngữ nghĩa: thay vì rèn luyện mạch suy luận, nó chọn con đường dễ dãi hơn — ghi nhớ các cụm từ thống kê hay đi cùng nhau.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Thế giới Số NCA: Tách biệt Tư duy Thuần khiết',
+      detail: 'Hoàn toàn là các con số biến đổi theo quy luật toán học trên lưới ô vuông, không chứa bất kỳ từ vựng hay sự kiện con người nào. Mô hình không thể học vẹt chữ nghĩa, buộc 100% tài nguyên tính toán phải dùng để suy luận quy luật.',
+      tone: 'teal',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1],
+      children: [
+        {
+          title: 'Chiến lược: Rèn Tư duy trước, Nạp Tri thức sau',
+          detail: 'Dùng chuỗi động lực học tế bào để tôi luyện các mạch thuật toán phổ quát (Induction Heads) trong Attention ở Pha 1, sau đó mới đưa mô hình vào tiếp thu kho từ vựng và tri thức nhân loại ở Pha 2.',
+          tone: 'violet',
+        },
+      ],
+    },
+  ]}
+/>
+
+Khi cho mạng nơ-ron học trực tiếp ngay từ đầu trên văn bản tự nhiên, mô hình dễ bị cám dỗ bởi các mối tương quan bề mặt. Ví dụ, nếu trong tập huấn luyện từ "Paris" luôn xuất hiện cạnh "France", mô hình chỉ cần ghi nhớ cặp đôi thống kê này mà không cần hiểu khái niệm "thủ đô" hay "quốc gia" là gì. Đó chính là bản chất của Bẫy lối tắt ngữ nghĩa (Semantic Shortcut Trap) — năng lượng gradient bị hút vào việc ghi nhớ tương quan bề mặt thay vì kiến tạo các mạch suy luận trừu tượng.
+
+---
+
+### Bản chất của Học trong Ngữ cảnh dưới Góc nhìn Bayes
+
+Tại sao một việc tưởng chừng đơn giản như "đoán token tiếp theo" lại sinh ra được trí thông minh và năng lực suy luận?
+
+Nếu bài toán chỉ đơn thuần là tra bảng thống kê (từ nào thường xuất hiện sau từ nào), thì mô hình ngôn ngữ sẽ chẳng bao giờ vượt qua mức độ của một bộ đếm tần suất. Nhưng thực tế cho thấy các LLM hiện đại có thể giải toán, viết mã, lập luận pháp lý — những năng lực vượt xa việc đếm từ. Điều gì đã xảy ra?
+
+Câu trả lời được sáng tỏ qua Giả thuyết Suy diễn Bayes Ngầm định trong Ngữ cảnh (Implicit Bayesian In-Context Inference) (Xie et al., 2022; Han et al., 2025b). Giả thuyết này cho rằng mô hình ngôn ngữ không chỉ đếm từ, mà ngầm thực hiện một quá trình suy luận hai bước trong mỗi lần dự đoán token tiếp theo:
+
+**Bước 1 — Đoán quy luật ẩn từ ngữ cảnh (Suy diễn Quy nạp):** Mô hình quan sát toàn bộ chuỗi lịch sử <InlineMath formula="x_{<i}" /> đã xuất hiện và tự hỏi: "Quy luật nào <InlineMath formula="\theta" /> đang chi phối chuỗi dữ liệu này?" Nó phân bổ xác suất cho mọi quy luật khả dĩ, tạo thành phân phối hậu nghiệm <InlineMath formula="p(\theta \mid x_{<i})" />.
+
+**Bước 2 — Áp dụng quy luật để dự đoán tương lai (Suy diễn Diễn dịch):** Khi đã hình thành được giả thuyết về <InlineMath formula="\theta" />, mô hình vận dụng nó để tính ra giá trị tiếp theo <InlineMath formula="x_i" /> thông qua <InlineMath formula="p(x_i \mid \theta, x_{<i})" />.
+
+Toàn bộ quá trình hai bước này được mã hóa trong công thức tích phân xác suất Bayes:
+
+<BlockMath formula="p(x_i \mid x_{<i}) = \int \underbrace{p(x_i \mid \theta, x_{<i})}_{\text{Bước 2: Áp dụng quy luật}} \, \underbrace{p(\theta \mid x_{<i})}_{\text{Bước 1: Đoán quy luật ẩn}} \, d\theta" />
+
+Dấu tích phân <InlineMath formula="\int \dots d\theta" /> thể hiện việc mô hình không cam kết vào một quy luật duy nhất, mà tổng hợp dự đoán trên toàn bộ các quy luật khả dĩ, cân nhắc từng quy luật theo mức độ phù hợp với ngữ cảnh đã quan sát.
+
+Chính tại đây, sự đối lập giữa văn bản tự nhiên và thế giới số NCA trở nên sắc nét:
+
+<ConceptHierarchy
+  ariaLabel="So sánh bản chất quy luật tiềm ẩn theta giữa văn bản tự nhiên và thế giới số NCA"
+  root={{
+    title: 'Bản chất Quy luật Tiềm ẩn $\\theta$',
+    detail: 'Sự đối lập giữa hai dạng quy luật mà mô hình phải suy ra khi đoán token tiếp theo',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Văn bản Con người: $\\theta$ là Mớ bòng bong Đa chiều',
+      detail: 'Quy luật tiềm ẩn $\\theta$ là tổng hòa của chủ đề (khoa học? thể thao?), phong cách (trang trọng? hài hước?), cảm xúc, ngữ pháp và vô số dữ kiện đời sống — tất cả hòa lẫn trong cùng một dòng chữ. Mô hình rất dễ tìm được lối tắt bề mặt: chỉ cần nhớ \"bóng đá\" hay đi cùng \"sân vận động\" là đã giảm được loss mà không cần hiểu logic.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Thế giới Số NCA: $\\theta$ là Bộ trọng số Toán học ($f_\\theta$)',
+      detail: 'Quy luật $\\theta$ chính xác là bộ trọng số của mạng nơ-ron cục bộ $f_\\theta$, chi phối cách mỗi ô tế bào chuyển đổi trạng thái. Hoàn toàn không có chữ nghĩa hay tri thức xã hội để dựa dẫm — mô hình bắt buộc phải dùng các tầng Attention để giải mã $\\theta$ từ các bước nhảy không gian thời gian của lưới ô vuông.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Nói cách khác, khi huấn luyện trên dữ liệu NCA, bước 1 của quá trình Bayes (suy diễn quy luật ẩn) trở thành một bài toán giải mã thuật toán thuần khiết: mô hình phải nhìn vào chuỗi các bước biến đổi lưới và dùng Attention để truy ngược lại bộ trọng số toán học <InlineMath formula="f_\theta" /> đang điều khiển chúng. Không có bất kỳ mẹo ngữ nghĩa nào để đi đường tắt.
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/nca/nca-bayesian-icl-two-steps.jpg"
+  alt="Minh họa 2 bước Suy diễn Bayes trong Ngữ cảnh (Bayesian ICL): Bước 1 suy diễn quy luật ẩn theta từ lịch sử và Bước 2 áp dụng quy luật để dự đoán token tiếp theo"
+  caption="Bản chất Suy diễn Bayes trong Ngữ cảnh (Bayesian ICL): Mô hình không đếm từ thụ động, mà thực hiện 2 bước suy luận: (1) Suy diễn không gian quy luật ẩn $\theta$ từ lịch sử ngữ cảnh và (2) Vận dụng $\theta$ để dự đoán token tiếp theo. Dữ liệu NCA biến bước 1 thành bài toán giải mã thuật toán thuần khiết."
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Lý thuyết Epiplexity & Động lực học Tế bào
+
+Một hoài nghi lớn xuất hiện khi nhìn vào các ô vuông số: Quy tắc cập nhật của mỗi tế bào chỉ là một phép tính toán học cục bộ tất định. Theo Bất đẳng thức Xử lý Dữ liệu (Data Processing Inequality - DPI) kinh điển của Claude Shannon, một hàm toán học tất định không thể tự sinh thêm thông tin mới:
+
+<BlockMath formula="I(X; f(Y)) \le I(X; Y)" />
+
+Nói bằng ngôn ngữ đời thường: nếu biết trạng thái ban đầu <InlineMath formula="X^{(0)}" /> và biết quy luật <InlineMath formula="f_\theta" />, ta về lý thuyết có thể tính ra toàn bộ các bước tiếp theo mà không cần thêm bất kỳ dữ liệu nào. Vậy tại sao việc cho Transformer dự đoán các ô số này lại giúp nó thông minh lên và học được năng lực suy luận? Chẳng phải dữ liệu này không hề chứa "thông tin mới" theo định luật Shannon hay sao?
+
+Epiplexity (Finzi et al., 2026) cung cấp một góc nhìn bổ sung cho nghịch lý này. Câu hỏi trọng tâm là: **Thông tin đó "mới" hay "cũ" đối với ai?**
+
+- **Đối với một siêu máy tính toàn tri lý thuyết (năng lực tính toán vô hạn):** Nó có thể chạy hàng triệu phép tính đảo ngược tức thì trong chớp mắt mà không tốn công sức. Đối với một thực thể như vậy, chuỗi ô số NCA quả thực không có gì mới — mọi thứ đều đã được định đoạt từ trạng thái ban đầu.
+- **Đối với mô hình AI (mạng Transformer):** Transformer trong bài báo là một thực thể **bị giới hạn tính toán nghiêm ngặt** (nó chỉ có 6 tầng nơ-ron). Trong một lần truyền thẳng (forward pass), 6 tầng chỉ thực hiện được một lượng phép tính nhân ma trận hữu hạn — nó **hoàn toàn bất lực, không thể chạy một vòng lặp `for` lặp lại hàng trăm lần** để tính nhẩm từng li từng tí phép cộng trừ vi mô của 144 ô tế bào qua 20 bước thời gian!
+
+Vì không thể tính toán chi li từng ô ở cấp độ vi mô, cách duy nhất để Transformer hoàn thành bài toán "đoán trạng thái tiếp theo" là: **nó buộc phải nhìn bao quát và phát hiện ra các quy luật vĩ mô trừu tượng**.
+
+Khái niệm **Epiplexity** ra đời chính để đo lường lượng thông tin cấu trúc hữu ích đối với một quan sát viên bị giới hạn tính toán (chính là mô hình AI). Cơ chế nảy sinh tư duy trừu tượng diễn ra qua chuỗi nhân quả ba tầng:
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế nảy sinh tư duy trừu tượng qua Epiplexity trong NCA"
+  root={{
+    title: 'Cội nguồn Tư duy Trừu tượng qua Epiplexity',
+    tone: 'violet',
+  }}
+  nodes={[
+    {
+      title: '1. Tầng Vi mô: Quy tắc Cục bộ Đơn giản',
+      detail: 'Mỗi ô chỉ tương tác với đúng 8 ô láng giềng xung quanh qua mạng nơ-ron tích chập tí hon $f_\\theta$. Ở cấp độ vi mô, từng phép tính hoàn toàn đơn giản và xác định.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Tầng Vĩ mô: Hiện tượng Nổi trội Phức tạp',
+      detail: 'Khi 144 ô tương tác đồng loạt qua nhiều bước thời gian, sự tích lũy cục bộ tự phát sinh các cấu trúc vĩ mô kỳ thú: các vật thể di động (gliders), các làn sóng lan truyền và các va chạm phi tuyến.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Giới hạn Tính toán Ép buộc Trừu tượng hóa',
+      detail: 'Transformer 6 tầng có ngân sách tính toán hữu hạn, nên mô phỏng chính xác toàn bộ động lực học vi mô có thể không phải chiến lược hiệu quả. Mô hình có động lực học các biểu diễn gọn hơn về cấu trúc và quy luật của chuỗi.',
+      tone: 'teal',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1, 2],
+      children: [
+        {
+          title: 'Kết quả: Tư duy Trừu tượng Được Tôi luyện',
+          detail: 'Khoảng cách giữa quy tắc vi mô đơn giản và hiện tượng vĩ mô phức tạp tạo áp lực học các cơ chế theo dõi phụ thuộc và suy ra quy luật ẩn. Induction Heads là một giả thuyết cơ chế phù hợp, chưa được paper định danh trực tiếp.',
+          tone: 'violet',
+        },
+      ],
+    },
+  ]}
+/>
+
+Để hình dung rõ hơn, hãy nhìn vào trò chơi kinh điển **Conway's Game of Life** (Trò chơi Cuộc sống do nhà toán học John Conway phát minh năm 1970). Trò chơi này diễn ra trên một bàn cờ ca-rô vô tận gồm các ô vuông đen (chết) và trắng (sống), vận hành bằng đúng hai quy tắc cực kỳ tối giản:
+1. Một ô sống mà có quá ít bạn xung quanh (< 2 ô sống) thì chết vì cô đơn; có quá nhiều bạn (> 3 ô sống) thì chết vì ngạt thở.
+2. Một ô chết mà có đúng 3 ô sống bao quanh thì tự nhiên hồi sinh.
+
+Điều chấn động là chỉ từ hai quy tắc đếm số ngây ngô đó, bàn cờ tự động sinh ra những hiện tượng kỳ vĩ: những "con nhện" (gliders) tự bò chéo qua màn hình, những "khẩu súng" liên tục bắn ra đạn nhấp nháy, thậm chí người ta có thể ghép các ô lại thành một chiếc máy tính logic hoàn chỉnh! Hiện tượng những cấu trúc vĩ mô thông minh tự nảy sinh từ các quy tắc vi mô tối giản này được khoa học gọi là **Cấu trúc Nổi trội (Emergent Behavior)**.
+
+Bây giờ, nếu bạn chưa từng biết hai quy tắc sống/chết đó, và ai đó chiếu cho bạn xem một đoạn video bàn cờ đang chạy rồi yêu cầu bạn đoán: *"Sau 5 giây nữa, bàn cờ sẽ trông thế nào?"* — bạn không thể dùng mắt tính nhẩm từng ô một. Bạn buộc phải nhận ra: *"À, đốm trắng đằng kia là một con nhện đang bò về góc phải!"* Bạn phải dùng khái niệm trừu tượng "con nhện" để dự đoán.
+
+Đó là trực giác mà thế giới số NCA đặt ra cho Transformer: ngân sách tính toán hữu hạn khuyến khích mô hình học biểu diễn cấu trúc để dự đoán tương lai. Theo góc nhìn Epiplexity, chuỗi NCA có thể cung cấp tín hiệu hữu ích cho việc học quy luật ẩn mà không cần dữ liệu ngôn ngữ; đây là cách diễn giải, không phải phép đo cơ chế trực tiếp trong paper.
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/nca/nca-epiplexity-micro-macro.jpg"
+  alt="Minh họa Nghịch lý Shannon và Khái niệm Epiplexity: Quy tắc vi mô cục bộ đơn giản nảy sinh hiện tượng vĩ mô phức tạp ép Transformer hình thành năng lực trừu tượng hóa"
+  caption="Góc nhìn Epiplexity: cùng một chuỗi tất định có thể vẫn chứa cấu trúc hữu ích đối với một mô hình có ngân sách tính toán hữu hạn; các biểu diễn vĩ mô là một giả thuyết giải thích cách mô hình dự đoán hiệu quả."
+/>
+
+---
+
+### Ý nghĩa Chiến lược đối với Continual Learning
+
+Trong học liên tục (Continual Learning), thách thức lớn nhất của các mô hình ngôn ngữ là quên lãng thảm khốc (Catastrophic Forgetting): khi mô hình tiếp thu thêm một lĩnh vực mới (như Y tế, Luật pháp hay Lập trình), các trọng số cũ bị ghi đè hỗn loạn, phá hủy đồng thời cả năng lực suy luận logic lẫn các dữ kiện đã học trước đó.
+
+Nguyên nhân sâu xa là vì trong mô hình huấn luyện thông thường, tư duy và tri thức bị trộn lẫn trong cùng một bộ trọng số — không có ranh giới rõ ràng giữa "phần não biết suy luận" và "phần não nhớ dữ kiện". Khi nạp dữ liệu mới, gradient cập nhật đồng loạt mọi thứ, vô tình phá hủy cả hai.
+
+Thí nghiệm bóc tách của NCA Pre-Pre-Training gợi ý một giả thuyết kiến trúc đáng kiểm tra cho bài toán này:
+
+<ConceptHierarchy
+  ariaLabel="Phân định vai trò kiến trúc giữa Attention và MLP trong Continual Learning"
+  root={{
+    title: 'Phân định Chức năng Kiến trúc Transformer',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Attention: Ứng viên để Bảo toàn',
+      detail: 'Thí nghiệm reset cho thấy Attention giữ phần lớn lợi ích chuyển giao từ NCA. Vì vậy, bảo toàn một phần Attention khi đổi miền là giả thuyết hợp lý để đánh giá, không phải kết luận rằng tầng này bất biến hay hoàn toàn trung tính.',
+      tone: 'teal',
+    },
+    {
+      title: '2. MLP: Ứng viên để Thích nghi',
+      detail: 'Ảnh hưởng của reset MLP phụ thuộc miền đích: suy giảm trên OpenWebText nhưng gần như không đổi trên CodeParrot. MLP vì thế là ứng viên cần điều chỉnh có chọn lọc, thay vì một bộ nhớ có thể reset vô điều kiện.',
+      tone: 'amber',
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1],
+      children: [
+        {
+          title: 'Giả thuyết Thích ứng Miền Có chọn lọc',
+          detail: 'Có thể thử bảo toàn Attention nhiều hơn và cấp ngân sách cập nhật lớn hơn cho MLP, sau đó đo đồng thời độ thích nghi miền mới và mức quên miền cũ qua nhiều tác vụ nối tiếp.',
+          tone: 'violet',
+        },
+      ],
+    },
+  ]}
+/>
+
+Cách phân bổ này là một giả thuyết cho cân bằng ổn định–khả biến (Stability–Plasticity Dilemma), chưa phải lời giải đã được paper kiểm chứng. Muốn kết luận cần benchmark học liên tục, đường cơ sở tương ứng và ablation về phần trọng số được đóng băng hoặc cập nhật.
+
+Ở bài học tiếp theo, chúng ta sẽ đi sâu vào cấu trúc toán học chi tiết của hệ động lực học Neural Cellular Automata 2D rời rạc: hiệu ứng màn hình Pac-Man, nhiệt độ siêu lạnh, bộ lọc nén Gzip và quy trình mã hóa patch phục vụ huấn luyện mô hình ngôn ngữ.
+
+</MdxPage>

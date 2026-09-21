@@ -1,0 +1,153 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'linear-independence-basis',
+  locale: 'vi',
+  title: 'Linear Independence, Basis và Dimension',
+  headings: [
+    'Khi một Vector là dư thừa',
+    'Linear Independence',
+    'Basis',
+    'Dimension',
+    'Tọa độ theo một Basis',
+    'Kiểm tra bằng NumPy',
+  ],
+  keywords: ['linear independence', 'basis', 'dimension', 'coordinates', 'span', 'numpy'],
+  conceptIds: [
+    'dependence-intuition',
+    'linear-independence-definition',
+    'basis-definition',
+    'dimension-definition',
+    'basis-coordinates',
+    'basis-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Khi một Vector là dư thừa
+
+Xét ba vector trong <InlineMath formula="\mathbb{R}^2" />:
+
+<BlockMath formula="\mathbf{v}_1=\begin{bmatrix}1\\0\end{bmatrix},\qquad\mathbf{v}_2=\begin{bmatrix}0\\1\end{bmatrix},\qquad\mathbf{v}_3=\begin{bmatrix}1\\1\end{bmatrix}" />
+
+Vector thứ ba không tạo thêm hướng mới vì:
+
+<BlockMath formula="\mathbf{v}_3=\mathbf{v}_1+\mathbf{v}_2" />
+
+Ta gọi tập này là **linearly dependent**.
+
+Một vector trong tập có thể được tạo từ các vector còn lại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Linear Independence
+
+Các vector <InlineMath formula="\mathbf{v}_1,\ldots,\mathbf{v}_k" /> linearly independent nếu phương trình:
+
+<BlockMath formula="c_1\mathbf{v}_1+\cdots+c_k\mathbf{v}_k=\mathbf{0}" />
+
+chỉ có nghiệm:
+
+<BlockMath formula="c_1=\cdots=c_k=0" />
+
+Nếu tồn tại một bộ hệ số không đồng thời bằng 0 mà vẫn tạo vector không thì các vector linearly dependent.
+
+<BasisIndependenceExplorer
+  ariaLabel="So sánh một tập vector độc lập tuyến tính với một tập có vector dư thừa"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Basis
+
+Một **basis** của subspace <InlineMath formula="S" /> là một tập vector thỏa hai điều kiện:
+
+- Các vector linearly independent
+- Span của chúng bằng toàn bộ <InlineMath formula="S" />
+
+Ví dụ, standard basis của <InlineMath formula="\mathbb{R}^2" /> là:
+
+<BlockMath formula="\mathbf{e}_1=\begin{bmatrix}1\\0\end{bmatrix},\qquad\mathbf{e}_2=\begin{bmatrix}0\\1\end{bmatrix}" />
+
+Nhưng basis không duy nhất.
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1\\1\end{bmatrix},\qquad\begin{bmatrix}1\\-1\end{bmatrix}" />
+
+cũng là một basis của <InlineMath formula="\mathbb{R}^2" />.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dimension
+
+Mọi basis của cùng một finite dimensional vector space có cùng số vector.
+
+Số đó gọi là **dimension**.
+
+Ví dụ:
+
+<BlockMath formula="\dim(\mathbb{R}^2)=2,\qquad\dim(\mathbb{R}^3)=3" />
+
+Một đường qua gốc trong <InlineMath formula="\mathbb{R}^3" /> có dimension 1.
+
+Một mặt phẳng qua gốc trong <InlineMath formula="\mathbb{R}^3" /> có dimension 2.
+
+Dimension đếm số hướng độc lập cần thiết để biểu diễn mọi vector trong space.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tọa độ theo một Basis
+
+Cho basis:
+
+<BlockMath formula="\mathcal{B}=\left\{\mathbf{b}_1,\mathbf{b}_2\right\}" />
+
+Mọi vector <InlineMath formula="\mathbf{x}\in\mathbb{R}^2" /> có thể được viết duy nhất dưới dạng:
+
+<BlockMath formula="\mathbf{x}=c_1\mathbf{b}_1+c_2\mathbf{b}_2" />
+
+Hai số <InlineMath formula="c_1,c_2" /> là tọa độ của <InlineMath formula="\mathbf{x}" /> theo basis <InlineMath formula="\mathcal{B}" />.
+
+Đây là ý tưởng change of basis mà ta đã nhìn trực quan ở Chapter 1.
+
+Điểm mới ở đây là basis bảo đảm biểu diễn đó vừa tồn tại vừa duy nhất.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiểm tra bằng NumPy
+
+Cho hai vector làm các cột của matrix <InlineMath formula="B" />:
+
+```python
+import numpy as np
+
+B = np.array([
+    [1.0, 1.0],
+    [1.0, -1.0],
+])
+
+x = np.array([4.0, 2.0])
+
+coords = np.linalg.solve(B, x)
+
+print(coords)
+print(B @ coords)
+```
+
+Vì các cột của <InlineMath formula="B" /> tạo một basis của <InlineMath formula="\mathbb{R}^2" />, hệ <InlineMath formula="B\mathbf{c}=\mathbf{x}" /> có một nghiệm duy nhất với mọi <InlineMath formula="\mathbf{x}\in\mathbb{R}^2" />.
+
+Bài sau dùng số hướng độc lập này để định nghĩa matrix rank.
+
+</MdxPage>

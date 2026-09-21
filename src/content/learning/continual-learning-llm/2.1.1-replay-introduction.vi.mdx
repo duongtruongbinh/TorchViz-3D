@@ -15,11 +15,17 @@ export const lessonMetadata = {
 
 **Replay** là cách đưa một phần dữ liệu cũ trở lại batch hiện tại. Nhờ đó, khi model học dữ liệu mới, gradient vẫn nhận được tín hiệu từ những năng lực cần giữ.
 
-Khi học trên bộ dữ liệu mới <InlineMath formula="D_t" />, mô hình đồng thời nhận một tập dữ liệu (survey gọi là bộ nhớ nhỏ) <InlineMath formula="M_{<t}" /> đại diện cho dữ liệu đã gặp trước đó:
+Ở mỗi update, ta lấy một mini-batch từ dữ liệu mới <InlineMath formula="D_t" /> và một mini-batch từ replay buffer <InlineMath formula="M_{<t}" />, rồi ghép chúng thành cùng một training batch:
 
-<BlockMath formula="\mathcal{L}=\mathcal{L}_{\mathrm{new}}(D_t)+\gamma\,\mathcal{L}_{\mathrm{replay}}(M_{<t})" />
+<BlockMath formula="\mathcal{B}_{\mathrm{mix}}=\mathcal{B}_{\mathrm{new}}\cup\mathcal{B}_{\mathrm{memory}}" />
 
-Ta sẽ gọi tập dữ liệu cũ được giữ lại để trộn vào quá trình học gọi là **replay buffer**. Và thông thường chúng ta sẽ quan tâm đến **"bao nhiêu % replay buffer"** được giữ lại.
+Model tính cùng một task loss trên toàn bộ batch đã trộn:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{train}}(\theta)=\frac{1}{|\mathcal{B}_{\mathrm{mix}}|}\sum_{(x,y)\in\mathcal{B}_{\mathrm{mix}}}\ell\!\left(f_\theta(x),y\right)" />
+
+Vì vậy, replay nằm ở **cách tạo training batch**. Khác với regularization sẽ được học ở phần sau, objective replay cơ bản không tách loss của dữ liệu mới và dữ liệu cũ thành hai vế. Do đó, optimizer không theo dõi riêng loss của phần nào đang giảm mà tối ưu loss tổng thể trên toàn bộ mixed batch.
+
+Tập dữ liệu cũ được giữ lại để lấy mẫu gọi là **replay buffer**; hai lựa chọn thực tế cần quan tâm là lưu bao nhiêu mẫu cũ và lấy bao nhiêu mẫu từ buffer cho mỗi batch.
 
 </MdxPage>
 
@@ -32,7 +38,9 @@ Giới hạn thực tế của replay nằm ở 2 thứ:
 1. **Quyền lưu dữ liệu, dung lượng bộ nhớ, I/O và compute**. 
 2. Nếu buffer quá nhỏ chúng ta sẽ không bảo đảm bao phủ toàn bộ phân phối cũ. 
 
-Trong thiết lập Domain-Incremental Learning có memory, paper UDIL chứng minh rằng tối ưu ERM trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **generalization bound lỏng hơn** vì sai số trên các domain cũ khó được ước lượng chính xác khi chỉ còn ít mẫu <Cite paper="shi2024unified" evidence="replay-generalization-limit-01-shi2024unified" />. Đây là cảnh báo về độ bảo đảm lý thuyết của objective replay cơ bản, không phải bằng chứng rằng replay luôn thua full retraining về kết quả thực nghiệm.
+Giả sử domain cũ có 1.000 mẫu nhưng buffer chỉ giữ 50 mẫu. Nếu 50 mẫu này bỏ sót các trường hợp khó hoặc hiếm, model có thể đạt loss thấp trên buffer nhưng vẫn làm kém trên 950 mẫu không được lưu.
+
+Paper UDIL dùng lý thuyết để mô tả giới hạn này trong Domain-Incremental Learning <Cite paper="shi2024unified" evidence="replay-generalization-limit-01-shi2024unified" />. Kết quả là **generalization bound lỏng hơn**. Nói đơn giản, kết quả đo trên buffer cho ta ít chắc chắn hơn về hiệu năng của model trên toàn bộ domain cũ. Điều này chỉ nói rằng mức bảo đảm lý thuyết yếu hơn, không có nghĩa replay luôn thua full retraining trong thực nghiệm.
 
 <LessonImage
   assetPath="continual-learning-llm/01-replay-buffer-tradeoff.png"

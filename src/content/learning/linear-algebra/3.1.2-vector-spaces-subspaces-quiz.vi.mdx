@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-spaces-subspaces-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Điều kiện Subspace', 'Đường thẳng qua gốc', 'Span'],
+  keywords: ['subspace', 'closure', 'span', 'quiz'],
+  conceptIds: ['subspace-test', 'subspace-line', 'span-subspace'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="vector-spaces-subspaces-quiz" questions={[
+  {
+    id: 'subspace-test',
+    title: 'Điều kiện Subspace',
+    prompt: 'Điều nào bắt buộc đúng với mọi subspace $S$ của $R^n$?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'S chỉ chứa vector có norm bằng 1.' },
+      { id: 'b', label: 'S chứa vector không.', isCorrect: true },
+      { id: 'c', label: 'S phải có đúng n vector.' },
+      { id: 'd', label: 'S không được chứa hai vector cùng hướng.' },
+    ],
+    success: 'Đúng. Vector không phải thuộc mọi subspace.',
+    error: 'Hãy kiểm tra điều kiện đầu tiên trong subspace test.',
+  },
+  {
+    id: 'subspace-line',
+    title: 'Đường thẳng qua gốc',
+    prompt: 'Tập nào là subspace của $R^2$?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Các điểm thỏa y = 2x + 1.' },
+      { id: 'b', label: 'Các điểm có x > 0.' },
+      { id: 'c', label: 'Các điểm thỏa y = 2x.', isCorrect: true },
+      { id: 'd', label: 'Các điểm có norm bằng 1.' },
+    ],
+    success: 'Đúng. Đường y = 2x đi qua gốc và đóng với cộng cùng scalar multiplication.',
+    error: 'Kiểm tra vector không và closure.',
+  },
+  {
+    id: 'span-subspace',
+    title: 'Span',
+    prompt: 'Tập $\\text{Span}(v_1, v_2)$ chứa những vector nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Chỉ v1 và v2.' },
+      { id: 'b', label: 'Chỉ các vector có cùng norm với v1.' },
+      { id: 'c', label: 'Chỉ v1 + v2.' },
+      { id: 'd', label: 'Mọi linear combination c1*v1 + c2*v2.', isCorrect: true },
+    ],
+    success: 'Đúng. Span gồm tất cả linear combination của các vector sinh.',
+    error: 'Hãy nhớ các hệ số được phép nhận mọi giá trị scalar.',
+  },
+]} />

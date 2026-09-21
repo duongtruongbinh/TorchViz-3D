@@ -1,0 +1,58 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'parameter-regularization-ewc-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Mục tiêu', 'Ma trận importance', 'Trade-off', 'EWC và SI'],
+  keywords: ['Quiz', 'Parameter Regularization'],
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff', 'ewc-si-distinction'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="parameter-regularization-ewc-quiz" questions={[
+  {
+    id: 'regularization-objective', title: 'Mục tiêu', mode: 'single',
+    prompt: 'Parameter regularization thêm thành phần nào khi model học Task B?',
+    options: [
+      { id: 'a', label: 'Một penalty hạn chế model thay đổi các tọa độ tham số có importance cao.' , isCorrect: true },
+      { id: 'b', label: 'Một task ID để chọn output head tại inference.' },
+      { id: 'c', label: 'Toàn bộ dữ liệu Task A vào mọi batch của Task B.' },
+      { id: 'd', label: 'Một module mới tách biệt cho mỗi sample của Task B.' },
+    ],
+    success: 'Penalty tạo ràng buộc bằng parameter space.', error: 'Phân biệt regularization với replay và architecture expansion.',
+  },
+  {
+    id: 'importance-matrix', title: 'Ma trận importance', mode: 'single',
+    prompt: 'Hai tham số quan trọng khác nhau với task cũ. Cách nào phạt chúng ở hai mức khác nhau mà không phải lưu toàn bộ ma trận tương quan?',
+    options: [
+      { id: 'a', label: 'Dùng $\\Sigma = I$ để mọi tham số nhận cùng một penalty.' },
+      { id: 'b', label: 'Dùng $\\Sigma$ đường chéo, với mỗi tham số có một trọng số importance $\\Omega_i$ riêng.', isCorrect: true },
+      { id: 'c', label: 'Chỉ tăng $\\lambda$, vì một scalar có thể đặt penalty riêng cho từng tham số.' },
+      { id: 'd', label: 'Dùng $\\Sigma$ đầy đủ để lưu cả importance lẫn mọi tương quan giữa các cặp tham số.' },
+    ],
+    success: 'Đường chéo của $\\Sigma$ cho mỗi tham số một trọng số $\\Omega_i$ riêng mà không phải lưu toàn bộ tương quan.', error: '$\\Sigma = I$ mới là trường hợp mọi tham số bị phạt như nhau.',
+  },
+  {
+    id: 'regularization-tradeoff', title: 'Trade-off', mode: 'single',
+    prompt: 'Điều gì dễ xảy ra khi $\\lambda$ quá lớn?',
+    options: [
+      { id: 'a', label: 'Model luôn đạt zero forgetting và vẫn học Task B tối ưu.' },
+      { id: 'b', label: 'Replay buffer tự động lớn hơn.' },
+      { id: 'c', label: 'Task routing trở nên chính xác tuyệt đối.' },
+      { id: 'd', label: 'Model giữ trạng thái cũ mạnh nhưng có thể underfit Task B.', isCorrect: true },
+    ],
+    success: 'Regularization quá mạnh làm giảm plasticity.', error: '$\\lambda$ điều khiển mức ưu tiên giữ cũ so với học mới.',
+  },
+  {
+    id: 'ewc-si-distinction', title: 'EWC và SI', mode: 'single',
+    prompt: 'Mô tả nào phân biệt đúng cách EWC và Synaptic Intelligence ước lượng parameter importance?',
+    options: [
+      { id: 'a', label: 'Cả hai đều tính chính xác full Hessian tại mỗi training step.' },
+      { id: 'b', label: 'SI chỉ đo Fisher tại checkpoint cuối, còn EWC tích lũy credit dọc trajectory.' },
+      { id: 'c', label: 'EWC dùng diagonal Fisher tại checkpoint; SI tích lũy đóng góp giảm loss dọc trajectory rồi chuẩn hóa ở ranh giới task.', isCorrect: true },
+      { id: 'd', label: 'SI bắt buộc replay toàn bộ dữ liệu cũ, còn EWC không dùng quadratic penalty.' },
+    ],
+    success: 'EWC là endpoint estimate dựa trên Fisher; SI là trajectory-based importance measure.',
+    error: 'Hãy phân biệt điểm đo importance: checkpoint cuối của EWC và toàn bộ optimization trajectory của SI.',
+  },
+]} />

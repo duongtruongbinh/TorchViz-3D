@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import {
   DEMO_EDGE_KERNEL,
   DEMO_SAMPLE_MATRIX,
@@ -46,7 +47,7 @@ const AVG_POOL_MEAN_POS: [number, number, number] = [0, 0.25, 0.04];
 const ADAPTIVE_POOL_LABEL_POS: [number, number, number] = [0, 0.32, 0.04];
 
 export const Conv2dEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, sampleMatrix, t }) => {
-  const inputMatrix = sampleMatrix && sampleMatrix.length ? sampleMatrix : DEMO_SAMPLE_MATRIX;
+  const inputMatrix = sampleMatrix?.length ? sampleMatrix : DEMO_SAMPLE_MATRIX;
   const outputMatrix = useMemo(() => convolveDemoMatrix(inputMatrix, DEMO_EDGE_KERNEL), [inputMatrix]);
   const frame = getConvFrame(segmentProgress, inputMatrix.length);
   const outputRows = outputMatrix.length;
@@ -57,7 +58,7 @@ export const Conv2dEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
     inputMatrix.length,
     inputMatrix[0].length,
     frame.region,
-  ), [inputMatrix, frame.region.col, frame.region.cols, frame.region.row, frame.region.rows]);
+  ), [inputMatrix, frame.region.col, frame.region.cols, frame.region.row, frame.region.rows, frame.region]);
   const kernelCenter = useMemo(() => getPatchCenter(CONV_KERNEL_POS, CONV_KERNEL_SIZE), []);
   const outputCellCenter = useMemo(() => getGridCellCenter(
     CONV_OUTPUT_POS,
@@ -106,7 +107,7 @@ export const MaxPoolEffect: React.FC<OperationEffectProps> = ({ node, segmentPro
     DEMO_POOL_INPUT_MATRIX.length,
     DEMO_POOL_INPUT_MATRIX[0].length,
     frame.region,
-  ), [frame.region.col, frame.region.cols, frame.region.row, frame.region.rows]);
+  ), [frame.region.col, frame.region.cols, frame.region.row, frame.region.rows, frame.region]);
   const poolWindowCenter = useMemo(() => getPatchCenter(POOL_WINDOW_POS, POOL_WINDOW_SIZE), []);
   const outputCellCenter = useMemo(() => getGridCellCenter(
     POOL_OUTPUT_POS,
@@ -148,7 +149,7 @@ export const AvgPoolEffect: React.FC<OperationEffectProps> = ({ node, segmentPro
     DEMO_POOL_INPUT_MATRIX.length,
     DEMO_POOL_INPUT_MATRIX[0].length,
     frame.region,
-  ), [frame.region.col, frame.region.cols, frame.region.row, frame.region.rows]);
+  ), [frame.region.col, frame.region.cols, frame.region.row, frame.region.rows, frame.region]);
   const poolingSummaryCenter = useMemo(() => getMatrixCenter(AVG_POOL_MEAN_POS, 0.08), []);
   const outputCenter = useMemo(() => getGridCellCenter(
     POOL_OUTPUT_POS,
@@ -190,7 +191,7 @@ export const AdaptiveAvgPoolEffect: React.FC<OperationEffectProps> = ({ node, se
     { row: 4, col: 0, rows: 4, cols: 4 },
     { row: 4, col: 4, rows: 4, cols: 4 },
   ][step];
-  const source = useMemo(() => getGridRegionCenter(POOL_INPUT_POS, POOL_INPUT_SIZE, 8, 8, region), [step]);
+  const source = useMemo(() => getGridRegionCenter(POOL_INPUT_POS, POOL_INPUT_SIZE, 8, 8, region), [region]);
   const summaryCenter = useMemo(() => getMatrixCenter(ADAPTIVE_POOL_LABEL_POS, 0.08), []);
   const target = useMemo(() => getGridCellCenter(POOL_OUTPUT_POS, 1.35, 2, 2, Math.floor(step / 2), step % 2), [step]);
   const arrowPoints = useMemo(

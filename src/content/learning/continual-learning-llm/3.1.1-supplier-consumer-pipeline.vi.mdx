@@ -9,7 +9,7 @@ export const lessonMetadata = {
 
 ## Vì sao cần supplier–consumer?
 
-LLM quá lớn để liên tục thu thập lại toàn bộ dữ liệu và retrain từ đầu. Việc giữ model cập nhật cũng ngày càng đắt khi dữ liệu mới xuất hiện với tốc độ rất cao. Survey minh họa rằng vào năm 2023, trung bình mỗi ngày có hơn 500 triệu tweet mới được tạo ra; ngay cả training trên một phần của khối lượng này cũng có thể mang lại chi phí khó chấp nhận.
+LLM quá lớn để liên tục thu thập lại toàn bộ dữ liệu và retrain từ đầu. Việc giữ model cập nhật cũng ngày càng đắt khi dữ liệu mới xuất hiện với tốc độ rất cao. Survey minh họa rằng vào năm 2023, trung bình mỗi ngày có hơn 500 triệu tweet mới được tạo ra; ngay cả training trên một phần của khối lượng này cũng có thể mang lại chi phí khó chấp nhận <Cite paper="shi2024continualSurvey" evidence="supplier-consumer-02-shi2024continualSurvey" />.
 
 Trong thực tế, không phải ai cũng có khả năng cập nhật mô hình. So với các nhà phát hành (supplier upstream) như OpenAI hoặc Anthropic, hầu hết các nhà triển khai vừa và nhỏ (consumer downstream) thường không đủ nguồn lực để đáp ứng:
 

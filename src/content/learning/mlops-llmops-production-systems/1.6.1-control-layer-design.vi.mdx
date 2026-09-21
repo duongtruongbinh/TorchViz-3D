@@ -1,0 +1,196 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'control-layer-design',
+  locale: 'vi',
+  title: "Kiến trúc Tầng Kiểm soát (Control Layer)",
+  headings: [
+    'Bản chất & Tháp Điều khiển Control Layer',
+    'Quản lý Phiên bản Thử nghiệm & Model Registry',
+    'Kiểm thử Tự động & Gating trong CI/CD',
+    'Giám sát Sản xuất: Data Drift & Concept Drift',
+    'Ma trận Kỹ năng & Lộ trình Junior - Senior',
+  ],
+  keywords: [
+    'Control Layer', 'MLflow', 'Model Registry', 'Data Drift', 'Concept Drift', 'CI/CD', 'Evidently', 'Prometheus',
+    'Junior vs Senior',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bản chất & Tháp Điều khiển Control Layer
+
+Tầng Kiểm soát & Vòng đời (Control & Observability Layer) đóng vai trò là "tháp điều khiển không lưu" của toàn bộ hệ thống MLOps. Tầng này chịu trách nhiệm điều phối, quản trị và kiểm soát chất lượng từ lúc thử nghiệm đến khi mô hình vận hành trong thực tế.
+
+Khác với phần mềm truyền thống vốn chỉ cần kiểm tra lỗi code (Bugs), hệ thống Machine Learning còn phải đối mặt với sự suy giảm độ chính xác âm thầm theo thời gian (**Silent Failures**).
+
+<ConceptHierarchy
+  ariaLabel="4 trụ cột kỹ thuật của Tầng Control trong MLOps"
+  root={{
+    title: 'Control & Observability Layer',
+    detail: 'Hạ tầng điều phối, quản trị phiên bản và giám sát chất lượng liên tục',
+  }}
+  nodes={[
+    {
+      title: '1. Tracking & Registry',
+      problem: 'Ghi nhận toàn bộ siêu tham số và quản lý vòng đời phát hành của Model Artifacts.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. Automated CI/CD Gating',
+      problem: 'Chặn đứng các mô hình kém chất lượng hoặc chứa mã độc trước khi lên Production.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Drift & Decay Monitoring',
+      problem: 'Phát hiện sớm sự thay đổi phân phối dữ liệu đầu vào và suy giảm độ chính xác.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '4. Automated Retraining',
+      problem: 'Tự động kích hoạt pipeline thu thập dữ liệu mới và huấn luyện lại mô hình.',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Quy tắc Critical Path:** Control Plane và Monitoring Server tuyệt đối không bao giờ được nằm trên đường đi trực tiếp (Critical Path) của luồng API Serving thời gian thực.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Quản lý Phiên bản Thử nghiệm & Model Registry
+
+Trong quá trình R&D, một nhóm AI có thể thực hiện hàng trăm thử nghiệm (Experiments) với nhiều kiến trúc và siêu tham số khác nhau.
+
+Nếu không có hệ thống theo dõi tập trung, các kỹ sư sẽ không nhớ model tốt nhất được sinh ra từ commit code nào và bộ tham số nào:
+
+<CourseCards
+  ariaLabel="Hai công cụ quản trị thử nghiệm và mô hình"
+  exampleLabel="Công nghệ tiêu biểu"
+  takeawayLabel="Nhiệm vụ quản trị"
+  items={[
+    {
+      title: 'Experiment Tracking (MLflow / W&B)',
+      example: 'Tự động ghi lại `learning_rate`, `batch_size`, `loss_curve`, `F1-score` và biểu đồ đánh giá của từng lần chạy.',
+      takeaway: 'So sánh trực quan giữa hàng trăm lần thử nghiệm để chọn ra ứng viên mô hình xuất sắc nhất.',
+    },
+    {
+      title: 'Model Registry (MLflow Models / S3 Registry)',
+      example: 'Quản lý các stage phát hành rõ ràng: `None` -> `Staging` -> `Production` -> `Archived`.',
+      takeaway: 'Chỉ định phiên bản mô hình chính thức đang phục vụ khách hàng và cho phép Rollback về phiên bản cũ ngay lập tức nếu có sự cố.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiểm thử Tự động & Gating trong CI/CD
+
+Trước khi một mô hình được thăng cấp lên `Production` trong Model Registry, nó bắt buộc phải vượt qua các cổng kiểm định chất lượng tự động (**Model Gating Pipeline**):
+
+<CourseCards
+  ariaLabel="3 cấp độ kiểm thử trong MLOps CI/CD"
+  exampleLabel="Loại kiểm thử"
+  takeawayLabel="Mục đích bảo vệ"
+  items={[
+    {
+      title: 'Code Unit & Integration Tests (Pytest)',
+      example: 'Kiểm tra logic xử lý dữ liệu, định dạng tensor đầu ra và các hàm tiện ích.',
+      takeaway: 'Đảm bảo mã nguồn không có lỗi cú pháp hoặc crash bất ngờ.',
+    },
+    {
+      title: 'Data Validation Suites (Great Expectations)',
+      example: 'Kiểm tra schema dữ liệu, giá trị null, khoảng giá trị min/max của các trường.',
+      takeaway: 'Ngăn chặn dữ liệu bẩn làm hỏng pipeline huấn luyện.',
+    },
+    {
+      title: 'Model Behavioral Tests (Invariance & Directional)',
+      example: 'Kiểm tra các kịch bản bắt buộc của QA/QC và các trường hợp biên nguy hiểm (Edge cases).',
+      takeaway: 'Đảm bảo mô hình không đưa ra các dự đoán phân biệt đối xử, nguy hiểm hoặc trái logic kinh doanh.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Giám sát Sản xuất: Data Drift & Concept Drift
+
+Khi mô hình đã chạy trên Production, môi trường thực tế luôn thay đổi. Hệ thống giám sát phải liên tục theo dõi 2 hiện tượng trôi dạt:
+
+<ComparisonMatrix
+  ariaLabel="So sánh giữa Data Drift và Concept Drift"
+  rowHeaderLabel="Đặc tính trôi dạt"
+  columns={['Data Drift (Covariate Shift)', 'Concept Drift']}
+  rows={[
+    {
+      label: 'Bản chất hiện tượng',
+      values: [
+        'Phân phối của dữ liệu đầu vào thay đổi: $P(X)$ thay đổi trong khi $P(Y|X)$ giữ nguyên.',
+        'Mối quan hệ bản chất giữa đầu vào và nhãn thay đổi: $P(Y|X)$ thay đổi.',
+      ],
+    },
+    {
+      label: 'Ví dụ thực tế',
+      values: [
+        'Một dòng điện thoại mới ra mắt, camera chụp ảnh có độ phân giải và màu sắc khác hoàn toàn dữ liệu cũ.',
+        'Sau đại dịch Covid hoặc khủng hoảng kinh tế, thói quen chi tiêu của người tiêu dùng thay đổi hoàn toàn.',
+      ],
+    },
+    {
+      label: 'Phương pháp phát hiện',
+      values: [
+        'Đo kiểm định thống kê Kolmogorov-Smirnov (KS Test), Population Stability Index (PSI) bằng Evidently AI.',
+        'Đo độ chính xác thực tế khi nhận được nhãn thật (Ground Truth) từ phản hồi người dùng hoặc QA team.',
+      ],
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ma trận Kỹ năng & Lộ trình Junior - Senior
+
+<ComparisonMatrix
+  ariaLabel="Ma trận kỹ năng Tầng Kiểm soát từ Junior đến Senior MLOps"
+  rowHeaderLabel="Tiêu chí đánh giá"
+  columns={['Junior MLOps', 'Mid-level MLOps', 'Senior MLOps / Architect']}
+  rows={[
+    {
+      label: 'Kỹ năng Kiểm soát',
+      values: [
+        'Biết in log ra console; ghi nhận metrics cơ bản vào MLflow hoặc TensorBoard.',
+        'Xây dựng Model Registry bài bản; thiết lập GitHub Actions tự động kiểm thử code và dữ liệu trước khi merge; kết nối Prometheus.',
+        'Thiết kế hệ thống Full Observability (Distributed Tracing, Metrics, Data Drift Alerting); xây dựng pipeline Retraining tự động; triển khai Shadow Deployment đối chứng mô hình thật.',
+      ],
+    },
+    {
+      label: 'Bẫy thường gặp',
+      values: [
+        'Đặt tên file model kiểu `model_final_v2_new.pkl`; không nhớ model nào ứng với commit code nào.',
+        'Chỉ giám sát CPU/RAM mà không đo lường Data Drift; mô hình bị giảm độ chính xác nghiêm trọng nhiều tháng mà không ai biết.',
+        'Cấu hình ngưỡng Retraining tự động quá nhạy khiến hệ thống train lại liên tục gây lãng phí ngân sách và nhiễu loạn mô hình.',
+      ],
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Tổng kết Khóa học:** Bạn đã nắm vững toàn bộ 4 tầng kiến trúc MLOps chuẩn sản xuất. Hãy sang bài Quiz và Code Lab để hoàn thành chặng học này!
+</LessonNote>
+
+</MdxPage>

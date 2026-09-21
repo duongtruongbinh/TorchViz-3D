@@ -1,0 +1,283 @@
+export const lessonMetadata = {
+  domainId: 'ai-projects',
+  id: 'sales-forecasting-data-structure-audit',
+  locale: 'vi',
+  title: 'Phần 2: Phân tích Cấu trúc Dữ liệu thô',
+  headings: [
+    'Quy trình Năm Bước Kiểm tra Dữ liệu',
+    'Kiểm tra Kiểu Dữ liệu',
+    'Kiểm tra Định dạng Ngày',
+    'Kiểm tra Dữ liệu Trùng',
+    'Kiểm tra Ngày Thiếu và Giá trị Thiếu',
+    'Tổng kết Bốn Lỗi Cơ bản Tìm thấy',
+  ],
+  keywords: ['Data Structure', 'Data Audit', 'Check Function', 'Data Quality', 'Pandas', 'Duplicate Check'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+Ở phần này chúng ta phân tích chi tiết cấu trúc của bộ dữ liệu theo quy trình trong Hình 3. Cả năm bước đều chạy trên bảng vừa đọc dưới dạng chuỗi; mỗi bước kiểm tra một khía cạnh và ghi lại kết quả đạt hoặc không đạt. Tổng cộng có tám phép kiểm. Sau khi hoàn tất, những tiêu chí không đạt sẽ được xử lý ở Mục III.
+
+### Quy trình Năm Bước Kiểm tra Dữ liệu
+
+Năm bước kiểm tra cấu trúc dữ liệu thô được minh họa trong Hình 3:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-03-cac-buoc-kiem-tra-du-lieu.png"
+  alt="Hình 3: Các bước kiểm tra dữ liệu"
+  caption="Hình 3: Các bước kiểm tra dữ liệu."
+/>
+
+Để tiện theo dõi, chúng ta dùng chung một hàm check ghi lại kết quả của từng bước:
+
+```python
+def check(name, passed, detail=""):
+    """Ghi lại một phép kiểm. passed = True nghĩa là dữ liệu đạt."""
+    print(f"  {'ĐẠT' if passed else 'HỎNG'}  {name:30s} {detail}")
+
+raw = pd.read_csv("sales.csv", dtype=str)
+date_text = raw.Date.astype(str).str.strip()
+```
+
+---
+
+### Kiểm tra Kiểu Dữ liệu
+
+Trước hết chúng ta kiểm tra hai cột Revenue và COGS có đọc được thành số hay không. Cách làm là ép cả cột sang số bằng `pd.to_numeric` với `errors` đặt thành `"coerce"`, ô nào không ép được sẽ thành rỗng, nên chúng ta chỉ cần đếm số ô rỗng thu về là biết có bao nhiêu ô chứa ký tự lạ:
+
+```python
+for column in ("Revenue", "COGS"):
+    numeric = pd.to_numeric(raw[column], errors="coerce")
+    n_bad = int(numeric.isna().sum())
+    check(f"{column} đọc được thành số", n_bad == 0, f"{n_bad:,} ô không đọc được")
+
+bad_value = pd.to_numeric(raw.Revenue, errors="coerce").isna()
+for value in raw.loc[bad_value, "Revenue"].head(3):
+    print(f"  {value!r}")
+characters = set("".join(raw.loc[bad_value, "Revenue"]))
+print(f"  Ký tự lạ: {sorted(characters - set('0123456789.'))}")
+```
+
+Kết quả in ra:
+
+```text
+  HỎNG  Revenue đọc được thành số       308 ô không đọc được
+  HỎNG  COGS đọc được thành số          308 ô không đọc được
+  '4,612,623.19'
+  '1,204,115.66'
+  '2,971,078.12'
+  Ký tự lạ: [',']
+```
+
+Kết quả cho thấy 308 ô có dấu phân cách hàng nghìn, chiếm khoảng 8% số dòng, và ký tự lạ duy nhất là dấu phẩy chứ không có ký hiệu tiền tệ nào đi kèm.
+
+Tuy nhiên hậu quả không dừng ở 308 ô đó. Một cột trong pandas chỉ mang một kiểu duy nhất, nên chỉ cần một ô không ép được là cả cột 3,851 dòng giữ kiểu object và mọi phép tính số học trên cột đều hỏng theo. Vì vậy chúng ta kiểm tra kiểu dữ liệu trước, rồi mới kiểm các thứ còn lại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Sau khi đã nắm rõ lỗi ký tự ở các cột số, chúng ta chuyển sang rà soát cột `Date` để nhận diện các định dạng thời gian đang tồn tại.
+
+### Kiểm tra Định dạng Ngày
+
+Một cột ngày sạch thì dùng chung một định dạng và không kèm phần thời gian, nên chúng ta tách thành hai câu hỏi riêng là cột đang dùng dấu phân cách nào, và có dòng nào chứa dấu hai chấm hay không:
+
+```python
+has_slash = date_text.str.contains("/", na=False)
+has_time = date_text.str.contains(":", na=False)
+n_slash, n_time = int(has_slash.sum()), int(has_time.sum())
+
+check("Ngày dùng chung một định dạng", n_slash == 0,
+      f"{n_slash:,} gạch chéo, {len(raw) - n_slash:,} gạch ngang")
+check("Ngày không kèm phần thời gian", n_time == 0,
+      f"{n_time:,} dòng có phần thời gian")
+
+form = (pd.Series(np.where(has_slash, "dd/mm/yyyy", "yyyy-mm-dd"), index=raw.index)
+        + np.where(has_time, " hh:mm:ss", ""))
+print("\n  Các dạng gặp trong cột Date:")
+print(form.value_counts().to_string())
+```
+
+Kết quả in ra:
+
+```text
+  HỎNG  Ngày dùng chung một định dạng   213 gạch chéo, 3,638 gạch ngang
+  HỎNG  Ngày không kèm phần thời gian   214 dòng có phần thời gian
+
+  Các dạng gặp trong cột Date:
+yyyy-mm-dd             3485
+yyyy-mm-dd hh:mm:ss     153
+dd/mm/yyyy              152
+dd/mm/yyyy hh:mm:ss      61
+```
+
+Kết quả cho thấy bốn dạng cùng tồn tại trong một cột, và hai lỗi chồng lên nhau ở 61 dòng vừa dùng dấu gạch chéo vừa kèm phần thời gian.
+
+Trước khi quyết định cách sửa, chúng ta cần xác minh thêm hai điều:
+1. Phần thời gian có thật sự vô nghĩa không, hay có dòng nào mang giờ khác nửa đêm?
+2. Nhóm gạch chéo đang viết theo `dd/mm/yyyy` hay `mm/dd/yyyy`, vì đọc nhầm sẽ biến ngày 4 tháng 7 thành ngày 7 tháng 4 mà không báo lỗi nào?
+
+```python
+time_part = date_text[has_time].str.split().str[1]
+all_midnight = (time_part == "00:00:00").all()
+print(f"Thời gian luôn bằng 00:00:00: {all_midnight}")
+
+leading = date_text[has_slash].str.slice(0, 2).astype(int)
+print(f"Số đứng đầu chạy từ {leading.min()} đến {leading.max()}")
+```
+
+Kết quả:
+
+```text
+Thời gian luôn bằng 00:00:00: True
+Số đứng đầu chạy từ 1 đến 31
+```
+
+Phần thời gian luôn bằng nửa đêm nên chúng ta cắt bỏ mà không mất thông tin gì, còn số đứng đầu chạy tới 31 mà không tháng nào mang số 31 nên nhóm gạch chéo chắc chắn viết theo `dd/mm/yyyy`. Hai kết luận này là căn cứ để chúng ta sửa cột ngày ở Mục III.2.
+
+  **Tuyệt đối không dùng `pd.to_datetime(..., dayfirst=True)` cho cả cột:**
+  Cờ này áp dụng lên toàn bộ các dòng, khiến các dòng viết chuẩn `YYYY-MM-DD` bị đảo ngược Ngày và Tháng: ví dụ ngày `2012-07-04` (mùng 4 tháng 7) bị đọc thành ngày 7 tháng 4. Sai lầm này **không hề báo lỗi đỏ**, nhưng âm thầm làm đảo lộn toàn bộ chuỗi thời gian, tự sinh ra hàng loạt ngày trùng và ngày thiếu ảo.
+
+```python
+# Ngày 04/07 (tháng 7, ngày 4) bị đảo thành ngày 7 tháng 4:
+pd.to_datetime("2012-07-04", dayfirst=True)  # -> Timestamp('2012-04-07 00:00:00')
+
+# Ngày 01/08 (tháng 8, ngày 1) bị đảo thành ngày 8 tháng 1:
+pd.to_datetime("2012-08-01", dayfirst=True)  # -> Timestamp('2012-01-08 00:00:00')
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Tiếp theo là kiểm tra tính duy nhất của từng ngày trong bảng dữ liệu để chuẩn bị cho các phép tính độ trễ chuỗi thời gian.
+
+### Kiểm tra Dữ liệu Trùng
+
+Bước thứ ba là kiểm tra xem mỗi ngày có xuất hiện đúng một lần hay không. Bước này yêu cầu cột ngày phải được đọc đúng, nên chúng ta tạm thời xử lý theo cách vừa xác minh: bỏ phần thời gian trước, rồi đọc từng nhóm theo đúng định dạng của nhóm đó:
+
+```python
+date_only = date_text.str.split().str[0]
+parsed_date = pd.Series(pd.NaT, index=raw.index, dtype="datetime64[ns]")
+parsed_date[has_slash] = pd.to_datetime(date_only[has_slash], format="%d/%m/%Y")
+parsed_date[~has_slash] = pd.to_datetime(date_only[~has_slash], format="%Y-%m-%d")
+
+is_duplicated = parsed_date.duplicated(keep=False)
+n_dup_days = parsed_date[is_duplicated].nunique()
+check("Không có ngày ghi trùng", is_duplicated.sum() == 0,
+      f"{n_dup_days} ngày, {int(is_duplicated.sum())} dòng")
+
+dup_rows = raw.loc[is_duplicated, ["Revenue", "COGS"]].assign(d=parsed_date[is_duplicated])
+identical = dup_rows.duplicated(keep=False).all()
+print(f"  Các dòng trùng giống hệt nhau: {identical}")
+```
+
+Kết quả in ra:
+
+```text
+  HỎNG  Không có ngày ghi trùng         18 ngày, 36 dòng
+  Các dòng trùng giống hệt nhau: True
+```
+
+Kết quả cho thấy 18 ngày bị ghi hai lần, tổng cộng 36 dòng, và các dòng trùng mang giá trị giống hệt nhau nên đây là bản sao thuần tuý, gộp lại được an toàn. Nếu chúng mang giá trị khác nhau thì bài toán sẽ khác hẳn, vì khi ấy chúng ta phải quyết định giữ dòng nào, mà quyết định đó cần thông tin nằm ngoài tệp dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+Hai phép kiểm tra cuối cùng là xác thực tính liên tục của trục thời gian và kiểm tra các giá trị rỗng trên toàn bảng.
+
+### Kiểm tra Ngày Thiếu và Giá trị Thiếu
+
+Bước thứ tư là kiểm tra chuỗi ngày có liên tục hay không, vì chuỗi liên tục thì phép độ trễ mới có nghĩa. Nếu chuỗi đứt quãng thì `shift(28)` lùi 28 dòng chứ không lùi 28 ngày, và mọi đặc trưng dựng trên nó đều sai lệch mà không báo lỗi gì:
+
+```python
+unique_date = parsed_date.drop_duplicates().sort_values()
+gap = unique_date.diff().dropna().dt.days
+n_gaps = int((gap != 1).sum())
+is_sorted = parsed_date.is_monotonic_increasing
+check("Chuỗi ngày liên tục", n_gaps == 0,
+      f"cách lớn nhất {int(gap.max())} ngày, {n_gaps} chỗ đứt")
+check("Ngày tăng dần theo thứ tự dòng", is_sorted,
+      "đã tăng dần" if is_sorted else "có dòng đảo thứ tự")
+print(f"  Chuỗi trải từ {unique_date.min().date()}"
+      f" đến {unique_date.max().date()}, {len(unique_date):,} ngày")
+```
+
+Kết quả:
+
+```text
+  ĐẠT   Chuỗi ngày liên tục             cách lớn nhất 1 ngày, 0 chỗ đứt
+  ĐẠT   Ngày tăng dần theo thứ tự dòng  đã tăng dần
+  Chuỗi trải từ 2012-07-04 đến 2022-12-31, 3,833 ngày
+```
+
+Cả hai phép kiểm đều đạt, chuỗi trải liên tục 3,833 ngày không thiếu ngày nào, và thứ tự dòng trong tệp đã tăng dần theo thời gian. Con số 3,833 này cũng chính là số dòng mà tệp sạch sẽ có, sau khi chúng ta gộp 18 bản sao ở Mục III.
+
+Bước cuối cùng là đếm số ô rỗng trên toàn bảng:
+
+```python
+n_missing = int(raw.isna().sum().sum())
+check("Không có ô rỗng", n_missing == 0, f"{n_missing} ô rỗng")
+```
+
+Kết quả:
+
+```text
+  ĐẠT   Không có ô rỗng                 0 ô rỗng
+```
+
+Không ô nào rỗng. Cần lưu ý rằng chúng ta đang đếm trên bảng đọc dưới dạng chuỗi nên con số này phản ánh đúng số ô rỗng trong tệp. Nếu đọc với kiểu tự động thì 308 ô có dấu phẩy đã bị biến thành rỗng từ trước, và kết quả sẽ khác hẳn.
+
+Sau khi kiểm tra, dữ liệu có chuỗi thời gian liên tục nên chúng ta không cần chèn ngày thiếu, ngày tăng dần nên không cần sắp xếp lại, và không có ô rỗng nên không cần xử lý dữ liệu thiếu. Đây là ba việc thường tốn nhiều công nhất trong khâu làm sạch, và bộ dữ liệu này không cần làm việc nào.
+
+---
+
+### Tổng kết Bốn Lỗi Cơ bản Tìm thấy
+
+Hình 4 đánh dấu trực tiếp bốn lỗi tìm thấy ngay trên bảng dữ liệu thô:
+
+<LessonImage
+  assetPath="ai-projects/sales-forecasting/hinh-04-bon-loi-trong-sales-csv.png"
+  alt="Hình 4: Bốn lỗi tìm thấy trong tệp sales.csv, đánh dấu trực tiếp trên bảng dữ liệu thô"
+  caption="Hình 4: Bốn lỗi tìm thấy trong tệp sales.csv, đánh dấu trực tiếp trên bảng dữ liệu thô."
+/>
+
+Bên cạnh đó, Bảng 1 thống kê bốn lỗi còn lại kèm quy mô và hướng xử lý:
+
+<ComparisonMatrix
+  ariaLabel="Bảng 1: Thống kê các lỗi cơ bản tìm thấy trong tệp sales.csv"
+  columns={[
+    { title: 'Lỗi phát hiện', key: 'error' },
+    { title: 'Quy mô', key: 'scope' },
+    { title: 'Hướng xử lý ở Mục III', key: 'solution' },
+  ]}
+  rows={[
+    {
+      error: 'Doanh thu lưu ở dạng chuỗi',
+      scope: '308 ô mỗi cột',
+      solution: 'Bỏ dấu phân cách hàng nghìn rồi ép cả hai cột về số thực',
+    },
+    {
+      error: 'Ngày dùng hai định dạng',
+      scope: '213 dòng',
+      solution: 'Đọc từng nhóm theo đúng định dạng rồi ghép lại',
+    },
+    {
+      error: 'Ngày kèm phần thời gian',
+      scope: '214 dòng',
+      solution: 'Cắt bỏ, vì phần thời gian luôn bằng 00:00:00',
+    },
+    {
+      error: 'Có ngày ghi trùng',
+      scope: '18 ngày',
+      solution: 'Gộp lại, vì các dòng trùng mang giá trị giống hệt nhau',
+    },
+  ]}
+/>
+
+Bốn lỗi này được xử lý bằng ba bước ở Mục III, vì hai lỗi của cột ngày cùng sửa trong một bước. Cả bốn phép sửa đều không làm mất thông tin, vì bỏ dấu phẩy khỏi một con số, đổi định dạng ngày, cắt phần giờ luôn bằng nửa đêm hay gộp hai dòng giống hệt nhau thì đều khôi phục lại được.
+
+</MdxPage>

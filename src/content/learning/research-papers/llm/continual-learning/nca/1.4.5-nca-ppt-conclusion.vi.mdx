@@ -1,0 +1,141 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nca-ppt-conclusion',
+  locale: 'vi',
+  title: 'Phần 5: Phân tích Cơ chế & Quy luật Phức độ',
+  headings: [
+    'Attention Là Bộ mang Phổ quát của Mạch Suy luận Induction Heads',
+    'Vai trò của Tầng MLP & Nguy cơ Can thiệp Tiêu cực',
+    'Nguyên lý Khớp Độ Phức tạp Dữ liệu Hạ nguồn',
+    'Nghịch lý Mở rộng Kích thước Bảng chữ cái',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Mechanistic Interpretability',
+    'Weight Ablation',
+    'Attention Induction Heads',
+    'MLP Memorization',
+    'Complexity Matching',
+    'Gzip Compressibility Bands',
+    'Alphabet Size Paradox',
+    'Negative Interference',
+  ],
+  conceptIds: [
+    'attention-vs-mlp-ablation',
+    'complexity-matching-principle',
+    'alphabet-size-paradox',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+Những cải thiện vượt bậc trên ngôn ngữ tự nhiên (giảm 6% perplexity, tăng tốc 1.6× hội tụ, pass@4 đạt 36.5% trên BigBench-Lite) tự nhiên làm nảy sinh câu hỏi mang tính giải phẫu học mạng nơ-ron: Thành phần nào bên trong Transformer thực sự lưu giữ các mạch suy luận chuyển giao được? Và cấu trúc nào của dữ liệu tổng hợp quyết định sự thành bại?
+
+Để trả lời, nhóm tác giả lần lượt khởi tạo lại từng nhóm trọng số sau NCA PPT rồi đo mức suy giảm chuyển giao. Thí nghiệm này xếp hạng tầm quan trọng của các nhóm module, nhưng không định vị trực tiếp một mạch suy luận cụ thể.
+
+---
+
+### Attention Là Bộ mang Phổ quát của Mạch Suy luận Induction Heads
+
+Kỹ thuật phẫu thuật được sử dụng là triệt tiêu trọng số có chọn lọc (Selective Weight Ablation): sau khi mô hình kết thúc Pha 1 (học 164M tokens NCA), nhóm tác giả lần lượt khởi tạo lại ngẫu nhiên (reset) từng nhóm trọng số cụ thể — Attention, MLP, hoặc LayerNorm — trước khi đưa mô hình bước vào tiền huấn luyện trên ngôn ngữ tự nhiên ở Pha 2.
+
+Kết quả đo lường sự suy thoái perplexity bộc lộ một quy luật kiến trúc rõ ràng:
+
+1. **Reset Attention gây suy giảm lớn nhất.** Khi khởi tạo lại các ma trận trọng số Attention (<InlineMath formula="W_q, W_k, W_v, W_o" />), mức transfer giảm mạnh nhất trên cả OpenWebText và CodeParrot. Kết quả cho thấy Attention mang phần lớn prior có thể chuyển giao, không chứng minh Attention là nơi duy nhất chứa mọi năng lực suy luận.
+
+2. **Cơ chế bên trong:** Theo nghiên cứu nền tảng của Olsson et al. (2022), năng lực In-Context Learning của Transformer xuất hiện đồng thời với sự hình thành của các Induction Heads — những mạch chú ý chuyên biệt có khả năng tìm kiếm các khuôn mẫu đã xuất hiện trước đó trong chuỗi và sao chép chúng để dự đoán token tiếp theo. Đây chính là cơ chế "đọc quy tắc từ ngữ cảnh" mà Phần 2 đã mô tả dưới góc nhìn Bayes.
+
+3. **Giả thuyết cơ chế:** Do quỹ đạo NCA không có semantic shortcuts của ngôn ngữ, next-token prediction trực tiếp tạo áp lực theo dõi phụ thuộc và suy ra latent rule <InlineMath formula="f_\theta" />. Tác giả liên hệ kết quả này với Induction Heads, nhưng ablation theo nhóm trọng số chưa quan sát hay định danh trực tiếp từng head.
+
+---
+
+### Vai trò của Tầng MLP & Nguy cơ Can thiệp Tiêu cực
+
+Trong khi reset Attention gây sụp đổ toàn diện, hành vi của các tầng Feed-Forward (MLP) lại tiết lộ một sự thật bất ngờ và mang tính bất đối xứng sâu sắc:
+
+<ConceptHierarchy
+  ariaLabel="Phân định Chức năng giữa Attention và MLP trong Transformer"
+  root={{
+    title: 'Phân định Chức năng Kiến trúc (Functional Division)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Attention: Bộ não Tư duy (In-Context Reasoning Engine)',
+      detail: 'Mang tín hiệu chuyển giao mạnh nhất trong ablation, phù hợp với vai trò theo dõi phụ thuộc và suy ra quy luật ẩn. Reset Attention gây mức suy giảm lớn nhất.',
+      tone: 'teal',
+    },
+    {
+      title: '2. MLP: Cuốn Sổ tay Ghi nhớ Đặc thù Miền',
+      detail: 'Hiệu ứng phụ thuộc miền đích: giữ lại MLP làm giảm transfer trên OpenWebText nhưng gần như không ảnh hưởng trên CodeParrot, gợi ý prior đặc thù miền.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+Phát hiện đáng chú ý nhất: trên tập OpenWebText, việc giữ lại trọng số MLP từ NCA thực tế lại làm giảm nhẹ hiệu năng so với việc khởi tạo lại chúng ngẫu nhiên. Nói cách khác, reset MLP đi còn tốt hơn giữ lại.
+
+Một cách giải thích phù hợp với dữ liệu là MLP và LayerNorm giữ prior đặc thù của NCA, có thể gây representation interference khi không khớp miền. Đây là suy luận cơ chế từ khác biệt OpenWebText–CodeParrot, không phải phép đo trực tiếp nội dung được lưu trong MLP.
+
+Do đó, reset MLP có lợi trong cấu hình OpenWebText được báo cáo, còn trên CodeParrot tác động gần như trung tính. Không nên khái quát rằng reset MLP luôn tốt hơn cho mọi miền.
+
+Phát hiện này hoàn toàn trùng khớp với các công trình nghiên cứu hiện đại về kiến trúc Mixture-of-Experts (Jelassi et al., 2025): việc mở rộng tham số MLP chủ yếu gia tăng khả năng ghi nhớ sự kiện (memorization) chứ không gia tăng năng lực suy luận logic (reasoning).
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/nca/nca-attention-vs-mlp-ablation.jpg"
+  alt="Minh họa Selective Weight Ablation: reset Attention gây suy giảm chuyển giao lớn nhất, còn hiệu ứng của MLP phụ thuộc miền đích"
+  caption="Selective Weight Ablation cho thấy Attention mang prior chuyển giao mạnh nhất. MLP và LayerNorm làm giảm transfer trên OpenWebText nhưng gần như trung tính trên CodeParrot, nên kết luận phù hợp là vai trò của chúng phụ thuộc miền."
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Nguyên lý Khớp Độ Phức tạp Dữ liệu Hạ nguồn
+
+Không phải cứ tạo ra dữ liệu tổng hợp phức tạp tối đa là sẽ đem lại hiệu quả chuyển giao tốt nhất. Khi chia các quỹ đạo NCA thành 4 dải độ nén gzip khác nhau (20–30%, 30–40%, 40–50%, và 50%+) và đo hiệu quả chuyển giao sang từng miền ngôn ngữ, một nguyên lý thực nghiệm quan trọng xuất hiện — có thể gọi là nguyên lý "đo ni đóng giày":
+
+<BlockMath formula="\text{Độ Phức tạp Tối ưu của Dữ liệu Tổng hợp} \propto \text{Độ Phức tạp Nội tại của Miền Mục tiêu}" />
+
+| Miền Dữ liệu Ngôn ngữ | Độ Nén Gzip của Miền Đích | Dải Độ Nén Gzip NCA Tối ưu | Hiện tượng Thực nghiệm |
+| :--- | :--- | :--- | :--- |
+| **CodeParrot** (Mã nguồn) | **32%** (Dễ nén, cú pháp quy củ) | **30% – 40% Gzip** | Hiệu năng đạt đỉnh ở độ phức tạp trung bình; sử dụng NCA quá phức tạp (>50%) gây suy giảm rõ rệt. |
+| **OpenWebMath** (Toán) | **58%** (Độ hỗn độn cao hơn) | **50%+ Gzip** | Hưởng lợi mạnh mẽ từ các quy tắc NCA phi tuyến phức tạp. |
+| **OpenWebText** (Văn bản Web) | **70%** (Khó nén, ngữ nghĩa đa dạng) | **50%+ Gzip** | Càng phức tạp càng đem lại độ giảm perplexity sâu nhất. |
+
+Tại sao lại có sự tương ứng này? Hãy nghĩ theo cách sau: mã nguồn Python có cú pháp rất quy củ (lặp lại nhiều từ khóa def, return, if) nên dễ nén (32% gzip). Khi dữ liệu NCA cũng có độ phức tạp tương đương (dải 30–40%), các mạch suy luận được tôi luyện trên NCA sẽ "khớp hình dạng" (match complexity profile) với loại cấu trúc mà mã nguồn yêu cầu. Ngược lại, nếu dùng NCA quá phức tạp (50%+), các mạch được tôi luyện cho các hiện tượng hỗn loạn và phi tuyến sẽ "lệch pha" với cấu trúc tuyến tính quy củ của mã nguồn.
+
+Đây là một đòn bẩy chưa từng có trong tiền huấn luyện mô hình ngôn ngữ: thay vì coi dữ liệu huấn luyện là cố định, chúng ta có thể chủ động điều chỉnh độ phức tạp của bộ sinh dữ liệu tổng hợp để khớp chính xác với tính chất tính toán của miền tác vụ mong muốn. Muốn mô hình giỏi viết code? Dùng NCA ở dải 30–40%. Muốn mô hình giỏi suy luận logic đa dạng? Dùng NCA ở dải 50%+.
+
+---
+
+### Nghịch lý Mở rộng Kích thước Bảng chữ cái
+
+Nhóm nghiên cứu kiểm tra ba kích thước bảng chữ cái trạng thái tế bào: <InlineMath formula="n \in \{2, 10, 15\}" /> (tương ứng với 2 màu, 10 màu, và 15 màu trên mỗi ô). Trực giác thông thường gợi ý rằng bảng chữ cái lớn hơn sẽ cho phép biểu đạt phong phú hơn, và do đó mang lại hiệu quả chuyển giao tốt hơn. Nhưng thực tế lại ngược lại hoàn toàn:
+
+<ConceptHierarchy
+  ariaLabel="Nghịch lý Quy mô Bảng chữ cái NCA"
+  root={{
+    title: 'Hành vi Mở rộng Bảng chữ cái (Alphabet Size Paradox)',
+    tone: 'violet',
+  }}
+  nodes={[
+    {
+      title: '1. Bảng chữ cái Lớn ($n = 10, 15$): Bão hòa Sớm',
+      detail: 'Khi tăng $n$, dữ liệu sinh ra tự nhiên khó nén và phức tạp hơn. Hiệu quả transfer đạt đỉnh ở ngân sách trung gian rồi plateau hoặc giảm theo xu hướng chữ U ngược.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Bảng chữ cái Tối giản ($n = 2$): Mở rộng Bền vững Nhất',
+      detail: 'NCA 2 màu tiếp tục cải thiện khi tăng token budget trong thí nghiệm OpenWebText, trong khi alphabet lớn hơn cho diminishing returns.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Paper đưa ra một cách giải thích thận trọng: alphabet lớn mở rộng không gian dynamics và tự nhiên đẩy dữ liệu sang vùng complexity cao hơn, nên cần cơ chế lấy mẫu có hướng dẫn tốt hơn. Ràng buộc <InlineMath formula="n=2" /> có thể tập trung mẫu vào các cấu trúc chuyển giao nhất quán hơn. Đây là giả thuyết từ xu hướng scaling, không phải chứng minh rằng neural transition rule chỉ có <InlineMath formula="2^9" /> khả năng hay mọi rule đều rơi vào Edge of Chaos.
+
+Ở bài học tiếp theo, chúng ta sẽ xem xét các tranh luận học thuật xoay quanh nghiên cứu này và xây dựng khung kiến trúc kết nối NCA với bài toán Continual Learning.
+
+</MdxPage>

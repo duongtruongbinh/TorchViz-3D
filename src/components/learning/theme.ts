@@ -1,7 +1,8 @@
-import type { LearningLessonStatus } from '../../core/learning/types';
+import type { LearningDomainReadinessState, LearningLessonStatus } from '../../core/learning/types';
 
 export type LearningLabTheme = 'dark' | 'light';
 export type LearningRailLessonTone = 'selected' | 'past' | 'future' | 'quiet';
+export type LearningSemanticTone = 'primary' | 'success' | 'warning' | 'danger' | 'accent' | 'neutral';
 
 export function cx(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(' ');
@@ -145,7 +146,52 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       ? '[--learning-lab-section-accent-bg:rgba(255,255,255,0.88)] [--learning-lab-section-accent-text:#172A43] shadow-none'
       : '[--learning-lab-section-accent-bg:#17304A] [--learning-lab-section-accent-text:#F2F6FA] shadow-none',
     heading: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
-    note: isLight ? 'bg-[#F1F8F4] text-[#263B5B]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
+    note: isLight ? 'bg-[#F1F8F4] text-[#334155]' : 'bg-[#A8D4FF]/10 text-[#F2F6FA]/78',
+  };
+
+  const semantic = {
+    primary: {
+      surface: isLight ? 'bg-[#EAF2FA]' : 'bg-[#17304A]',
+      border: isLight ? 'border-[#205089]/20' : 'border-[#A8D4FF]/25',
+      text: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
+      strongText: isLight ? 'text-[#0A3A6A]' : 'text-[#9ED4FF]',
+      indicator: isLight ? 'bg-[#205089]' : 'bg-[#7FB4E5]',
+    },
+    success: {
+      surface: isLight ? 'bg-emerald-50/70' : 'bg-emerald-950/40',
+      border: isLight ? 'border-emerald-300/80' : 'border-emerald-500/30',
+      text: isLight ? 'text-emerald-700' : 'text-emerald-300',
+      strongText: isLight ? 'text-emerald-800' : 'text-emerald-200',
+      indicator: isLight ? 'bg-[#2E8A5A]' : 'bg-[#6ED39B]',
+    },
+    warning: {
+      surface: isLight ? 'bg-[#FFF8D8]' : 'bg-[#F4C84A]/10',
+      border: isLight ? 'border-[#D5B43A]/35' : 'border-[#F4C84A]/24',
+      text: isLight ? 'text-[#334155]' : 'text-[#F2F6FA]/78',
+      strongText: isLight ? 'text-[#80520D]' : 'text-[#F0BE62]',
+      indicator: isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
+    },
+    danger: {
+      surface: isLight ? 'bg-rose-50/70' : 'bg-rose-950/40',
+      border: isLight ? 'border-rose-300/80' : 'border-rose-500/30',
+      text: isLight ? 'text-rose-700' : 'text-rose-300',
+      strongText: isLight ? 'text-rose-800' : 'text-rose-200',
+      indicator: isLight ? 'bg-[#C45151]' : 'bg-[#EE8C8C]',
+    },
+    accent: {
+      surface: isLight ? 'bg-[#FFF9EE]' : 'bg-[#E8AF3E]/10',
+      border: isLight ? 'border-[#D5962F]/30' : 'border-[#E8AF3E]/25',
+      text: isLight ? 'text-[#80520D]' : 'text-[#FFD071]',
+      strongText: isLight ? 'text-[#442800]' : 'text-[#FFD071]',
+      indicator: isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
+    },
+    neutral: {
+      surface: isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/42',
+      border: isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18',
+      text: isLight ? 'text-[#64748B]' : 'text-[#F2F6FA]/70',
+      strongText: isLight ? 'text-[#182A3C]' : 'text-[#D0DCE8]',
+      indicator: isLight ? 'bg-[#8092A6]' : 'bg-[#8EA1B5]',
+    },
   };
 
   return {
@@ -155,6 +201,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     button,
     rail,
     sectionAccent,
+    semantic,
     page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#172A43]' : 'bg-[#121A24] text-[#F2F6FA]',
     content: isLight ? 'learning-lab-surface-content bg-[#D3DEEA]' : 'bg-[#121A24]',
     sidebar: isLight
@@ -188,6 +235,21 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     iconButton: button.icon,
     plainIconButton: button.ghost,
     navItem: button.nav,
+    domainStatusPill: (state: LearningDomainReadinessState) => {
+      if (state === 'ready') {
+        return isLight
+          ? 'border border-[#2FBF71]/34 bg-[#2FBF71]/15 text-[#2E8A5A]'
+          : 'border border-[#2FBF71]/38 bg-[#2FBF71]/20 text-[#A6E8C1]';
+      }
+      if (state === 'updating') {
+        return isLight
+          ? 'border border-[#D5962F]/45 bg-[#FFF3D6] text-[#80520D]'
+          : 'border border-[#F4C84A]/40 bg-[#F4C84A]/20 text-[#FFD071]';
+      }
+      return isLight
+        ? 'border border-[#8A94A3]/24 bg-[#8A94A3]/10 text-[#5F6B7A]'
+        : 'border border-[#8A94A3]/26 bg-[#8A94A3]/12 text-[#B4BDC7]';
+    },
     statusPill: (isPlaceholder: boolean) => isPlaceholder
       ? isLight ? 'border border-[#8A94A3]/24 bg-[#8A94A3]/10 text-[#5F6B7A]' : 'border border-[#8A94A3]/26 bg-[#8A94A3]/12 text-[#B4BDC7]'
       : isLight ? 'border border-[#2FBF71]/34 bg-[#2FBF71]/15 text-[#2E8A5A]' : 'border border-[#2FBF71]/38 bg-[#2FBF71]/20 text-[#A6E8C1]',

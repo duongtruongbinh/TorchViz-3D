@@ -1,0 +1,111 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-testing',
+  locale: 'vi',
+  title: "Kiểm thử Code & Pipeline",
+  headings: [
+    'Kim tự tháp Kiểm thử trong Machine Learning',
+    'Kiểm thử Đơn vị (Unit Testing) với Pytest',
+    'Kiểm thử Tích hợp (Integration Testing)',
+    'Tự động hóa với Pytest Fixtures & Parametrize',
+  ],
+  keywords: ['MLOps', 'Pytest', 'Unit Testing', 'Integration Testing', 'Fixtures', 'Code Quality'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Kim tự tháp Kiểm thử trong Machine Learning
+
+Trong kỹ thuật phần mềm truyền thống, kiểm thử tập trung vào logic mã nguồn (Code). Trong ML Systems, kiểm thử phải bao gồm cả 3 trụ cột: **Code**, **Data** và **Model**.
+
+<CourseCards
+  ariaLabel="3 trụ cột kiểm thử trong hệ thống MLOps"
+  exampleLabel="Đối tượng kiểm tra"
+  takeawayLabel="Công cụ & Phương pháp"
+  items={[
+    {
+      title: 'Kiểm thử Code (Code Testing)',
+      example: 'Kiểm tra các hàm tiền xử lý văn bản, hàm tính loss, kích thước tensor và API endpoints.',
+      takeaway: 'Dùng Pytest, Unittest để bắt lỗi cú pháp, kiểu dữ liệu và logic toán học.',
+    },
+    {
+      title: 'Kiểm thử Dữ liệu (Data Testing)',
+      example: 'Kiểm tra schema bảng, giá trị null, phân bố nhãn và rò rỉ dữ liệu (Data Leakage).',
+      takeaway: 'Dùng Great Expectations, Pandera để chặn dữ liệu bẩn ngay từ cửa ngõ vào.',
+    },
+    {
+      title: 'Kiểm thử Mô hình (Model Testing)',
+      example: 'Kiểm tra tính bất biến (Invariance), tính định hướng (Directional) và ngưỡng hiệu năng tối thiểu.',
+      takeaway: 'Dùng Behavioral Testing (CheckList) để phát hiện bias và suy thoái chất lượng.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Kiểm thử Đơn vị (Unit Testing) với Pytest
+
+Kiểm thử đơn vị tập trung vào việc cô lập và kiểm tra từng hàm/hợp phần nhỏ độc lập:
+
+<ComparisonMatrix
+  ariaLabel="Các nhóm Unit Test phổ biến trong pipeline ML"
+  rowHeaderLabel="Hạng mục Kiểm thử"
+  columns={['Kịch bản kiểm tra', 'Mục đích bắt lỗi']}
+  rows={[
+    { label: 'Hàm Tiền xử lý (Cleaning)', values: ['Đưa vào văn bản chứa ký tự Unicode, URL, dấu câu lạ.', 'Đảm bảo hàm trả về chuỗi đã chuẩn hóa sạch sẽ, không ném ngoại lệ Crash.'] },
+    { label: 'Kích thước Tensor (Shapes)', values: ['Kiểm tra output của lớp nơ-ron: `(batch_size, num_classes)`.', 'Ngăn ngừa lỗi lệch chiều (Dimension Mismatch) trong PyTorch.'] },
+    { label: 'Bộ mã hóa nhãn (Label Encoder)', values: ['Encode nhãn mới và Decode ngược lại về chuỗi ban đầu.', 'Đảm bảo tính đối xứng 1-1, không bị gán nhầm id lớp.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiểm thử Tích hợp (Integration Testing)
+
+Kiểm thử tích hợp đảm bảo các khối riêng lẻ hoạt động ăn khớp với nhau trong toàn bộ luồng xử lý (End-to-End flow):
+
+<ConceptFlow
+  ariaLabel="Luồng kiểm thử tích hợp từ tiền xử lý đến suy luận"
+  items={[
+    { title: '1. Mock Mini Dataset', detail: 'Tạo tập dữ liệu mẫu cực nhỏ (10-20 dòng) để chạy thử nghiệm nhanh trong vài giây.' },
+    { title: '2. Pipeline Execution', detail: 'Chạy qua tiền xử lý -> nạp vào mô hình -> forward pass -> trích xuất kết quả dự đoán.' },
+    { title: '3. Assertion Check', detail: 'Khẳng định định dạng đầu ra khớp chuẩn JSON API (nhãn dự đoán, mảng xác suất probabilities).' },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Integration tests nên chạy với **tập dữ liệu thu nhỏ (mock/synthetic)** để toàn bộ test suite có thể hoàn thành trong dưới 1 phút trên CI/CD runner.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tự động hóa với Pytest Fixtures & Parametrize
+
+Để viết test ngắn gọn, có thể tái sử dụng và kiểm tra nhiều trường hợp biên (edge cases), Pytest cung cấp hai tính năng mạnh mẽ:
+
+<CourseCards
+  ariaLabel="Hai tính năng then chốt của Pytest trong MLOps"
+  exampleLabel="Cú pháp & Công dụng"
+  takeawayLabel="Lợi ích thực tế"
+  items={[
+    {
+      title: '@pytest.fixture',
+      example: 'Tạo đối tượng dùng chung (khởi tạo Tokenizer, nạp Model weights, tạo DataFrame mẫu) cho nhiều hàm test.',
+      takeaway: 'Tránh lặp lại code khởi tạo (DRY), tài nguyên chỉ khởi tạo 1 lần giúp test chạy cực nhanh.',
+    },
+    {
+      title: '@pytest.mark.parametrize',
+      example: 'Chạy cùng một hàm test với danh sách nhiều bộ đầu vào / đầu ra mong đợi khác nhau.',
+      takeaway: 'Kiểm tra toàn diện hàng chục trường hợp biên (chuỗi rỗng, tiếng lóng, ký tự emoji) chỉ với 1 hàm test duy nhất.',
+    },
+  ]}
+/>
+
+</MdxPage>

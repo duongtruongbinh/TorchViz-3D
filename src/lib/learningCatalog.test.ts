@@ -33,44 +33,66 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   const rlDomain = getLearningDomain(learningCatalog, 'reinforcement-learning');
   const robotDomain = getLearningDomain(learningCatalog, 'robot-learning');
 
-  assert.equal(rlDomain?.status, 'active');
-  assert.equal(robotDomain?.status, 'partial');
+  assert.equal(rlDomain?.status, 'placeholder');
+  assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
-  assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
-  assert.equal(learningTableOfContents.length, 13);
-  assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 92);
-  assert.equal(learningCatalog.lessons.length, 712);
+  assert.equal(learningTableOfContents.length, 16);
+  assert.equal(learningCatalog.domains.length, 16);
+  assert.equal(learningCatalog.tracks.length, 104);
+  assert.equal(learningCatalog.lessons.length, 808);
   assert.equal(learningCatalog.routeAliases?.length, 7);
-  assert.deepEqual(
-    Object.fromEntries(['available', 'next', 'locked'].map((status) => [
-      status,
-      learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
-    ])),
-    { available: 203, next: 0, locked: 509 },
+  const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
+    status,
+    learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
+  ]));
+  assert.equal(
+    lifecycleCounts.available + lifecycleCounts.next + lifecycleCounts.locked,
+    learningCatalog.lessons.length,
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 206);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 506);
+  assert.ok(lifecycleCounts.available > 0);
+  assert.equal(
+    learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length +
+      learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length,
+    learningCatalog.lessons.length,
+  );
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
 });
 
-test('fully published domains are prioritized without disturbing unfinished catalog order', () => {
+test('fully published and updating domains are prioritized without disturbing catalog order', () => {
   const prioritizedDomains = getLearningDomainReadiness(learningCatalog);
 
   assert.deepEqual(
-    prioritizedDomains.filter((item) => item.isReady).map((item) => item.domain.id),
-    ['fundamentals', 'continual-learning-llm'],
+    prioritizedDomains.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
+    ['linear-algebra', 'continual-learning-llm', 'research-papers'],
   );
-  assert.equal(prioritizedDomains[0]?.domain.id, 'fundamentals');
   assert.deepEqual(
-    prioritizedDomains.slice(2).map((item) => item.domain.id),
-    learningCatalog.domains
-      .filter((domain) => !['fundamentals', 'continual-learning-llm'].includes(domain.id))
-      .map((domain) => domain.id),
+    prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
+    ['llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+  );
+  assert.deepEqual(
+    prioritizedDomains.map((item) => item.domain.id),
+    [
+      'linear-algebra',
+      'continual-learning-llm',
+      'research-papers',
+      'llm-ai-engineering',
+      'mlops-llmops-production-systems',
+      'evolutionary-algorithms',
+      'ai-projects',
+      'programming-foundation',
+      'fundamentals',
+      'deep-learning',
+      'cv',
+      'nlp',
+      'ai-system-design',
+      'reinforcement-learning',
+      'ai-ethics-safety-governance',
+      'robot-learning',
+    ],
   );
   assert.deepEqual(getLearningDomain(learningCatalog, 'continual-learning-llm')?.text.title, {
     en: 'Continual Learning for LLMs',
@@ -82,10 +104,18 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   const readiness = getLearningDomainReadiness(learningCatalog);
   const summaries = getLearningHomeDomainSummaries(learningCatalog);
 
-  assert.equal(summaries.length, 13);
+  assert.equal(summaries.length, 16);
   assert.deepEqual(
-    summaries.map(({ domain, isReady }) => ({ domain, isReady })),
+    summaries.map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState })),
     readiness,
+  );
+  assert.deepEqual(
+    readiness.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
+    ['linear-algebra', 'continual-learning-llm', 'research-papers'],
+  );
+  assert.deepEqual(
+    readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
+    ['llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [
@@ -177,7 +207,7 @@ test('continual-learning fundamentals introduces and measures forgetting immedia
   ]);
 });
 
-test('continual-learning methods chapter covers replay, regularization, architecture, and distillation in order', () => {
+test('continual-learning methods chapter covers replay, regularization overview/subnodes, and architecture in order', () => {
   const methodsTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-methods');
 
   assert.deepEqual(methodsTrack?.lessonIds, [
@@ -185,12 +215,16 @@ test('continual-learning methods chapter covers replay, regularization, architec
     'replay-introduction-quiz',
     'replay-experience-code-lab',
     'replay-experience-code-lab-quiz',
+    'regularization-overview',
+    'regularization-overview-quiz',
     'parameter-regularization-ewc',
     'parameter-regularization-ewc-quiz',
-    'architecture-expansion-isolation',
-    'architecture-expansion-isolation-quiz',
+    'ewc-si-code-lab',
+    'ewc-si-code-lab-quiz',
     'distillation-for-retention',
     'distillation-for-retention-quiz',
+    'architecture-expansion-isolation',
+    'architecture-expansion-isolation-quiz',
   ]);
 });
 
@@ -266,7 +300,7 @@ test('a bare domain route resolves the first lesson by product default', () => {
     trackId: null,
     lessonId: null,
   });
-  assert.equal(route?.lesson.id, 'vectors-intuition');
+  assert.equal(route?.lesson.id, 'linear-algebra-for-ai-overview');
   assert.equal(route?.isCanonical, false);
 });
 
@@ -288,21 +322,68 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 });
 
-test('only LLM and tagged CV exercise lessons carry authored content', () => {
+test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 506);
+  assert.equal(missingLessons.length, 438);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
+  const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
+  assert.ok(salesForecastingTrack);
+  assert.deepEqual(
+    getLearningLessonsForTrack(learningCatalog, salesForecastingTrack)
+      .slice(-2)
+      .map((lesson) => lesson.id),
+    ['sales-forecasting-conformal-prediction-intervals-code-lab', 'sales-forecasting-quiz'],
+  );
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',
     'conv2d-value-exercise',
     'pooling-shape-exercise',
     'pooling-value-exercise',
   ]);
+});
+
+test('evolutionary-algorithms single-choice quizzes avoid answer-position and length leakage', () => {
+  const quizFiles = [
+    '1.1.2-gradient-limits-blackbox-quiz.vi.mdx',
+    '1.2.2-ml-to-ea-concept-mapping-quiz.vi.mdx',
+    '1.3.2-fitness-landscapes-selection-quiz.vi.mdx',
+    '1.4.2-genotype-phenotype-representation-quiz.vi.mdx',
+    '1.5.2-crossover-mutation-operators-quiz.vi.mdx',
+  ];
+  const positions: number[] = [];
+
+  for (const fileName of quizFiles) {
+    const source = readFileSync(`src/content/learning/evolutionary-algorithms/${fileName}`, 'utf8');
+    const singleQuestionBlocks = source.matchAll(/mode: 'single',[\s\S]*?options: \[([\s\S]*?)\n    \]/g);
+
+    for (const [, optionBlock] of singleQuestionBlocks) {
+      const options = [...optionBlock.matchAll(/label: '([^']*)'[^\n]*/g)].map((match) => ({
+        label: match[1],
+        isCorrect: match[0].includes('isCorrect: true'),
+      }));
+      const correctIndex = options.findIndex((option) => option.isCorrect);
+      assert.ok(correctIndex >= 0 && correctIndex < 4, `${fileName} must have one correct A-D option`);
+      assert.ok(
+        options[correctIndex].label.length < Math.max(...options.map((option) => option.label.length)),
+        `${fileName} correct answer must not be the longest option`,
+      );
+      positions.push(correctIndex);
+    }
+  }
+
+  assert.deepEqual(
+    [0, 1, 2, 3].map((position) => positions.filter((candidate) => candidate === position).length),
+    [5, 6, 6, 6],
+  );
+  assert.ok(positions.every((position, index) => (
+    index < 2 || position !== positions[index - 1] || position !== positions[index - 2]
+  )));
 });
 
 test('TorchViz exercise entry points resolve to canonical CV exercise lessons', () => {

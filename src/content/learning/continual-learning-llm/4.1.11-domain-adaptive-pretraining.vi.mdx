@@ -13,7 +13,7 @@ export const lessonMetadata = {
 
 ## Bối cảnh DAP
 
-Một tổ chức thường có nhiều tài liệu chuyên ngành—hồ sơ pháp lý, bài báo y khoa, báo cáo tài chính hoặc source code—nhưng chỉ một phần nhỏ đã được gán nhãn cho downstream task. **Domain-Adaptive Pre-training (DAP)** dùng chính corpus không gán nhãn đó để thu hẹp khoảng cách giữa base model tổng quát và model chuyên biệt.
+Một tổ chức thường có nhiều tài liệu chuyên ngành—hồ sơ pháp lý, bài báo y khoa, báo cáo tài chính hoặc source code—nhưng chỉ một phần nhỏ đã được gán nhãn cho downstream task. **Domain-Adaptive Pre-training (DAP)** dùng chính corpus không gán nhãn đó để thu hẹp khoảng cách giữa base model tổng quát và model chuyên biệt <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-01-shi2024continualSurvey" />.
 
 DAP tiếp tục **pre-training objective** trên văn bản của domain trước khi downstream fine-tuning. Đây không phải supervised fine-tuning đổi tên: mục tiêu trước mắt là đưa vocabulary, phong cách và tri thức chuyên ngành vào representation của model.
 
@@ -43,7 +43,7 @@ Các paper dùng nhiều tên cho cùng pattern: lấy một model đã pre-trai
 - **Knowledge enhancement pre-training:** nhấn mạnh việc tăng knowledge chuyên ngành.
 - **Knowledge injection training:** nhấn mạnh việc đưa một nguồn knowledge mới vào model.
 
-Survey thống nhất gọi nhóm quy trình này là **Domain-Adaptive Pre-training (DAP)** để so sánh các paper nhất quán. Tên gọi có thể khác, nhưng hai dấu hiệu cốt lõi vẫn là **corpus đặc thù domain** và **pre-training objective**.
+Survey thống nhất gọi nhóm quy trình này là **Domain-Adaptive Pre-training (DAP)** để so sánh các paper nhất quán <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-02-shi2024continualSurvey" />. Tên gọi có thể khác, nhưng hai dấu hiệu cốt lõi vẫn là **corpus đặc thù domain** và **pre-training objective**.
 
 </MdxPage>
 
@@ -53,7 +53,7 @@ Survey thống nhất gọi nhóm quy trình này là **Domain-Adaptive Pre-trai
 
 ### Don’t Stop Pretraining — Gururangan et al.
 
-Paper nền tảng về **Domain-Adaptive Pretraining (DAPT)** tiếp tục pre-train language model trên corpus của domain rồi mới fine-tune cho downstream task. Paper khảo sát bốn domain—**BioMed, Computer Science, News và Reviews**—trên tám classification task, trong cả high-resource và low-resource settings. <Cite paper="gururangan2020dont" evidence="dap-pipeline-01-gururangan2020dont" />
+Paper nền tảng về **Domain-Adaptive Pretraining (DAPT)** tiếp tục pre-train language model trên corpus của domain rồi mới fine-tune cho downstream task. Paper khảo sát bốn domain—**BioMed, Computer Science, News và Reviews**—trên tám classification task, trong cả high-resource và low-resource settings. <Cite paper="gururangan2020dont" evidence="dap-pipeline-03-gururangan2020dont" />
 
 <PaperTradeoff
   advantages={[
@@ -74,7 +74,7 @@ Vì vậy, bài học an toàn không phải "DAP luôn cải thiện mọi task
 
 ## Bản đồ 41 nghiên cứu
 
-Survey tổng hợp **41 nghiên cứu DAP cho LLM** <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-02-shi2024continualSurvey" />. Mỗi study được đọc theo ba trục:
+Survey tổng hợp **41 nghiên cứu DAP cho LLM** <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-04-shi2024continualSurvey" />. Mỗi study được đọc theo ba trục:
 
 <CourseCards
   ariaLabel="Ba trục phân tích các nghiên cứu Domain-Adaptive Pre-training"
@@ -100,6 +100,6 @@ Survey tổng hợp **41 nghiên cứu DAP cho LLM** <Cite paper="shi2024continu
   ]}
 />
 
-Trang tiếp theo dùng bản đồ DAP do survey tổng hợp <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-03-shi2024continualSurvey" /> để rút ra ba quan sát về số stage, mức độ áp dụng CL và độ đa dạng kỹ thuật. Trang `DAP theo từng domain` sau đó mới đi sâu vào Legal, Medical, Financial, Scientific và Code.
+Trang tiếp theo dùng bản đồ DAP do survey tổng hợp <Cite paper="shi2024continualSurvey" evidence="dap-pipeline-05-shi2024continualSurvey" /> để rút ra ba quan sát về số stage, mức độ áp dụng CL và độ đa dạng kỹ thuật. Trang `DAP theo từng domain` sau đó mới đi sâu vào Legal, Medical, Financial, Scientific và Code.
 
 </MdxPage>

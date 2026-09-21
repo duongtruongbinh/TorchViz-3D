@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'pca-eigenvalues-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Centering', 'Covariance Eigenvectors', 'Explained Variance', 'Projection'],
+  keywords: ['PCA', 'centering', 'covariance', 'eigenvalues', 'projection', 'quiz'],
+  conceptIds: ['pca-centering', 'principal-components-eigenvectors', 'pca-explained-variance', 'pca-projection'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="pca-eigenvalues-quiz" questions={[
+  {
+    id: 'pca-centering',
+    title: 'Centering',
+    prompt: 'Bước centering trong PCA làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Chia mọi sample cho determinant.' },
+      { id: 'b', label: 'Trừ mean của từng feature khỏi data.', isCorrect: true },
+      { id: 'c', label: 'Đưa mọi giá trị về 0.' },
+      { id: 'd', label: 'Sắp xếp các hàng theo norm.' },
+    ],
+    success: 'Đúng. PCA phân tích variance quanh mean.',
+    error: 'Centering đưa feature means về 0.',
+  },
+  {
+    id: 'principal-components-eigenvectors',
+    title: 'Covariance Eigenvectors',
+    prompt: 'Eigenvectors của covariance matrix trong PCA biểu diễn gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Class labels.' },
+      { id: 'b', label: 'Residual của Gaussian elimination.' },
+      { id: 'c', label: 'Principal directions.', isCorrect: true },
+      { id: 'd', label: 'Các sample gốc theo đúng thứ tự.' },
+    ],
+    success: 'Đúng. Chúng là các axes mới của PCA.',
+    error: 'Covariance matrix mô tả variance theo các directions.',
+  },
+  {
+    id: 'pca-explained-variance',
+    title: 'Explained Variance',
+    prompt: 'Trong covariance eigendecomposition, eigenvalue lớn hơn tương ứng với điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Vector ngắn hơn bắt buộc.' },
+      { id: 'b', label: 'Feature index lớn hơn.' },
+      { id: 'c', label: 'Sample count lớn hơn.' },
+      { id: 'd', label: 'Variance lớn hơn theo eigenvector tương ứng.', isCorrect: true },
+    ],
+    success: 'Đúng. PCA sắp principal directions theo eigenvalues giảm dần.',
+    error: 'Eigenvalue ở đây đo variance dọc principal direction.',
+  },
+  {
+    id: 'pca-projection',
+    title: 'Projection',
+    prompt: 'Giữ k principal directions trong Qk. Reduced representation của centered data Xc là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Z = Xc Qk', isCorrect: true },
+      { id: 'b', label: 'Z = Qk Xc luôn luôn' },
+      { id: 'c', label: 'Z = Xc + Qk' },
+      { id: 'd', label: 'Z = det(Xc)' },
+    ],
+    success: 'Đúng. Mỗi sample được lấy coordinates theo các principal directions.',
+    error: 'Các principal directions là columns của Qk.',
+  },
+]} />

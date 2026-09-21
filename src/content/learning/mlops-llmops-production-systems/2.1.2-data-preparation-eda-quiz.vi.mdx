@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-preparation-eda-quiz',
+  locale: 'vi',
+  title: "Quiz: Thu thập & EDA",
+  headings: [
+    'Triết lý Data-Centric AI',
+    'Nguy cơ của việc không khử trùng lặp',
+    'Đánh giá trên tập dữ liệu mất cân bằng',
+    'Xử lý nhãn mâu thuẫn (Label Noise)',
+  ],
+  keywords: ['MLOps', 'Quiz', 'EDA', 'Data-Centric', 'Imbalance', 'Deduplication'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="data-preparation-eda-quiz" questions={[
+  {
+    id: 'data-centric-ai-concept',
+    title: 'Triết lý Data-Centric AI',
+    prompt: 'Điểm khác biệt cốt lõi của phương pháp Data-Centric AI so với Model-Centric AI truyền thống là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tập trung nâng cao chất lượng, tính nhất quán và độ bao phủ của dữ liệu trong khi giữ mô hình ổn định.', isCorrect: true },
+      { id: 'opt2', label: 'Tăng gấp đôi số lượng tham số của mô hình sau mỗi chu kỳ huấn luyện.' },
+      { id: 'opt3', label: 'Không cần làm sạch dữ liệu vì mô hình Deep Learning tự động sửa mọi lỗi sai.' },
+      { id: 'opt4', label: 'Bỏ qua hoàn toàn bước đánh giá trên tập kiểm thử.' },
+    ],
+    success: 'Chính xác! Data-Centric AI tập trung vào việc làm sạch và nâng cao chất lượng dữ liệu để cải thiện hiệu năng một cách bền vững.',
+    error: 'Chưa chính xác. Data-Centric AI coi dữ liệu là trung tâm cải tiến thay vì liên tục thay đổi kiến trúc mô hình.',
+  },
+  {
+    id: 'data-leakage-deduplication',
+    title: 'Nguy cơ của việc không khử trùng lặp',
+    prompt: 'Nếu không thực hiện khử trùng lặp (Deduplication) trước khi chia tập Train / Test, rủi ro lớn nhất xảy ra là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tốc độ huấn luyện trên GPU bị giảm xuống 0.' },
+      { id: 'opt2', label: 'Hiện tượng rò rỉ dữ liệu (Data Leakage), khiến mô hình đạt điểm test cao ảo do đã học thuộc lòng mẫu đó trong tập train.', isCorrect: true },
+      { id: 'opt3', label: 'Không thể xuất file ra định dạng CSV.' },
+      { id: 'opt4', label: 'Mô hình sẽ tự động chuyển từ bài toán phân loại sang hồi quy.' },
+    ],
+    success: 'Đúng! Khi mẫu trùng lặp xuất hiện ở cả train và test, model sẽ nhớ vẹt và cho kết quả kiểm thử cao hơn thực tế rất nhiều.',
+    error: 'Hãy cẩn thận: dữ liệu trùng lặp giữa train và test gây ra hiện tượng rò rỉ dữ liệu (Data Leakage).',
+  },
+  {
+    id: 'class-imbalance-metrics',
+    title: 'Đánh giá trên tập dữ liệu mất cân bằng',
+    prompt: 'Khi tập dữ liệu phân loại có 98% mẫu thuộc lớp A và chỉ 2% mẫu thuộc lớp B, tại sao không nên dùng Accuracy làm metric chính?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì Accuracy không thể tính toán được bằng thư viện Scikit-learn.' },
+      { id: 'opt2', label: 'Vì một mô hình ngây thơ luôn đoán lớp A sẽ đạt ngay 98% Accuracy nhưng hoàn toàn không học được lớp B.', isCorrect: true },
+      { id: 'opt3', label: 'Vì Accuracy chỉ dùng cho bài toán hồi quy (Regression).' },
+      { id: 'opt4', label: 'Vì Accuracy làm tăng chi phí tính toán GPU.' },
+    ],
+    success: 'Chính xác! Với dữ liệu mất cân bằng, chỉ số Macro F1-score, Precision/Recall hoặc PR-AUC phản ánh đúng khả năng nhận diện lớp thiểu số hơn.',
+    error: 'Chưa đúng. Accuracy bị chi phối hoàn toàn bởi lớp đa số khi dữ liệu bị mất cân bằng.',
+  },
+  {
+    id: 'label-noise-handling',
+    title: 'Xử lý nhãn mâu thuẫn (Label Noise)',
+    prompt: 'Khi phát hiện hai kỹ sư gán nhãn khác nhau cho cùng một nội dung văn bản, giải pháp tốt nhất theo MLOps là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Xây dựng tài liệu hướng dẫn gán nhãn rõ ràng (Labeling Guidelines) và thực hiện biểu quyết đa số (Consensus / Adjudication).', isCorrect: true },
+      { id: 'opt2', label: 'Giữ nguyên cả hai nhãn mâu thuẫn để mô hình tự đoán ngẫu nhiên.' },
+      { id: 'opt3', label: 'Xóa toàn bộ tập dữ liệu và hủy bỏ dự án.' },
+      { id: 'opt4', label: 'Nhân đôi số epoch huấn luyện lên 1000.' },
+    ],
+    success: 'Đúng! Cần có tiêu chuẩn gán nhãn rõ ràng (Labeling Guidelines) và quy trình xử lý mâu thuẫn (Adjudication) để đảm bảo chất lượng dữ liệu.',
+    error: 'Chưa chính xác. Nhãn mâu thuẫn cần được chuẩn hóa thông qua quy chuẩn gán nhãn và biểu quyết nhất quán.',
+  },
+]} />

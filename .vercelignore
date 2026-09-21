@@ -1,0 +1,4 @@
+# Exclude large binary image assets from Vercel deployment.
+# These assets are served via Cloudflare R2 CDN (VITE_ASSETS_CDN_URL) in production.
+# The local copies remain in the repo only for offline dev and local fallback.
+src/assets/learning/

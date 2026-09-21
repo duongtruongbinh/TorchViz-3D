@@ -1,4 +1,5 @@
-import React, { useEffect, useId, useMemo, useState } from 'react';
+import type React from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, CircleX, Lightbulb, X } from 'lucide-react';
 import type { LayoutNode } from '../../lib/irTypes';

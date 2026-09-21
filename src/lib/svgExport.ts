@@ -375,7 +375,9 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
       to25D(box.minX, box.maxY, box.minZ, S), to25D(box.maxX, box.maxY, box.minZ, S),
       to25D(box.minX, box.minY, box.maxZ, S), to25D(box.maxX, box.minY, box.maxZ, S),
       to25D(box.minX, box.maxY, box.maxZ, S), to25D(box.maxX, box.maxY, box.maxZ, S),
-    ].forEach(p => updateBounds(p.x, p.y));
+    ].forEach((p) => {
+      updateBounds(p.x, p.y);
+    });
 
     if (n.is_container) {
       const p = to25D(n.x, box.minY, box.maxZ + box.depth + 2, S);

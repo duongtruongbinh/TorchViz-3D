@@ -1,0 +1,49 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'regularization-overview-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Objective', 'Trade-off và storage', 'Hai hướng'],
+  keywords: ['Quiz', 'Regularization', 'Weight Regularization', 'Function Regularization'],
+  conceptIds: ['regularization-family-objective', 'regularization-storage-tradeoff', 'regularization-space-split'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="regularization-overview-quiz" questions={[
+  {
+    id: 'regularization-family-objective', title: 'Objective', mode: 'single',
+    prompt: 'Regularization-based approach thêm gì vào việc học Task B?',
+    options: [
+      { id: 'a', label: 'Một retention loss có trọng số bên cạnh loss của task mới.', isCorrect: true },
+      { id: 'b', label: 'Toàn bộ raw data Task A vào mọi batch của Task B.' },
+      { id: 'c', label: 'Một module mới tách riêng cho từng sample của Task B.' },
+      { id: 'd', label: 'Một task ID bắt buộc để chọn output head.' },
+    ],
+    success: 'Đúng. Approach này đặt ràng buộc retention trong objective của update mới.',
+    error: 'Phân biệt regularization với replay raw data và architecture expansion.',
+  },
+  {
+    id: 'regularization-storage-tradeoff', title: 'Trade-off và storage', mode: 'single',
+    prompt: 'Kết luận nào chính xác về regularization?',
+    options: [
+      { id: 'a', label: 'Không replay raw data nên chắc chắn không cần lưu bất cứ thứ gì.' },
+      { id: 'b', label: 'Tăng $\lambda$ luôn giữ mọi capability cũ mà không ảnh hưởng học task mới.' },
+      { id: 'c', label: 'Loss retention thấp luôn chứng minh behavior cũ đúng trên mọi input.' },
+      { id: 'd', label: 'Có thể tránh raw-data replay nhưng vẫn cần checkpoint hoặc statistics; retention mạnh cũng có thể giảm plasticity.', isCorrect: true },
+    ],
+    success: 'Đúng. Regularization có ranh giới storage và stability–plasticity riêng.',
+    error: 'Đừng đồng nhất không replay raw data với zero storage cost hoặc zero forgetting.',
+  },
+  {
+    id: 'regularization-space-split', title: 'Hai hướng', mode: 'single',
+    prompt: 'Điểm khác biệt cốt lõi giữa Weight và Function regularization là gì?',
+    options: [
+      { id: 'a', label: 'Weight: dùng replay buffer; Function: mở rộng kiến trúc mạng.' },
+      { id: 'b', label: 'Weight: ràng buộc tham số quan trọng; Function: ràng buộc output/hành vi với teacher.', isCorrect: true },
+      { id: 'c', label: 'Weight: dùng task ID; Function: không cần dữ liệu đầu vào.' },
+      { id: 'd', label: 'Weight: đóng băng toàn bộ model; Function: huấn luyện lại từ đầu.' },
+    ],
+    success: 'Đúng. Hai hướng khác nhau ở việc đặt ràng buộc trong parameter space hay function space.',
+    error: 'Hãy phân biệt giữa ràng buộc tham số (parameter) và ràng buộc hành vi đầu ra (function).',
+  },
+]} />
