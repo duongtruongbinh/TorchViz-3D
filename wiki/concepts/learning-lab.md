@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-09-20
+updated: 2026-09-22
 ---
 
 # Learning Lab
@@ -19,13 +19,15 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 16 domains, 103 tracks, and 777 lesson nodes. Three hundred
-nine Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 16 domains, 104 tracks, and 808 lesson nodes. Three hundred
+seventy Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
-eight in `ai-projects`, and four tagged exercise lessons in `cv`. The other 468 nodes are navigable placeholders and render one shared localized
+eight in `ai-projects`, sixty-one in `fundamentals`, and four tagged exercise
+lessons in `cv`. The other 438 nodes are navigable placeholders and render one
+shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
@@ -449,7 +451,7 @@ currently unused `kandel2000principles` book record because the cited 2000
 edition has no stable open primary landing page in the survey metadata.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 429
+published MDX. The shared placeholder body is not indexed, preventing 438
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -482,7 +484,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/content/learning/continual-learning-llm/papers.generated.ts` | Generated pinned-survey bibliography and complete section citation sets; do not hand-edit. |
 | `src/content/learning/continual-learning-llm/citationEvidence.ts` | Hand-reviewed occurrence-level excerpts and verification targets for inline citations. |
 | `src/core/learning/citationEvidence.ts` | React-free shared citation-evidence contract and target labels. |
-| `src/content/learning/index.ts` | Concrete catalog assembly over the fourteen domain TOCs. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the sixteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |

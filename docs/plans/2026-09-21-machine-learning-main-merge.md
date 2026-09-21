@@ -2,7 +2,7 @@
 title: Finish Machine Learning main merge and test verification
 status: done
 created: 2026-09-21
-updated: 2026-09-21T23:48:05.8541664+07:00
+updated: 2026-09-22T00:07:45.3610817+07:00
 author: Codex
 task: "Continue the interrupted main merge, verify tests, restore Workspace changes, and prepare the Machine Learning branch for user push"
 supersedes: []
@@ -36,4 +36,11 @@ Lesson authoring, UI redesign, unrelated refactors, remote publishing.
 - 2026-09-21: npm run verify passed (typecheck, 162/162 tests, production build). The Codex process PATH resolves python to a Microsoft Store alias; verification used the existing PYTHON override with the bundled Python 3.12.14 executable. No dependency or lockfile repair was needed.
 
 - 2026-09-21: Completed the local merge and applied workspace-responsive-wip-before-ml-main-merge without conflicts. All three Workspace files remain unstaged and the stash is retained as backup. Header and TorchVizWorkspace match the stash exactly; CSS merged its 60 added lines onto main. Re-ran npm run verify after restoration: typecheck, 162/162 tests, and production build passed. origin/main is an ancestor of HEAD; pushing remains with the user.
+
+
+# CI follow-up: catalog statistics
+- 2026-09-22: Continue the authorized integration repair after the user reported the failed Catalog stats drift check. Regenerate wiki/reference/catalog-stats.md, reconcile the existing Learning Lab prose with the typed catalog, run check:catalog-stats and diff checks, then commit only documentation/plan changes. Preserve Workspace WIP and leave push to the user. No runtime or lesson changes required.
+
+
+- 2026-09-22: Regenerated the per-domain statistics and synchronized Learning Lab headline totals, authored fundamentals coverage, placeholder search count, and domain file-map count. npm run check:catalog-stats passed; git diff --check passed. This is documentation-only; runtime verification from the integration remains applicable. CI also has lint and a secret-configured R2 CDN check outside npm run verify; no claim is made that remote CI has rerun.
 

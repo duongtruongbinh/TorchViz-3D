@@ -254,3 +254,5 @@ no `type` frontmatter required.)
   tests and the production build pass.
 
 - **2026-09-21 — Machine Learning branch main integration.** Retained current main test logic while reconciling Machine Learning catalog counts and Windows NCA path filtering. Typecheck, 162 tests, and production build passed using an explicit PYTHON executable in the Codex environment. See [merge continuation plan](../docs/plans/2026-09-21-machine-learning-main-merge.md).
+
+- **2026-09-22 — Machine Learning catalog statistics synchronized.** Regenerated the catalog statistics and corrected Learning Lab prose to 16 domains, 104 tracks, 808 lessons, 370 published lessons, and 438 placeholders. The standalone CI catalog drift check now passes locally.
