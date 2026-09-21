@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'dbscan-clustering',
+  locale: 'vi',
+  title: 'DBSCAN Clustering',
+  headings: [
+    'Clustering theo mật độ',
+    'Core point, border point và noise',
+    'eps và min_samples',
+    'Khi nào DBSCAN phù hợp',
+  ],
+  keywords: ['Machine Learning', 'Clustering', 'DBSCAN', 'Density-Based Clustering', 'Outlier Detection', 'eps', 'min_samples'],
+  conceptIds: ['dbscan', 'density-based-clustering', 'core-border-noise-points', 'eps-min-samples', 'dbscan-limitations'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Clustering theo mật độ
+
+**DBSCAN** (*Density-Based Spatial Clustering of Applications with Noise*) tìm các vùng dữ liệu có mật độ cao. Thay vì ép mọi điểm vào một trong K cụm như K-Means, DBSCAN có thể để những điểm thưa thớt nằm ngoài mọi cụm và đánh dấu chúng là noise.
+
+Trực giác là một cụm là vùng có nhiều điểm ở gần nhau và có thể nối với nhau qua các vùng lân cận dày đặc. Cách nhìn này cho phép DBSCAN nhận diện các cụm có hình cong, hình vành khăn hoặc hình dạng bất quy tắc mà K-Means thường tách không tốt.
+
+DBSCAN không yêu cầu biết số cụm trước khi train. Số cụm được hình thành từ cấu trúc mật độ mà thuật toán tìm thấy trong dữ liệu.
+
+<LessonNote>
+  Noise không nhất thiết là dữ liệu sai. Nó có thể là outlier cần điều tra, một nhóm hiếm hoặc tín hiệu về một cấu trúc mà tham số DBSCAN hiện tại chưa nhận ra.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Core point, border point và noise
+
+DBSCAN phân loại điểm theo mật độ lân cận. Một **core point** có đủ số điểm lân cận trong một bán kính đã chọn. Từ core point, thuật toán mở rộng cụm sang các điểm gần nó, rồi tiếp tục mở rộng qua các core point lân cận.
+
+Một **border point** nằm gần một core point nhưng bản thân nó không có đủ hàng xóm để trở thành core. Nó vẫn thuộc cụm vì kết nối với vùng dày đặc. Điểm không kết nối được với bất kỳ vùng dày đặc nào được gán là noise, thường có nhãn `-1` trong nhiều thư viện.
+
+```text
+Core point:   đủ hàng xóm trong vùng lân cận
+Border point: gần core point nhưng không đủ hàng xóm riêng
+Noise:        không thuộc vùng mật độ cao nào
+```
+
+Nhờ cơ chế kết nối theo mật độ, DBSCAN không cần centroid và không giả định cụm phải có dạng tròn. Tuy nhiên, kết quả phụ thuộc rất mạnh vào cách định nghĩa “gần” và “đủ đông”.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## eps và min_samples
+
+Hai hyperparameter quan trọng nhất là `eps` và `min_samples`. `eps` là bán kính lân cận: các điểm trong khoảng cách này được xem là hàng xóm. `min_samples` là số điểm tối thiểu trong lân cận để một điểm trở thành core point.
+
+`eps` quá nhỏ làm nhiều điểm không đủ hàng xóm và bị gán noise. `eps` quá lớn có thể nối các cụm khác nhau thành một cụm khổng lồ. `min_samples` thấp làm thuật toán dễ coi nhiễu là cụm; giá trị cao hơn yêu cầu vùng mật độ mạnh hơn mới tạo cụm.
+
+Vì DBSCAN dựa trên khoảng cách, feature scaling vẫn rất quan trọng. Một k-distance plot có thể hỗ trợ chọn eps, nhưng kết quả cần được kiểm tra cùng hiểu biết domain và trực quan hóa phù hợp. Khi dữ liệu có nhiều chiều, khái niệm khoảng cách trở nên kém phân biệt hơn, khiến việc chọn eps khó hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Khi nào DBSCAN phù hợp
+
+DBSCAN phù hợp khi bạn không biết trước số cụm, muốn phát hiện outlier hoặc nghi ngờ cụm có hình dạng phức tạp. Nó thường hữu ích với dữ liệu không gian, tọa độ địa lý hoặc embedding đã được chuẩn bị trong không gian distance có ý nghĩa.
+
+Hạn chế lớn là DBSCAN khó xử lý các cụm có mật độ rất khác nhau. Một eps đủ lớn để nhận ra cụm thưa có thể gộp nhầm cụm dày; một eps phù hợp với cụm dày có thể bỏ qua cụm thưa. Những biến thể như HDBSCAN được thiết kế để xử lý tốt hơn một số tình huống mật độ thay đổi.
+
+Không có nhãn thật, nên đánh giá clustering cần nhiều góc nhìn: tỷ lệ noise, kích thước cụm, độ ổn định khi thay đổi tham số, silhouette khi phù hợp và quan trọng nhất là ý nghĩa domain. Một biểu đồ có cụm đẹp là gợi ý tốt, nhưng không tự động chứng minh kết quả có giá trị sử dụng.
+
+</MdxPage>

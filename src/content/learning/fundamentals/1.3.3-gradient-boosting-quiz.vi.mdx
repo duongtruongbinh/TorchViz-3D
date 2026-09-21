@@ -1,0 +1,118 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "gradient-boosting-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Tính tuần tự của Gradient Boosting",
+    "Một vòng Gradient Boosting",
+    "Tuning Gradient Boosting"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "gradient-boosting",
+    "sequential-ensemble",
+    "residual-negative-gradient",
+    "shrinkage-learning-rate",
+    "boosting-regularization"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="gradient-boosting-quiz" questions={[
+  {
+    "id": "boosting-sequence",
+    "title": "Tính tuần tự của Gradient Boosting",
+    "prompt": "Mỗi cây mới trong Gradient Boosting chủ yếu cố gắng học gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Một bản sao y hệt cây đầu tiên.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Chỉ feature có tên đầu tiên.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Test set cuối cùng.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Phần lỗi còn lại của ensemble hiện tại.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Mỗi bước thêm một mô hình nhỏ để cải thiện dự đoán hiện có.",
+    "error": "Boosting không train các cây độc lập; cây sau tập trung vào lỗi của các cây trước."
+  },
+  {
+    "id": "boosting-update-flow",
+    "title": "Một vòng Gradient Boosting",
+    "prompt": "Sắp xếp các bước của một vòng boosting.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "add",
+        "label": "Cộng cây mới đã nhân learning rate vào model hiện tại."
+      },
+      {
+        "id": "residual",
+        "label": "Tính residual hoặc negative gradient của model hiện tại."
+      },
+      {
+        "id": "start",
+        "label": "Bắt đầu bằng dự đoán baseline hoặc ensemble hiện có."
+      },
+      {
+        "id": "fit-tree",
+        "label": "Fit một cây nhỏ để dự đoán residual."
+      }
+    ],
+    "correctOrder": [
+      "start",
+      "residual",
+      "fit-tree",
+      "add"
+    ],
+    "success": "Đúng. Cây mới sửa dần lỗi còn lại thay vì xây dựng độc lập.",
+    "error": "Hãy bắt đầu từ model hiện có, đo lỗi, fit cây sửa lỗi rồi thêm nó với learning rate."
+  },
+  {
+    "id": "boosting-hyperparameters",
+    "title": "Tuning Gradient Boosting",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Learning rate nhỏ thường cần nhiều cây hơn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Độ sâu cây và số cây đều có thể ảnh hưởng overfitting.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Các cây trong boosting luôn hoàn toàn độc lập như bagging.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Validation giúp chọn cân bằng giữa learning rate, số cây và độ sâu.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Boosting mạnh nhưng nhạy với nhiều hyperparameter cần được chọn cẩn thận.",
+    "error": "Các cây boosting phụ thuộc vào model trước đó, khác với các cây bagging độc lập."
+  }
+]} />

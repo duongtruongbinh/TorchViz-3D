@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "random-forests-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Ý tưởng Random Forest",
+    "Cách tổng hợp dự đoán",
+    "Nguồn đa dạng của Random Forest"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "random-forest",
+    "bagging-bootstrap",
+    "random-feature-selection",
+    "ensemble-aggregation",
+    "out-of-bag-evaluation"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="random-forests-quiz" questions={[
+  {
+    "id": "forest-ensemble",
+    "title": "Ý tưởng Random Forest",
+    "prompt": "Random Forest giảm variance chủ yếu bằng cách nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Dùng duy nhất một cây rất sâu.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Xóa ngẫu nhiên toàn bộ nhãn.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Kết hợp nhiều Decision Tree đa dạng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Huấn luyện tất cả cây theo đúng cùng một residual tuần tự.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Việc trung bình hoặc bỏ phiếu qua nhiều cây ít tương quan giúp dự đoán ổn định hơn.",
+    "error": "Random Forest dựa trên một ensemble đa dạng, không phải một cây đơn lẻ hay boosting tuần tự."
+  },
+  {
+    "id": "forest-aggregation",
+    "title": "Cách tổng hợp dự đoán",
+    "prompt": "Ghép cách tổng hợp với loại bài toán.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "classification",
+        "label": "Classification"
+      },
+      {
+        "id": "regression",
+        "label": "Regression"
+      }
+    ],
+    "options": [
+      {
+        "id": "vote",
+        "label": "Lấy lớp có nhiều phiếu nhất từ các cây.",
+        "categoryId": "classification"
+      },
+      {
+        "id": "mean",
+        "label": "Lấy trung bình các giá trị số do cây dự đoán.",
+        "categoryId": "regression"
+      },
+      {
+        "id": "class-probability",
+        "label": "Trung bình xác suất lớp rồi chọn lớp phù hợp.",
+        "categoryId": "classification"
+      },
+      {
+        "id": "numeric-average",
+        "label": "Gộp dự đoán giá nhà bằng trung bình.",
+        "categoryId": "regression"
+      }
+    ],
+    "success": "Đúng. Classification thường bỏ phiếu, còn regression thường lấy trung bình.",
+    "error": "Hãy nhìn vào kiểu target: nhãn rời rạc hay giá trị số liên tục."
+  },
+  {
+    "id": "forest-diversity",
+    "title": "Nguồn đa dạng của Random Forest",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Mỗi cây có thể được train trên một bootstrap sample.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Mỗi split có thể chỉ xem một tập feature ngẫu nhiên.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Các cây bắt buộc phải được train tuần tự để sửa residual của nhau.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Giảm tương quan giữa các cây giúp ensemble giảm variance tốt hơn.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Bootstrap và random feature selection là hai nguồn đa dạng quan trọng.",
+    "error": "Train tuần tự để sửa lỗi là Gradient Boosting, không phải Random Forest."
+  }
+]} />

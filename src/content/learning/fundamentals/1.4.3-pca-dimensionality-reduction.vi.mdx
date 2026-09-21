@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'pca-dimensionality-reduction',
+  locale: 'vi',
+  title: 'Giảm chiều dữ liệu bằng PCA',
+  headings: [
+    'Vì sao cần giảm chiều',
+    'Principal components giữ phương sai',
+    'Center, scale và chọn số component',
+    'Ứng dụng và giới hạn của PCA',
+  ],
+  keywords: ['Machine Learning', 'PCA', 'Dimensionality Reduction', 'Principal Components', 'Explained Variance', 'Feature Scaling'],
+  conceptIds: ['dimensionality-reduction', 'pca', 'principal-components', 'explained-variance', 'pca-preprocessing', 'pca-limitations'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần giảm chiều
+
+Dataset có thể có hàng trăm hoặc hàng nghìn feature. Nhiều feature có thể tương quan, dư thừa hoặc chủ yếu chứa nhiễu. **Dimensionality reduction** tìm một representation ít chiều hơn nhưng vẫn giữ lại phần cấu trúc quan trọng của dữ liệu.
+
+Giảm chiều có thể làm pipeline nhanh hơn, giảm memory, giảm nhiễu và giúp trực quan hóa dữ liệu. Tuy nhiên, giảm chiều luôn là đánh đổi: khi nén nhiều feature xuống ít chiều hơn, một phần thông tin sẽ bị mất.
+
+**PCA** (*Principal Component Analysis*) là phương pháp giảm chiều tuyến tính phổ biến. Nó không chọn một vài cột gốc để giữ lại; thay vào đó, nó tạo các trục mới là tổ hợp tuyến tính của feature ban đầu.
+
+<LessonNote>
+  PCA không biết target hay nhãn lớp. Nó tìm các hướng dữ liệu biến thiên nhiều, nhưng hướng đó không chắc là hướng hữu ích nhất cho bài toán dự đoán có giám sát.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Principal components giữ phương sai
+
+PCA tìm **principal component** đầu tiên là hướng mà dữ liệu biến thiên nhiều nhất. Component thứ hai vuông góc với component đầu tiên và giữ lại nhiều phương sai còn lại nhất. Quá trình tiếp tục tạo ra các component tiếp theo.
+
+Nếu hai feature tương quan mạnh, dữ liệu có thể nằm gần một đường chéo trong không gian hai chiều. PCA có thể xoay hệ trục để component đầu tiên chạy dọc theo đường đó, rồi bỏ component thứ hai nếu nó chứa rất ít biến thiên. Nhờ vậy, hai feature có thể được nén gần như thành một component.
+
+Mỗi component có một **explained variance ratio**, cho biết tỷ lệ biến thiên dữ liệu mà nó giữ lại. Tổng explained variance của các component đã chọn là một cách đo lượng thông tin hình học được giữ lại, nhưng không phải thước đo trực tiếp của accuracy model downstream.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Center, scale và chọn số component
+
+PCA nhạy với thang đo feature. Trước khi áp dụng, dữ liệu thường được center quanh trung bình 0. Khi các feature có đơn vị hoặc độ lớn khác nhau, StandardScaler thường cần thiết để một cột lớn không chi phối toàn bộ principal component.
+
+Scaler và PCA phải được fit chỉ trên train set. Sau đó dùng cùng các tham số đã học để transform validation, test và dữ liệu inference. Fit PCA trên toàn bộ dataset trước khi chia dữ liệu sẽ làm thông tin từ validation hoặc test rò rỉ vào representation train.
+
+Số component có thể được chọn bằng tổng explained variance mong muốn, ví dụ giữ 90% hoặc 95%, hoặc bằng validation performance của model downstream. Số chiều nhỏ nhất không luôn là tốt nhất; hãy chọn mức nén vẫn giữ được chất lượng đủ cho mục tiêu sử dụng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ứng dụng và giới hạn của PCA
+
+PCA hữu ích để nén feature trước khi train, giảm nhiễu, giảm đa cộng tuyến hoặc tạo representation 2D/3D để khám phá dữ liệu. Nó cũng có thể giúp một số model tuyến tính và distance-based hoạt động ổn định hơn khi feature rất nhiều và tương quan mạnh.
+
+Component không còn có ý nghĩa đơn giản như cột gốc. Mỗi component là tổ hợp nhiều feature, nên interpretability giảm. Các hệ số loading có thể cho biết feature nào đóng góp vào component, nhưng cần đọc cùng domain knowledge.
+
+PCA chỉ mô tả cấu trúc tuyến tính. Nếu dữ liệu nằm trên một manifold cong hoặc có quan hệ phi tuyến mạnh, PCA có thể bỏ lỡ cấu trúc quan trọng. Ngoài ra, PCA giữ phương sai lớn, không chắc giữ tín hiệu dự đoán target; vì vậy hãy đánh giá bằng pipeline và metric của bài toán, không chỉ nhìn vào explained variance.
+
+</MdxPage>

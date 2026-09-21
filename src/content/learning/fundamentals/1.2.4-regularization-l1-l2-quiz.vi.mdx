@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "regularization-l1-l2-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Mục tiêu của regularization",
+    "Phân biệt L1 và L2",
+    "Thiết lập regularization an toàn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "regularization",
+    "l2-regularization",
+    "l1-regularization",
+    "sparse-weights",
+    "feature-scaling-and-lambda"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="regularization-l1-l2-quiz" questions={[
+  {
+    "id": "regularization-goal",
+    "title": "Mục tiêu của regularization",
+    "prompt": "Regularization chủ yếu được thêm vào loss để làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tự động thay test set bằng train set.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Bắt buộc model có điểm train 100%.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Xóa toàn bộ feature.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Hạn chế độ lớn hoặc cấu trúc của trọng số nhằm cải thiện tổng quát hóa.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Regularization thêm ràng buộc để mô hình bớt overfit.",
+    "error": "Regularization không thay thế quy trình đánh giá đúng và cũng không xóa mọi feature."
+  },
+  {
+    "id": "l1-vs-l2",
+    "title": "Phân biệt L1 và L2",
+    "prompt": "Đưa mỗi tính chất vào penalty phù hợp nhất.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "l1",
+        "label": "L1"
+      },
+      {
+        "id": "l2",
+        "label": "L2"
+      }
+    ],
+    "options": [
+      {
+        "id": "absolute-penalty",
+        "label": "Penalty theo tổng |w_i|.",
+        "categoryId": "l1"
+      },
+      {
+        "id": "squared-penalty",
+        "label": "Penalty theo tổng w_i^2.",
+        "categoryId": "l2"
+      },
+      {
+        "id": "sparsity",
+        "label": "Có thể làm một số trọng số bằng đúng 0.",
+        "categoryId": "l1"
+      },
+      {
+        "id": "stable-weights",
+        "label": "Thường làm trọng số nhỏ và ổn định hơn khi feature tương quan.",
+        "categoryId": "l2"
+      }
+    ],
+    "success": "Đúng. L1 thường tạo sparse weights, còn L2 làm nhỏ đều các trọng số.",
+    "error": "Hãy nhớ dạng penalty: trị tuyệt đối cho L1, bình phương cho L2."
+  },
+  {
+    "id": "regularization-setup",
+    "title": "Thiết lập regularization an toàn",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Nên scale feature trước khi so sánh penalty giữa các cột.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Lambda quá lớn có thể làm mô hình underfit.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Có thể chọn lambda bằng validation hoặc cross-validation.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Nên liên tục chỉnh lambda theo test set để có điểm tốt nhất.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Scale và validation giúp penalty có ý nghĩa và tránh chọn lambda bằng test set.",
+    "error": "Test set nên được giữ lại; lambda là hyperparameter cần chọn trong giai đoạn phát triển."
+  }
+]} />

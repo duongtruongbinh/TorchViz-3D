@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "shape-basics-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Đọc tensor shape",
+    "Batch và feature dimension",
+    "Luồng shape cho bộ phân loại ảnh"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "tensor",
+    "tensor-shape",
+    "sample-feature-batch",
+    "linear-shape-flow",
+    "image-tensor-flatten",
+    "shape-debugging"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="shape-basics-quiz" questions={[
+  {
+    "id": "tensor-shape",
+    "title": "Đọc tensor shape",
+    "prompt": "Với tensor ảnh có shape (32, 3, 28, 28), số 32 thường biểu thị điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Số kênh màu của mỗi ảnh.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Kích thước batch: có 32 ảnh trong một lần xử lý.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Chiều cao của ảnh.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Số lớp đầu ra của mô hình.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Trong dữ liệu theo batch, chiều đầu tiên thường là số mẫu được xử lý cùng lúc.",
+    "error": "Hãy nhớ thứ tự ảnh phổ biến của PyTorch: (batch, channels, height, width)."
+  },
+  {
+    "id": "batch-and-feature-dimensions",
+    "title": "Batch và feature dimension",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "nn.Linear(4, 3) biến input (32, 4) thành output (32, 3).",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Flatten luôn xóa chiều batch để tạo một vector duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Chiều đầu tiên của tensor thường được giữ lại khi xử lý từng batch.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Với ảnh PyTorch, chiều thứ hai thường là số kênh.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Chính xác. Cần theo dõi từng chiều để biết phép biến đổi nào thay đổi feature và phép nào giữ batch.",
+    "error": "Hãy kiểm tra lại: Linear thay chiều feature cuối, còn batch thường được giữ nguyên."
+  },
+  {
+    "id": "image-classifier-flow",
+    "title": "Luồng shape cho bộ phân loại ảnh",
+    "prompt": "Sắp xếp các bước từ input ảnh đến logits của 10 lớp.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "linear",
+        "label": "Dùng Linear(2352, 10) để tạo logits có shape (32, 10)."
+      },
+      {
+        "id": "input",
+        "label": "Nhận batch ảnh có shape (32, 3, 28, 28)."
+      },
+      {
+        "id": "loss",
+        "label": "So sánh logits với 32 nhãn bằng hàm loss."
+      },
+      {
+        "id": "flatten",
+        "label": "Flatten mỗi ảnh thành 2352 đặc trưng, shape (32, 2352)."
+      }
+    ],
+    "correctOrder": [
+      "input",
+      "flatten",
+      "linear",
+      "loss"
+    ],
+    "success": "Đúng thứ tự. Theo dõi shape ở mỗi bước giúp phát hiện lỗi trước khi chạy model.",
+    "error": "Hãy bắt đầu từ batch ảnh, rồi flatten, Linear và cuối cùng mới tính loss."
+  }
+]} />

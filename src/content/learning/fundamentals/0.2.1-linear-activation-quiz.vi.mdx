@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "linear-activation-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Vai trò của activation",
+    "Linear và activation hoạt động thế nào?",
+    "Phân loại phép toán"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "linear-layer",
+    "linear-shape",
+    "bias",
+    "activation-function",
+    "relu-sigmoid-softmax"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="linear-activation-quiz" questions={[
+  {
+    "id": "activation-purpose",
+    "title": "Vai trò của activation",
+    "prompt": "Vì sao mô hình thường đặt activation giữa các layer Linear?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Để tự động tăng số feature.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Để xóa toàn bộ bias.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Để mô hình học được quan hệ phi tuyến.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Để mọi đầu ra luôn là xác suất.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Không có activation, nhiều layer Linear liên tiếp vẫn gộp thành một phép biến đổi tuyến tính.",
+    "error": "Activation có nhiệm vụ chính là thêm tính phi tuyến, không phải tự đổi số feature."
+  },
+  {
+    "id": "linear-and-activation-facts",
+    "title": "Linear và activation hoạt động thế nào?",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Bias được cộng cho từng mẫu trong batch theo quy tắc broadcasting.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "ReLU giữ các giá trị dương và đưa giá trị âm về 0.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Sigmoid chỉ thay đổi shape tensor chứ không thay đổi giá trị.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "nn.Linear(4, 3) nhận feature cuối là 4 và tạo feature cuối là 3.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Linear đổi không gian feature, còn activation biến đổi giá trị nhưng thường giữ shape.",
+    "error": "Hãy phân biệt thay đổi feature dimension với việc áp dụng hàm phi tuyến theo từng phần tử."
+  },
+  {
+    "id": "operation-family",
+    "title": "Phân loại phép toán",
+    "prompt": "Đưa mỗi mô tả vào đúng nhóm.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "linear",
+        "label": "Layer Linear"
+      },
+      {
+        "id": "activation",
+        "label": "Activation function"
+      }
+    ],
+    "options": [
+      {
+        "id": "weighted-sum",
+        "label": "Tính y = xW^T + b.",
+        "categoryId": "linear"
+      },
+      {
+        "id": "relu",
+        "label": "Tính max(0, x) cho từng phần tử.",
+        "categoryId": "activation"
+      },
+      {
+        "id": "sigmoid",
+        "label": "Biến logit thành giá trị trong khoảng 0 đến 1.",
+        "categoryId": "activation"
+      },
+      {
+        "id": "feature-map",
+        "label": "Đổi feature cuối từ 4 sang 3 bằng nn.Linear(4, 3).",
+        "categoryId": "linear"
+      }
+    ],
+    "success": "Chính xác. Hai nhóm thường đi cùng nhau nhưng giải quyết hai việc khác nhau.",
+    "error": "Layer Linear là phép biến đổi có trọng số; ReLU và sigmoid là các activation."
+  }
+]} />

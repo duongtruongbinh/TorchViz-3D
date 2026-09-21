@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "tsne-umap-visualization-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Mục đích của t-SNE và UMAP",
+    "Đọc embedding cẩn thận",
+    "Kết luận nào đáng tin hơn?"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "embedding-visualization",
+    "tsne",
+    "umap",
+    "local-neighborhood-preservation",
+    "visualization-hyperparameters",
+    "embedding-interpretation"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="tsne-umap-visualization-quiz" questions={[
+  {
+    "id": "embedding-purpose",
+    "title": "Mục đích của t-SNE và UMAP",
+    "prompt": "t-SNE và UMAP thường được dùng nhất cho mục đích nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tạo test set mới.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Trực quan hóa cấu trúc dữ liệu nhiều chiều trong 2D hoặc 3D.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Thay loss classification bằng một metric.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Chứng minh feature có quan hệ nhân quả.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Đây là các kỹ thuật embedding phục vụ khám phá và trực quan hóa.",
+    "error": "Embedding trực quan không thay thế đánh giá model hay chứng minh quan hệ nhân quả."
+  },
+  {
+    "id": "visualization-cautions",
+    "title": "Đọc embedding cẩn thận",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "t-SNE và UMAP thường ưu tiên giữ cấu trúc lân cận cục bộ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Khoảng cách toàn cục giữa hai cụm trên biểu đồ luôn phản ánh chính xác khoảng cách gốc.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Kết quả có thể thay đổi theo seed và hyperparameter.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Nên thử nhiều cấu hình trước khi kết luận về một cấu trúc.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Embedding hữu ích để gợi mở giả thuyết, nhưng cần kiểm tra lại bằng phân tích khác.",
+    "error": "Đừng diễn giải quá mức khoảng cách toàn cục trên biểu đồ 2D hoặc 3D."
+  },
+  {
+    "id": "embedding-interpretation",
+    "title": "Kết luận nào đáng tin hơn?",
+    "prompt": "Phân loại từng nhận định khi đọc biểu đồ embedding.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "reasonable",
+        "label": "Nhận định hợp lý"
+      },
+      {
+        "id": "unsupported",
+        "label": "Kết luận chưa được hỗ trợ"
+      }
+    ],
+    "options": [
+      {
+        "id": "local-neighbors",
+        "label": "Các điểm gần nhau có thể có đặc điểm cục bộ tương tự.",
+        "categoryId": "reasonable"
+      },
+      {
+        "id": "exact-distance",
+        "label": "Khoảng cách gấp đôi trên biểu đồ nghĩa là khác biệt gấp đôi trong dữ liệu gốc.",
+        "categoryId": "unsupported"
+      },
+      {
+        "id": "try-seeds",
+        "label": "Nên kiểm tra cấu trúc dưới nhiều seed và tham số.",
+        "categoryId": "reasonable"
+      },
+      {
+        "id": "causality",
+        "label": "Một khoảng trống giữa cụm tự chứng minh nguyên nhân nhân quả.",
+        "categoryId": "unsupported"
+      }
+    ],
+    "success": "Đúng. Biểu đồ embedding là công cụ khám phá, không phải bằng chứng cuối cùng.",
+    "error": "Hãy tin cậy hơn vào cấu trúc lân cận và kiểm tra kết luận bằng các phép đo bổ sung."
+  }
+]} />

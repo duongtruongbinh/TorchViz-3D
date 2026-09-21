@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "one-vs-rest-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Chiến lược One-vs-Rest",
+    "Multiclass và multilabel",
+    "Lưu ý khi dùng One-vs-Rest"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "multiclass-classification",
+    "one-vs-rest-training",
+    "argmax-prediction",
+    "score-calibration",
+    "multilabel-classification"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="one-vs-rest-quiz" questions={[
+  {
+    "id": "ovr-strategy",
+    "title": "Chiến lược One-vs-Rest",
+    "prompt": "Với K lớp, One-vs-Rest thường huấn luyện bao nhiêu bộ phân loại nhị phân?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "K bộ, mỗi bộ đối xử với một lớp là positive và phần còn lại là negative.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Một bộ duy nhất cho mọi lớp.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "K^2 bộ, một bộ cho từng cặp input.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Không cần bộ phân loại nhị phân.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Mỗi lớp có một bộ phân loại riêng trong chiến lược One-vs-Rest.",
+    "error": "One-vs-Rest tạo K bài toán nhị phân, không phải một hay K^2 bộ phân loại."
+  },
+  {
+    "id": "classification-setting",
+    "title": "Multiclass và multilabel",
+    "prompt": "Phân loại tình huống theo kiểu đầu ra.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "multiclass",
+        "label": "Multiclass độc quyền"
+      },
+      {
+        "id": "multilabel",
+        "label": "Multilabel"
+      }
+    ],
+    "options": [
+      {
+        "id": "digit",
+        "label": "Một ảnh chỉ thuộc đúng một chữ số từ 0 đến 9.",
+        "categoryId": "multiclass"
+      },
+      {
+        "id": "photo-tags",
+        "label": "Một ảnh có thể vừa có biển vừa có hoàng hôn.",
+        "categoryId": "multilabel"
+      },
+      {
+        "id": "highest-score",
+        "label": "Chọn lớp có score cao nhất trong các lớp loại trừ nhau.",
+        "categoryId": "multiclass"
+      },
+      {
+        "id": "independent-tags",
+        "label": "Mỗi nhãn có thể độc lập là positive hoặc negative.",
+        "categoryId": "multilabel"
+      }
+    ],
+    "success": "Đúng. One-vs-Rest có thể dùng cho cả hai, nhưng cách quyết định đầu ra khác nhau.",
+    "error": "Hãy xem một mẫu có thể nhận nhiều nhãn cùng lúc hay chỉ duy nhất một nhãn."
+  },
+  {
+    "id": "ovr-practice",
+    "title": "Lưu ý khi dùng One-vs-Rest",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Khi các lớp loại trừ nhau, có thể chọn lớp có score cao nhất.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Mất cân bằng lớp có thể làm từng bộ phân loại bị lệch.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Score từ các bộ phân loại luôn được hiệu chỉnh hoàn hảo để so sánh.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Có thể cần xem xét calibration khi so sánh score.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. One-vs-Rest đơn giản nhưng cần chú ý mất cân bằng và score calibration.",
+    "error": "Các classifier riêng có thể tạo score ở thang chưa tương thích hoàn toàn."
+  }
+]} />

@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "bayesian-optimization-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Khi nào dùng Bayesian Optimization?",
+    "Vòng lặp Bayesian Optimization",
+    "Hiểu đúng Bayesian Optimization"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "bayesian-optimization",
+    "expensive-objective",
+    "surrogate-model",
+    "acquisition-function",
+    "exploration-exploitation",
+    "bayesian-optimization-workflow"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="bayesian-optimization-quiz" questions={[
+  {
+    "id": "bo-choice",
+    "title": "Khi nào dùng Bayesian Optimization?",
+    "prompt": "Bayesian Optimization đặc biệt phù hợp khi nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Khi mỗi lần đánh giá một cấu hình rất tốn thời gian hoặc chi phí.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Khi không cần chạy model để biết score.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Khi chỉ có một feature đầu vào.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Khi muốn bỏ qua validation hoàn toàn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Phương pháp này tận dụng kết quả các lần thử trước để chọn lần thử tiếp theo hiệu quả hơn.",
+    "error": "Bayesian Optimization vẫn cần một objective và các lần đánh giá thật để học từ chúng."
+  },
+  {
+    "id": "bo-workflow",
+    "title": "Vòng lặp Bayesian Optimization",
+    "prompt": "Sắp xếp các bước của vòng lặp tối ưu hóa Bayes.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "evaluate",
+        "label": "Chạy đánh giá thật cho cấu hình được đề xuất."
+      },
+      {
+        "id": "surrogate",
+        "label": "Fit hoặc cập nhật surrogate model từ các lần thử trước."
+      },
+      {
+        "id": "space",
+        "label": "Xác định search space và objective cần tối ưu."
+      },
+      {
+        "id": "acquire",
+        "label": "Dùng acquisition function chọn cấu hình tiếp theo."
+      }
+    ],
+    "correctOrder": [
+      "space",
+      "surrogate",
+      "acquire",
+      "evaluate"
+    ],
+    "success": "Đúng. Kết quả evaluate sẽ được dùng để cập nhật surrogate ở vòng tiếp theo.",
+    "error": "Quy trình là xác định bài toán, học surrogate, chọn cấu hình bằng acquisition rồi đánh giá thật."
+  },
+  {
+    "id": "bo-claims",
+    "title": "Hiểu đúng Bayesian Optimization",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Phương pháp cân bằng exploration và exploitation.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Các kết quả đã quan sát giúp định hướng cấu hình tiếp theo.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Nó luôn bảo đảm tìm global optimum với bất kỳ budget nào.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Nó có thể tiết kiệm số lần chạy so với khám phá mù khi objective đắt.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Bayesian Optimization là chiến lược phân bổ budget thông minh, không phải lời hứa tuyệt đối.",
+    "error": "Không thuật toán tuning nào bảo đảm nghiệm toàn cục trong mọi điều kiện và budget hữu hạn."
+  }
+]} />

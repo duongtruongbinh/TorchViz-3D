@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "grid-random-search-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Ưu điểm của Random Search",
+    "Grid Search hay Random Search?",
+    "Quy trình tuning đúng"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "hyperparameter-search",
+    "grid-search",
+    "random-search",
+    "search-space",
+    "cross-validation-tuning",
+    "test-set-holdout"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="grid-random-search-quiz" questions={[
+  {
+    "id": "random-search",
+    "title": "Ưu điểm của Random Search",
+    "prompt": "Random Search thường có lợi thế nào khi search space có nhiều hyperparameter?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Bảo đảm tìm nghiệm tốt nhất mà không cần đánh giá.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Dùng test set để tạo cấu hình.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Có thể khám phá nhiều giá trị của các hyperparameter quan trọng mà không phải thử mọi tổ hợp lưới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Không cần đặt search space.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Random Search thường hiệu quả hơn Grid Search khi chỉ một số chiều thực sự quan trọng.",
+    "error": "Random Search vẫn cần search space và đánh giá có kỷ luật, thường qua cross-validation."
+  },
+  {
+    "id": "search-method-properties",
+    "title": "Grid Search hay Random Search?",
+    "prompt": "Ghép mô tả với phương pháp phù hợp nhất.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "grid",
+        "label": "Grid Search"
+      },
+      {
+        "id": "random",
+        "label": "Random Search"
+      }
+    ],
+    "options": [
+      {
+        "id": "all-combinations",
+        "label": "Thử mọi tổ hợp của các giá trị đã định trước.",
+        "categoryId": "grid"
+      },
+      {
+        "id": "sample-ranges",
+        "label": "Lấy mẫu cấu hình từ các khoảng hoặc phân phối đã khai báo.",
+        "categoryId": "random"
+      },
+      {
+        "id": "combinatorial-growth",
+        "label": "Số lần chạy tăng rất nhanh khi thêm nhiều trục giá trị.",
+        "categoryId": "grid"
+      },
+      {
+        "id": "budgeted-exploration",
+        "label": "Khám phá nhiều giá trị khác nhau với ngân sách số lần chạy cố định.",
+        "categoryId": "random"
+      }
+    ],
+    "success": "Đúng. Grid có tính bao phủ lưới, còn Random Search linh hoạt hơn khi budget có hạn.",
+    "error": "Hãy phân biệt thử toàn bộ tổ hợp rời rạc với lấy mẫu ngẫu nhiên trong search space."
+  },
+  {
+    "id": "search-protocol",
+    "title": "Quy trình tuning đúng",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Nên đánh giá cấu hình bằng validation hoặc cross-validation.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Test set cuối vẫn nên được giữ riêng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Random Search có thể hiệu quả nếu chỉ một vài hyperparameter thực sự ảnh hưởng mạnh.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Nên chọn cấu hình dựa trên test score sau mỗi lần thử.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Tuning diễn ra trong giai đoạn phát triển; test là báo cáo cuối.",
+    "error": "Không dùng test set như feedback lặp lại cho quá trình tìm hyperparameter."
+  }
+]} />

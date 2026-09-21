@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'sklearn-model-selection',
+  locale: 'vi',
+  title: 'Lựa chọn mô hình Sklearn',
+  headings: [
+    'Model selection là quyết định đa mục tiêu',
+    'Protocol đánh giá trước khi so sánh model',
+    'Tuning với GridSearchCV và RandomizedSearchCV',
+    'Chọn model cho điều kiện vận hành',
+  ],
+  keywords: ['Machine Learning', 'Scikit-Learn', 'Model Selection', 'Cross Validation', 'GridSearchCV', 'RandomizedSearchCV', 'Baseline'],
+  conceptIds: ['model-selection', 'baseline-model', 'evaluation-protocol', 'cross-validation-model-comparison', 'gridsearchcv-randomizedsearchcv', 'operational-tradeoffs'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Model selection là quyết định đa mục tiêu
+
+Model selection không chỉ là chọn estimator có score validation cao nhất. Một model tốt cần phù hợp với metric sản phẩm, latency, memory, chi phí train, khả năng giải thích, độ ổn định và mức rủi ro có thể chấp nhận.
+
+Hãy bắt đầu bằng baseline đơn giản, chẳng hạn DummyClassifier, linear model hoặc decision tree nông. Baseline cho biết mức tối thiểu cần vượt qua và giúp phát hiện lỗi pipeline. Một model phức tạp chỉ có ý nghĩa nếu nó cải thiện đủ so với baseline theo chi phí mà nó tạo ra.
+
+Khi các model chênh lệch score rất nhỏ, hãy ưu tiên mô hình đơn giản hơn, ổn định hơn hoặc dễ vận hành hơn nếu không có lý do rõ ràng để trả giá cho độ phức tạp tăng thêm.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Protocol đánh giá trước khi so sánh model
+
+Trước khi so sánh model, cần xác định split strategy, metric và dữ liệu giữ lại. Dữ liệu thời gian cần time split; dữ liệu có nhiều hàng theo người dùng cần group split; classification mất cân bằng thường cần stratification. Nếu protocol sai, mọi score model sau đó đều khó tin.
+
+Cross-validation cho phép so sánh model trên nhiều fold thay vì dựa vào một validation split may rủi. Hãy xem mean score cùng mức biến động giữa các fold. Một model có trung bình cao nhưng dao động mạnh có thể rủi ro hơn một model thấp hơn rất ít nhưng ổn định.
+
+Pipeline preprocessing phải nằm trong protocol evaluation. So sánh model sau khi preprocess toàn bộ dataset bên ngoài cross-validation là cách phổ biến tạo leakage mà không nhận ra.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tuning với GridSearchCV và RandomizedSearchCV
+
+`GridSearchCV` kết hợp grid search với cross-validation. Nó thử mọi cấu hình trong grid, đánh giá mỗi cấu hình qua các fold, rồi lưu `best_estimator_` dựa trên metric được chọn. `RandomizedSearchCV` lấy mẫu số trial giới hạn trong search space và thường hiệu quả hơn khi search space lớn.
+
+Khi dùng với Pipeline, hãy tune cả hyperparameter model lẫn preprocessing nếu cần. Tên parameter có dạng `step__parameter`, chẳng hạn `model__C` hoặc `preprocessor__numeric__scaler__with_mean`, tùy cấu trúc pipeline.
+
+Đừng coi `best_score_` là kết quả production cuối cùng. Nó là kết quả trong quá trình lựa chọn model. Sau khi chốt workflow, hãy đánh giá một lần trên test set chưa từng tham gia search để có ước lượng ít thiên lệch hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chọn model cho điều kiện vận hành
+
+Ngoài score, hãy đo thời gian fit, thời gian predict, memory, kích thước artifact, khả năng xử lý missing/category, độ dễ giải thích và khả năng theo dõi drift. Một model nhanh hơn có thể đáng giá hơn một model tốt hơn 0.2 điểm F1 nếu sản phẩm cần phản hồi thời gian thực.
+
+Hãy kiểm tra error analysis, không chỉ xem trung bình metric. Model có thể tốt tổng thể nhưng thất bại nhất quán với một nhóm người dùng, một giai đoạn thời gian hoặc một dạng input quan trọng. Những failure mode này có thể quyết định việc model có phù hợp để deploy hay không.
+
+Model selection kết thúc bằng một quyết định có thể giải thích: vì sao model được chọn, metric nào hỗ trợ quyết định, trade-off nào được chấp nhận và điều gì sẽ được theo dõi sau khi release. Scikit-Learn hỗ trợ thí nghiệm nhanh, nhưng trách nhiệm chọn model vẫn thuộc về quy trình và bối cảnh ứng dụng.
+
+</MdxPage>

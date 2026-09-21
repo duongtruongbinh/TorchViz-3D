@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'bayesian-optimization',
+  locale: 'vi',
+  title: 'Tối ưu hóa Bayes',
+  headings: [
+    'Tuning khi mỗi lần thử rất đắt',
+    'Surrogate model học từ các trial trước',
+    'Acquisition cân bằng khám phá và khai thác',
+    'Workflow và giới hạn thực tế',
+  ],
+  keywords: ['Machine Learning', 'Bayesian Optimization', 'Hyperparameter Tuning', 'Surrogate Model', 'Acquisition Function', 'Experiment Budget'],
+  conceptIds: ['bayesian-optimization', 'expensive-objective', 'surrogate-model', 'acquisition-function', 'exploration-exploitation', 'bayesian-optimization-workflow'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tuning khi mỗi lần thử rất đắt
+
+Grid Search và Random Search không dùng kết quả của trial trước để quyết định trial tiếp theo. Điều này ổn khi train nhanh, nhưng trở nên tốn kém nếu mỗi cấu hình cần hàng giờ hoặc hàng ngày để train và đánh giá.
+
+**Bayesian Optimization** hướng các lần thử mới dựa trên kết quả đã quan sát. Nó đặc biệt phù hợp khi objective function đắt, không có công thức gradient trực tiếp theo hyperparameter và ngân sách trial bị giới hạn.
+
+Ví dụ, nếu một model mất 4 giờ để train, bạn không muốn thử ngẫu nhiên hàng trăm cấu hình. Bayesian Optimization cố gắng đạt kết quả tốt với ít trial hơn bằng cách học một bức tranh gần đúng về search space.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Surrogate model học từ các trial trước
+
+Sau một số trial ban đầu, Bayesian Optimization xây một **surrogate model** để ước lượng metric của những cấu hình chưa thử. Surrogate không thay thế model ML chính; nó chỉ là mô hình nhẹ hơn dùng để dự đoán một cấu hình hyperparameter có thể tốt đến đâu và mức độ không chắc chắn của dự đoán đó.
+
+Mỗi quan sát gồm một cấu hình và score tương ứng, ví dụ learning rate, độ sâu tree, regularization cùng validation F1. Surrogate học từ các cặp này để ước lượng bề mặt objective trong search space.
+
+Vì số trial ban đầu ít và metric có thể nhiễu, surrogate không cần hoàn hảo. Điều quan trọng là nó giúp thuật toán ưu tiên các vùng search space đáng để đánh giá bằng lần train thật đắt tiền.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Acquisition cân bằng khám phá và khai thác
+
+**Acquisition function** dùng dự đoán của surrogate để chọn trial tiếp theo. Nó cân bằng giữa **exploitation**: thử gần vùng dự đoán là tốt nhất, và **exploration**: thử vùng chưa biết nhưng có độ không chắc chắn cao.
+
+Nếu chỉ exploitation, thuật toán có thể mắc kẹt quanh một vùng ban đầu có vẻ tốt. Nếu chỉ exploration, nó lãng phí ngân sách vào quá nhiều vùng ít triển vọng. Acquisition function ước lượng lợi ích của cả chất lượng dự đoán lẫn sự không chắc chắn để chọn điểm tiếp theo.
+
+Quy trình lặp lại: chạy một trial thật, cập nhật surrogate bằng kết quả mới, chọn cấu hình tiếp theo rồi chạy lại. Theo thời gian, search tập trung dần vào các vùng hứa hẹn nhưng vẫn có cơ hội khám phá các vùng khác.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Workflow và giới hạn thực tế
+
+Bayesian Optimization vẫn cần một evaluation protocol đáng tin. Mỗi trial nên dùng cùng validation split hoặc cross-validation protocol, pipeline preprocessing giống nhau và metric phù hợp. Nếu metric quá nhiễu, surrogate sẽ học từ tín hiệu không ổn định và đề xuất kém hiệu quả.
+
+Hãy bắt đầu bằng một số trial đa dạng để có dữ liệu ban đầu, đặt giới hạn rõ cho search space và ghi lại toàn bộ thí nghiệm. Constraints như latency tối đa, memory hoặc thời gian train có thể được đưa vào objective hoặc dùng để loại cấu hình không khả thi.
+
+Bayesian Optimization không luôn thắng Random Search. Với search space đơn giản, model train nhanh hoặc nhiều trial chạy song song, Random Search có thể dễ dùng và đủ tốt. Bayesian Optimization có giá trị lớn nhất khi mỗi đánh giá rất đắt và bạn cần dùng từng trial một cách có thông tin.
+
+</MdxPage>

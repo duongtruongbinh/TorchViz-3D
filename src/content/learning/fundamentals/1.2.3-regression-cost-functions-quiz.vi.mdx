@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "regression-cost-functions-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Đặc điểm của MSE",
+    "Nhận diện hàm loss",
+    "Chọn loss khi có outlier"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "loss-function",
+    "mean-squared-error",
+    "mean-absolute-error",
+    "huber-loss",
+    "log-loss-cross-entropy"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="regression-cost-functions-quiz" questions={[
+  {
+    "id": "mse-property",
+    "title": "Đặc điểm của MSE",
+    "prompt": "MSE có đặc điểm nào khi so với MAE?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Bỏ qua mọi lỗi lớn.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Chỉ dùng được cho classification.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Phạt mạnh hơn các lỗi lớn do bình phương sai số.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Luôn nhỏ hơn MAE.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Bình phương làm các residual lớn ảnh hưởng mạnh hơn.",
+    "error": "MSE không bỏ qua outlier; ngược lại, nó rất nhạy với chúng."
+  },
+  {
+    "id": "loss-mechanisms",
+    "title": "Nhận diện hàm loss",
+    "prompt": "Ghép mô tả với hàm loss phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "mse",
+        "label": "MSE"
+      },
+      {
+        "id": "mae",
+        "label": "MAE"
+      },
+      {
+        "id": "logloss",
+        "label": "Log Loss"
+      }
+    ],
+    "options": [
+      {
+        "id": "squared-error",
+        "label": "Bình phương sai số để phạt residual lớn mạnh hơn.",
+        "categoryId": "mse"
+      },
+      {
+        "id": "absolute-error",
+        "label": "Dùng trị tuyệt đối của sai số.",
+        "categoryId": "mae"
+      },
+      {
+        "id": "confident-wrong",
+        "label": "Phạt nặng dự đoán xác suất rất tự tin nhưng sai.",
+        "categoryId": "logloss"
+      },
+      {
+        "id": "large-gradient",
+        "label": "Độ phạt tăng nhanh khi lỗi số liên tục tăng.",
+        "categoryId": "mse"
+      }
+    ],
+    "success": "Đúng. Hàm loss xác định loại lỗi nào sẽ được mô hình ưu tiên giảm.",
+    "error": "MSE dùng bình phương, MAE dùng trị tuyệt đối, còn log loss đánh giá xác suất classification."
+  },
+  {
+    "id": "outlier-robust-choice",
+    "title": "Chọn loss khi có outlier",
+    "prompt": "Nếu dữ liệu regression có một số outlier do lỗi đo và muốn giảm ảnh hưởng của chúng, lựa chọn nào phù hợp hơn MSE?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tăng số lớp phân loại.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "MAE hoặc Huber loss.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Dùng accuracy.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Đặt tất cả prediction bằng 0.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. MAE ít nhạy hơn với outlier; Huber là một phương án dung hòa.",
+    "error": "Hãy chọn loss ít phóng đại residual lớn thay vì dùng metric cho classification."
+  }
+]} />
