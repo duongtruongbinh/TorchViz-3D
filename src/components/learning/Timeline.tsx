@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState, useCallback } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export type TimelineItem = {
@@ -33,13 +33,20 @@ export function Timeline({
   const isDualTrack = items.some((it) => it.track === 'bottom');
 
   // For dual-track: sort all items by year so they appear in chronological order on a shared axis
-  const sortedItems = isDualTrack
-    ? [...items].sort((a, b) => parseYear(a.year) - parseYear(b.year))
-    : items;
+  const sortedItems = useMemo(
+    () => isDualTrack
+      ? [...items].sort((a, b) => parseYear(a.year) - parseYear(b.year))
+      : items,
+    [isDualTrack, items],
+  );
 
   // Determine active item or default to the newest/last milestone
   const activeIndex = sortedItems.findIndex((it) => it.active);
   const targetIndex = activeIndex >= 0 ? activeIndex : sortedItems.length - 1;
+  const targetItem = sortedItems[targetIndex];
+  const targetKey = targetItem
+    ? `${targetItem.track ?? 'single'}:${targetItem.year}:${targetIndex}`
+    : 'empty';
 
   const updateScrollState = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -49,7 +56,8 @@ export function Timeline({
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 8);
   }, []);
 
-  // Position container at target milestone immediately on mount/update to prevent jerking
+  // Align only when the active milestone changes. Scroll-state rerenders must not
+  // pull the viewport back to the target while the learner is scrolling manually.
   useEffect(() => {
     const alignTimeline = () => {
       const container = scrollContainerRef.current;
@@ -71,7 +79,7 @@ export function Timeline({
 
     const frameId = requestAnimationFrame(alignTimeline);
     return () => cancelAnimationFrame(frameId);
-  }, [sortedItems, targetIndex, updateScrollState]);
+  }, [targetKey, updateScrollState]);
 
   const handleScrollBy = (offset: number) => {
     scrollContainerRef.current?.scrollBy({ left: offset, behavior: 'smooth' });

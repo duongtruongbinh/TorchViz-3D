@@ -188,3 +188,7 @@ The final verification includes:
   319 MDX titles synchronized; catalog statistics matched; 189/189 authored R2
   image references were reachable; all 162 tests, typecheck, production build,
   structural timeline audit, and `git diff --check` passed.
+- 2026-09-22 — Fixed horizontal-scroll snapping in dual-track timelines. The
+  chronologically sorted item list is now memoized, and automatic alignment is
+  keyed to the active milestone rather than the array identity, so scroll-button
+  state updates no longer pull the viewport back while the learner scrolls.
