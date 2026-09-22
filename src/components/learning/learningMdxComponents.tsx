@@ -493,7 +493,7 @@ export function LessonImage({
       if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
     };
     img.onerror = () => {
-      console.error(`Learning Lab image failed to load: ${imageUrl}`);
+      console.error(`Learning Lab image failed to load from CDN: ${imageUrl}`);
       if (isActive) setLoadState({ key: requestKey, status: 'error' });
     };
     img.src = imageUrl;
