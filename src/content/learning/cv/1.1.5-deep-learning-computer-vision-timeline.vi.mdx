@@ -1,0 +1,259 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'deep-learning-computer-vision-timeline',
+  locale: 'vi',
+  title: 'Thread 2: Neural Networks & Deep Learning',
+  headings: [
+    'Perceptron: Một Cỗ máy có thể Học',
+    'Neocognitron: Học theo Nhiều Tầng',
+    'Backpropagation: Biết Điều chỉnh ở Đâu',
+    'LeNet-5: Học từ Pixel đến Nhãn',
+    'ImageNet: Dữ liệu Trở thành Hạ tầng',
+    'AlexNet: Khi Ba Điều kiện cùng Hội tụ',
+  ],
+  keywords: [
+    'Deep Learning',
+    'Perceptron',
+    'Minsky Papert',
+    'Neocognitron',
+    'Backpropagation',
+    'LeNet-5',
+    'ImageNet',
+    'AlexNet',
+    'GPU',
+  ],
+  pageCount: 6,
+};
+
+<MdxPage page={0}>
+
+## Perceptron: Một Cỗ máy có thể Học
+
+Luồng thứ hai bắt đầu bằng một ý tưởng táo bạo: thay vì viết sẵn mọi quy tắc nhận dạng, liệu máy có thể tự điều chỉnh từ ví dụ? Perceptron của Frank Rosenblatt năm 1958 là một trong những cột mốc đầu tiên biến ý tưởng đó thành một hệ thống vật lý.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', active: true, track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', track: 'bottom' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/mark-i-perceptron-1958.png"
+  alt="Sơ đồ lịch sử Mark I Perceptron gồm võng mạc đầu vào, các đơn vị liên kết và các đơn vị phản hồi"
+  caption="Mark I Perceptron nối retinal/sensory units với association units rồi response units. Các kết nối có thể điều chỉnh để hệ thống học cách phân biệt mẫu."
+  aspectRatio="905 / 742"
+/>
+
+Hãy hình dung Perceptron như một người chấm điểm. Nó nhận nhiều tín hiệu đầu vào, gán mức quan trọng cho từng tín hiệu, cộng chúng lại và chọn một trong hai câu trả lời. Trong quá trình học, câu trả lời sai khiến các mức quan trọng được điều chỉnh.
+
+Mô hình một tầng này chỉ tạo được một ranh giới quyết định đơn giản. Công trình của Marvin Minsky và Seymour Papert năm 1969 làm rõ rằng có những mẫu không thể tách bằng một ranh giới như vậy. Kết quả làm giảm kỳ vọng vào mạng nơ-ron thời đó, đồng thời để lại câu hỏi dẫn đường: nếu một tầng chưa đủ, làm thế nào để nhiều tầng có thể cùng học?
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Neocognitron: Học theo Nhiều Tầng
+
+Kunihiko Fukushima trả lời một phần câu hỏi đó bằng Neocognitron năm 1980. Lấy cảm hứng từ hệ thị giác sinh học, mô hình tổ chức việc nhận dạng thành nhiều tầng thay vì yêu cầu một lớp duy nhất hiểu toàn bộ hình ảnh.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', active: true, track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', track: 'bottom' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/06-neocognitron-fukushima-1980.png"
+  alt="Neocognitron xử lý ảnh qua nhiều tầng từ mẫu cục bộ tới nhận dạng ổn định hơn"
+  caption="Neocognitron ghép các tín hiệu cục bộ qua nhiều tầng, đặt nền móng cho cách CNN hiện đại xây đặc trưng phân cấp."
+/>
+
+Tầng sớm chú ý tới mẫu nhỏ như cạnh hoặc nét. Tầng sau kết hợp những mẫu đó thành cấu trúc lớn hơn và bớt nhạy với việc vật thể dịch chuyển nhẹ trong ảnh. Đây là một thay đổi quan trọng về tư duy: nhận dạng không phải một phép nhảy trực tiếp từ pixel tới tên vật thể, mà là quá trình xây dần biểu diễn.
+
+Neocognitron không hoàn toàn được thiết lập thủ công: một số kết nối có thể tự tổ chức khi các mẫu được đưa vào lặp lại. Tuy nhiên, con người vẫn phải thiết kế cấu trúc các tầng và quy tắc học; toàn bộ mạng chưa thể cùng tối ưu cho một mục tiêu chung như CNN hiện đại dùng Backpropagation. Giá trị lịch sử của nó nằm ở bản thiết kế: quan sát cục bộ, kết hợp phân cấp và tăng dần tính ổn định. Những ý tưởng này sẽ xuất hiện lại trong Convolutional Neural Networks (CNNs).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Backpropagation: Biết Điều chỉnh ở Đâu
+
+Một mạng nhiều tầng có thể tạo biểu diễn phong phú, nhưng nảy sinh một vấn đề: khi dự đoán sai, tầng nào phải chịu trách nhiệm và mỗi kết nối nên thay đổi bao nhiêu?
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', active: true, track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', track: 'bottom' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/backpropagation_chain_rule_simple.png"
+  alt="Hai sơ đồ mạng nơ-ron: forward truyền dữ liệu đến Loss và backward truyền gradient ngược qua các tầng theo Chain Rule"
+  caption="Backpropagation biến một sai số ở đầu ra thành tín hiệu học cho từng tầng phía trước."
+/>
+
+Backpropagation cung cấp một cách có hệ thống để trả lời câu hỏi đó. Mạng tạo dự đoán theo chiều đi tới, so sánh dự đoán với đáp án đúng, rồi truyền thông tin về sai số ngược qua các tầng. Nhờ vậy, mỗi trọng số nhận được một chỉ dẫn nhỏ: nên tăng, giảm hay gần như giữ nguyên.
+
+Đối với người mới, chưa cần học công thức đạo hàm ở đây. Hãy giữ một hình ảnh: giáo viên không chỉ nói “sai”, mà còn lần ngược từng bước để chỉ ra phần nào đã góp vào lỗi. Cơ chế toán học của quá trình này thuộc Chương 2; trong dòng lịch sử, Backpropagation quan trọng vì nó khiến việc huấn luyện nhiều tầng trở nên khả thi hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## LeNet-5: Học từ Pixel đến Nhãn
+
+Cuối thập niên 1980 và trong thập niên 1990, Yann LeCun cùng cộng sự kết hợp convolution, các tầng giảm kích thước và Backpropagation để xây hệ thống đọc chữ số viết tay. LeNet-5 năm 1998 trở thành minh chứng nổi bật cho cách tiếp cận này.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', active: true, track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', track: 'bottom' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/06b-lenet5-architecture-1998.png"
+  alt="LeNet-5 đưa ảnh chữ số qua các tầng xử lý và trả về nhãn dự đoán"
+  caption="LeNet-5 học một chuỗi biến đổi từ pixel, qua đặc trưng đơn giản rồi phức tạp hơn, tới nhãn chữ số."
+/>
+
+Điểm mới không phải chỉ là thêm nhiều phép xử lý ảnh. Các tầng được học cùng nhau cho một mục tiêu cuối: nhận đúng chữ số. Nếu dự đoán sai, Backpropagation điều chỉnh cả phần tìm đặc trưng lẫn phần phân loại.
+
+LeNet-5 hoạt động tốt trong một bài toán tương đối có kiểm soát như đọc mã bưu chính và chữ số ngân hàng. Nó chứng minh rằng mạng nơ-ron nhiều tầng có thể giải quyết một nhiệm vụ thực tế. Tuy nhiên, để nhận hàng nghìn loại vật thể trong ảnh đời thường, cộng đồng vẫn thiếu dữ liệu đủ lớn và năng lực tính toán đủ mạnh.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## ImageNet: Dữ liệu Trở thành Hạ tầng
+
+Trong nhiều năm, các nhóm nghiên cứu dùng dataset nhỏ và khác nhau, khiến mô hình khó học được sự đa dạng của thế giới và kết quả khó so sánh. Fei-Fei Li cùng cộng sự khởi xướng ImageNet để thay đổi điều đó.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', active: true, track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', track: 'bottom' },
+  ]}
+/>
+
+ImageNet tập hợp ảnh đời thực thuộc rất nhiều danh mục và tổ chức một benchmark chung. Vai trò của nó giống một hạ tầng nghiên cứu: nhiều nhóm có thể huấn luyện trên một nguồn dữ liệu lớn, đánh giá trên cùng một thử thách và nhìn thấy tiến bộ qua từng năm.
+
+Đóng góp quan trọng nhất của ImageNet không chỉ là “nhiều ảnh hơn”. Nó cho thấy dữ liệu có quy mô và độ đa dạng phù hợp có thể làm thay đổi loại mô hình mà cộng đồng có khả năng huấn luyện. Những mạng lớn trước đây dễ overfit nay có thêm ví dụ để học các mẫu tổng quát hơn.
+
+Nhưng dữ liệu không hoạt động một mình. Để tận dụng ImageNet, mô hình cần thuật toán học tốt và phần cứng đủ nhanh. Ba yếu tố đó gặp nhau rõ ràng vào năm 2012.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## AlexNet: Khi Ba Điều kiện cùng Hội tụ
+
+Tại cuộc thi ImageNet năm 2012, AlexNet giảm mạnh lỗi nhận dạng so với các phương pháp đứng trước. Đột phá này đến từ sự hội tụ của ba điều kiện đã trưởng thành cùng lúc.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Neuron thị giác phản ứng với cạnh và hướng.', track: 'top' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản.', track: 'top' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên vật thể.', track: 'top' },
+    { year: '1982', title: 'David Marr', summary: 'Thị giác đi qua nhiều mức biểu diễn.', track: 'top' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý tham gia vào quá trình nhìn.', track: 'top' },
+    { year: '1999', title: 'SIFT', summary: 'Dấu mốc cục bộ bền vững qua nhiều góc nhìn.', track: 'top' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Phát hiện khuôn mặt thời gian thực.', track: 'top' },
+    { year: '1958', title: 'Perceptron', summary: 'Một hệ thống sớm có thể điều chỉnh trọng số từ ví dụ.', track: 'bottom' },
+    { year: '1969', title: 'Minsky & Papert', summary: 'Chỉ ra giới hạn của một lớp quyết định đơn giản.', track: 'bottom' },
+    { year: '1980', title: 'Neocognitron', summary: 'Tổ chức nhận dạng ảnh thành nhiều tầng.', track: 'bottom' },
+    { year: '1986', title: 'Backpropagation', summary: 'Giúp các tầng cùng học từ sai số cuối.', track: 'bottom' },
+    { year: '1998', title: 'LeNet-5', summary: 'CNN học end-to-end trên chữ số viết tay.', track: 'bottom' },
+    { year: '2009', title: 'ImageNet', summary: 'Dữ liệu lớn tạo nền tảng so sánh chung.', track: 'bottom' },
+    { year: '2012', title: 'AlexNet', summary: 'Deep CNN, ImageNet và GPU cùng tạo đột phá.', active: true, track: 'bottom' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/06-deep-learning-golden-triangle-v2.jpg"
+  alt="Ba yếu tố thuật toán, dữ liệu và năng lực tính toán hội tụ trong đột phá Deep Learning"
+  caption="AlexNet thành công khi Deep CNN, ImageNet và GPU cùng đạt quy mô đủ lớn."
+/>
+
+- **Thuật toán:** một Deep CNN có thể học đặc trưng trực tiếp từ pixel.
+- **Dữ liệu:** ImageNet cung cấp số lượng và độ đa dạng ví dụ cần thiết.
+- **Compute:** GPU rút ngắn thời gian thử nghiệm và huấn luyện mạng lớn.
+
+<LessonImage
+  assetPath="cv/alexnet_imagenet_breakthrough.png"
+  alt="Ba giai đoạn từ handcrafted features qua AlexNet 2012 đến Deep CNN với lỗi phân loại giảm dần"
+  caption="AlexNet đánh dấu bước ngoặt: thay vì thiết kế đặc trưng thủ công, Deep CNN học đặc trưng trực tiếp từ dữ liệu và tiếp tục giảm lỗi phân loại."
+/>
+
+AlexNet làm thay đổi niềm tin của cả lĩnh vực. Thay vì thiết kế thủ công một đặc trưng riêng cho từng bài toán, nhà nghiên cứu có thể xây một kiến trúc chung và để dữ liệu định hình biểu diễn bên trong.
+
+<LessonNote tone="success">
+  Kết thúc Luồng 2: Perceptron mở ra ý tưởng học trọng số; nhiều tầng tạo biểu diễn phong phú; Backpropagation giúp các tầng cùng học; ImageNet và GPU đưa cách tiếp cận đó lên quy mô đủ để tạo đột phá.
+</LessonNote>
+
+Chương 2 sẽ quay lại từ đầu với bài toán Image Classification, bắt đầu bằng Linear Classifier rồi từng bước giải thích vì sao convolution và mạng sâu cần thiết.
+
+</MdxPage>

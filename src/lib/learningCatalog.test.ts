@@ -39,8 +39,8 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.equal(learningTableOfContents.length, 16);
   assert.equal(learningCatalog.domains.length, 16);
-  assert.equal(learningCatalog.tracks.length, 103);
-  assert.equal(learningCatalog.lessons.length, 777);
+  assert.equal(learningCatalog.tracks.length, 104);
+  assert.equal(learningCatalog.lessons.length, 787);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -71,7 +71,7 @@ test('fully published and updating domains are prioritized without disturbing ca
   );
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     prioritizedDomains.map((item) => item.domain.id),
@@ -79,6 +79,7 @@ test('fully published and updating domains are prioritized without disturbing ca
       'linear-algebra',
       'continual-learning-llm',
       'research-papers',
+      'cv',
       'llm-ai-engineering',
       'mlops-llmops-production-systems',
       'evolutionary-algorithms',
@@ -86,7 +87,6 @@ test('fully published and updating domains are prioritized without disturbing ca
       'programming-foundation',
       'fundamentals',
       'deep-learning',
-      'cv',
       'nlp',
       'ai-system-design',
       'reinforcement-learning',
@@ -115,7 +115,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [
@@ -332,6 +332,7 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
   const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
   assert.ok(salesForecastingTrack);
   assert.deepEqual(

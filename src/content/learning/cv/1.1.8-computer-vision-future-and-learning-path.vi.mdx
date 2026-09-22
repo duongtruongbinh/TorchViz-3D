@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'computer-vision-future-and-learning-path',
+  locale: 'vi',
+  title: 'Tương lai Computer Vision & Lộ trình Học tập',
+  headings: [
+    'Từ Nhận diện Ảnh đến Hiểu Không gian',
+    'Lộ trình Học từ Nền tảng đến Ứng dụng',
+    'Tài liệu Tham khảo & Nguồn Nghiên cứu Gốc',
+  ],
+  keywords: [
+    'Spatial Intelligence',
+    'Embodied AI',
+    'Stanford CS231n',
+    'Computer Vision curriculum',
+    'Fei-Fei Li',
+    'Ehsan Adeli',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Từ Nhận diện Ảnh đến Hiểu Không gian
+
+Nhiều hệ thống Computer Vision quen thuộc nhận một ảnh và trả về nhãn hoặc vị trí vật thể. Nhưng thế giới thật không đứng yên trong một khung hình. Vật thể có chiều sâu, chuyển động, va chạm và thay đổi khi camera hoặc người quan sát di chuyển.
+
+<LessonImage
+  assetPath="cv/08-spatial-intelligence-embodied-ai-v2.jpg"
+  alt="Robot dùng thị giác để hiểu không gian và tương tác an toàn với vật thể"
+  caption="Biên giới mới của Computer Vision là đi từ nhận diện ảnh 2D tới hiểu và hành động trong không gian 3D."
+/>
+
+**Spatial Intelligence** hướng tới việc hiểu vật thể ở đâu, có hình dạng ra sao và quan hệ với nhau như thế nào. **Embodied AI** đưa hiểu biết đó vào một cơ thể như robot, xe tự hành hoặc thiết bị hỗ trợ để hệ thống có thể hành động trong môi trường thật.
+
+Ví dụ, nhận ra “đây là một chiếc cốc” chưa đủ để robot nhấc nó lên. Robot còn phải ước lượng vị trí, hướng tay cầm, khoảng cách, lực nắm và điều gì có thể xảy ra nếu chiếc cốc bị đẩy.
+
+Đây là hướng đi tự nhiên sau Image Classification. Khóa học bắt đầu bằng một nhãn cho toàn ảnh, rồi dần mở rộng tới vị trí, hình dạng, chuyển động và tương tác. Mỗi bước thêm một câu hỏi về thế giới mà mô hình cần trả lời.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Lộ trình Học từ Nền tảng đến Ứng dụng
+
+Một lộ trình Computer Vision tốt không bắt đầu bằng kiến trúc phức tạp nhất. Nó bắt đầu bằng việc hiểu dữ liệu đi vào, đầu ra cần có và giới hạn của giải pháp đơn giản.
+
+<LessonImage
+  assetPath="cv/09-cs231n-course-pillars-journey-v2.jpg"
+  alt="Lộ trình học Computer Vision từ phân loại ảnh tới hệ thống hiểu không gian"
+  caption="Hành trình học đi từ một ảnh và một nhãn, qua CNN và các tác vụ định vị, tới những hệ thống tương tác với thế giới."
+/>
+
+Chương trình này đi theo bốn bước lớn:
+
+1. **Image Classification:** hiểu ảnh được biểu diễn bằng số và cách mô hình tạo class scores.
+2. **CNN foundations:** học vì sao convolution phù hợp với cấu trúc không gian của ảnh.
+3. **Vision tasks:** mở rộng từ một nhãn sang phát hiện, phân đoạn và theo dõi vật thể.
+4. **Spatial systems:** kết hợp thị giác với 3D, chuyển động và hành động của robot.
+
+Mỗi khái niệm mới sẽ quay lại cùng câu hỏi nền tảng: đầu vào là gì, đầu ra là gì, mô hình học tín hiệu nào và khi nào nó có thể sai?
+
+Không cần phải là chuyên gia toán ngay từ đầu. Điều quan trọng là giữ được trực giác, kiểm tra shape cẩn thận và luôn nối kỹ thuật với một bài toán thực tế. Chương 2 bắt đầu đúng ở điểm nhỏ nhất đó: một ảnh đi vào, một nhãn như cat đi ra.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tài liệu Tham khảo & Nguồn Nghiên cứu Gốc
+
+Nội dung Chương 1 được tổng hợp từ bài giảng Stanford CS231n và các công trình nền tảng sau:
+
+- **Stanford CS231n:** [Deep Learning for Computer Vision](https://cs231n.stanford.edu/), Spring 2025, do Fei-Fei Li và Ehsan Adeli đồng giảng dạy.
+- **F. Rosenblatt (1958):** “The perceptron: a probabilistic model for information storage and organization in the brain”, Psychological Review.
+- **D. H. Hubel and T. N. Wiesel (1959):** “Receptive fields of single neurones in the cat's striate cortex”, The Journal of Physiology.
+- **L. G. Roberts (1963):** “Machine Perception of Three-Dimensional Solids”, MIT.
+- **S. Papert (1966):** “The Summer Vision Project”, MIT AI Memo No. 100.
+- **M. Minsky and S. A. Papert (1969):** “Perceptrons: An Introduction to Computational Geometry”, MIT Press.
+- **K. Fukushima (1980):** “Neocognitron”, Biological Cybernetics.
+- **D. Marr (1982):** “Vision”, W. H. Freeman.
+- **D. E. Rumelhart, G. E. Hinton, and R. J. Williams (1986):** “Learning representations by back-propagating errors”, Nature.
+- **Y. LeCun et al. (1998):** “Gradient-based learning applied to document recognition”, Proceedings of the IEEE.
+- **D. G. Lowe (1999):** “Object recognition from local scale-invariant features”, ICCV.
+- **P. Viola and M. Jones (2001):** “Rapid object detection using a boosted cascade of simple features”, CVPR.
+- **J. Deng et al. (2009):** “ImageNet: A Large-Scale Hierarchical Image Database”, CVPR.
+- **A. Krizhevsky, I. Sutskever, and G. E. Hinton (2012):** “ImageNet Classification with Deep Convolutional Neural Networks”, NeurIPS.
+
+Các nguồn này được liệt kê để người học có thể tra cứu lịch sử và đi sâu sau khi đã nắm câu chuyện tổng quan. Chương 1 không yêu cầu đọc trước các công trình gốc.
+
+</MdxPage>

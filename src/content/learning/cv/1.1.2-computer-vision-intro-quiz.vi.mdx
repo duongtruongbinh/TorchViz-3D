@@ -1,0 +1,58 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'computer-vision-intro-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Thị giác và Khả năng Hành động',
+    'Chuỗi Ngôn ngữ và Không gian Thị giác',
+    'Một Vật thể, Nhiều Hình ảnh',
+  ],
+  keywords: ['Computer Vision', 'visual intelligence', 'inverse problem', 'Quiz'],
+  pageCount: 3,
+};
+
+<MdxQuiz id="computer-vision-intro-quiz" questions={[
+  {
+    id: 'intro-vision-action',
+    title: 'Thị giác và Khả năng Hành động',
+    prompt: 'Vì sao bài học xem thị giác là một nền tảng của trí thông minh?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì mắt lưu lại nguyên vẹn mọi photon để não phát lại sau này.' },
+      { id: 'opt2', label: 'Vì thị giác chỉ dùng để tạo hình ảnh đẹp hơn.' },
+      { id: 'opt3', label: 'Vì nó nối cảm nhận môi trường với lựa chọn và hành động có mục đích.', isCorrect: true },
+      { id: 'opt4', label: 'Vì nó loại bỏ nhu cầu sử dụng mọi giác quan khác.' },
+    ],
+    success: 'Đúng. Giá trị cốt lõi của thị giác là biến tín hiệu ánh sáng thành thông tin giúp một chủ thể hành động.',
+    error: 'Hãy nhớ vòng lặp mở đầu của bài: quan sát, hiểu tình huống, rồi hành động.',
+  },
+  {
+    id: 'intro-vision-language-structure',
+    title: 'Chuỗi Ngôn ngữ và Không gian Thị giác',
+    prompt: 'Khác biệt trực giác nào giữa ngôn ngữ và thị giác được nhấn mạnh trong bài?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Ngôn ngữ nhấn mạnh thứ tự trong chuỗi, còn thị giác nhấn mạnh vị trí và quan hệ trong không gian.', isCorrect: true },
+      { id: 'opt2', label: 'Ngôn ngữ luôn có ba chiều, còn ảnh chỉ có một chiều.' },
+      { id: 'opt3', label: 'Ảnh không chứa bất kỳ quan hệ nào giữa các điểm ảnh.' },
+      { id: 'opt4', label: 'Hai loại dữ liệu hoàn toàn giống nhau và luôn dùng cùng một cách biểu diễn.' },
+    ],
+    success: 'Chính xác. Chuỗi và không gian tạo ra hai loại quan hệ mà mô hình cần học.',
+    error: 'Hãy so sánh từ đứng trước/sau với vật thể nằm cạnh, trên, dưới hoặc che khuất nhau.',
+  },
+  {
+    id: 'intro-inverse-problem',
+    title: 'Một Vật thể, Nhiều Hình ảnh',
+    prompt: 'Điều gì khiến việc suy ra vật thể từ pixel trở thành một inverse problem khó?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Mỗi vật thể chỉ có thể tạo ra đúng một bức ảnh duy nhất.' },
+      { id: 'opt2', label: 'Camera luôn ghi lại đầy đủ chiều sâu 3D trong từng pixel.' },
+      { id: 'opt3', label: 'Tên lớp đã được viết sẵn bên trong mọi ảnh.' },
+      { id: 'opt4', label: 'Ảnh 2D làm mất một phần thông tin, còn góc nhìn, ánh sáng và che khuất làm pixel thay đổi.', isCorrect: true },
+    ],
+    success: 'Đúng. Máy phải suy luận về thế giới từ một hình chiếu không đầy đủ và nhiều biến đổi quan sát.',
+    error: 'Hãy nhớ một chiếc cốc vẫn là cùng vật thể dù góc chụp, ánh sáng hoặc phần bị che thay đổi.',
+  },
+]} />

@@ -24,6 +24,7 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'Mermaid',
   'MermaidDiagram',
   'Flowchart',
+  'Timeline',
 ] as const;
 
 export const REFERENCE_AUTHORED_MDX_COMPONENT_NAMES = [

@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'computer-vision-intro',
+  locale: 'vi',
+  title: 'Giới thiệu về Computer Vision',
+  headings: [
+    'Thị giác Mở ra Khả năng Hành động',
+    'Thị giác và Ngôn ngữ Mang hai Loại Thông tin',
+    'Vì sao Hiểu một Bức ảnh lại Khó?',
+  ],
+  keywords: [
+    'computer vision',
+    'visual intelligence',
+    'Cambrian Explosion',
+    'Vision 3D',
+    'Language 1D',
+    'inverse problem',
+    'physical variation',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Thị giác Mở ra Khả năng Hành động
+
+Computer Vision là lĩnh vực giúp máy tính thu nhận và hiểu thông tin từ ảnh hoặc video. Nhưng trước khi nghĩ tới camera và thuật toán, hãy nhìn thị giác như một năng lực sinh tồn: thấy được môi trường cho phép một sinh vật chọn nơi đi, tìm thức ăn và tránh nguy hiểm.
+
+<LessonImage
+  assetPath="cv/01-cambrian-vision-evolution-v2.jpg"
+  alt="Sự tiến hóa của thị giác từ sinh vật thụ động đến sinh vật chủ động có mắt và não bộ"
+  caption="Khi có thể cảm nhận ánh sáng và phương hướng, sinh vật không còn chỉ phản ứng thụ động mà bắt đầu chủ động tương tác với môi trường."
+/>
+
+Trong quá trình tiến hóa, sự hình thành của thị giác đã tạo ra một vòng lặp mới: quan sát, hiểu tình huống, rồi hành động. Não bộ phát triển không chỉ để ghi lại ánh sáng, mà để biến tín hiệu đó thành câu trả lời hữu ích: vật gì đang ở trước mặt, nó cách bao xa, và ta nên làm gì tiếp theo?
+
+Computer Vision theo đuổi một mục tiêu tương tự cho máy móc. Camera cung cấp pixel; mô hình phải biến pixel thành thông tin có ý nghĩa. Một hệ thống có thể nhận ra mèo trong ảnh, hỗ trợ bác sĩ đọc ảnh y tế, phát hiện lỗi sản phẩm hoặc giúp robot tránh chướng ngại vật.
+
+<LessonNote tone="fact">
+  Ý chính của trang này rất đơn giản: thị giác nối cảm nhận với hành động. Dạy máy tính cách nhìn là phải dạy đi từ pixel đến vật thể, từ vật thể đến ngữ cảnh, và từ ngữ cảnh đến hiểu biết.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thị giác và Ngôn ngữ Mang hai Loại Thông tin
+
+Ngôn ngữ trải dài theo một chuỗi các từ, còn hình ảnh mở rộng trong không gian, nơi các điểm ảnh cùng tạo nên vật thể và khung cảnh.
+
+<LessonImage
+  assetPath="cv/02-vision-3d-vs-language-1d-v2.jpg"
+  alt="So sánh chuỗi ngôn ngữ và cảnh thị giác có cấu trúc không gian"
+  caption="Ngôn ngữ nhấn mạnh thứ tự trong chuỗi; thị giác nhấn mạnh vị trí, hình dạng và quan hệ trong không gian."
+/>
+
+| Câu hỏi | Ngôn ngữ | Thị giác |
+| :--- | :--- | :--- |
+| Dữ liệu trông như thế nào? | Chuỗi từ hoặc token | Lưới pixel của ảnh, hoặc nhiều khung hình của video |
+| Quan hệ quan trọng là gì? | Từ nào đứng trước hoặc sau | Vật nào ở đâu, gần gì, che khuất gì |
+| Máy cần trả lời gì? | Ý nghĩa và từ tiếp theo | Vật thể, vị trí, chuyển động và cấu trúc cảnh |
+
+Hai lĩnh vực có thể hỗ trợ nhau, nhưng không hoàn toàn thay thế nhau. Một câu mô tả “con mèo nằm dưới bàn” đã bỏ qua màu sắc, tư thế và vô số chi tiết không gian có trong ảnh. Ngược lại, một bức ảnh không tự nói rõ ý định hoặc câu chuyện mà con người muốn truyền đạt.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao Hiểu một Bức ảnh lại Khó?
+
+Con người nhìn một bức ảnh mèo và nhận ra gần như ngay lập tức. Máy tính trước hết chỉ nhận được các con số biểu diễn độ sáng và màu của từng pixel. Khoảng cách giữa “một bảng số” và “đây là con mèo” chính là bài toán mà Computer Vision phải giải quyết.
+
+<LessonImage
+  assetPath="cv/03-ill-posed-inverse-problem-v2.jpg"
+  alt="Một cảnh ba chiều tạo ra ảnh hai chiều và thay đổi theo góc nhìn, ánh sáng, che khuất"
+  caption="Ảnh 2D chỉ là một góc nhìn của thế giới 3D; nhiều cảnh khác nhau có thể tạo ra tín hiệu pixel gần giống nhau."
+/>
+
+Khó khăn đầu tiên là camera nén thế giới 3D thành một mặt phẳng 2D. Chiều sâu không còn được ghi trực tiếp. Khó khăn thứ hai là cùng một vật thể có thể trông rất khác khi ánh sáng, góc chụp, kích thước hoặc phông nền thay đổi. Một chiếc cốc vẫn là chiếc cốc dù bị xoay, nằm trong bóng tối hay bị bàn tay che mất một phần.
+
+Có thể hình dung ba câu hỏi mà mô hình phải vượt qua:
+
+- Pixel nào thuộc cùng một vật thể?
+- Điều gì thay đổi chỉ vì cách chụp, và điều gì thuộc về bản thân vật thể?
+- Từ phần thông tin nhìn thấy, ta có thể suy ra điều gì về toàn cảnh?
+
+Các nhà nghiên cứu gọi đây là một **inverse problem**: từ kết quả nhìn thấy trên ảnh, máy phải suy luận ngược về thế giới đã tạo ra nó. Chương 1 sẽ kể lại những ý tưởng lớn mà nhiều thế hệ nhà nghiên cứu đã dùng để thu hẹp khoảng cách đó. Cơ chế toán học và cách mô hình học từ pixel sẽ bắt đầu ở Chương 2.
+
+</MdxPage>

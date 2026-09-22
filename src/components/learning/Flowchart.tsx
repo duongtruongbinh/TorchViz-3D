@@ -8,6 +8,7 @@ export type FlowchartNode = {
   subtitle?: ReactNode;
   tag?: string;
   isEnd?: boolean;
+  active?: boolean;
 };
 
 export function Flowchart({
@@ -29,22 +30,32 @@ export function Flowchart({
               <div key={index} className="flex flex-col sm:flex-row items-center gap-3">
                 {/* Minimalist Node Box */}
                 <div
-                  className={`flex flex-col justify-between w-52 sm:w-56 rounded-xl border px-4 py-3.5 transition-shadow ${
-                    node.isEnd
-                      ? 'border-rose-200 bg-white shadow-xs'
-                      : 'border-slate-200 bg-white shadow-xs'
+                  className={`flex flex-col justify-between w-52 sm:w-56 rounded-xl border px-4 py-3.5 transition-all ${
+                    node.active
+                      ? 'border-[#205089] bg-[#EFF3F8] shadow-xs ring-2 ring-[#205089]/25'
+                      : node.isEnd
+                        ? 'border-rose-200 bg-white shadow-xs'
+                        : 'border-slate-200 bg-white shadow-xs'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="font-mono text-[11px] font-semibold text-slate-400 tracking-wider">
+                    <span
+                      className={`font-mono text-[11px] tracking-wider ${
+                        node.active
+                          ? 'font-bold text-[#205089]'
+                          : 'font-semibold text-slate-400'
+                      }`}
+                    >
                       {typeof stepNumber === 'number' ? `0${stepNumber}` : stepNumber}
                     </span>
                     {node.tag && (
                       <span
                         className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider ${
-                          node.isEnd
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200/60'
-                            : 'bg-slate-100 text-slate-600 border border-slate-200/60'
+                          node.active
+                            ? 'bg-[#205089] text-white border border-[#205089]'
+                            : node.isEnd
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200/60'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                         }`}
                       >
                         {node.tag}
@@ -55,13 +66,21 @@ export function Flowchart({
                   <div>
                     <h5
                       className={`text-xs font-bold tracking-tight ${
-                        node.isEnd ? 'text-rose-900' : 'text-slate-900'
+                        node.active
+                          ? 'text-[#205089]'
+                          : node.isEnd
+                            ? 'text-rose-900'
+                            : 'text-slate-900'
                       }`}
                     >
                       {node.title}
                     </h5>
                     {node.subtitle && (
-                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500 font-normal">
+                      <p
+                        className={`mt-1 text-[11px] leading-relaxed font-normal ${
+                          node.active ? 'text-[#205089]/80' : 'text-slate-500'
+                        }`}
+                      >
                         {node.subtitle}
                       </p>
                     )}
@@ -70,7 +89,7 @@ export function Flowchart({
 
                 {/* Minimalist Connecting Arrow */}
                 {!isLast && (
-                  <div className="flex items-center justify-center text-slate-300 py-0.5 sm:py-0 shrink-0">
+                  <div className="flex items-center justify-center py-0.5 sm:py-0 shrink-0">
                     <ArrowRight className="size-4 hidden sm:block text-slate-400" strokeWidth={1.75} />
                     <ArrowRight className="size-4 rotate-90 sm:hidden text-slate-400 my-1" strokeWidth={1.75} />
                   </div>

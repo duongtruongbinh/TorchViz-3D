@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'image-classification-linear-classifier-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Shape sau khi Flatten',
+    'Shape của Ma trận Trọng số',
+    'Score, Probability và Prediction',
+    'Linear Classifier hay Linear Regression',
+    'Vì sao Cần CNN',
+  ],
+  keywords: ['Image Classification', 'Linear Classifier', 'Softmax', 'argmax', 'flatten', 'Quiz'],
+  pageCount: 5,
+};
+
+<MdxQuiz id="image-classification-linear-classifier-quiz" questions={[
+  {
+    id: 'linear-classifier-flatten-shape',
+    title: 'Shape sau khi Flatten',
+    prompt: 'Một ảnh RGB có shape 32 × 32 × 3. Sau khi flatten một ảnh, vector đầu vào có bao nhiêu giá trị?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: '96' },
+      { id: 'opt2', label: '1.024' },
+      { id: 'opt3', label: '3.072', isCorrect: true },
+      { id: 'opt4', label: '30.720' },
+    ],
+    success: 'Đúng. 32 × 32 × 3 = 3.072 giá trị pixel trong vector đã flatten.',
+    error: 'Hãy nhân cả ba chiều Height × Width × Channels: 32 × 32 × 3.',
+  },
+  {
+    id: 'linear-classifier-weight-shape',
+    title: 'Shape của Ma trận Trọng số',
+    prompt: 'Với input 3.072 chiều và 10 lớp, shape nào của W tạo đúng 10 class scores?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: '10 × 3.072', isCorrect: true },
+      { id: 'opt2', label: '3.072 × 3.072' },
+      { id: 'opt3', label: '10 × 10' },
+      { id: 'opt4', label: '3.072 × 1' },
+    ],
+    success: 'Chính xác. Mỗi trong 10 hàng của W chấm toàn bộ 3.072 giá trị đầu vào cho một lớp.',
+    error: 'Output cần 10 hàng và mỗi hàng phải kết nối với toàn bộ 3.072 phần tử của x.',
+  },
+  {
+    id: 'linear-classifier-score-probability-prediction',
+    title: 'Score, Probability và Prediction',
+    prompt: 'Phát biểu nào phân biệt đúng score, probability và prediction?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Score luôn nằm trong [0, 1], còn probability có thể âm.' },
+      { id: 'opt2', label: 'Prediction là toàn bộ vector score trước khi chọn lớp.' },
+      { id: 'opt3', label: 'Softmax thay đổi lớp có score lớn nhất thành một lớp khác.' },
+      { id: 'opt4', label: 'Score là đầu ra thô; Softmax tạo probability; argmax chọn prediction.', isCorrect: true },
+    ],
+    success: 'Đúng. Đây là ba vai trò khác nhau trong cùng pipeline phân loại.',
+    error: 'Score có thể là số thực bất kỳ; Softmax chuẩn hóa; argmax trả về chỉ số lớp thắng.',
+  },
+  {
+    id: 'linear-classifier-vs-regression',
+    title: 'Linear Classifier hay Linear Regression',
+    prompt: 'Vì sao bài học gọi baseline là Linear Classifier hoặc Softmax Regression thay vì Linear Regression thuần túy?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì mô hình không sử dụng phép nhân ma trận.' },
+      { id: 'opt2', label: 'Vì mục tiêu là so sánh score của nhiều lớp và trả về nhãn rời rạc, không dự đoán một đại lượng liên tục.', isCorrect: true },
+      { id: 'opt3', label: 'Vì mọi pixel đầu vào đều phải là số nguyên.' },
+      { id: 'opt4', label: 'Vì Softmax loại bỏ hoàn toàn trọng số W.' },
+    ],
+    success: 'Chính xác. Hàm tuyến tính tạo score, nhưng hợp đồng đầu ra là một lớp rời rạc.',
+    error: 'Hãy nhìn vào loại đầu ra: classification chọn một nhãn, còn Linear Regression dự đoán giá trị liên tục.',
+  },
+  {
+    id: 'linear-classifier-cnn-motivation',
+    title: 'Vì sao Cần CNN',
+    prompt: 'Hạn chế nào của baseline tạo động lực trực tiếp cho convolution?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Flatten không giữ cấu trúc lân cận một cách tường minh và lớp tuyến tính thiếu phân cấp đặc trưng cục bộ.', isCorrect: true },
+      { id: 'opt2', label: 'Linear Classifier tạo quá nhiều tầng convolution.' },
+      { id: 'opt3', label: 'Argmax không thể chọn phần tử lớn nhất trong vector.' },
+      { id: 'opt4', label: 'Ảnh RGB không thể biểu diễn bằng số.' },
+    ],
+    success: 'Đúng. CNN giữ bố cục 2D, dùng receptive field cục bộ và học đặc trưng phân cấp.',
+    error: 'Vấn đề nằm ở cấu trúc không gian và độ sâu biểu diễn, không phải ở khả năng lưu ảnh hay phép argmax.',
+  },
+]} />

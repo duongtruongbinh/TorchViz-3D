@@ -1,0 +1,184 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'classical-computer-vision-timeline',
+  locale: 'vi',
+  title: 'Thread 1: Classical Computer Vision',
+  headings: [
+    'Từ Cạnh đơn giản đến Hình dạng',
+    'Khi Máy tính Bắt đầu Nhìn Thế giới',
+    'David Marr và Câu hỏi về Biểu diễn',
+    'Thị giác Cần cả Dữ liệu lẫn Ngữ cảnh',
+    'Đỉnh cao của Handcrafted Features',
+  ],
+  keywords: [
+    'Classical Computer Vision',
+    'Hubel Wiesel',
+    'Larry Roberts',
+    'MIT Summer Vision Project',
+    'Edge Detection',
+    'David Marr',
+    'Cognitive AI',
+    'SIFT',
+    'Viola-Jones',
+    'handcrafted features',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+## Từ Cạnh đơn giản đến Hình dạng
+
+Trước khi máy tính biết nhận dạng đồ vật, các nhà khoa học đã hỏi một câu cơ bản hơn: não sinh học bắt đầu hiểu hình ảnh từ đâu?
+
+Ban đầu, Hubel và Wiesel thử chiếu các chấm sáng nhưng neuron họ theo dõi trong vùng vỏ não thị giác sơ cấp (V1) của mèo hầu như không phản ứng. Khi một tấm kính được vô tình đưa qua máy chiếu, mép kính tạo ra một đường bóng mảnh và neuron này bất ngờ phát tín hiệu rất mạnh. Sau nhiều lần thử lại, họ nhận ra neuron đặc biệt nhạy với một cạnh xuất hiện đúng vị trí và đúng hướng.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Thị giác bắt đầu từ các tín hiệu cục bộ như cạnh và hướng.', active: true },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản trong ảnh.' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên của vật thể.' },
+    { year: '1982', title: 'David Marr', summary: 'Hiểu thị giác như nhiều mức biểu diễn nối tiếp nhau.' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý cũng tham gia vào quá trình nhìn.' },
+    { year: '1999', title: 'SIFT', summary: 'Tạo dấu mốc cục bộ có thể nhận ra qua nhiều góc nhìn.' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Đưa phát hiện khuôn mặt thời gian thực vào ứng dụng.' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/04-hubel-wiesel-cat-experiment-1950.jpg"
+  alt="Thí nghiệm Hubel và Wiesel đo phản ứng của neuron thị giác trước một khe sáng có hướng"
+  caption="Một cạnh đơn giản có thể kích hoạt những neuron khác nhau tùy vị trí và góc nghiêng của nó."
+/>
+
+Phát hiện này gợi ra một trực giác quan trọng: trước khi nhận ra toàn bộ vật thể, hệ thị giác có thể bắt đầu bằng những tín hiệu đơn giản như cạnh và hướng. Câu hỏi tiếp theo là liệu máy tính có thể làm điều tương tự hay không.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khi Máy tính Bắt đầu Nhìn Thế giới
+
+Năm 1963, Larry Roberts đưa câu hỏi đó vào một trong những hệ thống Computer Vision đầu tiên. Máy tìm các cạnh trong ảnh của những khối đa diện, rồi dùng các đường biên để suy ra cấu trúc 3D. Sang thập niên 1970, **Edge Detection** trở thành một bước xử lý nền tảng: biến ảnh pixel thành các đường biên mà máy có thể tiếp tục phân tích.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Thị giác bắt đầu từ các tín hiệu cục bộ như cạnh và hướng.' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản trong ảnh.', active: true },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên của vật thể.' },
+    { year: '1982', title: 'David Marr', summary: 'Hiểu thị giác như nhiều mức biểu diễn nối tiếp nhau.' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý cũng tham gia vào quá trình nhìn.' },
+    { year: '1999', title: 'SIFT', summary: 'Tạo dấu mốc cục bộ có thể nhận ra qua nhiều góc nhìn.' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Đưa phát hiện khuôn mặt thời gian thực vào ứng dụng.' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/05-larry-roberts-david-marr-v2.jpg"
+  alt="Các khối hình học của Larry Roberts và chuỗi biểu diễn thị giác của David Marr"
+  caption="Computer Vision ban đầu dùng những thế giới hình học đơn giản để học cách đi từ ảnh 2D tới cấu trúc 3D."
+/>
+
+Dự án Summer Vision tại MIT năm 1966 từng kỳ vọng một nhóm sinh viên có thể giải quyết phần lớn bài toán thị giác trong một mùa hè. Kỳ vọng đó nhanh chóng cho thấy lĩnh vực này khó hơn tưởng tượng. Một cạnh trong ảnh có thể là mép bàn, bóng đổ hoặc ranh giới giữa hai vật thể. Máy cần nhiều hơn các quy tắc hình học đơn lẻ để phân biệt chúng.
+
+Giai đoạn này để lại hai bài học. Thứ nhất, mô hình nhỏ và cảnh đơn giản là nơi tốt để thử một ý tưởng mới. Thứ hai, thành công trong phòng thí nghiệm chưa đồng nghĩa với việc hiểu được thế giới đa dạng ngoài đời.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## David Marr và Câu hỏi về Biểu diễn
+
+Khi những lời hứa ban đầu của AI chưa trở thành hiện thực, nguồn lực nghiên cứu suy giảm trong giai đoạn thường được gọi là AI Winter. Tuy vậy, Computer Vision vẫn tiến lên nhờ một câu hỏi bền vững hơn: máy nên biểu diễn điều nó nhìn thấy như thế nào?
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Thị giác bắt đầu từ các tín hiệu cục bộ như cạnh và hướng.' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản trong ảnh.' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên của vật thể.' },
+    { year: '1982', title: 'David Marr', summary: 'Hiểu thị giác như nhiều mức biểu diễn nối tiếp nhau.', active: true },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý cũng tham gia vào quá trình nhìn.' },
+    { year: '1999', title: 'SIFT', summary: 'Tạo dấu mốc cục bộ có thể nhận ra qua nhiều góc nhìn.' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Đưa phát hiện khuôn mặt thời gian thực vào ứng dụng.' },
+  ]}
+/>
+
+David Marr đề xuất rằng thị giác có thể đi qua nhiều mức:
+
+1. Nhận ra cạnh và thay đổi độ sáng.
+2. Ước lượng bề mặt, hướng và chiều sâu tương đối.
+3. Hình thành một biểu diễn ổn định hơn về vật thể 3D.
+
+Điểm quan trọng không nằm ở việc ghi nhớ tên từng mức. Marr giúp cộng đồng thấy rằng khoảng cách từ pixel tới vật thể quá lớn để vượt qua bằng một phép biến đổi duy nhất. Ta cần các biểu diễn trung gian, mỗi biểu diễn trả lời một phần của bài toán.
+
+Tư duy này vẫn xuất hiện trong các mô hình hiện đại. Những tầng đầu thường phản ứng với mẫu đơn giản, còn tầng sau kết hợp chúng thành ý nghĩa cao hơn. Công cụ đã thay đổi, nhưng câu hỏi về biểu diễn vẫn ở trung tâm.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thị giác Cần cả Dữ liệu lẫn Ngữ cảnh
+
+Một hệ thống chỉ dò cạnh sẽ gặp khó khi vật thể bị che khuất hoặc hòa vào phông nền. Con người lại thường đoán được phần còn thiếu nhờ biết mình đang nhìn một căn bếp, một con đường hay một khuôn mặt.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Thị giác bắt đầu từ các tín hiệu cục bộ như cạnh và hướng.' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản trong ảnh.' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên của vật thể.' },
+    { year: '1982', title: 'David Marr', summary: 'Hiểu thị giác như nhiều mức biểu diễn nối tiếp nhau.' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý cũng tham gia vào quá trình nhìn.', active: true },
+    { year: '1999', title: 'SIFT', summary: 'Tạo dấu mốc cục bộ có thể nhận ra qua nhiều góc nhìn.' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Đưa phát hiện khuôn mặt thời gian thực vào ứng dụng.' },
+  ]}
+/>
+
+Cognitive AI trong thập niên 1990 nhấn mạnh ba trực giác dễ hiểu:
+
+- Các mảnh rời rạc có thể được nhóm thành một hình hoàn chỉnh.
+- Sự chú ý giúp ưu tiên vùng quan trọng giữa một cảnh nhiều chi tiết.
+- Ngữ cảnh giúp diễn giải tín hiệu mơ hồ.
+
+Ví dụ, cùng một vùng màu nâu có thể là mặt bàn, thân cây hoặc áo khoác. Những pixel cục bộ chưa đủ; các vật thể xung quanh làm thay đổi cách ta hiểu vùng đó.
+
+Đây là cầu nối quan trọng giữa Classical Vision và AI hiện đại. Nhìn không chỉ là đo tín hiệu từ dưới lên. Nó còn là đối chiếu tín hiệu với cấu trúc của toàn cảnh và tri thức đã có.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Đỉnh cao của Handcrafted Features
+
+Trước khi Deep Learning phổ biến, con người phải thiết kế cách biến pixel thành đặc trưng hữu ích. Hai cột mốc cuối thập niên 1990 và đầu 2000 cho thấy phương pháp này có thể mạnh đến đâu.
+
+<Timeline
+  items={[
+    { year: '1959', title: 'Hubel & Wiesel', summary: 'Thị giác bắt đầu từ các tín hiệu cục bộ như cạnh và hướng.' },
+    { year: '1963', title: 'Larry Roberts', summary: 'Máy suy luận hình dạng 3D từ các khối đơn giản trong ảnh.' },
+    { year: '1970s', title: 'Edge Detection', summary: 'Biến thay đổi độ sáng thành đường biên của vật thể.' },
+    { year: '1982', title: 'David Marr', summary: 'Hiểu thị giác như nhiều mức biểu diễn nối tiếp nhau.' },
+    { year: '1990s', title: 'Cognitive AI', summary: 'Ngữ cảnh và sự chú ý cũng tham gia vào quá trình nhìn.' },
+    { year: '1999', title: 'SIFT', summary: 'Tạo dấu mốc cục bộ có thể nhận ra qua nhiều góc nhìn.' },
+    { year: '2001', title: 'Viola–Jones', summary: 'Đưa phát hiện khuôn mặt thời gian thực vào ứng dụng.', active: true },
+  ]}
+/>
+
+<LessonImage
+  assetPath="cv/06c-sift-keypoint-descriptor-1999.png"
+  alt="Các keypoint SIFT được tìm thấy trên những vùng nổi bật của ảnh"
+  caption="SIFT tạo các dấu mốc cục bộ để cùng một vùng ảnh vẫn có thể được ghép nối khi góc nhìn hoặc kích thước thay đổi."
+/>
+
+**SIFT** của David Lowe tìm những vùng nổi bật trong ảnh và mô tả chúng như các dấu mốc cục bộ. Nhờ vậy, hệ thống có thể ghép hai ảnh của cùng một cảnh dù camera đã xoay hoặc tiến lại gần hơn.
+
+<LessonImage
+  assetPath="cv/06d-viola-jones-face-detection-2001.png"
+  alt="Viola-Jones quét ảnh và đánh dấu vùng có khuôn mặt"
+  caption="Viola–Jones kết hợp những dấu hiệu sáng–tối đơn giản để phát hiện khuôn mặt đủ nhanh cho ứng dụng thời gian thực."
+/>
+
+**Viola–Jones** đưa phát hiện khuôn mặt vào camera và phần mềm phổ thông. Thay vì hiểu mọi chi tiết của khuôn mặt, hệ thống tìm một số mẫu tương phản đặc trưng và nhanh chóng loại các vùng không phù hợp.
+
+Đây là đỉnh cao của **handcrafted features**: nhà nghiên cứu quyết định dấu hiệu nào đáng chú ý, sau đó bộ phân loại dùng các dấu hiệu ấy để dự đoán. Thành công rất lớn, nhưng mỗi bài toán thường cần một bộ đặc trưng riêng. Luồng 2 sẽ thay đổi giả định này bằng cách để mạng học đặc trưng trực tiếp từ dữ liệu.
+
+</MdxPage>
