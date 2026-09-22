@@ -1,0 +1,239 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'linear-regression',
+  locale: 'vi',
+  title: 'Linear Regression',
+  headings: [
+    'Mở đầu',
+    'Mô hình hóa bài toán (High-level)',
+    'Linear Regression (Low-level)',
+    'Các giả định của Linear Regression',
+    'Tóm tắt',
+  ],
+  keywords: ['linear regression', 'modeling', 'feature', 'weight', 'bias', 'noise', 'homoscedasticity'],
+  pageCount: 8,
+};
+
+<MdxPage page={0}>
+
+## Mở đầu
+
+### 1.1 Bối cảnh
+
+Bạn là một người kinh doanh, làm việc trong lĩnh vực bất động sản tại TP.HCM. Bạn biết giá bất động sản sẽ biến động theo từng năm, ví dụ:
+
+- Năm 2020, giá BĐS tại Quận 1, phường Bến Nghé là: 10 triệu USD/m²
+- Năm 2025, giá BĐS tại Quận 1, phường Bến Nghé là: 30 triệu USD/m²
+
+Câu hỏi đặt ra: làm sao bạn biết mức tăng giá đó là hợp lý? Có cách nào để đo lường sự tăng giá bất động sản ở khu vực Quận 1 một cách hợp lý, có cơ sở rõ ràng, thay vì chỉ dựa vào cảm tính hay lời đồn của “cò đất”?
+
+<LessonImage
+  assetPath="fundamentals/linear-regression-house-prices.png"
+  alt="Giá bất động sản tăng theo thời gian với các căn nhà và mũi tên đi lên"
+/>
+
+Ta gọi đây là bài toán dự đoán giá nhà.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Mô hình hóa bài toán (High-level)
+
+### 2.1 Mô hình hóa là gì?
+
+Mô hình hóa là cách ta biểu diễn một bài toán trong thực tế dưới dạng hàm số, phương trình toán học, với đầu vào và đầu ra rõ ràng - để từ đó có thể tính toán, dự đoán và kiểm chứng bằng số liệu, thay vì chỉ dựa vào trực giác.
+
+Ví dụ về mô hình hóa nói chung:
+
+- Bài toán “quãng đường đi được” được mô hình hóa thành <InlineMath formula="s=v \times t" />
+- Bài toán “lãi suất kép” được mô hình hóa thành <InlineMath formula="A=P(1+r)^{t}" />
+
+Trong Machine Learning, ta cũng làm điều tương tự: biến một bài toán “mơ hồ” (ví dụ: giá nhà bao nhiêu là hợp lý?) thành một hàm số có thể tính toán được.
+
+### 2.2 Mô hình hóa bài toán dự đoán giá nhà
+
+Quay lại bài toán dự đoán giá nhà - làm thế nào ta mô hình hóa nó?
+Ta gọi:
+
+- <InlineMath formula="y" /> là giá của căn nhà (đầu ra ta muốn dự đoán)
+- <InlineMath formula="x" /> là các đặc trưng (features) thể hiện giá trị căn nhà: số phòng ngủ, số toilet, có nằm ở mặt tiền không, diện tích, v.v.
+
+Ta biểu diễn <InlineMath formula="y" /> dưới dạng một hàm số <InlineMath formula="f(x)" />:
+
+<BlockMath formula="y=f(x)+\epsilon" />
+
+Trong đó:
+
+- <InlineMath formula="f(x)" /> là một hàm số thể hiện mức độ ảnh hưởng của các đặc trưng đến giá nhà cuối cùng (<InlineMath formula="y" />)
+- <InlineMath formula="\epsilon" /> (đọc là epsilon) là sai số ngẫu nhiên của dự đoán. Trong thực tế, ta gần như không thể tính toán chính xác 100% giá của toàn bộ các căn nhà ở Quận 1, vì luôn tồn tại một phần sai lệch nhỏ không thể đo lường hết được (tâm lý người bán, thời điểm giao dịch, thương lượng…). Ta gọi phần đó là sai số ngẫu nhiên.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Vậy câu hỏi tiếp theo: ta sẽ thiết kế <InlineMath formula="f(x)" /> như thế nào?
+
+Có rất nhiều cách thiết kế hàm <InlineMath formula="f(x)" />, nhưng nổi tiếng và đơn giản nhất là Linear Regression (Hồi quy tuyến tính).
+
+## Linear Regression (Low-level)
+
+### 3.1 Ý tưởng thiết kế <InlineMath formula="f(x)" />
+
+Linear Regression suy nghĩ rất đơn giản: với mỗi đặc trưng dùng để thể hiện giá nhà, nó sẽ gán cho đặc trưng đó một “trọng số” (weight) để thể hiện mức độ quan trọng của đặc trưng đó đối với giá nhà cuối cùng. Kết quả cuối cùng sẽ là tổng có trọng số của tất cả các đặc trưng.
+
+Để hiểu rõ hơn, xét ví dụ sau với 2 đặc trưng:
+
+- Đặc trưng 1 (<InlineMath formula="x_1" />): Nhà đó có nằm ở mặt tiền không?
+- Đặc trưng 2 (<InlineMath formula="x_2" />): Nhà đó có chuồng chó không?
+
+Theo bạn, đặc trưng nào quan trọng hơn?
+
+Quá rõ ràng, đặc trưng số 1 sẽ quan trọng hơn nhiều so với đặc trưng số 2. Do đó khi mô hình hóa, ta sẽ để đặc trưng 1 có “trọng lượng” lớn hơn hẳn:
+
+<BlockMath formula="y=1000x_1+1x_2+\epsilon" />
+
+Tuy nhiên, ngay từ đầu, Linear Regression không hề biết trước các trọng số sẽ có giá trị bao nhiêu - con số 1000 và 1 ở trên chỉ là ta gán bừa để minh họa. Vì vậy, khi mô hình hóa, ta sẽ gọi các trọng số này là <InlineMath formula="\theta" /> (đọc là theta) - đây chính là những giá trị mà mô hình cần học ra từ dữ liệu.
+
+### 3.2 Trọng số tự do (Bias)
+
+Trong thực tế, khi mua một căn nhà, có thể ta phải trả thêm “tiền cò” (hoa hồng cho người giới thiệu). Khoản tiền này thường cố định, không phụ thuộc vào “độ quan trọng” của bất kỳ đặc trưng nào cả. Ta biểu diễn nó như sau:
+
+<BlockMath formula="y=1000x_1+1x_2+1000+\epsilon" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### 3.3 Công thức tổng quát
+
+Như vậy, Linear Regression mô hình hóa bài toán bằng cách nhân mỗi trọng số với một đặc trưng tương ứng, rồi lấy tổng. Công thức tổng quát:
+
+<BlockMath formula="y=\theta_0x_0+\theta_1x_1+\theta_2x_2+\cdots+\theta_dx_d=\sum_{i=0}^{d}\theta_ix_i" />
+
+Trong đó:
+
+- <InlineMath formula="\theta_i" /> với <InlineMath formula="i \geq 1" />: thường được gọi là trọng số (Weight)
+- <InlineMath formula="\theta_0" />: thường được gọi là trọng số tự do (Bias)
+- <InlineMath formula="x_0" />: ta mặc định luôn bằng 1 (để có trọng số tự do <InlineMath formula="\theta_0" />)
+
+### 3.4 So sánh với phương trình bậc 1 (THCS)
+
+Ta thấy phương trình trên khá giống phương trình bậc 1 đã học ở cấp THCS:
+
+<BlockMath formula="y=ax+b" />
+
+Trong đó:
+
+- <InlineMath formula="a" /> được gọi là hệ số dốc (Slope)
+- <InlineMath formula="b" /> được gọi là hệ số gốc (Intercept)
+
+Nói cách khác, Linear Regression với 1 đặc trưng duy nhất chính là đường thẳng <InlineMath formula="y=ax+b" /> mà bạn đã quen thuộc - chỉ khác là giờ đây ta mở rộng nó cho nhiều đặc trưng cùng lúc, và các hệ số <InlineMath formula="a,b" /> (ở đây là <InlineMath formula="\theta" />) sẽ được học tự động từ dữ liệu thay vì cho trước.
+
+## Các giả định của Linear Regression
+
+Linear Regression rất đơn giản - nó xuất phát từ một phương trình bậc 1 đã học ở cấp THCS. Chính vì sự đơn giản đó, nó cần một số ràng buộc (giả định) để hoạt động tốt trong thực tế.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### 4.1. Các đặc trưng độc lập với nhau
+
+<BlockMath formula="x_i \text{ độc lập với } x_j,\quad \forall i \ne j" />
+
+Giả định này cho rằng mọi đặc trưng đầu vào không có quan hệ với nhau, mỗi đặc trưng đóng góp vào <InlineMath formula="y" /> một cách riêng biệt.
+
+Ví dụ với giá nhà: giả định rằng “diện tích nhà” và “có nằm mặt tiền hay không” là hai yếu tố hoàn toàn độc lập, tác động riêng lẻ lên giá - trong khi thực tế, nhà mặt tiền thường cũng có xu hướng diện tích lớn hơn (hai đặc trưng có tương quan với nhau). Đây là điểm mô hình “lý tưởng hóa” so với thực tế.
+
+### 4.2. X có quan hệ tuyến tính với Y
+
+<InlineMath formula="X" /> có quan hệ tuyến tính với <InlineMath formula="Y" />.
+
+Khi <InlineMath formula="x" /> tăng thêm 1 đơn vị, <InlineMath formula="y" /> cũng tăng (hoặc giảm) một lượng cố định tương ứng - mối quan hệ được biểu diễn bằng một đường thẳng, không phải đường cong.
+
+Ví dụ với giá nhà: giả định rằng cứ thêm 1 phòng ngủ thì giá nhà tăng thêm đúng, ví dụ, 500 triệu - bất kể căn nhà đang có 1 phòng hay đã có 10 phòng. Trong thực tế điều này chưa chắc đúng (thêm phòng thứ 2 có thể giá trị hơn nhiều so với thêm phòng thứ 10), nhưng Linear Regression giả định mối quan hệ là tuyến tính để đơn giản hóa bài toán.
+
+### 4.3. <InlineMath formula="y" /> có thể biểu diễn dưới dạng hàm tuyến tính
+
+<BlockMath formula="y=f(x)+\epsilon" />
+
+Giá trị đầu ra <InlineMath formula="y" /> có thể được biểu diễn dưới dạng tổng có trọng số của các đặc trưng <InlineMath formula="f(x)" />, cộng thêm một phần sai số <InlineMath formula="\epsilon" /> không thể giải thích được.
+
+Ví dụ với giá nhà: giá bán thực tế của một căn nhà = (tổng có trọng số của diện tích, số phòng, vị trí mặt tiền,…) + một khoản chênh lệch nhỏ do các yếu tố ngẫu nhiên (tâm lý thương lượng, thời điểm rao bán…).
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### 4.4 Sai số tuân theo phân phối chuẩn
+
+<BlockMath formula="\epsilon \sim N\left(0,\sigma^2\right)" />
+
+Có hai lý do chính để ta giả định <InlineMath formula="\epsilon \sim N(0,\sigma^2)" />:
+
+- **Kỳ vọng bằng 0** (<InlineMath formula="E[\epsilon]=0" />)
+  - <InlineMath formula="E[\epsilon]=0" />: đảm bảo mô hình không bị thiên lệch (unbiased) - nghĩa là sai số không có xu hướng hệ thống theo hướng dự đoán cao hơn hoặc thấp hơn giá trị thật. Nếu mô hình luôn dự đoán thấp hơn giá thực 200 triệu cho mọi căn nhà, đó là dấu hiệu <InlineMath formula="\epsilon" /> không còn trung bình 0 nữa.
+  - **Kết luận trên được rút ra từ đâu?**
+
+    Quay lại công thức tính kỳ vọng của 1 biến ngẫu nhiên <InlineMath formula="X" />, ta có:
+
+    <BlockMath formula="E(X)=\sum_{i=1}^{n}x_iP(X=x_i)=\sum_{i=1}^{n}x_i\frac{n_x}{n}\tag{1}" />
+
+    Ta gọi <InlineMath formula="X_{\epsilon}" /> là biến ngẫu nhiên biểu diễn sai số của mô hình. Khi đó, <InlineMath formula="E(X_{\epsilon})" /> cho biết sai số trung bình mà ta có thể kỳ vọng sau nhiều lần dự đoán.
+
+    Nếu <InlineMath formula="E[\epsilon]=0" />, tổng các sai số dương và sai số âm sẽ có xu hướng cân bằng nhau. Ví dụ:
+
+    - Có căn nhà được dự đoán cao hơn giá thật 200 triệu: <InlineMath formula="\epsilon=-200" /> triệu.
+    - Có căn nhà được dự đoán thấp hơn giá thật 200 triệu: <InlineMath formula="\epsilon=+200" /> triệu.
+
+    Trung bình hai sai số bằng 0. Mô hình vẫn có thể dự đoán sai ở từng căn nhà, nhưng không liên tục sai lệch theo cùng một hướng.
+
+    **Insight:** <InlineMath formula="E[\epsilon]=0" /> không có nghĩa là mọi dự đoán đều chính xác. Nó chỉ có nghĩa rằng, xét trên nhiều dự đoán, mô hình không có xu hướng luôn định giá cao hơn hoặc luôn định giá thấp hơn thực tế.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+- Tính chất **Homoscedasticity**
+
+Phương sai đồng nhất (Homoscedasticity) nghĩa là độ dao động của sai số gần như không đổi tại các mức giá trị khác nhau của <InlineMath formula="x" />. Nói đơn giản: mô hình không được dự đoán khá chính xác với nhà giá rẻ nhưng lại “đoán lụi” hơn nhiều với nhà giá cao.
+
+Ví dụ, ta quy ước sai số là:
+
+<BlockMath formula="\epsilon=y-\hat{y}" />
+
+| Giá thực tế <InlineMath formula="y" /> | Giá dự đoán <InlineMath formula="\hat{y}" /> | Sai số <InlineMath formula="\epsilon" /> |
+| --- | --- | --- |
+| 5 tỷ | 4,8 tỷ | <InlineMath formula="+0,2" /> tỷ |
+| 10 tỷ | 10,3 tỷ | <InlineMath formula="-0,3" /> tỷ |
+| 20 tỷ | 19,8 tỷ | <InlineMath formula="+0,2" /> tỷ |
+
+Mặc dù giá nhà tăng từ 5 tỷ lên 20 tỷ, độ lớn của sai số vẫn chỉ dao động quanh 0,2–0,3 tỷ. Đây là dấu hiệu trực quan của Homoscedasticity: sai số không “phình to” rõ rệt khi giá nhà tăng.
+
+Ngược lại, nếu nhà 5 tỷ thường sai khoảng 0,2 tỷ nhưng nhà 20 tỷ thường sai 3–5 tỷ, độ phân tán của sai số đang tăng theo giá nhà. Hiện tượng này gọi là phương sai thay đổi (Heteroscedasticity).
+
+**Insight:** Homoscedasticity không yêu cầu mọi sai số phải bằng nhau; nó chỉ yêu cầu mức độ phân tán của sai số tương đối ổn định trên toàn bộ miền dữ liệu.
+
+<LessonImage
+  assetPath="fundamentals/linear-regression-homoscedasticity.png"
+  alt="Minh họa độ phân tán của sai số trong Linear Regression"
+/>
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Tóm tắt
+
+| Khái niệm | Ý nghĩa |
+| --- | --- |
+| <InlineMath formula="y=f(x)+\epsilon" /> | Mô hình hóa tổng quát: giá nhà = phần dự đoán được + sai số ngẫu nhiên |
+| Linear Regression | Thiết kế <InlineMath formula="f(x)" /> là tổng có trọng số của các đặc trưng |
+| <InlineMath formula="\theta_i" /> | Trọng số - mức độ quan trọng của đặc trưng <InlineMath formula="x_i" /> |
+| <InlineMath formula="\theta_0" /> | Trọng số tự do (bias) - phần giá trị cố định, không phụ thuộc đặc trưng |
+| 4 giả định | Điều kiện để Linear Regression hoạt động tốt: đặc trưng độc lập, quan hệ tuyến tính, <InlineMath formula="y" /> biểu diễn được qua <InlineMath formula="f(x)" />, sai số phân phối chuẩn |
+
+Tiếp theo: Sau khi đã mô hình hóa được bài toán và hiểu các giả định, câu hỏi kế tiếp sẽ là - làm sao để tìm ra giá trị <InlineMath formula="\theta" /> tốt nhất từ dữ liệu thực tế? Đây chính là nội dung của phần Hàm mất mát (Loss Function) và thuật toán tối ưu (Gradient Descent) ở bài tiếp theo.
+
+</MdxPage>

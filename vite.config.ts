@@ -46,6 +46,9 @@ function contentType(fileName: string): string {
   if (fileName.endsWith('.wasm')) return 'application/wasm';
   if (fileName.endsWith('.zip')) return 'application/zip';
   if (fileName.endsWith('.json')) return 'application/json';
+  if (fileName.endsWith('.png')) return 'image/png';
+  if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) return 'image/jpeg';
+  if (fileName.endsWith('.webp')) return 'image/webp';
   if (fileName.endsWith('.css')) return 'text/css';
   if (fileName.endsWith('.html')) return 'text/html';
   if (fileName.endsWith('.woff')) return 'font/woff';
@@ -122,7 +125,23 @@ function pyodideAssetsPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((request, response, next) => {
         const requestPath = request.url?.split('?')[0] ?? '';
-        if (requestPath.startsWith('/unicode-fonts/')) {
+          if (requestPath.startsWith('/assets/learning/')) {
+            const assetFile = resolveServedFile(
+              path.join(configDir, 'src/assets/learning'),
+              requestPath,
+              '/assets/learning/',
+            );
+            if (assetFile) {
+              response.setHeader('Content-Type', contentType(assetFile));
+              fs.createReadStream(assetFile).pipe(response);
+              return;
+            }
+            response.statusCode = 404;
+            response.end('Learning asset not found');
+            return;
+          }
+
+          if (requestPath.startsWith('/unicode-fonts/')) {
           const relativePath = decodeURIComponent(requestPath.slice('/unicode-fonts/'.length));
           const asset = resolveUnicodeFontAsset(relativePath);
           if (asset?.body) {
