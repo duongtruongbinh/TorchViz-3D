@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'image-classification-linear-classifier',
+  locale: 'vi',
+  title: 'Image Classification với Linear Classifier',
+  headings: [
+    'Bài toán Đầu tiên: Ảnh vào, Nhãn ra',
+    'Từ Lưới Pixel đến Vector 3.072 Chiều',
+    'Từ Class Scores đến Dự đoán Cat',
+    'Giới hạn Tuyến tính và Động lực cho CNN',
+  ],
+  keywords: [
+    'Image Classification',
+    'Linear Classifier',
+    'Softmax Regression',
+    'flatten',
+    'class scores',
+    'argmax',
+    'CNN motivation',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Bài toán Đầu tiên: Ảnh vào, Nhãn ra
+
+Hãy bắt đầu Deep Learning bằng một hợp đồng đơn giản: đưa vào mô hình một bức ảnh, nhận lại tên lớp mô tả vật thể chính. Nếu ảnh chứa một chú mèo, đầu ra mong muốn là `cat`. Đây là **Image Classification** — bài toán gán một nhãn cho toàn bộ ảnh từ một tập lớp đã biết trước.
+
+<Flowchart
+  nodes={[
+    { id: 'image', step: 'INPUT', title: 'Ảnh RGB', subtitle: '32 × 32 × 3 pixel' },
+    { id: 'numbers', step: 'FLATTEN', title: 'Vector pixel', subtitle: '3.072 giá trị' },
+    { id: 'scores', step: 'MODEL', title: 'Class scores', subtitle: '10 điểm số' },
+    { id: 'cat', step: 'OUTPUT', title: 'cat', subtitle: 'Điểm cao nhất', active: true },
+  ]}
+  caption="Hợp đồng Image Classification tối giản: ảnh được chuyển thành số, mô hình chấm điểm từng lớp và trả về lớp thắng."
+/>
+
+Giả sử dataset có 10 lớp: `airplane`, `car`, `bird`, `cat`, `deer`, `dog`, `frog`, `horse`, `ship` và `truck`. Mô hình không sinh trực tiếp chữ `cat`. Nó tạo ra 10 con số — một **class score** cho mỗi lớp — rồi chọn vị trí có score lớn nhất.
+
+Cách nhỏ nhất để thực hiện hợp đồng này là một **Linear Classifier**. Khi thêm Softmax và huấn luyện bằng cross-entropy, mô hình thường được gọi là **Softmax Regression**. Tên có chữ “Regression”, nhưng nhiệm vụ cuối vẫn là classification. Linear Regression thuần túy dự đoán một giá trị liên tục như nhiệt độ hoặc giá nhà; nó không phải tên chính xác cho pipeline phân loại nhiều lớp ở đây.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Từ Lưới Pixel đến Vector 3.072 Chiều
+
+Một ảnh màu kích thước `32 × 32` có ba kênh Red, Green và Blue. Shape ban đầu giữ ba trục không gian rõ ràng: chiều cao, chiều rộng và kênh màu.
+
+<BlockMath formula="x_{image}\in\mathbb{R}^{32\times32\times3}" />
+
+Linear Classifier nhận một vector, vì vậy ta **flatten** khối ảnh thành một cột dài. Phép này không xóa giá trị pixel; nó chỉ đổi cách sắp xếp các giá trị trong bộ nhớ.
+
+<BlockMath formula="x=\operatorname{flatten}(x_{image})\in\mathbb{R}^{32\cdot32\cdot3}=\mathbb{R}^{3072}" />
+
+Với 10 lớp, mỗi lớp cần một hàng trọng số để chấm toàn bộ 3.072 đầu vào. Ma trận trọng số và bias có shape:
+
+<BlockMath formula="\underbrace{W}_{10\times3072},\qquad \underbrace{x}_{3072\times1},\qquad \underbrace{b}_{10\times1}" />
+
+Forward pass chỉ là một phép nhân ma trận và một phép cộng:
+
+<BlockMath formula="\underbrace{s}_{10\times1}=\underbrace{W}_{10\times3072}\underbrace{x}_{3072\times1}+\underbrace{b}_{10\times1}" />
+
+Vector `s` chứa 10 class scores. Hàng thứ tư của `W`, chẳng hạn, học một mẫu trọng số làm score của lớp `cat` tăng hoặc giảm theo các pixel trong ảnh. Toàn mô hình có `10 × 3.072 = 30.720` trọng số và 10 bias.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ Class Scores đến Dự đoán Cat
+
+Giả sử mô hình nhìn một ảnh và tạo score cho bốn lớp minh họa:
+
+| Lớp | Score |
+| :--- | ---: |
+| `bird` | 0,8 |
+| `cat` | 3,2 |
+| `dog` | 1,7 |
+| `ship` | -0,4 |
+
+Score chưa phải xác suất: nó có thể âm, lớn hơn 1 và tổng không cần bằng 1. Để đưa ra nhãn, ta chỉ cần lấy chỉ số có score lớn nhất:
+
+<BlockMath formula="\hat{y}=\operatorname*{argmax}_{k}s_k=\text{cat}" />
+
+Nếu giao diện cần một phân phối dễ diễn giải, **Softmax** chuyển scores thành các số dương có tổng bằng 1:
+
+<BlockMath formula="p_k=\frac{e^{s_k}}{\sum_{j=1}^{10}e^{s_j}}" />
+
+Softmax không đổi thứ tự thắng thua: lớp có score lớn nhất vẫn có xác suất lớn nhất. Trong huấn luyện, cross-entropy so sánh phân phối này với nhãn đúng. Backpropagation sau đó điều chỉnh `W` và `b` để score của lớp đúng tăng lên so với các lớp còn lại.
+
+Ba khái niệm cần tách biệt là: **score** là đầu ra thô của lớp tuyến tính, **probability** là score sau Softmax, còn **prediction** là nhãn tại vị trí `argmax`.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Giới hạn Tuyến tính và Động lực cho CNN
+
+Linear Classifier là baseline tốt vì nhanh, dễ kiểm tra shape và cho thấy trọn vẹn đường đi từ pixel đến nhãn. Nhưng sự đơn giản của nó tạo ra hai giới hạn lớn.
+
+Thứ nhất, flatten làm mất cấu trúc lân cận một cách tường minh. Hai pixel đứng cạnh nhau trên tai mèo và hai pixel nằm ở hai góc ảnh đều chỉ trở thành hai vị trí trong vector. Ma trận `W` phải tự ghi nhớ ý nghĩa của từng vị trí tuyệt đối; nếu con mèo dịch sang phải vài pixel, mẫu kích hoạt có thể thay đổi mạnh.
+
+Thứ hai, phép biến đổi `Wx + b` chỉ tạo các biên quyết định tuyến tính. Nó không có chuỗi tầng để ghép cạnh thành texture, texture thành bộ phận và bộ phận thành vật thể. Vì vậy, một lớp tuyến tính có thể học các template màu hoặc vị trí thô, nhưng khó nhận ra cùng một chú mèo dưới nhiều góc nhìn, kích thước và phông nền.
+
+| Linear Classifier làm tốt | Điều nó còn thiếu |
+| :--- | :--- |
+| Baseline nhanh và dễ diễn giải shape | Local receptive field |
+| Một phép nhân ma trận duy nhất | Chia sẻ trọng số theo vị trí |
+| Class scores rõ ràng | Phân cấp cạnh → texture → bộ phận |
+| Kiểm tra pipeline dữ liệu và nhãn | Khả năng bền vững trước dịch chuyển |
+
+Đó là lý do các bài tiếp theo chuyển sang **Convolutional Neural Networks (CNNs)**. Convolution giữ lại bố cục 2D, quan sát các vùng cục bộ và dùng cùng một kernel tại nhiều vị trí. Linear Classifier không phải một ngõ cụt; nó là baseline giúp ta thấy chính xác CNN cần cải thiện điều gì.
+
+</MdxPage>

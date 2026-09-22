@@ -1,0 +1,58 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'computer-vision-dual-use',
+  locale: 'vi',
+  title: 'Computer Vision: Lợi ích, Rủi ro & Trách nhiệm',
+  headings: [
+    'Một Công nghệ, Hai Hướng Tác động',
+  ],
+  keywords: [
+    'Computer Vision dual-use',
+    'AI bias',
+    'privacy',
+    'surveillance',
+    'human oversight',
+    'responsible AI',
+  ],
+  pageCount: 1,
+};
+
+<MdxPage page={0}>
+
+## Một Công nghệ, Hai Hướng Tác động
+
+Computer Vision không tự nhiên là “tốt” hoặc “xấu”. Nó là một công nghệ **dual-use**: cùng khả năng nhận ra người, vật thể và hành động có thể hỗ trợ con người hoặc mở rộng tác hại.
+
+<LessonImage
+  assetPath="cv/cv_dual_use_benefit_bias.png"
+  alt="Ba khung minh họa Computer Vision tạo lợi ích, gây tác hại và được kiểm soát bằng safeguards"
+  caption="Tác động không chỉ đến từ độ chính xác của mô hình, mà còn từ dữ liệu, bối cảnh sử dụng và quyền kiểm soát của con người."
+/>
+
+### Khi Computer Vision giúp ích
+
+Trong y tế, mô hình có thể đánh dấu vùng bất thường để bác sĩ ưu tiên ca cần xem sớm. Công nghệ hỗ trợ có thể đọc biển báo và mô tả vật cản cho người khiếm thị. Camera trong nhà máy có thể phát hiện lỗi lặp lại, còn ảnh vệ tinh có thể giúp theo dõi cháy rừng hoặc biến đổi môi trường.
+
+Điểm chung của các ví dụ tốt là mô hình mở rộng khả năng quan sát, còn con người vẫn hiểu bối cảnh và chịu trách nhiệm cho quyết định có hậu quả cao.
+
+### Khi sai số trở thành tác hại
+
+Một mô hình có kết quả trung bình tốt vẫn có thể sai nhiều hơn với một nhóm người. **AI bias** là sai lệch có hệ thống khiến chất lượng hoặc hậu quả không được phân bố công bằng. Nguyên nhân có thể bắt đầu từ dataset thiếu đại diện, nhãn không nhất quán hoặc cách hệ thống được triển khai.
+
+Rủi ro còn đến từ quyền riêng tư. Camera luôn bật có thể thu thập dữ liệu của người chưa đồng ý. Một dự đoán sai trong album ảnh chỉ gây bất tiện; dự đoán sai trong y tế hoặc an ninh có thể ảnh hưởng trực tiếp tới cơ hội và sự an toàn của một người.
+
+Vì vậy, câu hỏi không nên chỉ là “mô hình chính xác bao nhiêu?” mà còn là “mô hình thường sai với ai, ai chịu hậu quả và họ có thể yêu cầu xem xét lại hay không?”.
+
+### Safeguards trước khi triển khai
+
+Một nhóm phát triển có trách nhiệm cần:
+
+- kiểm tra kết quả trên những nhóm và hoàn cảnh khác nhau;
+- chỉ thu thập dữ liệu thật sự cần thiết và bảo vệ sự riêng tư;
+- để con người xem lại quyết định quan trọng;
+- lưu dấu vết, công bố giới hạn và tạo đường khiếu nại;
+- không triển khai nếu tác hại còn lại chưa thể kiểm soát.
+
+Computer Vision mạnh vì nó biến quan sát thành hành động ở quy mô lớn. Chính quy mô đó khuếch đại cả lợi ích lẫn sai lầm. Năng lực xây mô hình vì thế phải đi cùng năng lực đặt giới hạn.
+
+</MdxPage>

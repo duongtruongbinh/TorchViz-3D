@@ -19,18 +19,33 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 16 domains, 103 tracks, and 777 lesson nodes. Three hundred
-nine Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 16 domains, 104 tracks, and 787 lesson nodes. Three hundred
+nineteen Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
-eight in `ai-projects`, and four tagged exercise lessons in `cv`. The other 468 nodes are navigable placeholders and render one shared localized
+eight in `ai-projects`, and fourteen in `cv` (eight focused Chapter 1 nodes,
+an Image Classification theory/quiz opening for Chapter 2, plus four tagged
+exercise lessons). The other 468 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
 [catalog-stats](../reference/catalog-stats.md) for the generated per-domain
 breakdown.
+
+The authored CV sequence keeps `computer-vision-intro` as the stable opening
+route while distributing its former 18 pages across focused nodes. Chapter 1
+contains a short foundation pair, a Classical Computer Vision timeline and
+quiz, a Neural Networks / Deep Learning timeline and quiz, one dual-use lesson
+covering benefits, AI bias, privacy, surveillance, and safeguards, then a
+future-and-learning-path node. Chapter 2 is titled Deep Learning Basics and
+opens with Image Classification through a Linear Classifier / Softmax
+Regression baseline before the existing convolution and pooling material.
+Chapter 1 is intentionally a beginner-level conceptual overview: each
+historical milestone explains its problem, key idea, and impact without teaching
+derivations, architecture shapes, or implementation details owned by Chapter 2
+and later chapters.
 
 The authored LLM lessons are:
 

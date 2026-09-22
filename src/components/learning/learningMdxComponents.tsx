@@ -44,6 +44,7 @@ import { InteractiveStepper } from './shell/InteractiveStepper';
 import { cx, type getLearningLabTheme, type LearningSemanticTone } from './theme';
 import { Mermaid, MermaidDiagram } from './MermaidDiagram';
 import { Flowchart } from './Flowchart';
+import { Timeline } from './Timeline';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 export type LearningReferencePaper = {
@@ -2122,9 +2123,10 @@ const sharedAuthoredMdxComponents = {
   Mermaid,
   MermaidDiagram,
   Flowchart,
+  Timeline,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
-export { Mermaid, MermaidDiagram, Flowchart };
+export { Mermaid, MermaidDiagram, Flowchart, Timeline };
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,
