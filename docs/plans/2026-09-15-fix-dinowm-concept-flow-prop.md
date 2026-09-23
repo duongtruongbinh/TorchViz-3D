@@ -2,7 +2,7 @@
 title: "Fix DINO-WM shared visual prop mismatches"
 status: done
 created: 2026-09-15T09:37:12+07:00
-updated: 2026-09-15T12:45:00+07:00
+updated: 2026-09-23T21:12:00+07:00
 author: pi
 task: "Fix DINO-WM shared visual runtime crashes caused by mismatched ConceptFlow, EvidenceCards, and PaperTradeoff props"
 supersedes:
@@ -73,6 +73,13 @@ Update this plan's status and execution log. Update existing Learning Lab
 architecture documentation only if the fix reveals an inaccurate shared
 component contract; do not create a new documentation page.
 
+## Phase 4 — Rebase follow-up
+
+Rebase `feat/add-dinowm-paper` onto `origin/main`, retaining the remote-only
+DINO-WM hierarchy fix and combining the newer CV catalog additions with the
+DINO-WM track. Resolve derived count conflicts, verify the full repository, and
+leave publishing the rewritten branch out of scope.
+
 # Out of scope
 
 - Changes to the established `ConceptFlow` layout beyond displaying the
@@ -120,3 +127,10 @@ component contract; do not create a new documentation page.
 - 2026-09-15 — Converted the DINO-WM model subtitles to inline LaTeX formulas
   (`\\sim`, `\\operatorname`, `\\mid`, and `\\hat`). Focused MDX content test
   passed (29/29); `git diff --check` passed.
+- 2026-09-23 — User approved rebasing `feat/add-dinowm-paper` onto
+  `origin/main`. Fast-forwarded the local branch to include the remote hierarchy
+  fix, then rebased all three DINO-WM commits.
+- 2026-09-23 — Resolved catalog conflicts by retaining both additions: 105
+  tracks, 794 lesson nodes, 326 published lessons, 33 Research Papers lessons,
+  and 14 CV lessons. `npm run check:catalog-stats`, `git diff --check`, and
+  `npm run verify` passed (typecheck, 164 tests, production build).
