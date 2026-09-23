@@ -1,0 +1,65 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'grid-random-search',
+  locale: 'vi',
+  title: 'Tìm kiếm ngẫu nhiên trên lưới',
+  headings: [
+    'Hyperparameter search là một thí nghiệm có kiểm soát',
+    'Grid Search duyệt toàn bộ lưới',
+    'Random Search phân bổ ngân sách tốt hơn',
+    'Quy trình tuning không làm lộ test set',
+  ],
+  keywords: ['Machine Learning', 'Hyperparameter Tuning', 'Grid Search', 'Random Search', 'Cross Validation', 'Validation'],
+  conceptIds: ['hyperparameter-search', 'grid-search', 'random-search', 'search-space', 'cross-validation-tuning', 'test-set-holdout'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Hyperparameter search là một thí nghiệm có kiểm soát
+
+Hyperparameter là các quyết định được đặt trước quá trình train, như độ sâu của tree, regularization strength, learning rate hoặc số component PCA. Chúng không được model học trực tiếp từ từng batch, nên cần một quy trình tìm kiếm và đánh giá riêng.
+
+**Grid Search** và **Random Search** đều thử nhiều cấu hình hyperparameter, train model và so sánh kết quả validation hoặc cross-validation. Mục tiêu không phải là tìm train score cao nhất, mà là tìm cấu hình có khả năng tổng quát hóa tốt trong giới hạn compute cho phép.
+
+Search space cần phản ánh hiểu biết về model. Một dải learning rate thường hợp lý hơn trên thang logarithmic như `0.001`, `0.01`, `0.1` thay vì cách đều tuyến tính. Những tham số có điều kiện cũng cần được mô hình hóa cẩn thận, ví dụ chỉ thử `max_depth` khi estimator là decision tree.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Grid Search duyệt toàn bộ lưới
+
+Grid Search nhận một tập giá trị rời rạc cho từng hyperparameter rồi thử mọi tổ hợp. Nếu thử 3 giá trị learning rate, 4 giá trị độ sâu và 2 giá trị regularization, grid có `3 * 4 * 2 = 24` cấu hình.
+
+Grid Search dễ giải thích, tái lập và phù hợp khi số hyperparameter ít, dải giá trị rõ ràng và mỗi lần train không quá đắt. Nó cũng hữu ích khi bạn muốn kiểm tra một vùng nhỏ quanh một baseline đã có triển vọng.
+
+Hạn chế là số tổ hợp tăng rất nhanh. Thêm một hyperparameter với 5 giá trị có thể nhân chi phí toàn bộ search lên 5 lần, kể cả khi hyperparameter đó hầu như không ảnh hưởng kết quả. Nhiều điểm trên grid cũng có thể lãng phí vì khác nhau ở các tham số không quan trọng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Random Search phân bổ ngân sách tốt hơn
+
+Random Search lấy mẫu ngẫu nhiên các cấu hình trong search space. Thay vì duyệt mọi tổ hợp, bạn đặt một ngân sách như 50 hoặc 100 lần thử. Mỗi lần có thể chọn giá trị từ danh sách, phân phối liên tục hoặc phân phối logarithmic phù hợp.
+
+Khi chỉ một vài hyperparameter thực sự quan trọng, Random Search thường khám phá nhiều giá trị hữu ích của chúng hơn Grid Search với cùng ngân sách. Grid có thể lặp lại nhiều cấu hình khác nhau ở các tham số ít ảnh hưởng, còn Random Search phân tán thử nghiệm rộng hơn.
+
+Random không có nghĩa là vô tổ chức. Hãy ghi lại seed, search space, metric, số fold, thời gian train và kết quả từng trial. Khi thấy một vùng hứa hẹn, có thể chạy một search hẹp hơn quanh vùng đó hoặc chuyển sang Bayesian Optimization cho các thí nghiệm đắt hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Quy trình tuning không làm lộ test set
+
+Tuning phải diễn ra trên train và validation hoặc cross-validation. Với Scikit-Learn Pipeline, preprocessing cần nằm trong pipeline để scaler, imputer hoặc encoder được fit riêng trên phần train của từng fold. Điều này ngăn data leakage làm score tuning lạc quan giả.
+
+Một workflow phổ biến là tách test set cuối cùng trước, sau đó chạy GridSearchCV hoặc RandomizedSearchCV trên phần phát triển. Khi cấu hình tốt nhất đã được chọn, train lại pipeline trên toàn bộ phần phát triển rồi đánh giá đúng một lần trên test set.
+
+Ngoài metric, hãy xem thời gian train, độ trễ inference, memory và độ ổn định giữa các fold. Một cấu hình thắng hơn rất ít nhưng chậm gấp mười lần hoặc biến động mạnh có thể không phải lựa chọn tốt cho production.
+
+Tuning là một phần của quy trình ra quyết định, không phải cuộc thi tối đa hóa một con số. Test set cần được giữ lại để kiểm tra quyết định cuối cùng đó có thực sự tổng quát hóa hay không.
+
+</MdxPage>

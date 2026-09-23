@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'gradient-boosting',
+  locale: 'vi',
+  title: 'Gradient Boosting',
+  headings: [
+    'Boosting sửa lỗi theo từng bước',
+    'Residual và negative gradient',
+    'Learning rate, số tree và độ sâu',
+    'Validation, early stopping và trade-off',
+  ],
+  keywords: ['Machine Learning', 'Gradient Boosting', 'Ensemble Learning', 'Residual', 'Learning Rate', 'Early Stopping', 'Decision Tree'],
+  conceptIds: ['gradient-boosting', 'sequential-ensemble', 'residual-negative-gradient', 'shrinkage-learning-rate', 'boosting-regularization'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Boosting sửa lỗi theo từng bước
+
+**Gradient Boosting** xây model theo trình tự. Nó bắt đầu bằng một dự đoán đơn giản, sau đó thêm từng decision tree mới để cải thiện dự đoán của toàn bộ ensemble trước đó.
+
+Với mỗi bước, có thể hình dung:
+
+```text
+model_moi = model_cu + learning_rate * cay_sua_loi
+```
+
+Khác với Random Forest, các tree trong Gradient Boosting không được train độc lập rồi gộp lại. Tree thứ hai cần biết model thứ nhất đang sai ở đâu; tree thứ ba cần biết tổng hai tree đầu đang sai ở đâu. Vì vậy, boosting xây tree tuần tự.
+
+Mỗi tree thường nông và yếu nếu đứng một mình. Sức mạnh xuất hiện khi nhiều tree nhỏ bổ sung dần cho nhau. Một tree có thể học quy luật chính, tree tiếp theo sửa một vùng còn dự đoán thấp, rồi các tree sau tiếp tục tinh chỉnh những sai số còn lại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Residual và negative gradient
+
+Trong regression với squared error, lỗi còn lại của mỗi mẫu được gọi là **residual**:
+
+```text
+residual = y_thuc - y_du_doan_hien_tai
+```
+
+Tree mới được train để dự đoán residual này. Nếu model hiện tại dự đoán thấp hơn target, residual dương và tree mới có xu hướng tăng dự đoán ở vùng dữ liệu đó. Nếu model dự đoán cao quá, residual âm và tree mới có xu hướng kéo dự đoán xuống.
+
+Với các loss khác, chẳng hạn classification dùng log loss, tree mới không đơn giản dự đoán residual theo nghĩa thông thường. Nó học **negative gradient** của loss theo dự đoán hiện tại. Đây là lý do tên gọi là Gradient Boosting: mỗi bước đi theo hướng giúp loss giảm nhanh hơn.
+
+Bạn không cần tự tính gradient bằng tay để dùng thư viện. Trực giác quan trọng là tree mới không học target từ đầu; nó học phần model hiện có vẫn chưa giải thích tốt.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Learning rate, số tree và độ sâu
+
+`learning_rate` quyết định mỗi tree mới được đóng góp mạnh đến đâu. Learning rate lớn làm model học nhanh hơn nhưng dễ đi quá xa, khiến các tree sớm bám vào nhiễu. Learning rate nhỏ thêm từng bước thận trọng hơn, nhưng thường cần nhiều tree hơn để đạt cùng mức chất lượng.
+
+Số tree, thường gọi là `n_estimators`, và `learning_rate` cần được chọn cùng nhau. Một cấu hình có learning rate nhỏ với nhiều tree có thể tổng quát hóa tốt, nhưng tốn thời gian train và inference hơn. Một cấu hình có ít tree với learning rate lớn nhanh hơn, nhưng có rủi ro overfit hoặc bỏ qua những cải thiện tinh tế.
+
+Độ sâu của mỗi tree kiểm soát mức tương tác feature mà từng bước boosting có thể học. Tree nông thường ổn định hơn và phù hợp với ý tưởng cộng dồn nhiều cải thiện nhỏ. Tree quá sâu có thể tự nó ghi nhớ train set, khiến cả ensemble overfit.
+
+Các hyperparameter này không có giá trị tốt chung. Hãy thử một dải hợp lý trên validation hoặc cross-validation, rồi đánh giá cả metric, thời gian train và độ trễ dự đoán.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Validation, early stopping và trade-off
+
+Vì Gradient Boosting có thể tiếp tục thêm tree để giảm train loss, nó cần validation để biết thời điểm nên dừng. **Early stopping** theo dõi validation metric và dừng khi metric không cải thiện sau một số vòng nhất định. Điều này giúp chọn số tree hiệu quả thay vì luôn dùng toàn bộ `n_estimators` đã đặt.
+
+Một số implementation còn dùng subsampling, tức chỉ dùng một phần dữ liệu ở mỗi vòng, để thêm randomness và giảm overfitting. Những biến thể hiện đại như XGBoost, LightGBM và CatBoost bổ sung tối ưu hóa tốc độ, regularization và cách xử lý feature riêng, nhưng đều giữ trực giác cốt lõi là xây model tuần tự để sửa lỗi trước đó.
+
+Gradient Boosting thường rất mạnh với dữ liệu dạng bảng và có thể vượt một Random Forest được cấu hình cơ bản. Đổi lại, nó nhạy hơn với hyperparameter, tree được train tuần tự nên khó song song hóa hoàn toàn, và cần theo dõi validation cẩn thận hơn.
+
+Tóm lại, boosting không cố tạo nhiều tree độc lập. Nó tạo một chuỗi cải thiện: mỗi tree nhìn vào lỗi còn lại, learning rate kiểm soát độ lớn của bước sửa, còn validation quyết định khi nào mô hình đã đủ.
+
+</MdxPage>

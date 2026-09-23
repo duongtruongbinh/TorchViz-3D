@@ -3,13 +3,14 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
-- **2026-09-14 — DINO-WM research paper track added to Research Papers domain.**
-  Published a seven-part Vietnamese deep-dive on DINO-WM (ICML 2025, arXiv
-  2411.04983): abstract, introduction, method, experiments, conclusion, academic
-  debate, and a 16-question quiz with mixed modes pinned by a new contract test
-  (theory conceptIds map 1:1 to quiz questions; answer-shape leakage guarded).
-  Catalog grew to 104 tracks / 784 lessons / 316 published; the research-papers
-  domain now carries five paper tracks (33 lessons).
+- **2026-09-24 — Machine Learning curriculum consolidated and code labs structured as placeholders.**
+  Reconciled the Machine Learning curriculum with main: externalized tensor prerequisites to Linear Algebra,
+  integrated core concepts into problem-driven regression and classification chapters, separated regression and
+  classification evaluation metrics, added missing algorithms (k-NN, Naive Bayes, SVM, GMM) and uncertainty
+  modeling (split/seed variability, bootstrap CI, prediction intervals). The six hands-on code labs are
+  registered in the typed catalog as locked placeholders (473 published, 448 placeholders after rebase). Consolidated all
+  branch plans into a single authoritative plan. See
+  [the curriculum plan](../docs/plans/2026-09-24-machine-learning-curriculum.md).
 
 - **2026-08-19 — Learning Lab UI Architecture Refactored & Deduplicated.**
   Established a clear 4-layer UI architecture (Global Theme/Shell, Reference Engine,

@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "bootstrap-confidence-intervals",
+  "locale": "vi",
+  "title": "Khoảng tin cậy bằng bootstrap",
+  "headings": [
+    "Khoảng tin cậy đang nói về điều gì?",
+    "Lấy mẫu có hoàn lại",
+    "Giữ đúng cặp dữ liệu khi so model",
+    "Đơn vị lấy mẫu và giới hạn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Khoảng tin cậy bằng bootstrap"
+  ],
+  "conceptIds": [
+    "bootstrap-estimand",
+    "bootstrap-resampling",
+    "paired-bootstrap",
+    "bootstrap-assumptions"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Khoảng tin cậy đang nói về điều gì?
+
+Model giá nhà đã fit và được chốt. MAE trên một tập đánh giá hữu hạn là một ước lượng: nếu thu thập một tập căn nhà khác từ cùng quần thể, con số có thể thay đổi. **Bootstrap** dùng lấy mẫu lại từ dữ liệu hiện có để xấp xỉ biến động của một thống kê.
+
+Trước hết phải nêu estimand, tức đại lượng muốn ước lượng. Ở đây là MAE kỳ vọng trên quần thể mục tiêu của chính model đã fit. Model, preprocessing và mọi quyết định được giữ cố định; ta chỉ xét sự hữu hạn của tập đánh giá.
+
+Một confidence interval 95% được hiểu theo quy trình lặp: nếu lấy lại nhiều tập dữ liệu theo cùng cơ chế và dựng khoảng bằng một phương pháp hợp lệ, khoảng 95% các khoảng sẽ chứa đại lượng thật. Bootstrap thường cho mức bao phủ xấp xỉ, phụ thuộc giả định và dữ liệu.
+
+Đây không phải khẳng định 95% căn nhà có sai số nằm trong khoảng MAE đó. Nó cũng không tự bao gồm bất định do retrain model, chọn hyperparameter hay distribution shift. Ba nguồn này cần protocol khác hoặc phân tích bổ sung.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Lấy mẫu có hoàn lại
+
+Giả sử sai số tuyệt đối trên bốn căn nhà là [100, 200, 300, 400] triệu đồng, MAE bằng 250. Một bootstrap sample chọn bốn chỉ số có hoàn lại từ bốn hàng gốc: cùng một căn nhà có thể xuất hiện nhiều lần và một căn khác có thể vắng mặt.
+
+| Mẫu minh họa | Sai số lấy lại | MAE |
+| --- | --- | --- |
+| Gốc | 100, 200, 300, 400 | 250 |
+| Bootstrap 1 | 100, 100, 300, 400 | 225 |
+| Bootstrap 2 | 200, 300, 300, 400 | 300 |
+| Bootstrap 3 | 100, 200, 200, 400 | 225 |
+
+Lặp B lần để tạo phân phối bootstrap của MAE. Với percentile interval 95%, lấy quantile 2.5% và 97.5% của các MAE bootstrap. Ba mẫu minh họa trên chưa đủ để tính một khoảng đáng tin; trong thực hành cần nhiều lần lặp và đủ dữ liệu gốc.
+
+Ví dụ một thí nghiệm khác có hai quantile là 210 và 335 triệu đồng thì báo cáo khoảng percentile [210, 335], cùng MAE gốc, số mẫu, B và phương pháp. Đây là số minh họa cho cách đọc, không phải kết quả suy ra từ bốn căn nhà ở bảng trên.
+
+Tăng B giúp giảm nhiễu tính toán do resampling, không tương đương thu thập thêm căn nhà và không bảo đảm CI thống kê sẽ hẹp hơn. Percentile dễ hiểu nhưng có thể sai lệch ở mẫu nhỏ hoặc phân phối lệch; các phương pháp khác như BCa cũng có điều kiện và trường hợp suy biến. API và lựa chọn phương pháp được mô tả trong [SciPy bootstrap](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Giữ đúng cặp dữ liệu khi so model
+
+Khi tính metric từ y và y_hat, resample cùng chỉ số hàng cho cả hai. Nếu xáo trộn chúng độc lập, dự đoán của căn nhà này sẽ bị so với giá thật của căn nhà khác và metric không còn đúng.
+
+Để so model A với B trên cùng các căn nhà, mỗi lần lấy một tập chỉ số rồi dùng nó cho y, prediction A và prediction B. Tính chênh lệch MAE A - MAE B trong từng bootstrap sample. Đây là **paired bootstrap** và giữ lại quan hệ giữa hai lỗi trên cùng sample.
+
+Ví dụ sai số tuyệt đối của A là [100, 300, 200], của B là [120, 250, 220]. Chênh lệch theo hàng là [-20, 50, -20], mean khoảng 3.3 triệu đồng. Với resample chỉ số [1, 1, 3] đánh số từ 1, chênh lệch trung bình là -20. Một sample khác có thể cho dấu khác.
+
+Nếu một khoảng hợp lệ cho chênh lệch MAE hoàn toàn dương, dữ liệu ủng hộ B có MAE thấp hơn theo protocol đó. Khoảng chứa 0 không chứng minh hai model giống nhau; có thể dữ liệu chưa đủ rõ. Không đánh giá chênh lệch chỉ bằng việc hai CI riêng lẻ có chồng nhau hay không.
+
+Sau khi dùng kết quả để chọn model, không xem chính tập đó như test độc lập cho quyết định vừa chọn. Phân tích test có thể dùng bootstrap để báo cáo bất định cho model đã chốt, nhưng không được biến thành vòng tuning tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đơn vị lấy mẫu và giới hạn
+
+Bootstrap theo hàng thường dựa trên giả định các hàng độc lập và đại diện cho quần thể mục tiêu. Nếu một căn nhà hoặc người dùng có nhiều bản ghi phụ thuộc nhau, lấy từng hàng như độc lập có thể làm khoảng quá lạc quan. Cần resample theo nhóm phù hợp và nêu rõ muốn metric trung bình theo hàng hay theo nhóm.
+
+Dữ liệu thời gian có tương quan cần phương pháp giữ cấu trúc, chẳng hạn block bootstrap được thiết kế cho bối cảnh đó; xáo trộn mọi giao dịch không tự hợp lệ. Bootstrap không sửa dataset bị lệch mẫu, leakage hay thị trường đã thay đổi.
+
+Với classification hiếm positive, một số mẫu bootstrap có thể thiếu lớp làm metric như ROC-AUC không xác định. Không âm thầm bỏ các lần đó. Nếu dùng stratified bootstrap để giữ số mẫu mỗi lớp, phải giải thích rằng đang cố định tỷ lệ lớp; khoảng đó không bao gồm biến động của tỷ lệ lớp ngoài thực tế.
+
+Resample lỗi của model cố định khác với resample dữ liệu train rồi fit lại toàn bộ pipeline. Cách thứ hai nhắm tới bất định do huấn luyện và cần một thiết kế đánh giá thích hợp; không lấy CI của cách thứ nhất để đại diện cho cả hai. Tiếp theo, Prediction Intervals sẽ chuyển câu hỏi từ “MAE kỳ vọng bao nhiêu?” sang “giá của một căn nhà mới có thể nằm ở đâu?”.
+
+</MdxPage>

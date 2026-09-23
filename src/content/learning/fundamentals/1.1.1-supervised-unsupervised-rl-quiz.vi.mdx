@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "supervised-unsupervised-rl-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Dữ liệu cho supervised learning",
+    "Ba kiểu bài toán học máy",
+    "Phản hồi trong reinforcement learning"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "machine-learning-paradigms",
+    "supervised-learning",
+    "unsupervised-learning",
+    "reinforcement-learning",
+    "learning-paradigm-selection"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="supervised-unsupervised-rl-quiz" questions={[
+  {
+    "id": "supervised-data",
+    "title": "Dữ liệu cho supervised learning",
+    "prompt": "Supervised learning cần loại dữ liệu nào để học trực tiếp mục tiêu dự đoán?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Các input đi kèm nhãn hoặc giá trị mục tiêu.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Chỉ các input chưa có nhãn.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Chỉ phần thưởng từ môi trường.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Chỉ dữ liệu đã được gom cụm.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Nhãn hoặc target cho biết mô hình cần học để dự đoán điều gì.",
+    "error": "Supervised learning dựa trên cặp input-target, không chỉ dùng input thô."
+  },
+  {
+    "id": "learning-paradigms",
+    "title": "Ba kiểu bài toán học máy",
+    "prompt": "Phân loại mỗi tình huống theo kiểu học phù hợp nhất.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "supervised",
+        "label": "Supervised"
+      },
+      {
+        "id": "unsupervised",
+        "label": "Unsupervised"
+      },
+      {
+        "id": "reinforcement",
+        "label": "Reinforcement learning"
+      }
+    ],
+    "options": [
+      {
+        "id": "house-price",
+        "label": "Dự đoán giá nhà từ giao dịch đã có giá bán.",
+        "categoryId": "supervised"
+      },
+      {
+        "id": "customer-groups",
+        "label": "Gom nhóm khách hàng khi chưa có nhãn nhóm.",
+        "categoryId": "unsupervised"
+      },
+      {
+        "id": "game-agent",
+        "label": "Tác tử chơi game nhận thưởng hoặc phạt sau hành động.",
+        "categoryId": "reinforcement"
+      },
+      {
+        "id": "hidden-structure",
+        "label": "Khám phá cấu trúc trong dữ liệu không nhãn.",
+        "categoryId": "unsupervised"
+      }
+    ],
+    "success": "Đúng. Cách nhận phản hồi quyết định kiểu học phù hợp.",
+    "error": "Hãy nhìn vào tín hiệu học: nhãn, không có nhãn, hay phần thưởng theo hành động."
+  },
+  {
+    "id": "reinforcement-feedback",
+    "title": "Phản hồi trong reinforcement learning",
+    "prompt": "Chọn tất cả phát biểu đúng về reinforcement learning.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tác tử học cách chọn hành động để tối đa hóa phần thưởng dài hạn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Phản hồi có thể đến muộn sau nhiều hành động.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Mỗi trạng thái bắt buộc phải có nhãn đúng như supervised learning.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Policy có thể thay đổi dựa trên kinh nghiệm tương tác với môi trường.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Điểm khó của RL là liên hệ hành động hiện tại với phần thưởng có thể xuất hiện về sau.",
+    "error": "RL học từ reward, không phải từ một nhãn đúng có sẵn cho từng input."
+  }
+]} />

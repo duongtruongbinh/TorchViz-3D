@@ -1,0 +1,307 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'supervised-unsupervised-rl',
+  locale: 'vi',
+  title: 'Học có giám sát, Học không giám sát và Học tăng cường',
+  headings: [
+    'Ba cách để máy học từ dữ liệu',
+    'Học có giám sát',
+    'Học không giám sát',
+    'Học tăng cường',
+    'So sánh và chọn loại học',
+  ],
+  keywords: [
+    'Machine Learning',
+    'Supervised Learning',
+    'Unsupervised Learning',
+    'Reinforcement Learning',
+  ],
+  conceptIds: ['machine-learning-paradigms', 'supervised-learning', 'unsupervised-learning', 'reinforcement-learning', 'learning-paradigm-selection'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Ba cách để máy học từ dữ liệu
+
+### Mục tiêu bài học
+
+Sau bài này, bạn có thể:
+
+- giải thích ba loại học máy phổ biến;
+- phân biệt dữ liệu có nhãn và dữ liệu chưa có nhãn;
+- nhận biết vai trò của dự đoán, nhóm dữ liệu, hành động và phần thưởng;
+- xác định một bài toán nên dùng loại học nào.
+
+Machine Learning là cách để máy tính tìm ra quy luật từ dữ liệu. Tuy nhiên, máy có thể học theo nhiều cách khác nhau. Điểm khác nhau quan trọng nhất là **tín hiệu dùng để hướng dẫn quá trình học**.
+
+Hãy tưởng tượng ba tình huống:
+
+1. Bạn đưa cho máy nhiều email đã ghi rõ “thư rác” hoặc “không phải thư rác”.
+2. Bạn đưa cho máy danh sách khách hàng nhưng không nói trước khách hàng nào thuộc nhóm nào.
+3. Bạn cho một robot thử nhiều hành động và thưởng cho hành động giúp robot đi đúng hướng.
+
+Ba tình huống trên tương ứng với:
+
+- **Supervised Learning — học có giám sát**;
+- **Unsupervised Learning — học không giám sát**;
+- **Reinforcement Learning — học tăng cường**.
+
+<LessonNote>
+  “Có giám sát” không có nghĩa là con người phải theo dõi từng bước máy học. Nó có nghĩa là dữ liệu huấn luyện có một câu trả lời mẫu để model so sánh với dự đoán của mình.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Học có giám sát (Supervised Learning)
+
+### Ý tưởng chính
+
+Học có giám sát sử dụng các ví dụ đã biết câu trả lời. Mỗi ví dụ gồm:
+
+```text
+Đầu vào (input) → Câu trả lời đúng (label hoặc target)
+```
+
+Ví dụ dự đoán giá nhà:
+
+```text
+Diện tích, số phòng, vị trí → Giá bán thực tế
+```
+
+Model đưa ra dự đoán, so sánh dự đoán với câu trả lời đúng, tính mức sai và điều chỉnh tham số để những lần sau dự đoán tốt hơn.
+
+### Hai bài toán thường gặp
+
+**Regression — hồi quy** dùng khi câu trả lời là một giá trị số liên tục:
+
+- giá nhà;
+- nhiệt độ ngày mai;
+- doanh thu tháng sau;
+- thời gian giao hàng.
+
+**Classification — phân loại** dùng khi câu trả lời thuộc một hoặc nhiều nhóm:
+
+- thư rác hoặc không phải thư rác;
+- mèo, chó hoặc chim;
+- khách hàng có rời dịch vụ hay không.
+
+Classification có thể là:
+
+- nhị phân: chỉ có hai lớp;
+- nhiều lớp: có từ ba lớp trở lên;
+- đa nhãn: một mẫu có thể thuộc nhiều lớp cùng lúc.
+
+### Quy trình cơ bản
+
+```text
+Dữ liệu có nhãn
+      ↓
+Chia train và validation
+      ↓
+Huấn luyện model
+      ↓
+So sánh dự đoán với nhãn đúng
+      ↓
+Đánh giá trên dữ liệu mới
+```
+
+### Ví dụ
+
+Ta có nhiều ảnh đã được gắn nhãn “mèo” hoặc “chó”. Model học các đặc điểm xuất hiện trong từng nhóm. Khi nhận ảnh mới, model dự đoán ảnh đó thuộc nhóm nào.
+
+### Ưu điểm và giới hạn
+
+Ưu điểm:
+
+- mục tiêu học rõ ràng;
+- có thể đo kết quả bằng metric cụ thể;
+- phù hợp với dự đoán và phân loại.
+
+Giới hạn:
+
+- cần dữ liệu được gắn nhãn;
+- gắn nhãn có thể tốn thời gian và chi phí;
+- nhãn sai sẽ làm model học sai;
+- model có thể học thuộc dữ liệu nếu không kiểm tra đúng cách.
+
+### Bản ghi nhớ
+
+Nếu mỗi mẫu dữ liệu đi kèm một câu trả lời đúng, hãy nghĩ đến **Supervised Learning**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Học không giám sát (Unsupervised Learning)
+
+### Ý tưởng chính
+
+Học không giám sát làm việc với dữ liệu chưa có câu trả lời được gắn sẵn. Model cố gắng tìm ra cấu trúc hoặc quy luật bên trong dữ liệu.
+
+```text
+Dữ liệu chưa có nhãn → Tìm nhóm, hướng chính hoặc cấu trúc ẩn
+```
+
+Ví dụ, một cửa hàng có thông tin về nhiều khách hàng nhưng chưa biết cách chia họ thành các nhóm. Model có thể phát hiện nhóm khách mua thường xuyên, nhóm chỉ mua khi giảm giá và nhóm khách mới.
+
+### Các nhiệm vụ phổ biến
+
+**Clustering — phân cụm** đặt những mẫu giống nhau vào cùng một nhóm. K-Means và DBSCAN là hai thuật toán thường gặp.
+
+**Dimensionality Reduction — giảm chiều** rút gọn số lượng đặc điểm trong khi cố gắng giữ lại thông tin quan trọng. PCA thường được dùng cho mục đích này.
+
+**Anomaly Detection — phát hiện bất thường** tìm những mẫu khác xa phần lớn dữ liệu, chẳng hạn giao dịch đáng ngờ.
+
+**Association hoặc pattern discovery** tìm những sự kiện thường xuất hiện cùng nhau, chẳng hạn sản phẩm thường được mua chung.
+
+### Khó khăn khi đánh giá
+
+Vì không có nhãn đúng để so sánh trực tiếp, việc đánh giá thường khó hơn supervised learning. Ta có thể dùng:
+
+- kiến thức của chuyên gia;
+- silhouette score hoặc các metric nội tại;
+- kiểm tra tính ổn định của nhóm;
+- đo lợi ích trong một ứng dụng thực tế.
+
+Một biểu đồ có các cụm đẹp không tự động chứng minh rằng các cụm đó có ý nghĩa trong thực tế.
+
+### Ưu điểm và giới hạn
+
+Ưu điểm:
+
+- không cần gắn nhãn thủ công;
+- có thể khám phá cấu trúc chưa biết;
+- phù hợp để phân tích và hiểu dữ liệu ban đầu.
+
+Giới hạn:
+
+- kết quả có thể khó diễn giải;
+- thuật toán có thể tìm ra nhóm không hữu ích;
+- thường cần chọn số nhóm hoặc điều chỉnh tham số;
+- không có một câu trả lời đúng duy nhất để đánh giá.
+
+### Bản ghi nhớ
+
+Nếu dữ liệu chưa có nhãn và mục tiêu là tìm cấu trúc bên trong, hãy nghĩ đến **Unsupervised Learning**.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Học tăng cường (Reinforcement Learning)
+
+### Ý tưởng chính
+
+Học tăng cường mô tả một **tác nhân (agent)** học thông qua việc tương tác với **môi trường (environment)**.
+
+Ở mỗi thời điểm:
+
+1. Agent quan sát trạng thái hiện tại.
+2. Agent chọn một hành động.
+3. Môi trường phản hồi trạng thái mới và phần thưởng.
+4. Agent điều chỉnh cách chọn hành động để tăng tổng phần thưởng trong tương lai.
+
+```text
+Trạng thái → Hành động → Phần thưởng và trạng thái mới
+```
+
+### Các khái niệm chính
+
+- **State:** tình huống hiện tại của môi trường.
+- **Action:** việc agent có thể làm.
+- **Reward:** điểm thưởng hoặc hình phạt sau hành động.
+- **Policy:** chiến lược chọn hành động.
+- **Episode:** một chuỗi tương tác từ lúc bắt đầu đến khi kết thúc.
+
+Mục tiêu không nhất thiết là nhận phần thưởng lớn ngay lập tức. Agent thường phải cân nhắc giữa hành động có lợi trước mắt và hành động tạo ra lợi ích lớn hơn về sau.
+
+### Ví dụ
+
+Trong một trò chơi, agent nhìn thấy vị trí của nhân vật, chọn đi lên hoặc sang phải, rồi nhận điểm nếu đến gần mục tiêu. Qua nhiều lượt thử, agent học được chuỗi hành động tốt hơn.
+
+Các ứng dụng khác gồm:
+
+- điều khiển robot;
+- tối ưu lịch hoặc tài nguyên;
+- trò chơi;
+- hệ thống đề xuất có phản hồi theo thời gian;
+- một số phương pháp huấn luyện trợ lý AI bằng preference.
+
+### Khác với supervised learning
+
+Trong supervised learning, mỗi input thường đi kèm câu trả lời đúng. Trong reinforcement learning, môi trường thường chỉ trả về reward; agent phải tự khám phá hành động nào dẫn đến kết quả tốt.
+
+### Ưu điểm và giới hạn
+
+Ưu điểm:
+
+- phù hợp với bài toán ra quyết định tuần tự;
+- học được chiến lược thay vì chỉ một dự đoán độc lập;
+- có thể tối ưu mục tiêu dài hạn.
+
+Giới hạn:
+
+- cần thiết kế reward cẩn thận;
+- thử sai có thể tốn thời gian hoặc nguy hiểm;
+- quá trình học thường không ổn định;
+- reward sai có thể khiến agent học hành vi không mong muốn.
+
+### Bản ghi nhớ
+
+Nếu model phải liên tục chọn hành động, nhận phản hồi và tối ưu phần thưởng theo thời gian, hãy nghĩ đến **Reinforcement Learning**.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## So sánh và chọn loại học
+
+### Bảng so sánh
+
+| Loại học | Dữ liệu | Tín hiệu học | Ví dụ | Bài toán thường gặp |
+|---|---|---|---|---|
+| Supervised | Có nhãn | Câu trả lời đúng | Ảnh đã ghi “mèo” | Regression, classification |
+| Unsupervised | Chưa có nhãn | Cấu trúc trong dữ liệu | Danh sách khách hàng | Clustering, PCA, anomaly detection |
+| Reinforcement | Chuỗi tương tác | Reward hoặc penalty | Robot đi đến mục tiêu | Ra quyết định tuần tự |
+
+### Cách chọn
+
+Hãy bắt đầu bằng ba câu hỏi:
+
+1. Dữ liệu có câu trả lời đúng cho từng mẫu không?
+2. Nếu chưa có, mục tiêu có phải là tìm nhóm hoặc cấu trúc không?
+3. Nếu model phải hành động nhiều bước và nhận phần thưởng theo thời gian, có cần tối ưu chiến lược không?
+
+Có thể dùng quy tắc nhanh:
+
+```text
+Có nhãn → Supervised Learning
+Không có nhãn, cần tìm cấu trúc → Unsupervised Learning
+Có môi trường, hành động và phần thưởng → Reinforcement Learning
+```
+
+Trong thực tế, các loại học có thể kết hợp. Ví dụ, một hệ thống có thể dùng supervised learning để nhận diện đối tượng, reinforcement learning để chọn hành động và unsupervised learning để phân tích dữ liệu mới.
+
+### Tóm tắt
+
+- Supervised Learning học từ dữ liệu có câu trả lời mẫu.
+- Regression dự đoán số; classification dự đoán lớp.
+- Unsupervised Learning tìm cấu trúc trong dữ liệu chưa có nhãn.
+- Clustering, PCA và anomaly detection là các nhiệm vụ phổ biến của unsupervised learning.
+- Reinforcement Learning học qua tương tác, hành động và phần thưởng.
+- Khác biệt cốt lõi giữa ba loại học là nguồn tín hiệu hướng dẫn quá trình học.
+
+Sau phần quiz, ta chọn bài toán có nhãn và target liên tục: dự đoán giá nhà bằng Linear Regression. Các khái niệm chia dữ liệu, generalization và validation sẽ xuất hiện ngay trong quá trình xây dựng và kiểm tra model này.
+
+### Tự kiểm tra
+
+1. Dự đoán giá nhà thuộc regression hay classification? Vì sao?
+2. Chia khách hàng thành các nhóm khi chưa có nhãn là loại học nào?
+3. Trong reinforcement learning, reward có vai trò gì?
+4. Vì sao một biểu đồ clustering đẹp chưa đủ chứng minh kết quả đúng?
+5. Một robot chọn đường đi và nhận điểm sau mỗi bước nên được mô hình hóa theo loại học nào?
+
+</MdxPage>

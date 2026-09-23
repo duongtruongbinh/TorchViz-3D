@@ -1,0 +1,165 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "gaussian-mixture-models-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Responsibility không phải mật độ",
+    "Hình dạng thành phần",
+    "Một bước cập nhật mean",
+    "Chọn GMM đáng tin cậy"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Gaussian Mixture Models",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "gmm-soft-assignment",
+    "gmm-covariance",
+    "gmm-em",
+    "gmm-model-selection"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="gaussian-mixture-models-quiz" questions={[
+  {
+    "id": "gmm-soft-assignment",
+    "title": "Responsibility không phải mật độ",
+    "prompt": "Hai thành phần có trọng số [0.6, 0.4], mật độ tại x là [0.2, 0.1]. Responsibility của thành phần đầu bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "0.12",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "0.60",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "0.16",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "0.75",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. 0.6 × 0.2 = 0.12; tổng đóng góp 0.16; responsibility = 0.75.",
+    "error": "Chuẩn hóa đóng góp có trọng số, không lấy riêng trọng số hay mật độ."
+  },
+  {
+    "id": "gmm-covariance",
+    "title": "Hình dạng thành phần",
+    "prompt": "Ghép ràng buộc với loại covariance.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "spherical",
+        "label": "Spherical"
+      },
+      {
+        "id": "diagonal",
+        "label": "Diagonal"
+      },
+      {
+        "id": "full",
+        "label": "Full"
+      },
+      {
+        "id": "tied",
+        "label": "Tied"
+      }
+    ],
+    "options": [
+      {
+        "id": "circle",
+        "label": "Một phương sai chung các chiều cho mỗi thành phần.",
+        "categoryId": "spherical"
+      },
+      {
+        "id": "axis",
+        "label": "Phương sai từng chiều riêng, không có hiệp phương sai.",
+        "categoryId": "diagonal"
+      },
+      {
+        "id": "tilt",
+        "label": "Mỗi thành phần có covariance đầy đủ riêng.",
+        "categoryId": "full"
+      },
+      {
+        "id": "shared",
+        "label": "Các thành phần dùng chung covariance đầy đủ.",
+        "categoryId": "tied"
+      }
+    ],
+    "success": "Đúng. Linh hoạt hơn thường đồng nghĩa cần nhiều tham số hơn.",
+    "error": "Phân biệt cấu trúc mỗi covariance và việc có dùng chung giữa các thành phần không."
+  },
+  {
+    "id": "gmm-em",
+    "title": "Một bước cập nhật mean",
+    "prompt": "Hai điểm [0, 2] có responsibility [0.8, 0.2] cho thành phần 1. Mean mới của thành phần đó là bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "0.4",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "1.0",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "1.6",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "2.0",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. (0.8 × 0 + 0.2 × 2)/(0.8 + 0.2) = 0.4.",
+    "error": "M-step dùng trọng số mềm; không lấy trung bình không trọng số hay chỉ chọn điểm có nhãn cứng."
+  },
+  {
+    "id": "gmm-model-selection",
+    "title": "Chọn GMM đáng tin cậy",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Training likelihood cao nhất đủ để chọn số thành phần.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "So AIC/BIC cần cùng dữ liệu và representation.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "EM luôn tìm được cực đại toàn cục nếu chạy đủ vòng.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Cần kiểm tra hội tụ, khởi tạo và covariance gần suy biến.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Độ khớp train và hội tụ không bảo đảm nghiệm tốt nhất hay nhóm có ý nghĩa nghiệp vụ.",
+    "error": "Thêm thành phần có thể tăng độ khớp nhưng cũng tăng độ phức tạp; EM có thể kẹt ở nghiệm cục bộ."
+  }
+]} />

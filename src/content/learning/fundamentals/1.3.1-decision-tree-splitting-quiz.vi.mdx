@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "decision-tree-splitting-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Cách Decision Tree chia dữ liệu",
+    "Xây một node của cây",
+    "Kiểm soát độ phức tạp của cây"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "decision-tree",
+    "tree-split",
+    "gini-entropy",
+    "variance-reduction",
+    "leaf-prediction",
+    "tree-regularization"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="decision-tree-splitting-quiz" questions={[
+  {
+    "id": "tree-split",
+    "title": "Cách Decision Tree chia dữ liệu",
+    "prompt": "Một split trong Decision Tree thường làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Cộng tất cả feature thành một giá trị.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Đặt câu hỏi về feature và ngưỡng để chia dữ liệu thành các nhánh.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Chỉ tạo một nhánh duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Bắt buộc dùng gradient descent trên toàn bộ cây.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Cây liên tục chọn câu hỏi giúp các nhánh trở nên thuần hơn hoặc giảm sai số hơn.",
+    "error": "Hãy nghĩ về các câu hỏi dạng feature <= threshold thay vì một phép cộng cố định."
+  },
+  {
+    "id": "tree-building-flow",
+    "title": "Xây một node của cây",
+    "prompt": "Sắp xếp quy trình đơn giản để tạo split cho một node.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "recurse",
+        "label": "Lặp lại trên các node con khi điều kiện dừng chưa đạt."
+      },
+      {
+        "id": "choose",
+        "label": "Chọn split có mức cải thiện tốt nhất."
+      },
+      {
+        "id": "candidates",
+        "label": "Xét các feature và ngưỡng ứng viên."
+      },
+      {
+        "id": "score",
+        "label": "Tính độ giảm Gini, entropy hoặc variance cho từng split."
+      }
+    ],
+    "correctOrder": [
+      "candidates",
+      "score",
+      "choose",
+      "recurse"
+    ],
+    "success": "Đúng. Cây đánh giá nhiều split rồi mới chọn nhánh có lợi nhất.",
+    "error": "Cần có ứng viên, chấm điểm, chọn split tốt rồi mới đệ quy xuống node con."
+  },
+  {
+    "id": "tree-regularization",
+    "title": "Kiểm soát độ phức tạp của cây",
+    "prompt": "Chọn tất cả cách có thể giảm overfitting của Decision Tree.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Giới hạn max_depth.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Đặt min_samples_leaf hoặc min_samples_split hợp lý.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Pruning các nhánh không hữu ích.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Luôn làm cây sâu hơn để chắc chắn tổng quát hóa tốt hơn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Các ràng buộc này ngăn cây ghi nhớ những chi tiết quá riêng của train set.",
+    "error": "Cây sâu hơn có thể tăng điểm train nhưng cũng dễ overfit."
+  }
+]} />

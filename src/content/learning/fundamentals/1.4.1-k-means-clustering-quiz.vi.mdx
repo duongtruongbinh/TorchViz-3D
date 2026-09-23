@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "k-means-clustering-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Ý nghĩa của K trong K-Means",
+    "Vòng lặp K-Means",
+    "Khi dùng K-Means"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "clustering",
+    "k-means",
+    "centroid-assignment-update",
+    "feature-scaling-distance",
+    "choosing-k",
+    "k-means-limitations"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="k-means-clustering-quiz" questions={[
+  {
+    "id": "kmeans-k",
+    "title": "Ý nghĩa của K trong K-Means",
+    "prompt": "Trong K-Means, K biểu thị điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Số centroid hoặc số cụm cần tìm.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Số nhãn có sẵn trong dữ liệu.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Số feature phải xóa.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Số lần chia test set.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. K là số cụm cần chỉ định trước khi chạy thuật toán.",
+    "error": "K-Means không yêu cầu nhãn, nhưng cần biết hoặc lựa chọn số cụm K."
+  },
+  {
+    "id": "kmeans-loop",
+    "title": "Vòng lặp K-Means",
+    "prompt": "Sắp xếp các bước lặp cơ bản của K-Means.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "update",
+        "label": "Cập nhật mỗi centroid bằng trung bình các điểm đã gán."
+      },
+      {
+        "id": "assign",
+        "label": "Gán mỗi điểm vào centroid gần nhất."
+      },
+      {
+        "id": "converge",
+        "label": "Dừng khi gán cụm hoặc centroid gần như không đổi."
+      },
+      {
+        "id": "initialize",
+        "label": "Khởi tạo K centroid."
+      }
+    ],
+    "correctOrder": [
+      "initialize",
+      "assign",
+      "update",
+      "converge"
+    ],
+    "success": "Đúng. K-Means luân phiên gán điểm và cập nhật tâm cụm.",
+    "error": "Bắt đầu từ centroid, gán điểm, cập nhật trung bình rồi kiểm tra hội tụ."
+  },
+  {
+    "id": "kmeans-practice",
+    "title": "Khi dùng K-Means",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Scale feature thường quan trọng vì thuật toán dựa vào khoảng cách.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Cần xem xét cách chọn K, ví dụ bằng elbow hoặc silhouette.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "K-Means yêu cầu nhãn lớp cho mọi điểm.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Outlier có thể kéo centroid và làm cụm kém ổn định.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Khoảng cách, K và outlier đều ảnh hưởng đáng kể đến kết quả K-Means.",
+    "error": "K-Means là unsupervised và không dùng nhãn lớp để train."
+  }
+]} />

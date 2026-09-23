@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Khoảng cách tới ranh giới",
+    "Hinge loss và C",
+    "Ảnh hưởng của gamma",
+    "Score, regression và calibration"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "svm-margin",
+    "svm-soft-margin-c",
+    "svm-kernel-gamma",
+    "svm-workflow"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="support-vector-machines-quiz" questions={[
+  {
+    "id": "svm-margin",
+    "title": "Khoảng cách tới ranh giới",
+    "prompt": "Với w = [1, 0], b = -2 và điểm x = [3, 0], score và khoảng cách tới ranh giới là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Score 1, khoảng cách 1.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Score 3, khoảng cách 3.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Score -1, khoảng cách 1.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Score 1, khoảng cách 2.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. f(x) = 3 - 2 = 1 và ||w|| = 1 nên khoảng cách bằng 1.",
+    "error": "Khoảng cách là |f(x)|/||w||, không phải giá trị feature đầu tiên."
+  },
+  {
+    "id": "svm-soft-margin-c",
+    "title": "Hinge loss và C",
+    "prompt": "Một điểm có y × f(x) = 0.4. Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Hinge loss bằng 0 vì nhãn đã đúng.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Hinge loss bằng 0.6 vì điểm vẫn vi phạm margin.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "C lớn hơn làm vi phạm train đắt hơn tương đối trong objective đã học.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "C nhỏ hơn thường làm regularization mạnh hơn tương đối.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Đúng phía chưa đủ để loss bằng 0; C cân bằng độ rộng margin và vi phạm.",
+    "error": "Hinge loss = max(0, 1 - 0.4); không đồng nhất lỗi margin với sai nhãn."
+  },
+  {
+    "id": "svm-kernel-gamma",
+    "title": "Ảnh hưởng của gamma",
+    "prompt": "Với ||x-q||² = 4, tăng gamma của RBF từ 0.1 lên 0.5 làm similarity đổi thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Tăng từ khoảng 0.135 lên 0.670.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Giữ nguyên vì khoảng cách không đổi.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Giảm từ khoảng 0.670 xuống 0.135.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Trở thành số âm.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. exp(-0.4) khoảng 0.670; exp(-2) khoảng 0.135. Gamma lớn làm ảnh hưởng cục bộ hơn.",
+    "error": "Thay gamma vào exp(-gamma × 4)."
+  },
+  {
+    "id": "svm-workflow",
+    "title": "Score, regression và calibration",
+    "prompt": "Ghép tình huống với cách xử lý.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "calibration",
+        "label": "Kiểm tra/hiệu chỉnh xác suất"
+      },
+      {
+        "id": "regression",
+        "label": "Đánh giá hồi quy"
+      },
+      {
+        "id": "validation",
+        "label": "Chọn cấu hình bằng validation"
+      }
+    ],
+    "options": [
+      {
+        "id": "score",
+        "label": "Cần xác suất từ score SVM để định giá rủi ro.",
+        "categoryId": "calibration"
+      },
+      {
+        "id": "svr",
+        "label": "Dùng SVR dự đoán giá nhà.",
+        "categoryId": "regression"
+      },
+      {
+        "id": "tune",
+        "label": "So C và gamma với scaler trong pipeline.",
+        "categoryId": "validation"
+      }
+    ],
+    "success": "Đúng. Score không tự là xác suất; SVR có target liên tục; hyperparameter không chọn bằng test.",
+    "error": "Xác định đầu ra và vai trò dữ liệu trước khi chọn metric hoặc cách fit."
+  }
+]} />

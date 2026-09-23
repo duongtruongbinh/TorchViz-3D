@@ -19,16 +19,17 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 17 domains, 111 tracks, and 864 lesson nodes. Three hundred
-ninety-two Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 17 domains, 110 tracks, and 921 lesson nodes. Four hundred
+seventy-three Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), thirty-three in `research-papers`, fifteen in `evolutionary-algorithms`,
-eight in `ai-projects`, 66 theory/quiz nodes in `llm-unlearning`, and fourteen in
-`cv` (eight focused Chapter 1 nodes, an Image Classification theory/quiz opening
-for Chapter 2, plus four tagged exercise lessons). The four `llm-unlearning` Code
-Lab nodes are deliberately left unauthored for a later user-owned phase. The other 472 nodes are navigable placeholders and render one shared localized
+eight in `ai-projects`, eighty-one in `fundamentals`, sixty-six in
+`llm-unlearning`, and fourteen in `cv`
+(eight focused Chapter 1 nodes, an Image Classification theory/quiz opening for
+Chapter 2, plus four tagged exercise lessons).
+The other 448 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
@@ -47,6 +48,40 @@ Chapter 1 is intentionally a beginner-level conceptual overview: each
 historical milestone explains its problem, key idea, and impact without teaching
 derivations, architecture shapes, or implementation details owned by Chapter 2
 and later chapters.
+Machine Learning assumes independently studied Linear Algebra prerequisites.
+Its model lessons briefly link to existing Linear Algebra content instead of
+repeating tensor theory and a tensor quiz.
+Retired `tensor-shape-fundamentals`, `shape-basics`, and `shape-basics-quiz` routes
+resolve through TOC aliases (retired lesson bookmarks select `linear-activation`).
+The first chapter, `linear-regression-foundations`, integrates problem framing,
+splits, regression losses, generalization, bias/variance, L1/L2 and CV through a
+housing example. After CV, three theory/quiz pairs cover split/seed variability,
+bootstrap confidence intervals and prediction intervals. They distinguish
+training/split variation, fixed-model metric uncertainty and new-response
+uncertainty, with assumptions and four-question assessments. Classification
+evaluation links back to the shared resampling principles. The chapter ends
+with the `regression-metrics` theory/quiz pair. The second,
+`logistic-classification`, contains Logistic Regression, Value flow/activation,
+One-vs-Rest, k-NN, Naive Bayes, SVM, then the `classification-metrics` pair.
+The unsupervised chapter places Gaussian Mixture Models directly after K-Means
+and before DBSCAN. Each new algorithm has four theory pages and a four-question
+mixed-mode assessment with matching concept IDs. Activation remains directly
+after the Logistic pair. There is no separate Core ML Concepts chapter or mixed
+Evaluation Metrics lesson. Old core/combined/value-flow track bookmarks redirect;
+existing lesson IDs retain their destinations, and `evaluation-metrics` bookmarks
+map to the new regression metrics pair. Bare track bookmarks use the target
+chapter's first lesson. Historical MDX filename prefixes remain unchanged for
+existing lessons: typed TOC order controls navigation. Applied shape examples
+remain model-specific; the user's learning-paradigms title is preserved.
+
+Six Machine Learning code labs (`leakage-code-lab`, `linear-regression-code-lab`,
+`mixed-classification-code-lab`, `model-comparison-code-lab`,
+`clustering-code-lab`, and `nested-cv-code-lab`) are registered across their
+respective chapters as locked placeholders (`contentStatus: 'missing'`). They
+define the practical end-to-end curriculum roadmap (leakage detection, OLS to
+Scikit-Learn, mixed classification pipelines, model benchmarking, unlabeled
+clustering, and nested cross-validation), structured for standalone code package
+authoring in an upcoming release milestone.
 
 The authored LLM lessons are:
 
@@ -465,7 +500,7 @@ currently unused `kandel2000principles` book record because the cited 2000
 edition has no stable open primary landing page in the survey metadata.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 429
+published MDX. The shared placeholder body is not indexed, preventing 448
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 

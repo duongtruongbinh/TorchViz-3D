@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'early-stopping',
+  locale: 'vi',
+  title: 'Early Stopping',
+  headings: [
+    'Dừng train theo validation signal',
+    'Patience, checkpoint và min_delta',
+    'Kết hợp với scheduler và đánh giá cuối',
+  ],
+  keywords: ['Machine Learning', 'Early Stopping', 'Validation Loss', 'Checkpoint', 'Patience', 'Overfitting'],
+  conceptIds: ['early-stopping', 'validation-monitoring', 'patience-min-delta', 'best-checkpoint', 'early-stopping-workflow'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Dừng train theo validation signal
+
+**Early Stopping** theo dõi loss hoặc metric trên validation set và dừng train khi kết quả không còn cải thiện trong một khoảng thời gian. Nó giúp tránh tiếp tục train khi model đang bắt đầu overfit, đồng thời tiết kiệm compute.
+
+Không nên dừng theo train loss. Train loss thường tiếp tục giảm vì model ngày càng khớp train set tốt hơn, ngay cả khi validation loss đã tăng. Validation signal đại diện tốt hơn cho khả năng tổng quát hóa mà ta muốn bảo vệ.
+
+Metric cần theo dõi phải phù hợp mục tiêu. Với regression có thể là validation MAE hoặc RMSE; với classification mất cân bằng có thể là validation F1, PR-AUC hoặc Recall thay vì accuracy. Hướng cải thiện cũng cần đúng: loss cần giảm, còn nhiều score cần tăng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Patience, checkpoint và min_delta
+
+**Patience** là số epoch hoặc evaluation round được phép không cải thiện trước khi dừng. Patience quá ngắn có thể dừng chỉ vì dao động ngẫu nhiên; quá dài giảm lợi ích tiết kiệm compute và cho phép overfitting kéo dài hơn.
+
+`min_delta` xác định mức cải thiện tối thiểu được xem là có ý nghĩa. Nếu validation loss giảm một lượng rất nhỏ chỉ do noise, không nhất thiết phải reset patience. Giá trị phù hợp phụ thuộc vào scale của metric.
+
+Điều quan trọng là lưu **best checkpoint** tại thời điểm validation metric tốt nhất. Khi early stopping kích hoạt, hãy khôi phục model về checkpoint tốt nhất thay vì giữ parameter của epoch cuối cùng. Đây là lỗi nhỏ nhưng rất dễ làm kết quả cuối kém hơn mức validation đã đạt được.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kết hợp với scheduler và đánh giá cuối
+
+Early stopping thường được dùng cùng learning-rate scheduler. Khi validation metric chững lại, scheduler có thể giảm learning rate để model tinh chỉnh thêm; early stopping chỉ nên kết thúc train khi những cơ hội cải thiện hợp lý đã được cho phép.
+
+Hãy lưu cả model state, optimizer state, epoch, metric và cấu hình train vào checkpoint. Việc này hỗ trợ resume training, tái lập kết quả và kiểm tra lý do một run dừng sớm.
+
+Early stopping là quyết định phát triển dựa trên validation set, nên test set vẫn phải được giữ riêng. Sau khi chọn checkpoint và quy trình, chỉ đánh giá cuối cùng trên test set để ước lượng trung thực hiệu năng với dữ liệu chưa từng tác động đến quyết định train.
+
+</MdxPage>

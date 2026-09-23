@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'bias-variance-tradeoff',
+  locale: 'vi',
+  title: 'Độ lệch, Độ nhạy, Sự đánh đổi',
+  headings: [
+    'Phân tích sai số dự đoán',
+    'Bias: sai lệch có hệ thống',
+    'Variance: độ nhạy với dữ liệu train',
+    'Nhiễu không thể loại bỏ',
+    'Tìm điểm cân bằng',
+  ],
+  keywords: ['Machine Learning', 'Bias', 'Variance', 'Generalization', 'Model Complexity', 'Validation'],
+  conceptIds: ['prediction-error', 'bias', 'variance', 'irreducible-noise', 'bias-variance-tradeoff'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Phân tích sai số dự đoán
+
+Khi một model dự đoán sai, lỗi đó không chỉ có một nguyên nhân. Một cách nhìn hữu ích là tách sai số kỳ vọng thành ba phần: **bias squared**, **variance** và **nhiễu không thể loại bỏ**.
+
+```text
+Expected prediction error = bias^2 + variance + irreducible noise
+```
+
+Phân rã này áp dụng cho sai số bình phương kỳ vọng, tại một input cố định, khi xét các tập train ngẫu nhiên từ cùng quá trình sinh dữ liệu và nhiễu có kỳ vọng bằng 0 theo input. Nó không phải phép cộng dùng trực tiếp cho MAE hay accuracy, cũng không thể suy ra từng thành phần chỉ từ một lần fit. Nó giúp ta hiểu vì sao tăng độ phức tạp của model đôi khi cải thiện kết quả, nhưng cũng có lúc khiến model kém tổng quát hóa hơn.
+
+Bias và variance thường có xu hướng đánh đổi với nhau. Model quá đơn giản có thể bỏ lỡ quy luật quan trọng. Model quá phức tạp có thể bám vào những chi tiết ngẫu nhiên chỉ tồn tại trong train set.
+
+<LessonNote>
+  Mục tiêu không phải là đưa bias hoặc variance về 0. Mục tiêu là giảm tổng sai số trên dữ liệu mới.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bias: sai lệch có hệ thống
+
+**Bias** là sai lệch có hệ thống giữa cách model dự đoán và quy luật thật của dữ liệu. Model có bias cao thường quá đơn giản, nên đưa ra các dự đoán theo một khuôn mẫu cứng nhắc và không nắm được quan hệ cần thiết.
+
+Ví dụ, giá nhà có thể phụ thuộc vào diện tích, vị trí, số phòng, chất lượng xây dựng và thời điểm bán. Nếu chỉ dùng một đường thẳng theo diện tích để dự đoán, model có thể bỏ qua nhiều yếu tố quan trọng. Dự đoán của nó sai theo một hướng có hệ thống, kể cả trên train set.
+
+Bias cao thường đi cùng underfitting. Dấu hiệu phổ biến là train score và validation score đều chưa tốt. Cách cải thiện có thể là thêm feature phù hợp, cho model biểu diễn linh hoạt hơn hoặc train đủ lâu hơn.
+
+Tuy nhiên, tăng độ phức tạp chỉ có ích khi nó giúp model học quy luật thật. Một feature ngẫu nhiên hoặc không đáng tin có thể làm model phức tạp hơn mà không giảm bias một cách có ý nghĩa.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Variance: độ nhạy với dữ liệu train
+
+**Variance** đo mức độ thay đổi của model khi train trên một tập dữ liệu khác nhưng được lấy từ cùng một bài toán. Model có variance cao rất nhạy với những ví dụ cụ thể mà nó đã thấy.
+
+Hãy fit Linear Regression với nhiều feature đa thức trên hai tập giá nhà gần giống nhau. Chỉ thay vài căn nhà, hệ số có thể đổi mạnh và dự đoán cho cùng một căn nhà lệch từ 3.0 lên 4.2 tỷ đồng. Đó là độ nhạy với tập train, không phải bias cộng thêm trong công thức `wx + b`.
+
+Variance cao thường đi cùng overfitting. Train score có thể rất cao, nhưng validation score thấp hơn rõ rệt. Cách giảm variance thường là có thêm dữ liệu, dùng regularization, giảm số feature nhiễu hoặc mức độ phức tạp của biến đổi input.
+
+Model đơn giản hơn thường ổn định hơn trước thay đổi nhỏ của train set, nên variance thấp hơn. Đổi lại, nếu quá đơn giản, nó lại dễ có bias cao. Đây chính là nguồn gốc của trade-off.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Nhiễu không thể loại bỏ
+
+Không phải mọi sai số đều do model kém. Một phần dữ liệu vốn có **nhiễu không thể loại bỏ**: thông tin quan trọng bị thiếu, phép đo không chính xác, nhãn bị gán sai hoặc bản thân quá trình tạo dữ liệu có yếu tố ngẫu nhiên.
+
+Ví dụ, hai căn nhà có thể có các feature giống hệt nhau trong dataset nhưng bán với giá khác nhau vì người mua có nhu cầu đặc biệt mà hệ thống không ghi nhận. Không model nào có thể dự đoán chính xác phần thông tin chưa từng được cung cấp.
+
+Nhiễu này được xét tương đối với bộ feature và cách đo hiện có. Bổ sung thông tin có ích hoặc sửa lỗi đo có thể giảm nó; không có nghĩa mọi lỗi dữ liệu đều vĩnh viễn không thể sửa. Nhiễu còn lại đặt ra một giới hạn thực tế cho chất lượng model. Nếu cố ép train loss xuống quá thấp để theo đuổi cả nhiễu, model có thể overfit và kém hơn trên dữ liệu mới.
+
+Vì vậy, khi metric ngừng cải thiện, đừng mặc định rằng model cần phức tạp hơn. Hãy kiểm tra chất lượng nhãn, feature có sẵn, độ tin cậy của dữ liệu và mức chất lượng thực tế mà bài toán cho phép đạt được.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tìm điểm cân bằng
+
+Độ phức tạp tối ưu là độ phức tạp cho validation performance tốt nhất, chứ không phải model lớn nhất hoặc train score cao nhất. Ta thường thử một số cấu hình, theo dõi train và validation metric, rồi chọn cấu hình có generalization tốt nhất.
+
+Một cách đọc nhanh các tín hiệu là:
+
+- train và validation đều kém: có thể bias cao hoặc data, feature chưa đủ tốt;
+- train rất tốt nhưng validation kém: có thể variance cao và overfitting;
+- cả train lẫn validation đều tốt, khoảng cách nhỏ: mô hình đang ở trạng thái mong muốn hơn.
+
+Ở bước tiếp theo, L1/L2 sẽ cụ thể hóa việc chấp nhận một phần bias để giảm độ nhạy của trọng số model giá nhà. Sau đó cross-validation kiểm tra mỗi cấu hình regularization trên nhiều fold. Kết quả ổn định qua nhiều fold đáng tin hơn một điểm số tốt tình cờ trên một split duy nhất.
+
+Tóm lại, bias–variance trade-off nhắc ta rằng một model tốt phải đủ linh hoạt để học tín hiệu, nhưng đủ ổn định để không học nhiễu. Quyết định cuối cùng nên dựa trên validation và bối cảnh triển khai, không chỉ dựa trên train score.
+
+</MdxPage>

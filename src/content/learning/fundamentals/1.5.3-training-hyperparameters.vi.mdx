@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'training-hyperparameters',
+  locale: 'vi',
+  title: 'Siêu tham số huấn luyện',
+  headings: [
+    'Parameter và hyperparameter',
+    'Learning rate điều khiển bước cập nhật',
+    'Batch size, epoch và gradient noise',
+    'Optimizer, regularization và scheduler',
+  ],
+  keywords: ['Machine Learning', 'Hyperparameters', 'Learning Rate', 'Batch Size', 'Epoch', 'Optimizer', 'Weight Decay', 'Dropout'],
+  conceptIds: ['training-hyperparameters', 'learning-rate', 'batch-size-epochs', 'optimizer', 'weight-decay-dropout-scheduler', 'training-reproducibility'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Parameter và hyperparameter
+
+**Parameter** là giá trị model học trực tiếp trong quá trình train, như trọng số và bias. **Hyperparameter** là các quyết định kiểm soát cách train hoặc cấu trúc model, như learning rate, batch size, số epoch, optimizer và mức regularization.
+
+Hyperparameter không có một giá trị đúng cho mọi dataset. Chúng tương tác với nhau: learning rate phù hợp khi batch size 32 có thể không phù hợp khi batch size 512; dropout hợp lý cho một neural network có thể không cần thiết cho một tree model.
+
+Mục tiêu tuning không phải là chỉnh mọi nút có thể chỉnh. Hãy bắt đầu từ các hyperparameter có ảnh hưởng lớn, đặt baseline rõ ràng, thay đổi có kiểm soát và đánh giá trên validation metric cùng chi phí tính toán.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Learning rate điều khiển bước cập nhật
+
+**Learning rate** quyết định độ lớn của mỗi bước optimizer cập nhật parameter. Learning rate quá lớn có thể khiến loss dao động hoặc diverge vì model liên tục nhảy qua vùng tốt. Learning rate quá nhỏ giúp bước đi thận trọng nhưng có thể làm train rất chậm hoặc không kịp đạt chất lượng tốt trong ngân sách epoch.
+
+Khi train ổn định, loss thường giảm dần. Nếu loss bùng nổ, dao động mạnh hoặc xuất hiện `NaN`, learning rate là một trong những điều đầu tiên nên kiểm tra. Nếu loss giảm rất chậm, có thể cần tăng learning rate hoặc dùng schedule phù hợp.
+
+Learning rate thường được thử trên thang logarithmic. Ví dụ `1e-4`, `1e-3` và `1e-2` thường khác nhau có ý nghĩa hơn ba giá trị sát nhau như `0.001`, `0.002` và `0.003` khi chưa biết đúng vùng tốt.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Batch size, epoch và gradient noise
+
+**Batch size** là số mẫu được xử lý trong một lần cập nhật. Batch nhỏ dùng ít memory hơn và tạo gradient nhiễu hơn; batch lớn tận dụng phần cứng hiệu quả hơn nhưng cần nhiều memory và đôi khi cần điều chỉnh learning rate.
+
+Một **epoch** là một lượt model đi qua toàn bộ train set. Số epoch cần thiết phụ thuộc vào model, dataset, learning rate và regularization. Train quá ít có thể underfit; train quá lâu có thể overfit, nên validation metric và early stopping quan trọng hơn việc chọn một số epoch cố định theo cảm tính.
+
+Không nên so sánh cấu hình chỉ bằng số epoch vì batch size thay đổi số lần update trong mỗi epoch. Hãy theo dõi training curve theo epoch, số step và thời gian wall-clock để hiểu model thực sự đang học như thế nào.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Optimizer, regularization và scheduler
+
+Optimizer quy định cách dùng gradient để cập nhật parameter. SGD, SGD với momentum và Adam có hành vi khác nhau về tốc độ hội tụ và độ nhạy với learning rate. Không có optimizer nào luôn tốt nhất; hãy chọn baseline phổ biến cho kiến trúc rồi kiểm tra validation result.
+
+Weight decay thường là một dạng L2 regularization, khuyến khích trọng số nhỏ hơn. Dropout ngẫu nhiên tắt một phần activation trong lúc train để giảm việc các neuron phụ thuộc quá chặt vào nhau. Cả hai cần được tuning vì quá mạnh có thể làm underfit.
+
+Learning-rate scheduler thay đổi learning rate theo thời gian, chẳng hạn giảm dần sau một số epoch hoặc khi validation metric chững lại. Hãy lưu seed, phiên bản thư viện, dữ liệu split và cấu hình đầy đủ để kết quả có thể lặp lại. Reproducibility không bảo đảm model tốt, nhưng giúp bạn biết thay đổi nào thực sự gây ra khác biệt.
+
+</MdxPage>

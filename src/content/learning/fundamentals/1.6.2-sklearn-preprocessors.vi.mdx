@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'sklearn-preprocessors',
+  locale: 'vi',
+  title: 'Tiền xử lý Sklearn',
+  headings: [
+    'Preprocessing bắt đầu từ kiểu dữ liệu',
+    'Scale feature số và xử lý outlier',
+    'Category, missing value và ColumnTransformer',
+    'Fit transformer đúng nơi',
+  ],
+  keywords: ['Machine Learning', 'Scikit-Learn', 'Preprocessing', 'StandardScaler', 'OneHotEncoder', 'SimpleImputer', 'ColumnTransformer'],
+  conceptIds: ['preprocessing', 'numeric-scaling', 'standard-minmax-robust-scaler', 'categorical-encoding', 'missing-value-imputation', 'column-transformer', 'fit-on-train-only'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Preprocessing bắt đầu từ kiểu dữ liệu
+
+Preprocessing biến dữ liệu thô thành representation phù hợp với model. Không có một preprocessing tốt chung cho mọi cột; cách xử lý phụ thuộc vào kiểu dữ liệu, ý nghĩa feature, thang đo, missing value và thuật toán downstream.
+
+Feature số có thể cần scaling. Feature category cần encoding. Text, datetime, ID và cột có missing value thường cần quyết định riêng. Trước khi chọn transformer, hãy kiểm tra distribution, tỷ lệ thiếu, cardinality của category và thời điểm dữ liệu được tạo ra để tránh leakage.
+
+Preprocessing tốt không chỉ cải thiện metric. Nó giúp input nhất quán, giảm lỗi vận hành và làm assumptions của model trở nên phù hợp hơn với dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Scale feature số và xử lý outlier
+
+**StandardScaler** trừ mean và chia cho standard deviation, tạo feature có mean gần 0 và scale gần 1 trên train set. Nó thường phù hợp với linear model, logistic regression, SVM, K-Means, PCA và neural network vì các phương pháp này nhạy với thang đo feature.
+
+**MinMaxScaler** đưa giá trị về một khoảng xác định, thường là 0 đến 1. Nó hữu ích khi cần range bị giới hạn, nhưng nhạy với outlier vì min và max có thể bị kéo xa. **RobustScaler** dùng median và interquartile range nên ít nhạy hơn với outlier.
+
+Tree model như Decision Tree, Random Forest và Gradient Boosting thường không cần scaling để split theo threshold. Dù vậy, scaling có thể vẫn cần nếu pipeline có thêm bước distance-based hoặc PCA trước tree, nên hãy xét toàn bộ workflow thay vì chỉ xét estimator cuối.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Category, missing value và ColumnTransformer
+
+**OneHotEncoder** biến category không có thứ tự thành nhiều cột nhị phân, phù hợp với nhiều model tuyến tính. Không nên mã hóa category như `red=1`, `blue=2`, `green=3` nếu các số đó không mang thứ tự thật, vì model có thể hiểu nhầm quan hệ lớn nhỏ.
+
+**SimpleImputer** thay thế missing value bằng chiến lược như mean, median, most frequent hoặc một giá trị hằng. Cách impute nên phản ánh ý nghĩa dữ liệu; đôi khi việc một giá trị bị thiếu tự nó là tín hiệu và cần thêm missing indicator. Việc xóa hàng hoặc cột cũng là lựa chọn, nhưng có thể làm mất dữ liệu theo cách có bias.
+
+**ColumnTransformer** áp dụng transformer khác nhau cho các nhóm cột. Ví dụ, cột số đi qua imputer và StandardScaler; cột category đi qua imputer và OneHotEncoder. Sau đó, các output được ghép lại để đưa vào model trong Pipeline.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Fit transformer đúng nơi
+
+Mọi transformer học từ dữ liệu đều phải được fit trên train set, bao gồm scaler, imputer, encoder, PCA và feature selector. Validation/test chỉ được transform bằng object đã fit trên train. Quy tắc này cũng áp dụng cho từng fold trong cross-validation.
+
+Ví dụ, nếu OneHotEncoder được fit trên toàn bộ dataset, nó có thể biết một category chỉ xuất hiện trong test data. Nếu median imputer dùng toàn bộ dataset, nó đã lấy thống kê từ tương lai. Cả hai đều là leakage dù không hề nhìn trực tiếp nhãn target.
+
+Đặt ColumnTransformer trong Pipeline là cách rõ ràng nhất để giữ quy tắc này. Hãy lưu cùng pipeline đã train, danh sách cột và schema input để inference nhận được dữ liệu đúng dạng mà preprocessing mong đợi.
+
+</MdxPage>

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'tsne-umap-visualization',
+  locale: 'vi',
+  title: 'Trực quan hóa t-SNE và UMAP',
+  headings: [
+    'Trực quan hóa embedding nhiều chiều',
+    'Giữ quan hệ lân cận thay vì toàn bộ khoảng cách',
+    'Hyperparameter, seed và cách đọc biểu đồ',
+    'Workflow khám phá dữ liệu an toàn',
+  ],
+  keywords: ['Machine Learning', 't-SNE', 'UMAP', 'Visualization', 'Dimensionality Reduction', 'Embedding', 'Manifold Learning'],
+  conceptIds: ['embedding-visualization', 'tsne', 'umap', 'local-neighborhood-preservation', 'visualization-hyperparameters', 'embedding-interpretation'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Trực quan hóa embedding nhiều chiều
+
+Khi dữ liệu hoặc embedding có hàng chục, hàng trăm chiều, con người không thể nhìn trực tiếp cấu trúc của nó. **t-SNE** và **UMAP** chiếu dữ liệu xuống 2D hoặc 3D để hỗ trợ khám phá: điểm nào gần nhau, vùng nào có vẻ tách biệt và những mẫu nào có thể là outlier.
+
+Hai phương pháp này chủ yếu là công cụ trực quan hóa. Chúng đặc biệt phổ biến khi xem embedding ảnh, văn bản hoặc representation ẩn từ model. Mỗi điểm trên biểu đồ đại diện cho một mẫu, còn vị trí gần nhau thường gợi ý các mẫu có representation tương tự.
+
+Kết quả embedding thấp chiều là một góc nhìn được tạo bởi thuật toán, không phải ảnh chụp trực tiếp của dữ liệu gốc. Nó cần được dùng để tạo giả thuyết rồi kiểm tra lại bằng dữ liệu, metric hoặc kiến thức domain.
+
+<LessonNote>
+  Một biểu đồ có các cụm trông đẹp không đủ để chứng minh dữ liệu có các nhóm thật, model phân loại tốt hoặc clustering sẽ có giá trị trong production.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Giữ quan hệ lân cận thay vì toàn bộ khoảng cách
+
+t-SNE và UMAP đều ưu tiên giữ các quan hệ lân cận: nếu hai điểm gần nhau trong không gian nhiều chiều, chúng nên có xu hướng gần nhau trên biểu đồ 2D. Chúng không bảo đảm khoảng cách giữa các cụm xa nhau trên biểu đồ phản ánh chính xác khoảng cách trong không gian gốc.
+
+t-SNE thường tạo các nhóm cục bộ rõ ràng, nhưng khoảng cách giữa các island và kích thước tương đối của chúng dễ bị hiểu nhầm. UMAP cũng cố giữ cấu trúc lân cận, thường nhanh hơn với dataset lớn và có thể cho một cái nhìn tốt hơn về một phần cấu trúc rộng hơn, nhưng vẫn không nên diễn giải khoảng cách toàn cục quá đà.
+
+Vì trọng tâm là quan hệ địa phương, hai điểm nằm xa nhau trên biểu đồ không chắc là rất khác nhau trong dữ liệu gốc. Tương tự, khoảng trống lớn giữa hai nhóm có thể do cách projection biểu diễn dữ liệu thay vì một ranh giới tuyệt đối trong thế giới thật.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Hyperparameter, seed và cách đọc biểu đồ
+
+Kết quả t-SNE và UMAP phụ thuộc vào hyperparameter và random seed. Với t-SNE, perplexity điều chỉnh quy mô lân cận mà thuật toán quan tâm. Với UMAP, `n_neighbors` và `min_dist` ảnh hưởng đến mức độ nhấn mạnh cấu trúc cục bộ và độ chặt của các vùng điểm.
+
+Thay đổi tham số có thể làm biểu đồ trông khác đáng kể. Vì vậy, hãy thử một số cấu hình hợp lý và kiểm tra liệu các pattern quan trọng có ổn định hay không. Đừng chỉ chọn cấu hình cho ra hình đẹp nhất rồi coi đó là kết luận.
+
+Nhãn thật, nếu có, rất hữu ích để tô màu biểu đồ sau khi embedding được tạo. Tuy nhiên, không nên dùng nhãn để điều chỉnh cách đọc một cách thiên lệch. Một nhóm trộn lẫn nhãn có thể phản ánh representation chưa tách được lớp, nhưng cũng có thể do lớp vốn chồng lấn trong feature hiện có.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Workflow khám phá dữ liệu an toàn
+
+Trước khi chạy t-SNE hoặc UMAP, hãy làm sạch dữ liệu, xử lý missing value và chuẩn hóa feature khi khoảng cách cần so sánh các cột có thang đo khác nhau. Với dữ liệu rất nhiều chiều hoặc rất lớn, PCA có thể được dùng trước để giảm nhiễu và làm projection nhanh hơn.
+
+Hãy xem biểu đồ như bước khám phá. Nếu nó gợi ý một nhóm outlier, kiểm tra lại các mẫu gốc. Nếu nó gợi ý hai cluster, thử đánh giá bằng clustering, metric phù hợp hoặc kiểm tra domain. Nếu nó gợi ý model đang trộn hai lớp, xem thêm confusion matrix và representation ở nhiều seed.
+
+t-SNE và UMAP giúp con người nhìn thấy những pattern khó nhận ra bằng bảng số. Giá trị của chúng đến từ việc mở ra câu hỏi tốt hơn, không phải từ việc thay thế quy trình đánh giá model bằng một hình ảnh 2D.
+
+</MdxPage>

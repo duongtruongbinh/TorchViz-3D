@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'sklearn-saving-models',
+  locale: 'vi',
+  title: 'Lưu mô hình Sklearn',
+  headings: [
+    'Artifact cần chứa toàn bộ workflow',
+    'joblib, pickle và rủi ro bảo mật',
+    'Version, schema và metadata',
+    'Kiểm tra, rollback và vận hành',
+  ],
+  keywords: ['Machine Learning', 'Scikit-Learn', 'Model Persistence', 'joblib', 'pickle', 'Model Versioning', 'Input Schema', 'Rollback'],
+  conceptIds: ['model-artifact', 'save-pipeline', 'joblib-pickle-security', 'model-metadata-versioning', 'input-schema-validation', 'model-rollback'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Artifact cần chứa toàn bộ workflow
+
+Một model production không chỉ là trọng số của estimator. Để tái tạo dự đoán đúng, artifact cần chứa preprocessing đã fit, thứ tự feature, encoder category, imputer, scaler, label mapping và chính model. Vì vậy, object phù hợp nhất để lưu thường là Pipeline hoàn chỉnh.
+
+Nếu chỉ lưu classifier mà không lưu scaler, input mới có thể đi vào model với thang đo khác lúc train. Nếu không lưu OneHotEncoder hoặc thứ tự cột, một category có thể tạo vector feature sai. Những lỗi này có thể không làm chương trình crash nhưng âm thầm làm prediction kém.
+
+Hãy coi artifact model như một hợp đồng: raw input có schema xác định đi vào, workflow đã được fit biến đổi nó, rồi model tạo output theo cùng quy tắc đã được đánh giá.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## joblib, pickle và rủi ro bảo mật
+
+`joblib` và `pickle` là các cách tiện dụng để serialize object Python, bao gồm nhiều object Scikit-Learn. Chúng phù hợp để lưu và khôi phục pipeline trong môi trường tin cậy, với version thư viện được kiểm soát.
+
+Tuy nhiên, file `pickle` hoặc `joblib` không đáng tin có thể thực thi mã khi được deserialize. Không bao giờ tải artifact từ nguồn không xác minh rồi gọi `load` chỉ vì file có đuôi quen thuộc. Hãy giới hạn quyền truy cập, kiểm tra nguồn phát hành và xác minh checksum hoặc signature trước khi nạp.
+
+Artifact pickle cũng có thể không tương thích hoàn toàn khi Python hoặc Scikit-Learn thay đổi version. Nếu cần portability giữa môi trường hoặc ngôn ngữ, hãy cân nhắc format phù hợp hơn với hệ sinh thái triển khai, nhưng luôn kiểm tra lại prediction sau khi chuyển đổi.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Version, schema và metadata
+
+Mỗi artifact nên đi kèm metadata rõ ràng: version model, commit hoặc run ID, version Python và thư viện, ngày train, dataset version, metric validation/test, random seed và cấu hình chính. Metadata giúp trả lời artifact nào đang chạy và vì sao nó được chọn.
+
+Input schema cần mô tả tên cột, kiểu dữ liệu, cột bắt buộc, range hoặc category hợp lệ và cách xử lý missing value. Schema validation trước prediction giúp phát hiện client gửi thiếu cột, đổi đơn vị hoặc đưa category chưa được hỗ trợ.
+
+Có thể lưu checksum cho artifact và metadata để phát hiện file bị thay đổi bất ngờ. Versioning dữ liệu, code và artifact cùng nhau giúp một prediction trong production có thể được truy vết về đúng pipeline đã tạo ra nó.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiểm tra, rollback và vận hành
+
+Trước khi release artifact, hãy chạy smoke test với một số input đã biết và so sánh prediction với kết quả kỳ vọng. Kiểm tra cả trường hợp input thiếu, category mới, giá trị ngoài range và output không hợp lệ như `NaN`.
+
+Production nên có logging phù hợp cho schema errors, latency, distribution input và quality signal khi nhãn đến muộn. Không nên log dữ liệu nhạy cảm một cách vô điều kiện; logging cần tuân thủ chính sách bảo mật và quyền riêng tư.
+
+Giữ lại artifact cũ và quy trình **rollback**. Nếu model mới gây lỗi, drift hoặc tác động sản phẩm không mong muốn, khả năng quay về phiên bản đã biết lành mạnh giúp giảm rủi ro. Lưu model tốt là chuẩn bị cho cả ngày deploy lẫn ngày có sự cố.
+
+</MdxPage>

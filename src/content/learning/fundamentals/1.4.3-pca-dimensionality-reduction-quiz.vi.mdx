@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "pca-dimensionality-reduction-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Mục tiêu của PCA",
+    "Quy trình PCA tránh leakage",
+    "Diễn giải PCA"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "dimensionality-reduction",
+    "pca",
+    "principal-components",
+    "explained-variance",
+    "pca-preprocessing",
+    "pca-limitations"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="pca-dimensionality-reduction-quiz" questions={[
+  {
+    "id": "pca-goal",
+    "title": "Mục tiêu của PCA",
+    "prompt": "PCA thường được dùng để làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Tạo nhãn lớp mới cho dữ liệu.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Tối đa hóa accuracy trên test set.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Thay thế hoàn toàn bước train model.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Tạo ít component hơn nhưng vẫn giữ được nhiều phương sai quan trọng.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. PCA tìm các trục mới giải thích nhiều biến thiên của dữ liệu.",
+    "error": "PCA là phương pháp giảm chiều không giám sát, không tự tạo nhãn hay thay việc đánh giá model."
+  },
+  {
+    "id": "pca-safe-workflow",
+    "title": "Quy trình PCA tránh leakage",
+    "prompt": "Sắp xếp quy trình áp dụng PCA cho một bài toán có train và validation.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "transform",
+        "label": "Dùng scaler và PCA đã fit để transform validation."
+      },
+      {
+        "id": "fit-pca",
+        "label": "Fit PCA trên dữ liệu train đã được scale."
+      },
+      {
+        "id": "scale-train",
+        "label": "Fit scaler trên train rồi scale train."
+      },
+      {
+        "id": "split",
+        "label": "Chia dữ liệu thành train và validation."
+      }
+    ],
+    "correctOrder": [
+      "split",
+      "scale-train",
+      "fit-pca",
+      "transform"
+    ],
+    "success": "Đúng. Các tham số scale và PCA chỉ được học từ train để tránh leakage.",
+    "error": "Hãy split trước, fit scaler/PCA trên train, rồi chỉ transform validation bằng trạng thái đã học."
+  },
+  {
+    "id": "pca-claims",
+    "title": "Diễn giải PCA",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Principal components được chọn để giải thích phương sai theo thứ tự giảm dần.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Scale feature thường quan trọng khi các cột có đơn vị rất khác nhau.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "PCA dùng nhãn lớp để tìm component mặc định.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Giảm chiều có thể làm mất một phần thông tin và giảm khả năng diễn giải feature gốc.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. PCA là unsupervised và đánh đổi giữa giảm chiều, thông tin giữ lại và khả năng diễn giải.",
+    "error": "PCA không dùng nhãn mặc định; component là tổ hợp của các feature gốc."
+  }
+]} />

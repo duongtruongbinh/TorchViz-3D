@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'machine-learning-synthesis',
+  locale: 'vi',
+  title: 'Bản đồ khóa học',
+  headings: [
+    'Machine Learning là workflow học từ dữ liệu',
+    'Bản đồ chọn bài toán và model',
+    'Đánh giá, tuning và chống leakage',
+    'Từ notebook đến workflow đáng tin cậy',
+  ],
+  keywords: ['Machine Learning', 'Course Synthesis', 'Workflow', 'Evaluation', 'Generalization', 'Pipeline', 'Deployment'],
+  conceptIds: ['machine-learning-workflow', 'problem-framing', 'evaluation-generalization', 'model-selection-tuning', 'pipeline-deployment', 'ml-production-checklist'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Machine Learning là workflow học từ dữ liệu
+
+Machine Learning là quá trình dùng dữ liệu để học một quy luật, sau đó dùng quy luật đó dự đoán hoặc hỗ trợ quyết định với dữ liệu mới. Model chỉ là một phần trong workflow; dữ liệu, split, metric, preprocessing, validation và deployment đều quyết định kết quả có đáng tin hay không.
+
+Một workflow đáng tin cậy bắt đầu bằng việc hiểu input. Cách biểu diễn dữ liệu bằng vector, matrix và tensor là kiến thức nền đã học ở [Linear Algebra](/learning/linear-algebra/linear-algebra-for-ai?lesson=linear-algebra-for-ai-overview). Trong workflow ML, ta dùng nền tảng đó để xác định sample, feature, target, missing value và thời điểm dữ liệu được tạo ra. Sau đó cần xác định đúng loại bài toán: regression cho giá trị liên tục, classification cho nhãn, clustering để khám phá nhóm không nhãn hoặc giảm chiều để tìm representation gọn hơn.
+
+Mục tiêu không phải là làm train score đẹp. Mục tiêu là tạo ra quyết định có ích trên dữ liệu mới, trong các ràng buộc thực tế của sản phẩm.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bản đồ chọn bài toán và model
+
+Chương Linear Regression dùng ví dụ giá nhà để nối chia dữ liệu, loss, overfitting, bias–variance, L1/L2 và cross-validation, rồi kết thúc bằng đánh giá hồi quy. Chương phân loại nối Logistic Regression với activation, One-vs-Rest, k-NN, Naive Bayes và SVM trước khi đánh giá. Hai nhóm metric đặt sau workflow tương ứng, nhưng quy tắc giữ test độc lập được dùng xuyên suốt.
+
+Khi target là giá trị liên tục, linear regression là baseline dễ diễn giải; tree và ensemble có thể học quan hệ phi tuyến. Khi target là nhãn, logistic regression tạo xác suất cho classification nhị phân, còn One-vs-Rest hoặc softmax mở rộng sang nhiều lớp.
+
+k-NN dựa vào hàng xóm nên cần distance có nghĩa và kiểm soát chi phí query; Naive Bayes dựa vào likelihood theo lớp và giả định độc lập có điều kiện; SVM tìm ranh giới theo margin và có thể dùng kernel. k-NN regression và SVR vẫn dùng nhóm metric hồi quy khi target là số liên tục.
+
+Decision Tree tạo rule dễ đọc nhưng dễ overfit. Random Forest giảm variance bằng bagging và random feature. Gradient Boosting xây tree tuần tự để sửa lỗi và thường mạnh với dữ liệu bảng, đổi lại cần tuning kỹ hơn. K-Means gán cụm theo centroid; Gaussian Mixture Models mô hình hóa mật độ và gán mềm qua responsibility; DBSCAN dựa vào vùng mật độ. PCA và t-SNE/UMAP phục vụ giảm chiều hoặc trực quan hóa, không phải các phiên bản thay thế trực tiếp cho mọi thuật toán clustering.
+
+Không có model tốt nhất độc lập với data. Hãy bắt đầu bằng baseline, xem feature có tín hiệu nào, chọn model theo metric và ràng buộc vận hành, rồi kiểm tra failure mode thay vì chỉ chạy theo benchmark phổ biến.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đánh giá, tuning và chống leakage
+
+Train set dùng để học parameter. Validation hoặc cross-validation dùng để chọn model, hyperparameter, threshold và checkpoint. Test set chỉ dùng cuối cùng để đánh giá quyết định đã chốt. Nếu test score liên tục tác động đến lựa chọn model, test set không còn độc lập.
+
+Metric phải phản ánh chi phí lỗi. Regression có MAE, MSE, RMSE và R2; classification có Accuracy, Precision, Recall, F1, ROC-AUC, PR-AUC và Log Loss. Đừng tối ưu metric phổ biến nhất nếu nó không đại diện cho rủi ro của ứng dụng.
+
+Một con số tốt cần đi kèm bối cảnh biến động. So model trên cùng split, báo cáo các seed theo protocol định trước; không lấy SD giữa các fold phụ thuộc rồi tự gọi là CI. Bootstrap CI cần chỉ rõ metric và đơn vị resampling, đồng thời phân biệt model cố định với retrain toàn pipeline. Prediction interval lại nhắm tới response của sample mới và cần kiểm tra coverage cùng độ rộng. Cả ba đều không tự bảo vệ trước distribution shift.
+
+Overfitting, bias–variance trade-off, regularization, cross-validation, search hyperparameter và early stopping là các công cụ cùng hướng tới generalization. Chúng chỉ đáng tin khi split strategy mô phỏng dữ liệu production và preprocessing được fit đúng trên train portion của từng fold.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Từ notebook đến workflow đáng tin cậy
+
+Hệ thống code lab thực hành được thiết kế theo một lộ trình liền mạch xuyên suốt các chương: từ phát hiện leakage, hồi quy OLS đến Scikit-Learn, classification pipeline với dữ liệu hỗn hợp, so sánh ba nhóm model (Logistic Regression, Random Forest, Gradient Boosting), clustering không nhãn cho đến Nested Cross-Validation chuẩn mực. Sườn bài thực hành này giúp định hình tư duy thực chiến: một quyết định xử lý dữ liệu ở khâu đầu vào sẽ ảnh hưởng trực tiếp đến độ tin cậy của toàn bộ pipeline phía sau.
+
+Chuỗi lab thực hành chuẩn hóa này được phân bổ trong lộ trình của từng chương và đang ở trạng thái chuẩn bị hoàn thiện để bổ sung trọn gói trong giai đoạn tiếp theo.
+
+Scikit-Learn Pipeline gộp preprocessing và model thành một workflow duy nhất. ColumnTransformer xử lý các cột số và category theo cách phù hợp. Cross-validation và search object đánh giá toàn bộ pipeline, giúp tránh leakage và giữ logic train/inference nhất quán.
+
+Trước khi đưa model vào sử dụng, hãy tự hỏi:
+
+- Model đang học quy luật hay ghi nhớ dữ liệu train?
+- Validation và test có bị dùng sai mục đích không?
+- Metric có phản ánh mục tiêu thật và chi phí lỗi của sản phẩm không?
+- Preprocessing lúc train và inference có giống nhau không?
+- Kết quả có ổn định khi đổi split hoặc random seed không?
+
+Cuối cùng, lưu artifact gồm pipeline, schema, version và metadata; kiểm tra input; theo dõi behavior sau release; và chuẩn bị rollback. Một model đáng tin không được định nghĩa bởi một lần train thành công, mà bởi khả năng được đánh giá, tái lập, vận hành và cải thiện có kiểm soát.
+
+</MdxPage>

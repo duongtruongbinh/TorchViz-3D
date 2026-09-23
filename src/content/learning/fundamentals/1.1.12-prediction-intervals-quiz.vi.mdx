@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "prediction-intervals-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Khoảng cho đại lượng nào?",
+    "Vì sao PI rộng hơn?",
+    "Đọc coverage thực nghiệm",
+    "Chọn phương pháp phù hợp"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "confidence-vs-prediction",
+    "ols-prediction-interval",
+    "interval-coverage-width",
+    "interval-assumptions"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="prediction-intervals-quiz" questions={[
+  {
+    "id": "confidence-vs-prediction",
+    "title": "Khoảng cho đại lượng nào?",
+    "prompt": "Ghép mỗi câu hỏi với loại khoảng thích hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "metric",
+        "label": "CI cho MAE"
+      },
+      {
+        "id": "mean",
+        "label": "CI cho mean response"
+      },
+      {
+        "id": "new",
+        "label": "Prediction interval"
+      }
+    ],
+    "options": [
+      {
+        "id": "error",
+        "label": "Sai số tuyệt đối trung bình của model cố định trên quần thể.",
+        "categoryId": "metric"
+      },
+      {
+        "id": "average",
+        "label": "Giá trung bình của các căn nhà có diện tích x0.",
+        "categoryId": "mean"
+      },
+      {
+        "id": "individual",
+        "label": "Giá bán của một căn nhà mới ở diện tích x0.",
+        "categoryId": "new"
+      }
+    ],
+    "success": "Đúng. Ba khoảng trả lời ba câu hỏi khác nhau.",
+    "error": "Không dùng khoảng của một thống kê tổng hợp làm khoảng cho response riêng lẻ."
+  },
+  {
+    "id": "ols-prediction-interval",
+    "title": "Vì sao PI rộng hơn?",
+    "prompt": "Trong công thức OLS đơn, CI mean dùng căn h0, PI dùng căn (1 + h0). Số 1 thêm vào thể hiện điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Một feature được thêm vào model.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Một fold validation bổ sung.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Mức tăng confidence từ 90% lên 95%.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Nhiễu của response mới ngoài bất định ước lượng mean.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Dự đoán cá thể cần tính cả độ dao động quanh mean response.",
+    "error": "Không nhầm số 1 trong variance dự đoán với số feature hay số fold."
+  },
+  {
+    "id": "interval-coverage-width",
+    "title": "Đọc coverage thực nghiệm",
+    "prompt": "Có 90/100 giá thật nằm trong khoảng đã chốt. Chọn tất cả kết luận đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Coverage quan sát là 90%.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Coverage quần thể chắc chắn đúng 90%.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Cần xem độ rộng và coverage theo các nhóm nhà.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Có thể nới khoảng bằng test rồi coi test đó vẫn độc lập.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Coverage hữu hạn mẫu có bất định; độ rộng và khác biệt theo nhóm vẫn quan trọng.",
+    "error": "Không hiệu chỉnh trên test rồi dùng chính test để chứng minh chất lượng."
+  },
+  {
+    "id": "interval-assumptions",
+    "title": "Chọn phương pháp phù hợp",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Công thức PI của OLS đơn áp dụng trực tiếp cho mọi tree.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Quantile regression vẫn cần kiểm tra coverage và thứ tự hai cận.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Phân vị của mean prediction qua retrain chưa tự là PI cho response mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Distribution shift có thể khiến coverage giảm dù trước đó đạt mục tiêu.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Loại khoảng phải khớp estimand và giả định; dữ liệu mới khác có thể phá coverage.",
+    "error": "Bất định của mean khác nhiễu response và mỗi phương pháp có điều kiện áp dụng."
+  }
+]} />

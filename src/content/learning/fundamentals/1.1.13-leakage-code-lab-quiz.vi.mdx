@@ -1,0 +1,142 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "leakage-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Thời điểm dự đoán",
+    "Metric gần như hoàn hảo",
+    "Pipeline an toàn",
+    "Phân vai dữ liệu"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "leakage-availability-audit",
+    "leakage-target-proxy",
+    "leakage-fold-local-preprocessing",
+    "leakage-holdout-isolation"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="leakage-code-lab-quiz" questions={[
+  {
+    "title": "Thời điểm dự đoán",
+    "prompt": "Dự đoán giá trước giao dịch. Cột nào có thể dùng?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Giá bán đã chốt.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Thuế tính từ giá bán cuối cùng.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Diện tích đo trước khi bán.",
+        "isCorrect": true,
+        "id": "o0"
+      }
+    ],
+    "success": "Đúng. Diện tích đo trước khi bán.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "leakage-availability-audit"
+  },
+  {
+    "title": "Metric gần như hoàn hảo",
+    "prompt": "Pipeline dùng post_sale_tax có MAE gần 0. Giải thích đúng là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "CV đã loại bỏ mọi loại leakage nên kết quả hợp lệ.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Cột thuế là proxy trực tiếp của target và chỉ biết sau giao dịch.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Linear Regression luôn dự đoán giá hoàn hảo.",
+        "isCorrect": false,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Cột thuế là proxy trực tiếp của target và chỉ biết sau giao dịch.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "leakage-target-proxy"
+  },
+  {
+    "title": "Pipeline an toàn",
+    "prompt": "Chọn tất cả thao tác đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "Giữ cột thuế vì đang nằm trong Pipeline.",
+        "isCorrect": false,
+        "id": "o3"
+      },
+      {
+        "label": "Fit imputer bên trong từng training fold.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Dùng allowlist các feature biết trước bán.",
+        "isCorrect": true,
+        "id": "o1"
+      },
+      {
+        "label": "Fit scaler trên toàn development trước CV.",
+        "isCorrect": false,
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Fit imputer bên trong từng training fold. Dùng allowlist các feature biết trước bán.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "leakage-fold-local-preprocessing"
+  },
+  {
+    "title": "Phân vai dữ liệu",
+    "prompt": "Ghép đúng vai trò trong chuỗi lab.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Development"
+      },
+      {
+        "id": "c1",
+        "label": "Holdout cuối"
+      }
+    ],
+    "options": [
+      {
+        "label": "So sánh cấu hình bằng CV.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "Học median trong training fold.",
+        "categoryId": "c0",
+        "id": "o1"
+      },
+      {
+        "label": "Đánh giá sau khi đã khóa model và protocol.",
+        "categoryId": "c1",
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "leakage-holdout-isolation"
+  }
+]} />

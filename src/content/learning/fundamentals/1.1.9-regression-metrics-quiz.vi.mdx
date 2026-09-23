@@ -1,0 +1,155 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "regression-metrics-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Tính sai số giá nhà",
+    "Metric và đơn vị",
+    "Hiểu đúng R²",
+    "Chốt model giá nhà"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "regression-error-units",
+    "mae-mse-rmse",
+    "r2-baseline",
+    "regression-evaluation-protocol"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="regression-metrics-quiz" questions={[
+  {
+    "id": "regression-error-units",
+    "title": "Tính sai số giá nhà",
+    "prompt": "Ba sai số dự đoán là [1, -1, 2] tỷ đồng. Cặp (MAE, RMSE) gần đúng nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "(0.667, 2) tỷ đồng",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "(1.333, 1.414) tỷ đồng",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "(2, 1.333) tỷ đồng",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "(1.333, 2) tỷ đồng",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. MAE = 4/3; MSE = 6/3 = 2; RMSE = căn 2.",
+    "error": "MAE dùng trị tuyệt đối, còn RMSE phải lấy căn sau khi trung bình bình phương."
+  },
+  {
+    "id": "mae-mse-rmse",
+    "title": "Metric và đơn vị",
+    "prompt": "Ghép mỗi chỉ số với mô tả phù hợp khi target tính bằng tỷ đồng.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "mae",
+        "label": "MAE"
+      },
+      {
+        "id": "mse",
+        "label": "MSE"
+      },
+      {
+        "id": "rmse",
+        "label": "RMSE"
+      }
+    ],
+    "options": [
+      {
+        "id": "absolute",
+        "label": "Trung bình độ lớn sai số, đơn vị tỷ đồng.",
+        "categoryId": "mae"
+      },
+      {
+        "id": "squared",
+        "label": "Trung bình bình phương sai số, đơn vị bình phương tỷ đồng.",
+        "categoryId": "mse"
+      },
+      {
+        "id": "root",
+        "label": "Căn của MSE, trở về đơn vị tỷ đồng.",
+        "categoryId": "rmse"
+      }
+    ],
+    "success": "Đúng. MSE và RMSE cùng nhấn mạnh sai số lớn nhưng có đơn vị khác nhau.",
+    "error": "Theo dõi cả phép biến đổi sai số lẫn đơn vị sau biến đổi."
+  },
+  {
+    "id": "r2-baseline",
+    "title": "Hiểu đúng R²",
+    "prompt": "Chọn tất cả phát biểu đúng về R² và baseline.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "R² = 0.25 nghĩa là 25% sample được dự đoán chính xác.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "R² có thể âm trên dữ liệu giữ lại.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Baseline triển khai phải fit trên train thay vì dùng trung bình target test.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Target đánh giá không đổi làm mẫu số công thức R² thông thường bằng 0.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. R² so sai số bình phương với độ biến thiên target, không phải accuracy.",
+    "error": "Phân biệt mốc toán học của R² với predictor baseline và kiểm tra mẫu số."
+  },
+  {
+    "id": "regression-evaluation-protocol",
+    "title": "Chốt model giá nhà",
+    "prompt": "Model A tốt hơn B về MAE trên cùng validation. Chọn các bước đánh giá hợp lý tiếp theo.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Chốt pipeline/metric, fit lại theo quy trình rồi báo cáo trên test giữ riêng.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Dùng test để chọn lại feature đến khi MAE đẹp hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Báo cáo baseline, đơn vị target và lỗi theo các nhóm nhà đã xác định.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Bỏ qua RMSE và residual vì MAE tốt chứng minh mọi nhóm đều tốt.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Một metric tổng không thay kiểm tra nhóm và test phải độc lập với chọn model.",
+    "error": "Test dùng để báo cáo quyết định đã chốt; MAE tổng không bảo đảm mọi nhóm đều tốt."
+  }
+]} />

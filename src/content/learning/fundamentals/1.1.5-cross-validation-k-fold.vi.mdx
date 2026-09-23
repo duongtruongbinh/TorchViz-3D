@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'cross-validation-k-fold',
+  locale: 'vi',
+  title: 'Cross Validation K Fold',
+  headings: [
+    'Vì sao cần cross-validation',
+    'Cách K-fold hoạt động',
+    'Đọc kết quả qua nhiều fold',
+    'Chọn kiểu split phù hợp',
+    'Cross-validation không thay test cuối cùng',
+  ],
+  keywords: ['Machine Learning', 'Cross Validation', 'K Fold', 'Stratified K Fold', 'Group K Fold', 'Time Series Split'],
+  conceptIds: ['cross-validation', 'k-fold', 'cv-score-variance', 'stratified-group-time-series-split', 'final-test-set'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần cross-validation
+
+Sau khi thêm L1/L2 vào model giá nhà, ta cần chọn độ mạnh regularization. Một lần chia train và validation có thể cho kết quả tốt hoặc xấu do ngẫu nhiên. Nếu validation set vô tình chứa nhiều ví dụ dễ, model có vẻ tốt hơn thực tế; nếu nó chứa nhiều ví dụ khó, model lại có vẻ kém hơn thực tế.
+
+**Cross-validation** giảm sự phụ thuộc vào một lần chia duy nhất. Thay vì đánh giá model trên một validation set cố định, ta lặp lại quá trình train và validation trên nhiều phần khác nhau của dữ liệu.
+
+Kết quả từ nhiều lần đánh giá thường đáng tin hơn khi dữ liệu không quá lớn. Nó đặc biệt hữu ích để so sánh model, chọn hyperparameter hoặc kiểm tra một cấu hình có ổn định trước những thay đổi nhỏ của tập train hay không.
+
+<LessonNote>
+  Cross-validation làm tăng chi phí tính toán vì model phải được train nhiều lần. Hãy cân bằng độ tin cậy của đánh giá với thời gian và tài nguyên hiện có.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cách K-fold hoạt động
+
+Trong **K-fold cross-validation**, dữ liệu dùng cho phát triển được chia thành `K` phần, gọi là các fold. Ở mỗi vòng, một fold đóng vai trò validation set, còn `K - 1` fold còn lại được dùng để train.
+
+Với `K = 5`, quy trình có thể hình dung như sau:
+
+```text
+Vòng 1: train trên fold 2-5, validation trên fold 1
+Vòng 2: train trên fold 1, 3-5, validation trên fold 2
+...
+Vòng 5: train trên fold 1-4, validation trên fold 5
+```
+
+Mỗi mẫu dữ liệu được dùng để validation đúng một lần và được dùng để train trong các vòng còn lại. Sau `K` vòng, ta có `K` điểm số validation cho cùng một model hoặc cấu hình.
+
+Giá trị `K` thường là 5 hoặc 10. K lớn hơn giúp mỗi lần train dùng nhiều dữ liệu hơn, nhưng cũng làm quá trình đánh giá tốn thời gian hơn. Không có một giá trị K đúng cho mọi bài toán.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đọc kết quả qua nhiều fold
+
+Sau K-fold, ta thường báo cáo trung bình metric qua các fold. Ví dụ, năm MAE của model giá nhà là `210`, `190`, `230`, `200` và `220` triệu đồng, trung bình là `210` triệu đồng. MAE càng thấp càng tốt. Con số này ước lượng hiệu năng ổn định hơn so với chỉ một validation split.
+
+Tuy nhiên, trung bình không kể hết câu chuyện. Cần quan sát cả độ dao động giữa các fold. Một model có MAE trung bình thấp nhưng kết quả dao động mạnh có thể nhạy với cách chia dữ liệu hoặc với các nhóm dữ liệu nhất định.
+
+```text
+MAE, triệu đồng, càng thấp càng tốt:
+Model A: 210, 210, 200, 220, 210
+Model B: 150, 300, 120, 280, 200
+```
+
+Model B có thể có trung bình gần Model A, nhưng kết quả kém ổn định hơn. Trong bối cảnh production, sự ổn định thường quan trọng, nhất là khi dữ liệu của người dùng có thể thay đổi theo thời gian hoặc theo nhóm.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chọn kiểu split phù hợp
+
+K-fold thông thường giả định các mẫu có thể được chia ngẫu nhiên mà không phá vỡ cấu trúc của dữ liệu. Nhiều dataset không thỏa giả định này, nên cần chọn biến thể phù hợp:
+
+- **Stratified K-fold** giữ tỷ lệ các lớp gần giống nhau giữa các fold, đặc biệt hữu ích cho classification mất cân bằng.
+- **Group K-fold** bảo đảm mọi dòng thuộc cùng một người dùng, bệnh nhân hoặc thiết bị nằm trong cùng một fold.
+- **Time Series Split** giữ thứ tự thời gian, dùng quá khứ để train và giai đoạn sau để validation.
+
+Ví dụ, nếu một bệnh nhân xuất hiện ở cả train và validation, model có thể nhận ra đặc điểm riêng của bệnh nhân đó. Nếu dữ liệu tương lai xuất hiện trong train, model lại có thông tin mà lúc triển khai thực tế chưa thể biết. Cả hai trường hợp đều làm validation score lạc quan giả.
+
+Với giá nhà, chọn group split nếu cần đánh giá trên căn nhà chưa thấy và có nhiều dòng cho mỗi căn; dùng split theo thời gian nếu mục tiêu là giao dịch tương lai. Trong từng fold, fit lại cả bước điền dữ liệu thiếu, scaler và model trên phần train của fold đó. Không fit scaler một lần trên toàn bộ phần phát triển trước CV.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Cross-validation không thay test cuối cùng
+
+Cross-validation được dùng trong giai đoạn phát triển để chọn model, hyperparameter, feature hoặc threshold. Vì những quyết định này đã dựa vào kết quả cross-validation, dữ liệu trong các fold không còn hoàn toàn độc lập với quy trình phát triển.
+
+Sau khi đã chốt quy trình, vẫn cần một **test set cuối cùng** chưa từng tham gia train, validation hoặc cross-validation. Test set đưa ra ước lượng trung thực hơn về hiệu năng với dữ liệu mới.
+
+Một workflow gọn gàng có thể là: tách test set trước; chạy cross-validation trên phần dữ liệu còn lại để chọn cấu hình; train lại cấu hình đã chọn trên toàn bộ phần phát triển; cuối cùng đánh giá một lần trên test set.
+
+Nếu liên tục xem test score để chọn model tiếp theo, test set sẽ mất vai trò đánh giá độc lập. Cross-validation mạnh hơn một validation split đơn, nhưng nó không loại bỏ nhu cầu giữ lại test set cuối cùng. Ba bài tiếp theo phân biệt biến động giữa split/seed, khoảng tin cậy của một thống kê và khoảng dự đoán cho một căn nhà mới. Sau đó Regression Metrics sẽ tổng hợp cách báo cáo sai số cùng độ bất định.
+
+</MdxPage>

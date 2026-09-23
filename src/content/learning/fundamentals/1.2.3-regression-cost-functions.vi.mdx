@@ -1,0 +1,103 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'regression-cost-functions',
+  locale: 'vi',
+  title: 'Các hàm chi phí hồi quy',
+  headings: [
+    'Loss function định nghĩa điều model ưu tiên',
+    'MSE phạt mạnh sai số lớn',
+    'MAE bền hơn trước outlier',
+    'Huber cân bằng hai cách phạt',
+    'Từ loss huấn luyện đến kiểm tra generalization',
+  ],
+  keywords: ['Machine Learning', 'Loss Function', 'Cost Function', 'MSE', 'MAE', 'Huber Loss'],
+  conceptIds: ['loss-function', 'mean-squared-error', 'mean-absolute-error', 'huber-loss', 'loss-versus-metric'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Loss function định nghĩa điều model ưu tiên
+
+Khi train regression model, ta cần một cách đo chênh lệch giữa dự đoán `y_hat` và giá trị thật `y`. Chênh lệch này thường được gọi là **residual** hoặc sai số:
+
+```text
+error = y_hat - y
+```
+
+**Loss function** biến các sai số của toàn bộ batch hoặc dataset thành một con số. Optimizer cố gắng giảm con số đó bằng cách điều chỉnh tham số model. Vì vậy, chọn loss function chính là chọn kiểu sai số mà model ưu tiên giảm.
+
+Hai model có thể dự đoán khác nhau vì chúng tối ưu các loss khác nhau, ngay cả khi dùng cùng dữ liệu và cùng kiến trúc. Một loss nhạy với sai số lớn sẽ kéo model về phía các outlier nhiều hơn; một loss bền hơn sẽ coi các outlier ít quan trọng hơn.
+
+<LessonNote>
+  Không có loss “tốt nhất” tuyệt đối. Hãy chọn loss phù hợp với phân phối dữ liệu và chi phí sai số trong bài toán.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## MSE phạt mạnh sai số lớn
+
+**Mean Squared Error** (MSE) lấy trung bình bình phương sai số:
+
+```text
+MSE = mean((y_hat - y)^2)
+```
+
+Vì sai số được bình phương, lỗi có độ lớn 10 bị phạt mạnh gấp 100 lần lỗi có độ lớn 1. Điều này khiến MSE rất nhạy với các dự đoán sai xa target.
+
+MSE phù hợp khi các sai số lớn thực sự nguy hiểm hoặc tốn kém hơn nhiều sai số nhỏ. Ví dụ, nếu dự đoán thiếu rất nhiều hàng tồn kho có thể làm ngừng dây chuyền sản xuất, team có thể muốn model đặc biệt quan tâm đến các lỗi lớn.
+
+Đổi lại, chỉ một vài outlier do lỗi đo lường hoặc dữ liệu bất thường có thể chi phối MSE. Model có thể nghiêng mạnh về phía các điểm này và làm chất lượng dự đoán cho phần lớn dữ liệu trở nên kém hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## MAE bền hơn trước outlier
+
+**Mean Absolute Error** (MAE) lấy trung bình độ lớn tuyệt đối của sai số:
+
+```text
+MAE = mean(abs(y_hat - y))
+```
+
+MAE phạt lỗi 10 chỉ mạnh gấp 10 lần lỗi 1. Vì không có bình phương, một outlier lớn ít có khả năng kéo model lệch đi hơn so với khi dùng MSE. Đây là điểm mạnh khi dataset có một số giá trị bất thường nhưng chúng không đại diện cho hành vi model cần phục vụ.
+
+MAE dễ diễn giải vì cùng đơn vị với target. Nếu MAE dự đoán giá nhà là 0.25 tỷ đồng, ta có thể nói model sai trung bình khoảng 250 triệu đồng.
+
+Tuy nhiên, MAE không nhấn mạnh riêng các sai số rất lớn. Nếu ứng dụng cần kiểm soát chặt những dự đoán xa thực tế, MSE hoặc một loss lai có thể phù hợp hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Huber cân bằng hai cách phạt
+
+**Huber Loss** kết hợp trực giác của MSE và MAE. Khi sai số nhỏ, nó xử lý gần giống bình phương sai số để khuyến khích model tinh chỉnh chính xác. Khi sai số vượt một ngưỡng `delta`, nó chuyển sang tăng gần tuyến tính như MAE để không bị outlier chi phối quá mạnh.
+
+```text
+Sai số nhỏ: phạt gần giống MSE
+Sai số lớn: phạt gần giống MAE
+```
+
+Huber hữu ích khi phần lớn dữ liệu đáng tin nhưng vẫn có một số outlier không nên bị bỏ qua hoàn toàn. Ngưỡng `delta` xác định điểm chuyển giữa hai chế độ phạt; nó cần được chọn theo thang đo của target và bối cảnh bài toán.
+
+Loss được dùng để train không nhất thiết phải là metric duy nhất để báo cáo. Một team có thể train với Huber để ổn định hơn, nhưng vẫn báo cáo MAE và RMSE trên test set để người dùng hiểu chất lượng model theo các góc nhìn khác nhau.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Từ loss huấn luyện đến kiểm tra generalization
+
+Quay lại giá nhà: một sai số 0.2 tỷ đồng đóng góp 0.04 vào tổng sai số bình phương, còn sai số 1 tỷ đồng đóng góp 1. Vì thế một căn nhà dự đoán sai xa có thể ảnh hưởng mạnh đến trọng số học bằng MSE. Với Huber có delta = 0.2 tỷ đồng, phần phạt chuyển từ dạng bậc hai sang dạng tuyến tính khi độ lớn sai số vượt 0.2.
+
+Không phải đổi một tùy chọn tên loss là mọi bộ giải đều giữ nguyên. OLS tối ưu bình phương sai số; muốn fit MAE hoặc Huber cần thuật toán/estimator hỗ trợ mục tiêu đó. Chọn loss thay đổi bài toán tối ưu, chứ không chỉ đổi cách hiển thị score.
+
+Loss trên train hướng dẫn việc học. Metric trên validation/test đánh giá model trên dữ liệu giữ lại. Cùng công thức MSE có thể phục vụ cả hai vai trò, nhưng dữ liệu được dùng và mục đích khác nhau. Một model có train MSE nhỏ nhất chưa chắc là lựa chọn tốt nhất.
+
+Sau khi fit trên split đã chốt, hãy đối chiếu sai số train và validation của model giá nhà. Các bài overfitting và bias–variance tiếp theo sẽ giải thích vì sao thêm feature hoặc tối ưu train kỹ hơn vẫn có thể khiến dự đoán dữ liệu mới tệ đi. Cuối chương mới tổng hợp các metric dùng để báo cáo.
+
+</MdxPage>

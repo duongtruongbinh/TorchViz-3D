@@ -1,0 +1,147 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "mixed-classification-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Tạo nhãn",
+    "Nhánh preprocessing",
+    "Category chưa gặp",
+    "Thay ngưỡng"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "mixed-classification-target",
+    "mixed-column-transformer",
+    "mixed-unseen-category",
+    "mixed-probability-threshold"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="mixed-classification-code-lab-quiz" questions={[
+  {
+    "title": "Tạo nhãn",
+    "prompt": "Để phân loại nhà có giá ít nhất 3.5 tỷ, X và y nên thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "y lấy từ điều kiện giá; X chỉ có năm feature trước bán.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Thêm price vào X vì cần tạo nhãn.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Lấy ngưỡng từ median test để cân bằng hai lớp.",
+        "isCorrect": false,
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. y lấy từ điều kiện giá; X chỉ có năm feature trước bán.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "mixed-classification-target"
+  },
+  {
+    "title": "Nhánh preprocessing",
+    "prompt": "Ghép bước với nhánh đang dùng trong lab.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Numeric"
+      },
+      {
+        "id": "c1",
+        "label": "Categorical"
+      }
+    ],
+    "options": [
+      {
+        "label": "Median imputation.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "StandardScaler.",
+        "categoryId": "c0",
+        "id": "o1"
+      },
+      {
+        "label": "Most-frequent imputation.",
+        "categoryId": "c1",
+        "id": "o2"
+      },
+      {
+        "label": "OneHotEncoder.",
+        "categoryId": "c1",
+        "id": "o3"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "mixed-column-transformer"
+  },
+  {
+    "title": "Category chưa gặp",
+    "prompt": "handle_unknown='ignore' cho district mới có ý nghĩa gì?",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "Không đảm bảo dự đoán khu vực mới là chính xác.",
+        "isCorrect": true,
+        "id": "o1"
+      },
+      {
+        "label": "Tự học thêm trọng số district từ dòng validation.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Biến district mới thành category phổ biến nhất.",
+        "isCorrect": false,
+        "id": "o3"
+      },
+      {
+        "label": "Không crash; phần one-hot của district mới toàn 0.",
+        "isCorrect": true,
+        "id": "o0"
+      }
+    ],
+    "success": "Đúng. Không crash; phần one-hot của district mới toàn 0. Không đảm bảo dự đoán khu vực mới là chính xác.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "mixed-unseen-category"
+  },
+  {
+    "title": "Thay ngưỡng",
+    "prompt": "Bạn chọn ngưỡng tốt nhất bằng F1 validation. Khi nào mở test?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Sau khi khóa cả model lẫn ngưỡng; không dùng test để sửa chúng.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Dùng test chọn lại ngưỡng nếu F1 chưa tốt.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Mỗi ngưỡng phải chạy test một lần để chọn công bằng.",
+        "isCorrect": false,
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Sau khi khóa cả model lẫn ngưỡng; không dùng test để sửa chúng.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "mixed-probability-threshold"
+  }
+]} />

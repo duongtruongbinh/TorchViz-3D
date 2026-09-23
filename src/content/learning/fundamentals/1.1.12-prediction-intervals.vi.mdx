@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "prediction-intervals",
+  "locale": "vi",
+  "title": "Khoảng dự đoán",
+  "headings": [
+    "Một căn nhà mới khác với giá trung bình",
+    "Khoảng dự đoán của hồi quy tuyến tính đơn",
+    "Kiểm tra coverage cùng độ rộng",
+    "Khi giả định không phù hợp"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Khoảng dự đoán"
+  ],
+  "conceptIds": [
+    "confidence-vs-prediction",
+    "ols-prediction-interval",
+    "interval-coverage-width",
+    "interval-assumptions"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Một căn nhà mới khác với giá trung bình
+
+Dự đoán điểm 3.5 tỷ đồng chưa nói được mức độ chắc chắn. Hai câu hỏi dễ bị nhầm là: giá trung bình của các căn nhà có cùng feature nằm ở đâu, và giá của một căn nhà mới cụ thể nằm ở đâu?
+
+**Confidence interval** cho mean response mô tả bất định khi ước lượng giá trung bình có điều kiện theo feature. **Prediction interval** cho response mới còn tính cả biến động riêng của căn nhà đó quanh mức trung bình, nên trong cùng mô hình và mức bao phủ thường rộng hơn.
+
+| Khoảng | Đại lượng được nhắm tới |
+| --- | --- |
+| Bootstrap CI cho MAE | Sai số tuyệt đối trung bình của model cố định |
+| CI cho mean response tại x0 | Giá trung bình có điều kiện tại x0 |
+| Prediction interval tại x0 | Giá y của một căn nhà mới có feature x0 |
+
+Không dùng CI cho MAE để cộng trừ trực tiếp quanh prediction. Cũng không lấy độ dao động của prediction qua các seed rồi mặc định đó là prediction interval: biến động huấn luyện không tự bao gồm nhiễu của response mới.
+
+Mức bao phủ 95% mô tả tính chất của quy trình tạo khoảng dưới các giả định đã nêu, không bảo đảm mọi căn nhà đều nằm trong khoảng hay mọi nhóm dữ liệu đều có cùng coverage.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khoảng dự đoán của hồi quy tuyến tính đơn
+
+Xét OLS với một feature diện tích và intercept: y = b + wx + epsilon. Công thức cổ điển giả định mean tuyến tính đúng, sai số độc lập có trung bình 0, phương sai không đổi và phân phối chuẩn để có khoảng hữu hạn mẫu theo phân phối t. Căn nhà mới phải tuân theo cùng mô hình, độc lập với sai số train.
+
+Với n lớn hơn 2, đặt x_bar là diện tích trung bình train, Sxx là tổng bình phương độ lệch diện tích và s là độ lệch chuẩn residual ước lượng:
+
+<BlockMath formula="S_{xx}=\sum_i(x_i-\bar{x})^2,\qquad s^2=\frac{\sum_i(y_i-\hat{y}_i)^2}{n-2}" />
+
+Sxx phải dương. Tại x0, đặt h0 = 1/n + (x0 - x_bar)^2/Sxx. Với t* là quantile t tại 1 - alpha/2 và n - 2 bậc tự do, hai khoảng là:
+
+<BlockMath formula="\mathrm{CI}_{\mathrm{mean}}:\ \hat{y}_0\pm t^*s\sqrt{h_0},\qquad \mathrm{PI}:\ \hat{y}_0\pm t^*s\sqrt{1+h_0}" />
+
+Số 1 thêm trong PI biểu diễn nhiễu của response mới. Lấy ví dụ n = 25, x0 = x_bar, s = 0.3 tỷ đồng và t* xấp xỉ 2.069 ở mức 95%. Khi đó h0 = 0.04: nửa độ rộng CI mean khoảng 0.124 tỷ, còn PI khoảng 0.633 tỷ.
+
+Nếu y_hat = 3.5 tỷ đồng, CI mean khoảng [3.376, 3.624], PI khoảng [2.867, 4.133]. Đây là ví dụ thay số theo giả định, không phải khoảng hợp lệ cho mọi model. Không áp công thức OLS này trực tiếp cho Ridge, Lasso, tree hay neural network. Xem nền tảng về bất định response mới trong [hướng dẫn prediction interval của NIST](https://www.itl.nist.gov/div898/handbook/pmd/section5/pmd512.htm).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiểm tra coverage cùng độ rộng
+
+Một khoảng rất rộng dễ chứa giá thật nhưng có thể không giúp ra quyết định. Vì vậy cần xem đồng thời coverage và width trên dữ liệu giữ lại. Coverage thực nghiệm là tỷ lệ target thật nằm giữa hai cận L_i và U_i:
+
+<BlockMath formula="\widehat{\mathrm{coverage}}=\frac{1}{m}\sum_{i=1}^{m}\mathbf{1}\{L_i\le y_i\le U_i\},\qquad \overline{\mathrm{width}}=\frac{1}{m}\sum_{i=1}^{m}(U_i-L_i)" />
+
+Nếu 90 trên 100 căn nhà có giá nằm trong khoảng, coverage quan sát là 90%. Điều này không bảo đảm coverage quần thể chính xác bằng 90%; bản thân tỷ lệ này có bất định lấy mẫu. Với cùng mục tiêu coverage, khoảng gọn hơn hữu ích hơn nếu vẫn đáp ứng kiểm tra đáng tin cậy.
+
+Xem thêm theo khoảng giá, vị trí, thời điểm và diện tích. Coverage tổng đạt mục tiêu có thể che việc thiếu bao phủ ở nhà đắt hoặc khu vực ít dữ liệu. Khoảng có cùng độ rộng ở mọi nơi có thể không phù hợp khi độ nhiễu thay đổi theo feature.
+
+Chọn cách xây khoảng và mức bao phủ trong giai đoạn phát triển. Nếu cần tập calibration để hiệu chỉnh độ rộng, tập đó phải tách khỏi dữ liệu fit theo yêu cầu phương pháp; test cuối chỉ dùng đánh giá sau khi chốt. Không tăng độ rộng dựa trên lỗi test rồi vẫn báo cáo test đó như đánh giá độc lập.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Khi giả định không phù hợp
+
+Nếu residual loe rộng theo diện tích hoặc giá dự đoán, giả định phương sai không đổi có thể sai. Nếu thị trường đổi theo thời gian, coverage cũ có thể không còn đại diện cho tương lai. Ngoại suy tới diện tích chưa có trong train làm rủi ro mô hình tăng, dù công thức vẫn trả ra một khoảng số.
+
+Một hướng khác là quantile regression: ước lượng trực tiếp các phân vị có điều kiện, chẳng hạn q0.05(x) và q0.95(x) để nhắm tới khoảng trung tâm 90%. Khoảng có thể bất đối xứng và thay đổi độ rộng theo x. Tuy nhiên, ước lượng phân vị hữu hạn mẫu không tự bảo đảm coverage đúng; cần kiểm tra thứ tự hai cận, chất lượng dữ liệu và coverage trên dữ liệu giữ lại.
+
+Với bootstrap, phân phối của các mean prediction sau retrain chỉ phản ánh biến động ước lượng mean trong thiết kế đó. Muốn dựng PI cần tính thêm phân phối response/residual theo giả định phù hợp; không lấy hai quantile của mean prediction rồi gọi đó là khoảng cho giá một căn nhà mới.
+
+Báo cáo cần ghi rõ loại khoảng, mức danh nghĩa, phương pháp và giả định, coverage thực nghiệm cùng width. Regression Metrics ở cuối chương sẽ đặt MAE/RMSE cạnh các thông tin này để đánh giá cả chất lượng dự đoán điểm lẫn mức độ bất định.
+
+</MdxPage>

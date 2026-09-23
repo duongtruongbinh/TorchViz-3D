@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines",
+  "locale": "vi",
+  "title": "Support Vector Machine",
+  "headings": [
+    "Ranh giới và margin",
+    "Soft margin và tham số C",
+    "Kernel và gamma",
+    "Score, xác suất và biến thể hồi quy"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine"
+  ],
+  "conceptIds": [
+    "svm-margin",
+    "svm-soft-margin-c",
+    "svm-kernel-gamma",
+    "svm-workflow"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Ranh giới và margin
+
+**Support Vector Machine** (SVM) tìm ranh giới phân chia các lớp với margin lớn. Hình dung hai nhóm điểm trên mặt phẳng: nhiều đường thẳng có thể tách chúng đúng, nhưng đường nằm cách xa các điểm sát ranh giới nhất thường có vùng đệm lớn hơn.
+
+Với x có d feature, w có d trọng số và b là một số, score tuyến tính là f(x) = w^T x + b. Dấu của score quyết định phía của ranh giới. Khoảng cách hình học tới siêu phẳng là |f(x)|/||w||, vì score thô còn phụ thuộc thang của w.
+
+Ví dụ w = [1, 0], b = -2 tạo ranh giới x1 = 2. Hai điểm [1, 0] và [3, 0] cách ranh giới 1 đơn vị ở hai phía. Với cách chuẩn hóa kinh điển f(x) = -1 và f(x) = 1 tại hai đường biên, bề rộng margin là 2/||w|| = 2.
+
+Các điểm có ràng buộc hoạt động và quyết định nghiệm được gọi là support vectors. Trong soft-margin SVM, chúng có thể nằm trên biên hoặc trong vùng vi phạm margin, chứ không chỉ là các điểm được phân loại sai.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Soft margin và tham số C
+
+Dữ liệu thực tế có nhiễu hoặc lớp chồng lấn, nên ép mọi điểm đều được phân loại đúng có thể tạo ranh giới kém tổng quát hóa. Soft margin cho phép vi phạm nhưng phạt chúng trong mục tiêu tối ưu.
+
+Với nhãn y_i là -1 hoặc +1, một dạng mục tiêu là:
+
+<BlockMath formula="\min_{w,b}\frac{1}{2}\lVert w\rVert^2+C\sum_i\max(0,1-y_i(w^Tx_i+b))" />
+
+Phần max là hinge loss. Nếu y_i f(x_i) = 1.5, loss bằng 0; bằng 0.4 thì loss là 0.6 dù điểm vẫn đúng phía; bằng -0.5 thì loss là 1.5 vì đã sai phía. Như vậy đúng nhãn nhưng quá gần ranh giới vẫn có thể bị phạt.
+
+C lớn làm vi phạm train đắt hơn tương đối với phần phạt trọng số, nên model có xu hướng cố khớp dữ liệu hơn. C nhỏ cho regularization mạnh hơn tương đối, chấp nhận nhiều vi phạm hơn. Đây là xu hướng khi giữ các điều kiện khác cố định, không phải bảo đảm C lớn luôn cho validation tốt hơn.
+
+Chọn C qua validation/CV với preprocessing nhất quán. Ý nghĩa số cụ thể của C còn phụ thuộc cách chuẩn hóa objective của implementation; không so trực tiếp với lambda của mọi estimator.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kernel và gamma
+
+Nếu một đường thẳng không đủ, kernel cho phép tính độ tương đồng trong một không gian biểu diễn khác mà không cần tạo tường minh mọi feature mới. Kernel phải có tính chất toán học phù hợp; không phải bất kỳ hàm distance nào cũng dùng thay thế được.
+
+Một lựa chọn phổ biến là Radial Basis Function (RBF):
+
+<BlockMath formula="K(x,q)=\exp(-\gamma\lVert x-q\rVert^2)" />
+
+Với khoảng cách bình phương bằng 4, gamma = 0.5 cho similarity exp(-2), khoảng 0.135. Nếu gamma = 0.1 thì exp(-0.4), khoảng 0.670. Gamma lớn làm ảnh hưởng của mỗi điểm cục bộ hơn; gamma nhỏ tạo ảnh hưởng rộng hơn.
+
+C và gamma cần được xem cùng nhau. Gamma rất lớn kết hợp C lớn có thể bám sát các điểm riêng lẻ; gamma quá nhỏ có thể không biểu diễn đủ cấu trúc. Không chọn hai tham số bằng train accuracy.
+
+Scaling đặc biệt quan trọng với RBF vì khoảng cách đi vào số mũ. Fit scaler chỉ trên train của mỗi fold. Feature có đơn vị lớn hoặc nhiều chiều nhiễu có thể làm similarity mất ý nghĩa; kernel không tự sửa chất lượng feature.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Score, xác suất và biến thể hồi quy
+
+Score SVM cho biết phía và mức độ nghiêng về ranh giới, không tự là xác suất. Không diễn giải score 2 thành xác suất 200%, cũng không mặc định sigmoid của score là xác suất đã calibration tốt. Nếu cần xác suất, calibration phải dùng dữ liệu phù hợp trong quy trình phát triển, không dùng test.
+
+Trong Scikit-Learn, SVC hỗ trợ kernel; LinearSVC chuyên cho mô hình tuyến tính. SVC huấn luyện nhiều lớp theo one-vs-one, khác với bài OvR vừa học; tùy chọn định dạng decision score không đồng nghĩa thay đổi chiến lược train thành OvR. Xem chi tiết trong [tài liệu SVM](https://scikit-learn.org/stable/modules/svm.html).
+
+Kernel SVM có thể tốn nhiều thời gian và bộ nhớ khi số mẫu lớn. So sánh với baseline tuyến tính và đánh giá cả latency, chi phí fit, metric ở threshold vận hành. Với feature thưa nhiều chiều, SVM tuyến tính là một ứng viên cần kiểm chứng.
+
+Support Vector Regression (SVR) dùng ý tưởng vùng sai số chấp nhận được quanh target liên tục. Với epsilon = 0.2 và sai số tuyệt đối 0.1, phần epsilon-insensitive loss bằng 0; sai số 0.5 thì phần vượt là 0.3. SVR dùng Regression Metrics, không dùng accuracy. Sau cặp bài này, Classification Metrics sẽ giúp so sánh các classifier theo nhãn, score và xác suất.
+
+</MdxPage>

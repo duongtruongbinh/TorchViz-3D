@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "regression-metrics",
+  "locale": "vi",
+  "title": "Chỉ số đánh giá hồi quy",
+  "headings": [
+    "Đọc sai số của model giá nhà",
+    "MAE, MSE và RMSE",
+    "R² và baseline",
+    "Chốt báo cáo hồi quy"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Regression Metrics"
+  ],
+  "conceptIds": [
+    "regression-error-units",
+    "mae-mse-rmse",
+    "r2-baseline",
+    "regression-evaluation-protocol"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Đọc sai số của model giá nhà
+
+Sau khi dùng cross-validation để chọn feature và regularization, ta đã có một quy trình hồi quy. Bây giờ cần trả lời model sai bao nhiêu trên dữ liệu giữ lại, có tốt hơn baseline không và có yếu ở nhóm nhà nào không.
+
+Trong bài này, mỗi target và dự đoán là một số, giá tính bằng tỷ đồng. Gọi sai số có dấu là e = y_hat - y. Giá trị dương nghĩa là dự đoán cao hơn thực tế; giá trị âm nghĩa là dự đoán thấp hơn. Trung bình sai số có dấu có thể gần 0 do các lỗi triệt tiêu, nên không đủ để đo độ chính xác.
+
+| Căn nhà | Giá thật y | Dự đoán y_hat | Sai số e |
+| --- | --- | --- | --- |
+| A | 2 | 3 | 1 |
+| B | 4 | 3 | -1 |
+| C | 6 | 8 | 2 |
+
+Ba căn nhà có sai số có dấu trung bình 2/3 tỷ đồng, nhưng có cả dự đoán quá cao lẫn quá thấp. Ta cần các metric đo độ lớn sai số, sau đó xem thêm hướng sai và từng nhóm dữ liệu. Metric chính được chọn từ mục tiêu ứng dụng trước khi so sánh model, không chọn sau khi đã xem test.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## MAE, MSE và RMSE
+
+Với n mẫu đánh giá, ba công thức thường dùng là:
+
+<BlockMath formula="\operatorname{MAE}=\frac{1}{n}\sum_i |e_i|,\quad \operatorname{MSE}=\frac{1}{n}\sum_i e_i^2,\quad \operatorname{RMSE}=\sqrt{\operatorname{MSE}}" />
+
+Trong ví dụ ba căn nhà, MAE = (1 + 1 + 2)/3 = 1.333 tỷ đồng. MSE = (1 + 1 + 4)/3 = 2, có đơn vị bình phương của tỷ đồng. RMSE = căn bậc hai của 2, khoảng 1.414 tỷ đồng.
+
+**MAE** (Mean Absolute Error) dễ diễn giải: trung bình độ lớn sai số là bao nhiêu theo đơn vị target. **MSE** (Mean Squared Error) nhấn mạnh lỗi lớn do bình phương. **RMSE** (Root Mean Squared Error) trở về đơn vị target nhưng vẫn chịu ảnh hưởng mạnh của lỗi lớn.
+
+Nếu một căn nhà có lỗi tăng từ 2 lên 10 tỷ đồng, đóng góp của nó vào tổng sai số tuyệt đối tăng từ 2 lên 10, còn vào tổng sai số bình phương tăng từ 4 lên 100. Điều này không chứng minh MAE luôn tốt hơn RMSE: lựa chọn phụ thuộc lỗi lớn có gây chi phí đặc biệt hay là lỗi đo cần xử lý.
+
+Cả ba metric càng thấp càng tốt. MAE và RMSE bằng 0 khi mọi dự đoán đúng; chúng không bị chặn trên. Nếu train trên log(price), phải nói rõ metric đang đo trên thang log hay đã chuyển về giá gốc; không gọi MAE trên thang log là sai số tính bằng tiền.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## R² và baseline
+
+Một con số sai số cần được đặt cạnh một mốc so sánh. R² so sánh tổng sai số bình phương của model với độ biến thiên target trên chính tập đang đánh giá:
+
+<BlockMath formula="R^2=1-\frac{\sum_i(y_i-\hat y_i)^2}{\sum_i(y_i-\bar y)^2}" />
+
+Trong công thức, y_bar là trung bình target của tập đánh giá, không phải tham số được fit cho model. Với giá thật [2, 4, 6], y_bar = 4 và mẫu số là 4 + 0 + 4 = 8. Sai số bình phương của dự đoán [3, 3, 8] có tổng 6, nên R² = 1 - 6/8 = 0.25.
+
+R² = 1 là khớp hoàn hảo; R² = 0 nghĩa là có cùng tổng sai số bình phương như dự đoán hằng bằng trung bình target đánh giá; R² có thể âm nếu tệ hơn mốc này. R² không phải phần trăm accuracy và không nói model sai bao nhiêu tiền. Khi target đánh giá không đổi, mẫu số bằng 0 và công thức thông thường không xác định; thư viện có thể có quy ước riêng cho trường hợp này.
+
+Baseline triển khai được phải fit trên train, chẳng hạn luôn dự đoán trung bình giá train khi so MSE, hoặc trung vị giá train khi so MAE. Không lấy trung bình giá test làm predictor rồi gọi đó là baseline chưa thấy test. Mốc toán học trong R² và baseline fit trên train có vai trò khác nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chốt báo cáo hồi quy
+
+Để đánh giá model giá nhà, so sánh các model trên cùng split, cùng đơn vị target và cùng tập sample hợp lệ. Nếu mục tiêu chính là sai số tiền trung bình, có thể chọn MAE; nếu cần nhấn mạnh những dự đoán sai rất xa, theo dõi thêm RMSE. R² bổ sung góc nhìn tương đối nhưng không thay thế hai chỉ số trên.
+
+Xem residual theo diện tích, vị trí, khoảng giá và thời điểm giao dịch. MAE tổng thấp vẫn có thể che lỗi lớn ở nhóm nhà ít mẫu. Các nhóm và tiêu chí kiểm tra nên được xác định trong giai đoạn phát triển. Nếu dùng kết quả test để sửa model, cần đánh giá độc lập mới cho phiên bản đã sửa.
+
+Chốt preprocessing, feature, loss, regularization và metric bằng phần phát triển; fit lại theo quy trình đã chọn, rồi báo cáo trên test giữ riêng. Ghi số sample và baseline kèm kết quả để người đọc hiểu điều kiện so sánh.
+
+Kèm theo metric, nêu rõ loại bất định đã đo: mean/SD qua các split và seed là mô tả các lần chạy; bootstrap CI của MAE model cố định nói về độ chính xác của ước lượng metric; prediction interval nói về response mới. Nếu model xuất khoảng dự đoán, báo cáo thêm coverage và width. Không đặt cả ba dưới một nhãn “độ tin cậy 95%” chung.
+
+Đây là điểm kết thúc workflow Linear Regression: từ bài toán có nhãn đến fit, chẩn đoán và đánh giá. Chương sau đổi target sang nhãn phân loại. Accuracy, Precision hay Recall sẽ được giải thích sau Logistic Regression và các quyết định phân loại, thay vì trộn với các metric hồi quy.
+
+</MdxPage>

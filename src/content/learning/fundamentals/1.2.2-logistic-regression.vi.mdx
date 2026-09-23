@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'logistic-regression',
+  locale: 'vi',
+  title: 'Hồi quy Logistic',
+  headings: [
+    'Bài toán phân loại nhị phân',
+    'Từ logit đến xác suất sigmoid',
+    'Threshold và quyết định lớp',
+    'Model học từ nhãn như thế nào',
+    'Mở rộng nhiều lớp và lưu ý thực tế',
+  ],
+  keywords: ['Machine Learning', 'Logistic Regression', 'Binary Classification', 'Sigmoid', 'Probability', 'Threshold', 'Logit'],
+  conceptIds: ['binary-classification', 'logit', 'sigmoid-probability', 'classification-threshold', 'binary-cross-entropy', 'multiclass-logistic-regression'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bài toán phân loại nhị phân
+
+**Logistic Regression** là model cơ bản cho bài toán phân loại nhị phân: target có hai giá trị, thường được mã hóa là `0` và `1`. Ví dụ gồm dự đoán email là spam hay không, một giao dịch có gian lận hay không, hoặc một khách hàng có rời dịch vụ hay không.
+
+Tên có chữ “regression”, nhưng output cuối cùng của logistic regression thường được dùng để phân loại. Khác với linear regression dự đoán một giá trị liên tục, logistic regression tạo ra xác suất một mẫu thuộc lớp dương (*positive class*).
+
+Ví dụ, model có thể dự đoán xác suất một giao dịch là gian lận là `0.82`. Hệ thống sau đó dùng xác suất này cùng một threshold để quyết định có gắn nhãn gian lận hay không.
+
+<LessonNote>
+  Hãy tách hai bước: model tạo xác suất, còn threshold biến xác suất đó thành quyết định. Hai bước này có thể được tối ưu theo các mục tiêu khác nhau.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Từ logit đến xác suất sigmoid
+
+Đầu tiên, logistic regression tính một tổ hợp tuyến tính của các feature:
+
+```text
+z = w^T x + b
+```
+
+`z` được gọi là **logit** hoặc score thô. Nó có thể là bất kỳ số thực nào, từ rất âm đến rất dương, nên chưa thể được xem trực tiếp là xác suất.
+
+Sau đó model áp dụng sigmoid:
+
+```text
+p = 1 / (1 + e^(-z))
+```
+
+Sigmoid đưa mọi giá trị `z` vào khoảng từ 0 đến 1. Khi `z` rất dương, `p` gần 1; khi `z` rất âm, `p` gần 0; và khi `z = 0`, `p = 0.5`. Giá trị `p` được diễn giải là xác suất dự đoán cho lớp dương theo model.
+
+Với một batch có shape `(32, 4)`, model `Linear(4, 1)` tạo output `(32, 1)`, rồi sigmoid vẫn giữ shape `(32, 1)`. Mỗi mẫu nhận một xác suất riêng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Threshold và quyết định lớp
+
+Sau khi có xác suất, hệ thống cần chọn threshold. Mặc định phổ biến là `0.5`: nếu `p >= 0.5` thì dự đoán lớp `1`, ngược lại dự đoán lớp `0`. Đây chỉ là một quy ước, không phải một quy luật bắt buộc.
+
+Hạ threshold khiến model báo positive nhiều hơn. Điều này thường tăng recall vì ít bỏ sót positive, nhưng có thể giảm precision vì xuất hiện thêm false positive. Nâng threshold thường có tác động ngược lại: ít báo động giả hơn nhưng có nguy cơ bỏ sót nhiều positive hơn.
+
+Ví dụ, trong sàng lọc bệnh nguy hiểm, bỏ sót ca bệnh có thể đắt hơn việc mời kiểm tra thêm một người khỏe mạnh, nên threshold thấp hơn có thể phù hợp. Trong hệ thống tự động khóa tài khoản, báo nhầm có thể ảnh hưởng nghiêm trọng đến người dùng hợp lệ, nên threshold cao hơn có thể cần thiết.
+
+Vì vậy, threshold nên được chọn trên validation set dựa trên Precision, Recall, chi phí lỗi và khả năng xử lý của hệ thống, thay vì luôn để mặc định là `0.5`.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Model học từ nhãn như thế nào
+
+Trong train set, mỗi mẫu có nhãn thật `y` là `0` hoặc `1`. Logistic regression so sánh xác suất dự đoán `p` với nhãn này bằng **binary cross-entropy** hay log loss.
+
+```text
+loss = -[y * log(p) + (1 - y) * log(1 - p)]
+```
+
+Loss này thưởng cho xác suất cao khi nhãn thật là `1`, và xác suất thấp khi nhãn thật là `0`. Nó phạt rất mạnh khi model tự tin nhưng sai, chẳng hạn dự đoán `0.99` cho một mẫu thực tế thuộc lớp `0`.
+
+Optimizer điều chỉnh trọng số `w` và bias `b` để giảm loss trên train set. Giống các model khác, cần kiểm tra validation metric để bảo đảm model tổng quát hóa, không chỉ đạt train loss thấp.
+
+Xác suất cao không tự động đồng nghĩa với xác suất được **calibration** tốt. Nếu model dự đoán nhóm mẫu có xác suất `0.8`, lý tưởng là khoảng 80% trong nhóm đó thực sự positive. Khi xác suất được dùng để định giá rủi ro hay phân bổ nguồn lực, calibration cần được đánh giá riêng.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Mở rộng nhiều lớp và lưu ý thực tế
+
+Logistic regression nhị phân giải quyết một lớp dương đối lập với một lớp âm. Với nhiều lớp, có hai hướng phổ biến. **One-vs-Rest** train một classifier nhị phân cho mỗi lớp; bài sau sẽ trình bày kỹ hơn cách này. **Multinomial logistic regression** dùng nhiều score rồi softmax để tạo một phân phối xác suất trên toàn bộ các lớp.
+
+Feature preprocessing vẫn quan trọng. Các feature số có thang đo rất khác nhau thường nên được scale, và feature dạng category cần được mã hóa phù hợp. Việc fit preprocessing chỉ trên train set giúp tránh data leakage.
+
+Logistic regression thường là baseline tốt vì nó nhanh, dễ giải thích và tạo xác suất trực tiếp. Nếu quan hệ giữa feature với ranh giới lớp quá phi tuyến, có nhiều tương tác phức tạp hoặc feature chưa đủ tốt, model có thể underfit. Lúc đó có thể cải thiện feature, thêm biến đổi phù hợp hoặc thử một model linh hoạt hơn.
+
+Tóm lại, logistic regression biến score tuyến tính thành xác suất qua sigmoid. Chất lượng hệ thống phụ thuộc không chỉ vào trọng số model mà còn vào threshold, metric được chọn và chi phí thực tế của từng loại lỗi.
+
+Sau phần quiz, bài Linear Activation sẽ theo dõi từng giá trị qua phép tính này, rồi mở rộng sang ReLU, tanh và softmax. Ta sẽ phân biệt activation dùng trong hidden layer với activation ở đầu ra, trước khi mở rộng sang One-vs-Rest và đánh giá phân loại ở cuối chương.
+
+</MdxPage>

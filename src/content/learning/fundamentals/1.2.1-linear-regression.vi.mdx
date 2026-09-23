@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'linear-regression',
+  locale: 'vi',
+  title: 'Hồi quy tuyến tính',
+  headings: [
+    'Bài toán dự đoán giá trị liên tục',
+    'Đường thẳng dự đoán',
+    'Nhiều feature và shape dữ liệu',
+    'Model học trọng số như thế nào',
+    'Diễn giải và đánh giá dự đoán',
+  ],
+  keywords: ['Machine Learning', 'Linear Regression', 'Regression', 'Continuous Target', 'Feature', 'Prediction'],
+  conceptIds: ['regression-problem', 'linear-regression-equation', 'multivariate-linear-regression', 'learning-weights', 'regression-evaluation'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bài toán dự đoán giá trị liên tục
+
+**Hồi quy tuyến tính** (*linear regression*) là một trong những model Machine Learning cơ bản nhất. Nó dùng các feature đầu vào để dự đoán một giá trị số liên tục, chẳng hạn giá nhà, doanh thu tháng tới, nhiệt độ hay thời gian giao hàng.
+
+Điểm khác biệt chính với classification là target của regression không phải một nhãn rời rạc. Dự đoán giá nhà là `3.25` tỷ đồng hoặc `4.10` tỷ đồng; dự đoán thời gian giao hàng là `2.4` ngày hoặc `5.8` ngày. Model cần tạo ra một giá trị trên một miền liên tục.
+
+Trong chương này, ta theo một bài toán xuyên suốt: dự đoán giá nhà từ diện tích và các thông tin có trước thời điểm bán. Mỗi căn nhà là một sample, giá bán là target. Đây là học có giám sát vì dữ liệu train có cả input lẫn giá bán đã biết. Ví dụ đơn giản nhất là dự đoán giá nhà từ diện tích. Ta kỳ vọng nhà lớn hơn thường có giá cao hơn, dù thực tế còn có nhiều yếu tố khác như vị trí, số phòng và chất lượng xây dựng. Linear regression tìm một mối quan hệ tuyến tính gần đúng giữa input và target.
+
+<LessonNote>
+  Linear regression không khẳng định thế giới luôn là một đường thẳng. Nó tạo một baseline dễ hiểu để kiểm tra xem feature hiện có giải thích được target đến đâu.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đường thẳng dự đoán
+
+Khi chỉ có một feature, linear regression có dạng quen thuộc của đường thẳng:
+
+```text
+y_hat = wx + b
+```
+
+`x` là input, `y_hat` là giá trị model dự đoán, `w` là trọng số và `b` là bias hoặc intercept. Trọng số quyết định độ dốc: khi `w` dương, `x` tăng thì dự đoán có xu hướng tăng; khi `w` âm, `x` tăng thì dự đoán có xu hướng giảm.
+
+Bias quyết định vị trí đường thẳng khi `x` bằng 0. Nó cho phép model dịch đường dự đoán lên hoặc xuống thay vì bắt buộc đi qua gốc tọa độ.
+
+Giả sử model dự đoán giá nhà theo diện tích bằng công thức `price = 0.03 * area + 0.5`, trong đó giá tính bằng tỷ đồng và diện tích tính bằng mét vuông. Với căn nhà 100 m2, dự đoán là `3.5` tỷ đồng. Đây chỉ là ví dụ minh họa; trong dữ liệu thật, các hệ số được model học từ dữ liệu chứ không do ta tự đặt.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Nhiều feature và shape dữ liệu
+
+Một bài toán thực tế thường có nhiều hơn một feature. Khi dự đoán giá nhà, input có thể gồm diện tích, số phòng ngủ, số phòng tắm và tuổi nhà. Công thức tổng quát là:
+
+```text
+y_hat = x1*w1 + x2*w2 + ... + xn*wn + b
+```
+
+Mỗi feature có một trọng số riêng. Nếu dataset có `n` feature, một mẫu input có shape `(n,)`, còn một batch có shape `(batch, n)`. Model tạo một dự đoán cho mỗi mẫu, nên output thường có shape `(batch, 1)`.
+
+Ví dụ với bốn feature và 32 mẫu:
+
+```text
+Input:  (32, 4)
+Linear: Linear(4, 1)
+Output: (32, 1)
+```
+
+Điều quan trọng là thứ tự feature phải nhất quán. Nếu cột đầu tiên lúc train là diện tích nhưng lúc inference lại là tuổi nhà, model vẫn chạy nhưng dự đoán sẽ sai vì trọng số đang được áp dụng cho nhầm ý nghĩa dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Model học trọng số như thế nào
+
+Trước khi fit bất kỳ trọng số hay bước tiền xử lý nào, cần tách dữ liệu dùng để học khỏi dữ liệu đánh giá. Bài Train Validation Test ngay sau cặp bài này sẽ làm rõ cách chia. Ở đây ta chỉ mô tả cơ chế fit trên phần train đã được phép sử dụng.
+
+Linear Regression theo ordinary least squares (OLS) chọn trọng số để giảm tổng bình phương sai số. Có thể giải bài toán bằng các phương pháp đại số tuyến tính như QR hoặc SVD mà không cần lặp qua epoch. Một cách khác là gradient descent: tính loss, tính gradient rồi cập nhật `w` và `b` qua nhiều bước. Batch và epoch thuộc cách tối ưu lặp, không phải điều kiện bắt buộc của mọi thuật toán Linear Regression.
+
+Ví dụ, nếu model thường dự đoán giá thấp hơn giá thật cho các căn nhà lớn, trọng số của feature diện tích có thể cần tăng. Nếu mọi dự đoán đều thấp hơn một mức gần như cố định, bias có thể cần tăng. Đây là trực giác về cách trọng số và bias được cập nhật.
+
+Sau bài chia dữ liệu, ta sẽ đi sâu vào loss regression như MSE, MAE và Huber. Ở đây, điều cần nhớ là model học các tham số để giảm chênh lệch giữa dự đoán và giá trị thật trên dữ liệu train.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Diễn giải và đánh giá dự đoán
+
+Linear regression có ưu điểm là dễ diễn giải. Khi các feature được chuẩn bị hợp lý, dấu và độ lớn của trọng số cho biết model đang sử dụng từng feature theo hướng nào. Tuy nhiên, trọng số không tự động chứng minh quan hệ nhân quả. Một feature có trọng số cao có thể chỉ tương quan với target do một nguyên nhân khác chưa được đo lường.
+
+Để đánh giá model, hãy so sánh dự đoán với target trên validation hoặc test set, không chỉ trên train set. MAE cho biết sai số tuyệt đối trung bình, còn RMSE phạt mạnh hơn các dự đoán sai rất xa. Việc chọn metric phụ thuộc vào chi phí sai số trong bài toán.
+
+Linear regression hoạt động tốt nhất khi quan hệ giữa feature và target có thể được xấp xỉ hợp lý bằng tổng có trọng số. Nếu residual có quy luật cong rõ ràng, có nhiều tương tác phức tạp hoặc feature quan trọng bị thiếu, model tuyến tính có thể underfit. Khi đó có thể cải thiện feature, thêm biến đổi phù hợp hoặc thử model linh hoạt hơn.
+
+Từ baseline giá nhà này, chương sẽ lần lượt trả lời: dùng những căn nhà nào để học và đánh giá; phạt sai số ra sao; vì sao thêm feature có thể làm validation kém đi; và chọn mức regularization bằng cross-validation thế nào. Cuối chương, Regression Metrics sẽ tổng hợp cách đọc MAE, RMSE và R² trên dữ liệu giữ lại. Các khái niệm này là những quyết định của cùng một workflow.
+
+</MdxPage>

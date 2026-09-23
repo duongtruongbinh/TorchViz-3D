@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'feature-importance',
+  locale: 'vi',
+  title: 'Tầm quan trọng của đặc trưng',
+  headings: [
+    'Feature importance giải thích điều gì',
+    'Impurity importance của tree model',
+    'Permutation importance và SHAP',
+    'Tương quan, leakage và nhân quả',
+  ],
+  keywords: ['Machine Learning', 'Feature Importance', 'Model Interpretability', 'Permutation Importance', 'SHAP', 'Correlation', 'Data Leakage'],
+  conceptIds: ['feature-importance', 'global-local-explanation', 'impurity-importance', 'permutation-importance', 'shap-values', 'correlation-causality-leakage'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Feature importance giải thích điều gì
+
+**Feature importance** cho biết feature nào đóng góp nhiều vào dự đoán của một model. Nó giúp team kiểm tra model có đang dựa vào tín hiệu hợp lý không, phát hiện feature đáng nghi và giao tiếp hành vi của model với người dùng hoặc chuyên gia nghiệp vụ.
+
+Có hai mức giải thích thường gặp. **Global importance** tóm tắt hành vi của model trên nhiều mẫu: feature nào nhìn chung ảnh hưởng nhiều hơn. **Local explanation** giải thích một dự đoán cụ thể: tại sao model dự đoán giao dịch này có rủi ro cao hoặc căn nhà này có giá cao.
+
+Importance phản ánh cách model đang sử dụng dữ liệu, không phải một sự thật tuyệt đối về thế giới. Một feature có thể quan trọng với model vì nó mang tín hiệu thật, vì nó là proxy cho một feature khác, hoặc vì nó vô tình chứa thông tin bị leakage.
+
+<LessonNote>
+  Hãy dùng feature importance như công cụ đặt câu hỏi về model, không dùng nó như bằng chứng duy nhất để khẳng định nguyên nhân.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Impurity importance của tree model
+
+Với Decision Tree, Random Forest và Gradient Boosting, một cách phổ biến là cộng mức giảm impurity mà mỗi feature tạo ra khi được dùng để split. Feature được chọn nhiều ở những split làm node thuần hơn hoặc giảm lỗi nhiều hơn sẽ có importance cao hơn.
+
+Phương pháp này nhanh vì được tính trực tiếp từ tree đã train. Nó thường được gọi là **impurity importance** hoặc mean decrease in impurity. Với classification, impurity có thể là Gini hoặc entropy; với regression, nó liên quan đến giảm variance hoặc MSE.
+
+Tuy nhiên, impurity importance có thể ưu ái feature có nhiều giá trị riêng biệt hoặc feature liên tục, vì chúng có nhiều cơ hội tạo ra split tốt trên train data. Nếu feature chứa ID gần như duy nhất cho mỗi mẫu, importance cao có thể là dấu hiệu model đang ghi nhớ hoặc có leakage, không phải feature thực sự hữu ích.
+
+Vì vậy, impurity importance phù hợp để kiểm tra nhanh tree model, nhưng nên được đối chiếu với validation metric và một phương pháp model-agnostic khác trước khi đưa ra kết luận.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Permutation importance và SHAP
+
+**Permutation importance** đo mức performance giảm bao nhiêu khi xáo trộn một feature trong validation hoặc test set. Nếu sau khi xáo trộn cột thu nhập, model giảm accuracy hoặc tăng MAE rõ rệt, feature đó có đóng góp dự đoán đáng kể theo cách model đang dùng.
+
+Phương pháp này áp dụng được cho nhiều loại model và đánh giá trực tiếp bằng metric quan trọng của bài toán. Nó nên được chạy trên dữ liệu không dùng để train; chạy trên train set dễ làm importance quá lạc quan vì model đã có thể overfit.
+
+**SHAP** phân rã một dự đoán thành đóng góp của từng feature so với một giá trị baseline. SHAP có thể giải thích local prediction, rồi tổng hợp các giải thích local thành global importance. Ví dụ, với một hồ sơ vay cụ thể, SHAP có thể cho thấy thu nhập đẩy dự đoán rủi ro xuống, còn lịch sử trả chậm đẩy nó lên.
+
+SHAP có lợi thế về cách trình bày nhất quán, nhưng có thể tốn chi phí tính toán và cần chọn explainer phù hợp model. Cả SHAP lẫn permutation importance vẫn cần được diễn giải cẩn thận khi feature phụ thuộc lẫn nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tương quan, leakage và nhân quả
+
+Khi hai feature tương quan mạnh, model có thể dùng một feature thay cho feature còn lại. Ví dụ, diện tích tính bằng mét vuông và foot vuông gần như mang cùng thông tin. Permuting một cột có thể không làm performance giảm nhiều vì model vẫn còn cột kia; tree model cũng có thể chọn một trong hai cột và làm cột còn lại trông không quan trọng.
+
+Vì vậy, importance thấp không luôn có nghĩa feature vô ích, còn importance cao không luôn có nghĩa feature là nguyên nhân. Một feature như mã bưu điện có thể quan trọng vì nó là proxy cho vị trí và điều kiện kinh tế, chứ không phải chính dãy số gây ra giá nhà.
+
+Data leakage là rủi ro đặc biệt cần chú ý. Nếu một feature chỉ xuất hiện sau thời điểm cần dự đoán, hoặc vô tình chứa thông tin từ target, feature đó thường có importance rất cao. Đó là tín hiệu để kiểm tra pipeline dữ liệu, không phải lý do để tin model tốt hơn.
+
+Một workflow lành mạnh là kiểm tra importance trên validation hoặc test data, xem xét feature tương quan theo nhóm, trao đổi với chuyên gia domain và đánh giá tính ổn định qua nhiều split. Feature importance là một bằng chứng hữu ích trong bộ công cụ kiểm định model, không phải câu trả lời cuối cùng về quan hệ nhân quả.
+
+</MdxPage>

@@ -1,0 +1,171 @@
+export const lessonMetadata = {
+  domainId: 'fundamentals',
+  id: 'linear-activation',
+  locale: 'vi',
+  title: 'Linear Activation',
+  headings: [
+    'Theo dõi giá trị từ feature đến quyết định',
+    'Linear kết hợp giá trị như thế nào?',
+    'Vì sao cần activation giữa các layer?',
+    'ReLU và tanh trong hidden layer',
+    'Sigmoid: xác suất và độ bão hòa',
+    'Softmax: các lớp cạnh tranh xác suất',
+    'Ghép đầu ra với bài toán và loss',
+  ],
+  keywords: ['Machine Learning', 'Value Flow', 'Linear Layer', 'Activation Function', 'ReLU', 'Tanh', 'Sigmoid', 'Softmax', 'Logits'],
+  conceptIds: ['value-flow', 'linear-layer', 'linear-shape', 'bias', 'activation-function', 'relu-sigmoid-softmax', 'activation-saturation', 'output-loss-contract'],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Theo dõi giá trị từ feature đến quyết định
+
+Trong Logistic Regression, ta đã gặp hai bước: tính logit từ feature, rồi dùng sigmoid để nhận xác suất. Bài này đi chậm qua từng giá trị của phép tính đó và mở rộng sang những activation thường gặp trong neural network. Câu hỏi xuyên suốt là: sau mỗi phép toán, các con số thay đổi thế nào và có ý nghĩa gì?
+
+Kiến thức về vector, matrix và tensor đã được trình bày trong [Đại số tuyến tính cho AI](/learning/linear-algebra/linear-algebra-for-ai?lesson=linear-algebra-for-ai-overview). Ở đây chỉ dùng quy ước mỗi hàng là một sample, mỗi cột là một feature; không học lại nền tảng tensor shape.
+
+Giả sử một giao dịch có hai feature đã được tiền xử lý, biểu diễn bằng `x = [2, -1]`. Model nhị phân có trọng số `w = [0.5, -1]` và bias `b = -0.5`.
+
+| Bước | Phép tính | Giá trị và ý nghĩa |
+| --- | --- | --- |
+| Input | `x = [2, -1]` | Hai feature của một giao dịch |
+| Linear | `z = 2 × 0.5 + (-1) × (-1) - 0.5` | `1.5`, score chưa phải xác suất |
+| Sigmoid | `p = 1 / (1 + exp(-1.5))` | Khoảng `0.818`, xác suất lớp dương theo model |
+| Quyết định | So sánh `p` với threshold `0.5` | Dự đoán lớp `1` |
+
+Đổi threshold thành `0.9` sẽ làm dự đoán chuyển sang lớp `0`, dù logit và xác suất không đổi. **Value flow** là cách theo dõi sự biến đổi này, thay vì chỉ nhìn tên layer hoặc shape. Activation là một phần của luồng tính toán; threshold là quy tắc ra quyết định phía sau.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Linear kết hợp giá trị như thế nào?
+
+Một Linear layer có thể tạo nhiều score cùng lúc. Mỗi đầu ra dùng một bộ trọng số riêng để kết hợp toàn bộ feature đầu vào, rồi cộng một bias. Với input hàng `x = [2, -1]`, xét hai đầu ra:
+
+```text
+W = [[0.5, -1],
+     [1,    1]]
+b = [-0.5, 0.5]
+
+z[0] = 2 × 0.5 + (-1) × (-1) - 0.5 = 1.5
+z[1] = 2 × 1   + (-1) × 1    + 0.5 = 1.5
+```
+
+Trọng số quyết định độ lớn và chiều tác động của mỗi feature; bias dịch đầu ra. Khi input bằng `[0, 0]`, output chính là `b`. Hai score bằng nhau trong ví dụ này không có nghĩa hai hàng trọng số giống nhau: chúng chỉ tình cờ tạo cùng kết quả trên sample đang xét.
+
+Với cả batch, viết cùng phép tính bằng matrix:
+
+<BlockMath formula="\underbrace{Z}_{B\times m}=\underbrace{X}_{B\times d}\underbrace{W^\top}_{d\times m}+\underbrace{b}_{m}" />
+
+`B` là số sample, `d` là số feature đầu vào, `m` là số đầu ra. Bias được cộng vào từng hàng. Ví dụ `X` có shape `(32, 2)`, `W` có shape `(3, 2)` và `b` có shape `(3,)` thì `Z` có shape `(32, 3)`. Mỗi sample dùng chung trọng số và bias; các sample không bị trộn với nhau.
+
+Layer được gọi là **Linear**, nhưng khi có bias thì tên toán học chính xác là phép biến đổi affine. Việc học cập nhật `W` và `b`; activation thông thường như ReLU hay sigmoid không có trọng số riêng để học.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao cần activation giữa các layer?
+
+Nếu muốn model linh hoạt hơn, liệu cứ xếp nhiều Linear layer là đủ? Xét ví dụ một chiều: layer đầu tính `h = 2x + 1`, layer sau tính `z = 3h - 2`. Thay `h` vào, ta được `z = 6x + 1`. Hai layer vẫn gộp thành một phép biến đổi affine.
+
+Điều này cũng đúng với matrix. Với quy ước vector cột trong công thức dưới đây, `x` có `d` phần tử, `W1` có shape `(h, d)` và `W2` có shape `(m, h)`:
+
+<BlockMath formula="z=W_2(W_1x+b_1)+b_2=(W_2W_1)x+(W_2b_1+b_2)" />
+
+Chèn ReLU ở giữa thì kết quả khác: `z = 3 × max(0, 2x + 1) - 2`. Khi `x` không lớn hơn `-0.5`, output bằng `-2`; phía còn lại, output bằng `6x + 1`. Đồ thị có một điểm gấp và không còn là một đường thẳng duy nhất. Nhiều đơn vị như vậy có thể kết hợp để học quan hệ phức tạp hơn.
+
+**Activation** trong hidden layer biến đổi biểu diễn trung gian, thường không đổi shape. Với đầu ra trung gian `[-2, 0, 3]`, ReLU tạo `[0, 0, 3]`: số phần tử giữ nguyên nhưng thông tin truyền sang layer sau đã khác.
+
+Sigmoid ở đầu ra Logistic Regression tạo xác suất phi tuyến theo logit, nhưng không tự làm ranh giới phân loại trở nên phi tuyến theo feature đầu vào. Với threshold `0.5`, ranh giới vẫn là `w^T x + b = 0`. Để học ranh giới linh hoạt hơn, cần biến đổi feature hoặc thêm biểu diễn trung gian phi tuyến phù hợp.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## ReLU và tanh trong hidden layer
+
+Hidden layer là layer trung gian trước đầu ra cuối cùng. Activation tại đây giúp model tạo feature mới; các giá trị này không nhất thiết là xác suất. Hai lựa chọn quen thuộc là ReLU và tanh.
+
+<BlockMath formula="\operatorname{ReLU}(z)=\max(0,z),\qquad \tanh(z)=\frac{e^z-e^{-z}}{e^z+e^{-z}}" />
+
+| Input `z` | ReLU | tanh, xấp xỉ |
+| --- | --- | --- |
+| `-2` | `0` | `-0.964` |
+| `0` | `0` | `0` |
+| `2` | `2` | `0.964` |
+
+**ReLU** giữ phần dương và đưa phần âm về 0. Nó rẻ về tính toán, không ép giá trị dương vào một khoảng hữu hạn và thường được dùng trong hidden layer. Ở phía dương, đạo hàm bằng 1; phía âm, đạo hàm bằng 0. Đạo hàm mô tả output nhạy ra sao khi input thay đổi và là một thành phần của gradient dùng để cập nhật trọng số.
+
+Nếu một đơn vị luôn nhận input âm trên dữ liệu huấn luyện, nhánh ReLU đó có gradient bằng 0 và có thể khó học tiếp. Hiện tượng này thường được gọi là dying ReLU. Leaky ReLU giữ một độ dốc nhỏ ở phía âm, chẳng hạn `0.01z`, để giảm nguy cơ đó. Đây là một lựa chọn cần kiểm chứng, không phải bảo đảm model sẽ tốt hơn.
+
+**Tanh** đưa output vào khoảng `(-1, 1)` và đối xứng quanh 0. Khi độ lớn input rất lớn, output gần như không đổi dù input thay đổi: đó là hiện tượng bão hòa. Đạo hàm `1 - tanh(z)^2` khi ấy gần 0. ReLU và tanh đều giữ shape nhưng có cách truyền giá trị và gradient khác nhau.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Sigmoid: xác suất và độ bão hòa
+
+Quay lại Logistic Regression, sigmoid biến một logit thực thành số trong `(0, 1)`. Model diễn giải số đó là xác suất lớp dương; việc diễn giải này cần được kiểm tra bằng dữ liệu, không có nghĩa xác suất luôn được calibration tốt.
+
+<BlockMath formula="\sigma(z)=\frac{1}{1+e^{-z}},\qquad \sigma'(z)=\sigma(z)(1-\sigma(z))" />
+
+| Logit `z` | Sigmoid, xấp xỉ | Đạo hàm, xấp xỉ |
+| --- | --- | --- |
+| `-4` | `0.018` | `0.018` |
+| `0` | `0.5` | `0.25` |
+| `4` | `0.982` | `0.018` |
+
+Gần `z = 0`, thay đổi logit có tác động rõ hơn lên xác suất. Ở hai đầu, sigmoid bão hòa và đạo hàm nhỏ. Nếu xếp nhiều sigmoid trong hidden layer, các đạo hàm nhỏ có thể nhân với nhau khi lan truyền ngược, làm gradient suy giảm. Đây là một lý do sigmoid thường được dùng cho đầu ra xác suất nhị phân hơn là mặc định cho mọi hidden layer.
+
+Tuy nhiên, không nên kết luận rằng Logistic Regression luôn học chậm khi tự tin nhưng sai. Khi kết hợp sigmoid với binary cross-entropy, đạo hàm loss theo logit rút gọn thành `p - y`. Nếu nhãn thật `y = 1` mà `p = 0.018`, đạo hàm khoảng `-0.982`, vẫn có tín hiệu sửa sai mạnh. Cần xem activation cùng với loss.
+
+Với bài toán **multilabel**, một sample có thể mang nhiều nhãn, chẳng hạn ảnh vừa có xe vừa có người. Ta có thể dùng một sigmoid cho mỗi nhãn; output `[0.8, 0.7, 0.1]` hợp lệ và không cần có tổng bằng 1. Mỗi thành phần trả lời một câu hỏi nhị phân riêng.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Softmax: các lớp cạnh tranh xác suất
+
+Nếu mỗi sample chỉ thuộc đúng một trong `K` lớp, ta cần một phân phối xác suất chung. Softmax nhận `K` logits và chuẩn hóa chúng theo chiều lớp của từng sample.
+
+<BlockMath formula="p_k=\frac{e^{z_k}}{\sum_{j=1}^{K}e^{z_j}},\qquad \sum_{k=1}^{K}p_k=1" />
+
+Với logits `[2, 1, 0]`, các giá trị mũ xấp xỉ `[7.389, 2.718, 1]`. Chia cho tổng `11.107` cho xác suất khoảng `[0.665, 0.245, 0.090]`. Lớp đầu có xác suất cao nhất. Khác sigmoid áp dụng riêng từng phần tử, xác suất của một lớp ở đây phụ thuộc cả logits của các lớp còn lại.
+
+Để tránh số mũ quá lớn, trừ logit lớn nhất trước khi tính:
+
+<BlockMath formula="p_k=\frac{e^{z_k-a}}{\sum_j e^{z_j-a}},\qquad a=\max_j z_j" />
+
+`[2, 1, 0]` trở thành `[0, -1, -2]` và cho cùng phân phối. Cộng hoặc trừ cùng một hằng số cho mọi logit không đổi softmax; nhân toàn bộ logits với một hệ số thì thường làm thay đổi độ tập trung của phân phối.
+
+Với batch `(32, 3)`, softmax theo chiều lớp trả về `(32, 3)` và mỗi hàng có tổng bằng 1. Chuẩn hóa nhầm theo chiều batch sẽ làm sample này ảnh hưởng xác suất của sample khác. Softmax giữ thứ tự logits, nên `argmax` trên logits và trên xác suất cho cùng lớp thắng; nếu chỉ cần lớp dự đoán thì không bắt buộc tính softmax.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Ghép đầu ra với bài toán và loss
+
+Activation cuối cùng phải phù hợp với ý nghĩa target và cách loss nhận input. Hidden layer có thể dùng ReLU, nhưng điều đó không có nghĩa đầu ra của mọi bài toán cũng nên dùng ReLU.
+
+| Bài toán | Đầu ra model | Diễn giải khi dự đoán |
+| --- | --- | --- |
+| Regression với target thực không bị chặn | Giá trị Linear, không thêm activation | Dự đoán số liên tục, có thể âm hoặc dương |
+| Classification nhị phân | Một logit cho mỗi sample | Sigmoid rồi so với threshold |
+| Multiclass, các lớp loại trừ nhau | `K` logits cho mỗi sample | Softmax để lấy xác suất hoặc argmax để lấy lớp |
+| Multilabel | Một logit cho mỗi nhãn | Sigmoid riêng rồi áp dụng threshold cho từng nhãn |
+
+Nếu target có ràng buộc riêng, có thể chọn biến đổi output phù hợp. Nhưng sigmoid sẽ giới hạn dự đoán trong `(0, 1)`, còn ReLU không thể dự đoán số âm; không nên thêm chúng vào regression chỉ vì đã dùng ở hidden layer.
+
+Trong PyTorch, `BCEWithLogitsLoss` nhận logits và kết hợp sigmoid với binary cross-entropy theo cách ổn định số. `CrossEntropyLoss` cũng nhận logits cho multiclass và kết hợp log-softmax với loss. Không đưa xác suất đã sigmoid hoặc softmax vào hai loss này. Ngược lại, một loss được thiết kế nhận xác suất cần đúng loại input đó; luôn đọc hợp đồng input của hàm đang dùng.
+
+Ví dụ nhị phân ở đầu bài kết thúc với logit `1.5`. Khi train bằng loss nhận logits, truyền `1.5` cùng nhãn thật vào loss; khi cần hiển thị xác suất, tính sigmoid để được khoảng `0.818`. Hai đường dùng chung score nhưng phục vụ hai mục đích khác nhau.
+
+Đến đây, hãy tự lần theo `feature → Linear → activation → output` và phân biệt bước ra quyết định với bước tính loss. Tiếp theo, One-vs-Rest mở rộng quyết định nhị phân sang nhiều lớp. Cuối chương, Classification Metrics sẽ đánh giá riêng nhãn dự đoán, thứ hạng score và chất lượng xác suất; không dùng lại MAE/RMSE của chương hồi quy để thay cho những mục tiêu đó.
+
+</MdxPage>

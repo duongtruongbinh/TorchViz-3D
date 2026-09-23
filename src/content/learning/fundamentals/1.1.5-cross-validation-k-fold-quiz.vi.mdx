@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "cross-validation-k-fold-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Cách hoạt động của K-fold",
+    "Quy trình K-fold",
+    "Biến thể cross-validation"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "cross-validation",
+    "k-fold",
+    "cv-score-variance",
+    "stratified-group-time-series-split",
+    "final-test-set"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="cross-validation-k-fold-quiz" questions={[
+  {
+    "id": "k-fold-process",
+    "title": "Cách hoạt động của K-fold",
+    "prompt": "Khi chọn lambda cho model giá nhà bằng K-fold, mỗi fold lần lượt đóng vai trò gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Test set cuối cùng bắt buộc.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Tập feature bị xóa đi.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Validation fold, trong khi các fold còn lại dùng để train.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Tập nhãn bị che hoàn toàn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Lặp qua các fold rồi lấy trung bình giúp ước lượng ổn định hơn một lần chia.",
+    "error": "Mỗi fold sẽ được dùng làm validation một lần, không phải là test cuối cùng."
+  },
+  {
+    "id": "kfold-workflow",
+    "title": "Quy trình K-fold",
+    "prompt": "Sắp xếp các bước của một vòng K-fold cross-validation.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "aggregate",
+        "label": "Tổng hợp điểm của K lần đánh giá."
+      },
+      {
+        "id": "train",
+        "label": "Train trên K - 1 fold."
+      },
+      {
+        "id": "split",
+        "label": "Chia dữ liệu phát triển thành K fold."
+      },
+      {
+        "id": "validate",
+        "label": "Đánh giá trên fold còn lại."
+      }
+    ],
+    "correctOrder": [
+      "split",
+      "train",
+      "validate",
+      "aggregate"
+    ],
+    "success": "Đúng. Mỗi fold được dùng để validation đúng một lần trước khi tổng hợp kết quả.",
+    "error": "Bắt đầu bằng chia fold, train trên phần còn lại, validation rồi mới tổng hợp."
+  },
+  {
+    "id": "cv-split-choice",
+    "title": "Biến thể cross-validation",
+    "prompt": "Chọn biến thể split phù hợp với dữ liệu.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "stratified",
+        "label": "Stratified K-fold"
+      },
+      {
+        "id": "group",
+        "label": "Group K-fold"
+      },
+      {
+        "id": "time",
+        "label": "Time Series Split"
+      }
+    ],
+    "options": [
+      {
+        "id": "class-ratio",
+        "label": "Giữ tỉ lệ lớp trong classification mất cân bằng.",
+        "categoryId": "stratified"
+      },
+      {
+        "id": "same-user",
+        "label": "Không để dữ liệu của một người dùng xuất hiện ở cả train và validation.",
+        "categoryId": "group"
+      },
+      {
+        "id": "forecasting",
+        "label": "Dự báo giá trị tương lai từ dữ liệu quá khứ.",
+        "categoryId": "time"
+      },
+      {
+        "id": "same-device",
+        "label": "Nhiều bản ghi đến từ cùng một thiết bị.",
+        "categoryId": "group"
+      }
+    ],
+    "success": "Chính xác. Không phải dữ liệu nào cũng phù hợp với K-fold ngẫu nhiên thông thường.",
+    "error": "Hãy xét tỉ lệ lớp, nhóm thực thể và trật tự thời gian trước khi chọn split."
+  }
+]} />

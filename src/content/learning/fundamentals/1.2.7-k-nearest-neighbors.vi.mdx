@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "k-nearest-neighbors",
+  "locale": "vi",
+  "title": "k-Nearest Neighbors",
+  "headings": [
+    "Dự đoán từ những mẫu gần nhất",
+    "Khoảng cách quyết định ai là hàng xóm",
+    "Chọn k và trọng số khoảng cách",
+    "Đưa k-NN vào workflow"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "k-Nearest Neighbors"
+  ],
+  "conceptIds": [
+    "knn-local-prediction",
+    "knn-distance-scaling",
+    "knn-k-weights",
+    "knn-validation-cost"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Dự đoán từ những mẫu gần nhất
+
+Linear Regression học trọng số, còn **k-Nearest Neighbors** (k-NN) dự đoán một sample mới bằng các sample train gần nó. Trực giác là những đối tượng giống nhau theo feature có thể có target giống nhau. k-NN có giám sát dùng cả feature lẫn target đã biết; nó khác K-Means, thuật toán tìm cụm không cần nhãn.
+
+Giả sử một giao dịch mới có ba láng giềng gần nhất trong không gian feature đã chuẩn hóa:
+
+| Láng giềng | Khoảng cách | Nhãn gian lận |
+| --- | --- | --- |
+| A | 0.2 | 1 |
+| B | 0.5 | 0 |
+| C | 0.6 | 0 |
+
+Với k = 3 và trọng số đều, nhãn 0 thắng với hai phiếu. Tỷ lệ phiếu cho lớp 1 là 1/3, nhưng không tự bảo đảm xác suất gian lận thực tế được calibration tốt.
+
+Với regression, thay bỏ phiếu bằng trung bình target. Ba căn nhà gần nhất có giá 2, 3 và 4 tỷ đồng cho dự đoán 3 tỷ đồng. Vì là trung bình có trọng số không âm, dự đoán nằm trong khoảng target của các láng giềng; k-NN thường không ngoại suy tốt ra ngoài vùng dữ liệu train.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khoảng cách quyết định ai là hàng xóm
+
+Khoảng cách Euclidean giữa hai vector có d feature là:
+
+<BlockMath formula="d(x,q)=\sqrt{\sum_{j=1}^{d}(x_j-q_j)^2}" />
+
+Hai điểm [1, 2] và [4, 6] có khoảng cách 5. Nhưng nếu một cột là thu nhập tính bằng đồng, còn cột khác là tuổi, khác biệt đơn vị có thể khiến thu nhập chi phối phép tính dù không có lý do nghiệp vụ.
+
+Scaling là một phần của định nghĩa “giống nhau”, không chỉ để phép tính chạy nhanh. Với hai feature chênh 1000 và 1 đơn vị, khoảng cách thô gần 1000; nếu độ lệch chuẩn train tương ứng là 1000 và 1, sau chuẩn hóa hai chênh lệch đều bằng 1, khoảng cách là căn 2.
+
+Fit scaler và bước điền dữ liệu thiếu chỉ trên train của từng fold. Mã hóa category bằng các số tùy ý như 1, 2, 3 có thể tạo khoảng cách không có nghĩa; cần representation phù hợp. Feature thừa hoặc nhiều chiều nhiễu có thể làm các khoảng cách kém phân biệt, thường được gọi là curse of dimensionality. Thêm cột chưa chắc giúp k-NN tốt hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn k và trọng số khoảng cách
+
+k nhỏ nhìn vào vùng rất cục bộ, dễ nhạy với nhiễu. k lớn làm dự đoán mượt hơn nhưng có thể trộn các vùng khác nhau và bỏ mất cấu trúc nhỏ. Đây là một biểu hiện của bias–variance trade-off đã học, không phải quy tắc rằng k càng lớn càng tốt.
+
+Thay phiếu đều bằng trọng số tỷ lệ nghịch khoảng cách, ví dụ đầu bài có trọng số 5, 2 và khoảng 1.667. Lớp 1 nhận 5, lớp 0 nhận khoảng 3.667, nên dự đoán đổi sang lớp 1. Mẫu gần có ảnh hưởng lớn hơn, nhưng một điểm gần bị gán nhãn sai cũng có thể gây tác động mạnh.
+
+Nếu khoảng cách bằng 0, không tự chia 1 cho 0; dùng quy ước của implementation cho các điểm trùng. k lẻ giúp giảm hòa phiếu trong phân loại nhị phân với phiếu đều, nhưng không loại bỏ mọi hòa phiếu khi có nhiều lớp hoặc khoảng cách bằng nhau.
+
+Chọn k, distance metric và kiểu weights bằng validation/CV. Số láng giềng phải phù hợp với số sample train của mỗi fold, không chỉ với toàn bộ dataset. Với lớp hiếm, đánh giá recall/precision thay vì chỉ accuracy.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đưa k-NN vào workflow
+
+k-NN lưu dữ liệu train để tìm hàng xóm lúc dự đoán. Vì vậy, ít công việc fit không đồng nghĩa inference rẻ. Tìm kiếm vét cạn cho một query có chi phí tỷ lệ với số mẫu train nhân số feature; cấu trúc tìm kiếm có thể giúp nhưng không luôn hiệu quả khi số chiều lớn.
+
+So k-NN với Logistic Regression trên cùng split và cùng metric. Giữ preprocessing bên trong pipeline CV để validation không tham gia fit scaler. Nếu có nhiều giao dịch của cùng người dùng, thiết kế split theo mục tiêu dự đoán để hàng xóm không chỉ là bản sao gần trùng từ cùng người.
+
+Trong Scikit-Learn, hai estimator liên quan là KNeighborsClassifier và KNeighborsRegressor; các lựa chọn chính gồm n_neighbors, weights và metric. Chi tiết tìm kiếm và xử lý điểm đồng khoảng cách nằm trong [tài liệu Nearest Neighbors](https://scikit-learn.org/stable/modules/neighbors.html).
+
+k-NN là baseline hữu ích khi distance có nghĩa và số chiều vừa phải. Bài tiếp theo chuyển sang Naive Bayes: thay hỏi sample nào gần nhất, ta xét feature đang quan sát có khả năng xuất hiện dưới từng lớp ra sao.
+
+</MdxPage>

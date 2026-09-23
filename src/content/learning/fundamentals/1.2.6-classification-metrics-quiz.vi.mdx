@@ -1,0 +1,187 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "classification-metrics-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Đọc confusion matrix",
+    "Cảnh báo có đáng tin không?",
+    "Metric đo phần nào?",
+    "Tự tin nhưng sai",
+    "Báo cáo phân loại nhiều lớp"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "confusion-matrix-accuracy",
+    "precision-recall-f1",
+    "roc-auc-pr-auc",
+    "classification-log-loss",
+    "classification-evaluation-protocol"
+  ],
+  "pageCount": 5
+}
+
+<MdxQuiz id="classification-metrics-quiz" questions={[
+  {
+    "id": "confusion-matrix-accuracy",
+    "title": "Đọc confusion matrix",
+    "prompt": "Có TP = 8, FN = 2, FP = 4, TN = 86. Accuracy bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "80%",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "66.7%",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "90%",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "94%",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. (8 + 86)/100 = 94%. Đây chưa phải recall hay precision.",
+    "error": "Accuracy đếm cả positive đúng và negative đúng trên tổng sample."
+  },
+  {
+    "id": "precision-recall-f1",
+    "title": "Cảnh báo có đáng tin không?",
+    "prompt": "Với cùng confusion matrix, chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Precision = 8/12, khoảng 66.7%.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Recall = 8/10 = 80%.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "F1 là trung bình cộng của precision và recall.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Hạ threshold luôn làm precision tăng.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Precision xét các cảnh báo, recall xét positive thật; F1 dùng trung bình điều hòa.",
+    "error": "Xác định mẫu số từng chỉ số. Precision không nhất thiết đơn điệu theo threshold."
+  },
+  {
+    "id": "roc-auc-pr-auc",
+    "title": "Metric đo phần nào?",
+    "prompt": "Ghép mục tiêu với nhóm đánh giá phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "labels",
+        "label": "Confusion matrix / Precision / Recall"
+      },
+      {
+        "id": "ranking",
+        "label": "ROC-AUC / PR-AUC"
+      },
+      {
+        "id": "probability",
+        "label": "Log Loss / kiểm tra calibration"
+      }
+    ],
+    "options": [
+      {
+        "id": "alerts",
+        "label": "Đếm báo động giả tại threshold đang vận hành.",
+        "categoryId": "labels"
+      },
+      {
+        "id": "order",
+        "label": "Đánh giá thứ hạng score qua nhiều threshold.",
+        "categoryId": "ranking"
+      },
+      {
+        "id": "confidence",
+        "label": "Kiểm tra dự đoán tự tin nhưng sai và độ tin cậy xác suất.",
+        "categoryId": "probability"
+      }
+    ],
+    "success": "Đúng. Nhãn, thứ hạng và xác suất là ba khía cạnh khác nhau.",
+    "error": "AUC không tự chọn threshold và không chứng minh xác suất đã calibration tốt."
+  },
+  {
+    "id": "classification-log-loss",
+    "title": "Tự tin nhưng sai",
+    "prompt": "Nhãn thật là 0. Model A dự đoán p = 0.99; model B dự đoán p = 0.55. Nhận xét nào đúng về Log Loss?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "A bị phạt lớn hơn: khoảng 4.605 so với 0.799.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "B bị phạt lớn hơn vì ít tự tin hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Hai model có loss như nhau vì đều dự đoán positive ở threshold 0.5.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "A có loss thấp hơn vì xác suất gần 1 hơn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Với y = 0, loss = -log(1-p), phạt nặng sự tự tin sai.",
+    "error": "Thay xác suất vào -log(1-p), không chỉ so nhãn sau threshold."
+  },
+  {
+    "id": "classification-evaluation-protocol",
+    "title": "Báo cáo phân loại nhiều lớp",
+    "prompt": "Chọn tất cả thực hành đúng khi lớp hiếm quan trọng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Weighted F1 cao là đủ để khẳng định lớp hiếm được nhận diện tốt.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Xem metric từng lớp và macro-average để tránh che lớp hiếm.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Chọn threshold trên validation, giữ nguyên khi đánh giá test.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Ghi rõ báo cáo PR-AUC theo hình thang hay Average Precision.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Cách gộp lớp, threshold và định nghĩa chỉ số phải rõ để kết quả có thể so sánh.",
+    "error": "Lớp phổ biến có thể chi phối weighted-average; không dùng test để chọn threshold."
+  }
+]} />

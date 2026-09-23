@@ -30,6 +30,26 @@ const publishedLessonIds = learningCatalog.lessons
   .filter((lesson) => lesson.contentStatus === 'published')
   .map((lesson) => lesson.id);
 
+test('Machine Learning metric, algorithm and uncertainty pairs assess their own concepts', async () => {
+  for (const id of [
+    'regression-metrics', 'classification-metrics', 'k-nearest-neighbors',
+    'naive-bayes', 'support-vector-machines', 'gaussian-mixture-models',
+    'variability-splits-seeds', 'bootstrap-confidence-intervals', 'prediction-intervals',
+  ]) {
+    const files = [id, `${id}-quiz`].map((lessonId) => lessonFiles.find((file) => {
+      const parsed = parseLearningMdxPath(file);
+      return parsed?.domainId === 'fundamentals' && parsed.lessonId === lessonId;
+    }));
+    assert.ok(files[0]);
+    assert.ok(files[1]);
+    const theory = await inspectLearningMdx(readFileSync(files[0], 'utf8'), files[0]);
+    const quiz = await inspectLearningMdx(readFileSync(files[1], 'utf8'), files[1]);
+    assert.deepEqual(quiz.metadata.conceptIds, theory.metadata.conceptIds);
+    assert.deepEqual(quiz.quizQuestions.map((question) => question.id), theory.metadata.conceptIds);
+    assert.equal(quiz.quizQuestions.length, id === 'classification-metrics' ? 5 : 4);
+  }
+});
+
 test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
   assert.deepEqual(
     parseLearningMdxPath('src/content/learning/llm-ai-engineering/1.1.6-language-modeling-next-token.vi.mdx'),

@@ -1,0 +1,90 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "naive-bayes",
+  "locale": "vi",
+  "title": "Naive Bayes",
+  "headings": [
+    "Từ bằng chứng đến xác suất lớp",
+    "Giả định naive là gì?",
+    "Chọn phân phối và smoothing",
+    "Baseline nhanh, nhưng cần kiểm tra xác suất"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Naive Bayes"
+  ],
+  "conceptIds": [
+    "nb-bayes-posterior",
+    "nb-conditional-independence",
+    "nb-likelihood-smoothing",
+    "nb-evaluation"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Từ bằng chứng đến xác suất lớp
+
+**Naive Bayes** kết hợp xác suất ban đầu của lớp với mức độ phù hợp của feature quan sát được. Giả sử muốn phân loại email spam. Trước khi đọc email, tỷ lệ spam trong dữ liệu train cung cấp prior; khi thấy một từ, likelihood cho biết từ đó thường xuất hiện ở spam hay email hợp lệ.
+
+Với lớp c và vector feature x, quy tắc Bayes là:
+
+<BlockMath formula="P(c\mid x)=\frac{P(x\mid c)P(c)}{\sum_{c'}P(x\mid c')P(c')}" />
+
+Ví dụ minh họa: P(spam) = 0.2, P(từ “quà” xuất hiện | spam) = 0.6, còn xác suất từ đó xuất hiện trong email hợp lệ là 0.1. Hai score chưa chuẩn hóa là 0.2 × 0.6 = 0.12 và 0.8 × 0.1 = 0.08. Posterior spam khi chỉ quan sát bằng chứng này là 0.12/(0.12 + 0.08) = 0.6.
+
+Score 0.12 không phải xác suất posterior cuối cùng. Mẫu số chuẩn hóa để xác suất các lớp có tổng bằng 1. Nếu chỉ cần lớp thắng, có thể so score mà không tính mẫu số chung.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Giả định naive là gì?
+
+Với nhiều feature, ước lượng toàn bộ phân phối chung P(x | c) có thể cần rất nhiều dữ liệu. Naive Bayes giả định các feature độc lập khi đã biết lớp, nên thay phân phối chung bằng tích các likelihood:
+
+<BlockMath formula="P(x\mid c)=\prod_{j=1}^{d}P(x_j\mid c)" />
+
+Điều này không nói các feature độc lập vô điều kiện. Hai từ có thể thường đi cùng nhau vì đều liên quan đến spam; giả định đặt ra là trong từng lớp, biết từ thứ nhất không còn cung cấp thông tin về từ thứ hai. Với ngôn ngữ tự nhiên, giả định thường chỉ là xấp xỉ.
+
+Tiếp ví dụ đầu bài, nếu bằng chứng thứ hai có likelihood 0.5 dưới spam và 0.2 dưới email hợp lệ, hai score là 0.12 × 0.5 = 0.06 và 0.08 × 0.2 = 0.016. Posterior spam xấp xỉ 0.789. Phép nhân này chỉ hợp lý trong mô hình giả định đã chọn.
+
+Các feature trùng hoặc tương quan mạnh có thể khiến cùng một bằng chứng bị tính nhiều lần, làm posterior quá tự tin. Trong thực hành thường cộng log-prior và log-likelihood thay vì nhân rất nhiều số nhỏ, nhằm tránh underflow.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn phân phối và smoothing
+
+Tên Naive Bayes chỉ một họ mô hình. Cách biểu diễn feature quyết định likelihood phù hợp, không phải mọi dữ liệu đều đưa vào cùng một biến thể.
+
+| Biến thể | Feature điển hình | Giả định chính |
+| --- | --- | --- |
+| Gaussian | Đại lượng liên tục | Mỗi feature trong từng lớp có phân phối Gaussian |
+| Multinomial | Số lần xuất hiện của token | Mô hình hóa các số đếm không âm |
+| Bernoulli | Có/không, 0/1 | Mô hình hóa cả xuất hiện và không xuất hiện |
+| Categorical | Giá trị category rời rạc | Phân phối xác suất trên các category |
+
+Nếu một token chưa từng xuất hiện trong spam, ước lượng xác suất bằng 0 sẽ làm cả tích score của lớp đó bằng 0. Additive smoothing thêm lượng nhỏ alpha vào số đếm. Với Multinomial, nếu token có count 0 trong một lớp, tổng count của lớp là 10, vocabulary có 5 token và alpha = 1, ước lượng là (0 + 1)/(10 + 5) = 1/15.
+
+Smoothing không có nghĩa mọi từ đều quan trọng như nhau; nó tránh kết luận bất khả thi chỉ vì mẫu train hữu hạn. Gaussian không dùng công thức count này. Chọn alpha hoặc mức ổn định phương sai theo biến thể và validation.
+
+Không chuẩn hóa số đếm thành số âm rồi đưa vào Multinomial. Vocabulary, vectorizer và thống kê likelihood đều phải fit bằng train, kể cả trong từng fold CV.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Baseline nhanh, nhưng cần kiểm tra xác suất
+
+Naive Bayes thường là một baseline đơn giản để đối chiếu với Logistic Regression, đặc biệt khi feature thưa biểu diễn văn bản. Nó ước lượng thống kê theo lớp thay vì học khoảng cách như k-NN. Tốc độ không thay thế kiểm tra giả định dữ liệu.
+
+Đánh giá nhãn bằng cùng split và metric đã chọn. Nếu posterior dùng để quyết định rủi ro, xem thêm Log Loss và calibration: phân loại đúng nhiều sample không bảo đảm xác suất được hiệu chỉnh tốt. Lớp hiếm, prior thay đổi giữa train và production, hoặc feature phụ thuộc mạnh đều có thể ảnh hưởng kết quả.
+
+Ví dụ này dùng email để làm rõ likelihood, không thay đổi bài toán giá nhà của chương hồi quy thành một bài toán phân loại. GaussianNB có thể dùng feature số, nhưng giá trị target liên tục cần estimator hồi quy khác.
+
+Tên các estimator và điều kiện input được mô tả trong [tài liệu Naive Bayes](https://scikit-learn.org/stable/modules/naive_bayes.html). Sau bài này, SVM sẽ tiếp cận classification theo một hướng khác: tìm ranh giới có khoảng cách an toàn tới các điểm gần nhất.
+
+</MdxPage>

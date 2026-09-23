@@ -1,0 +1,157 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "bootstrap-confidence-intervals-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "CI của MAE nói gì?",
+    "Một bootstrap sample",
+    "Giữ đúng cặp khi resample",
+    "Nhận biết giới hạn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "bootstrap-estimand",
+    "bootstrap-resampling",
+    "paired-bootstrap",
+    "bootstrap-assumptions"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="bootstrap-confidence-intervals-quiz" questions={[
+  {
+    "id": "bootstrap-estimand",
+    "title": "CI của MAE nói gì?",
+    "prompt": "Model đã chốt có bootstrap CI 95% cho MAE là [210, 335] triệu đồng. Cách hiểu nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "95% căn nhà có giá nằm trong khoảng này.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "95% residual của model nằm trong khoảng này.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Khoảng này nhắm tới MAE kỳ vọng của model cố định dưới giả định lấy mẫu.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Khoảng này đã bao gồm mọi distribution shift tương lai.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Đây là bất định về một đại lượng tổng hợp, không phải khoảng cho giá hoặc lỗi từng căn nhà.",
+    "error": "Xác định estimand: MAE kỳ vọng khác response mới và khác distribution shift."
+  },
+  {
+    "id": "bootstrap-resampling",
+    "title": "Một bootstrap sample",
+    "prompt": "Sai số gốc là [100, 200, 300, 400]. Một mẫu có hoàn lại lấy [100, 100, 300, 400]. MAE của mẫu đó là bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "225",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "250",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "300",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "100",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. (100 + 100 + 300 + 400)/4 = 225. Một hàng có thể được chọn nhiều lần.",
+    "error": "Có hoàn lại cho phép lặp; tính trên mẫu đã resample chứ không dùng mean gốc."
+  },
+  {
+    "id": "paired-bootstrap",
+    "title": "Giữ đúng cặp khi resample",
+    "prompt": "Phân loại cách làm khi bootstrap metric cho hai model cố định trên cùng tập nhà.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "valid",
+        "label": "Giữ đúng quan hệ theo sample"
+      },
+      {
+        "id": "invalid",
+        "label": "Làm sai quan hệ theo sample"
+      }
+    ],
+    "options": [
+      {
+        "id": "joint",
+        "label": "Lấy cùng chỉ số cho y, prediction A và prediction B.",
+        "categoryId": "valid"
+      },
+      {
+        "id": "independent",
+        "label": "Resample y và prediction độc lập.",
+        "categoryId": "invalid"
+      },
+      {
+        "id": "delta",
+        "label": "Tính MAE A - MAE B trong từng mẫu có cùng chỉ số.",
+        "categoryId": "valid"
+      },
+      {
+        "id": "different",
+        "label": "Dùng hai mẫu hàng khác nhau rồi gọi đó là paired bootstrap.",
+        "categoryId": "invalid"
+      }
+    ],
+    "success": "Đúng. Dữ liệu ghép cặp cần dùng chung chỉ số resample.",
+    "error": "Giữ dự đoán gắn với nhãn đúng và giữ hai model trên cùng sample."
+  },
+  {
+    "id": "bootstrap-assumptions",
+    "title": "Nhận biết giới hạn",
+    "prompt": "Chọn tất cả nhận xét đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Tăng số lần bootstrap tương đương thu thập thêm dữ liệu độc lập.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Các bản ghi cùng người dùng có thể cần resample theo nhóm.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Resample lỗi của model cố định tự bao gồm mọi biến động retrain.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Mẫu classification thiếu lớp có thể làm ROC-AUC không xác định.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Đơn vị mẫu và điều kiện xác định metric quan trọng; số resample không thay số quan sát.",
+    "error": "Bootstrap không tự sửa phụ thuộc dữ liệu hay bao phủ nguồn bất định chưa được mô phỏng."
+  }
+]} />

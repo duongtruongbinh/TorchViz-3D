@@ -1,0 +1,142 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "nested-cv-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Inner và outer",
+    "Tuning preprocessing",
+    "Khóa test",
+    "Lưu để dự đoán lại"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "nested-inner-outer-roles",
+    "nested-full-pipeline-search",
+    "nested-test-lock",
+    "nested-pipeline-persistence"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="nested-cv-code-lab-quiz" questions={[
+  {
+    "title": "Inner và outer",
+    "prompt": "Ghép đúng vai trò.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Inner loop"
+      },
+      {
+        "id": "c1",
+        "label": "Outer validation"
+      }
+    ],
+    "options": [
+      {
+        "label": "Chọn C hoặc độ sâu cây.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "Chọn giữa ba họ classifier.",
+        "categoryId": "c0",
+        "id": "o1"
+      },
+      {
+        "label": "Đánh giá search đã refit trên outer-training.",
+        "categoryId": "c1",
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "nested-inner-outer-roles"
+  },
+  {
+    "title": "Tuning preprocessing",
+    "prompt": "Cách nào ngăn thống kê preprocessing lọt qua ranh giới fold?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Fit encoder toàn development trước outer CV.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Chỉ đưa estimator vào search sau khi scaler đã fit toàn dữ liệu.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Đưa ColumnTransformer và model vào cùng Pipeline bên trong GridSearchCV.",
+        "isCorrect": true,
+        "id": "o0"
+      }
+    ],
+    "success": "Đúng. Đưa ColumnTransformer và model vào cùng Pipeline bên trong GridSearchCV.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "nested-full-pipeline-search"
+  },
+  {
+    "title": "Khóa test",
+    "prompt": "Chọn tất cả hành động phù hợp.",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "Chạy search cuối trên toàn development với protocol đã chốt.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Mở holdout để báo cáo cuối và không chỉnh model theo điểm đó.",
+        "isCorrect": true,
+        "id": "o1"
+      },
+      {
+        "label": "Lấy model từ outer fold có điểm cao nhất.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Đổi artifact filename để liên tục thử test rồi chọn điểm tốt.",
+        "isCorrect": false,
+        "id": "o3"
+      }
+    ],
+    "success": "Đúng. Chạy search cuối trên toàn development với protocol đã chốt. Mở holdout để báo cáo cuối và không chỉnh model theo điểm đó.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "nested-test-lock"
+  },
+  {
+    "title": "Lưu để dự đoán lại",
+    "prompt": "Artifact nên chứa gì?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Toàn bộ fitted pipeline và metadata về feature, dataset, threshold; chỉ load artifact tin cậy.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Chỉ trọng số classifier; fit scaler mới mỗi lần predict.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Chỉ các điểm CV vì đủ để tái tạo model.",
+        "isCorrect": false,
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Toàn bộ fitted pipeline và metadata về feature, dataset, threshold; chỉ load artifact tin cậy.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "nested-pipeline-persistence"
+  }
+]} />

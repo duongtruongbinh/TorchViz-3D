@@ -25,7 +25,8 @@ function runPython(snippet: string): string {
   writeFileSync(join(nnDir, 'functional.py'), 'from ..ops import *');
 
   try {
-    const result = spawnSync('python3', ['-c', snippet], {
+    const pythonCommand = process.env.PYTHON ?? (process.platform === 'win32' ? 'python' : 'python3');
+    const result = spawnSync(pythonCommand, ['-c', snippet], {
       cwd: root,
       env: { ...process.env, PYTHONPATH: root },
       encoding: 'utf8',

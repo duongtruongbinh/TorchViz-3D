@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "linear-regression-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Đầu ra của regression",
+    "Nhận diện bài toán regression",
+    "Giới hạn và khả năng của linear regression"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "regression-problem",
+    "linear-regression-equation",
+    "multivariate-linear-regression",
+    "learning-weights",
+    "regression-evaluation"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="linear-regression-quiz" questions={[
+  {
+    "id": "regression-output",
+    "title": "Đầu ra của regression",
+    "prompt": "Linear regression phù hợp nhất để dự đoán loại đầu ra nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Một nhãn lớp duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Một giá trị số liên tục, ví dụ giá nhà.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Thứ tự thao tác trong workflow.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Một cụm không có nhãn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Regression ước lượng một đại lượng số liên tục.",
+    "error": "Nếu mục tiêu là nhãn rời rạc hoặc xác suất lớp, hãy cân nhắc bài toán classification."
+  },
+  {
+    "id": "regression-problems",
+    "title": "Nhận diện bài toán regression",
+    "prompt": "Đưa mỗi mục tiêu vào nhóm phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "regression",
+        "label": "Regression"
+      },
+      {
+        "id": "not-regression",
+        "label": "Không phải regression tuyến tính trực tiếp"
+      }
+    ],
+    "options": [
+      {
+        "id": "home-price",
+        "label": "Dự đoán giá bán căn nhà.",
+        "categoryId": "regression"
+      },
+      {
+        "id": "temperature",
+        "label": "Ước lượng nhiệt độ ngày mai.",
+        "categoryId": "regression"
+      },
+      {
+        "id": "spam",
+        "label": "Dự đoán email có phải spam hay không.",
+        "categoryId": "not-regression"
+      },
+      {
+        "id": "digit",
+        "label": "Chọn một trong 10 chữ số.",
+        "categoryId": "not-regression"
+      }
+    ],
+    "success": "Đúng. Regression dự đoán đại lượng liên tục, không phải nhãn phân loại.",
+    "error": "Hãy nhìn vào kiểu target: số liên tục hay lựa chọn giữa các lớp."
+  },
+  {
+    "id": "linear-regression-facts",
+    "title": "Giới hạn và khả năng của linear regression",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Mô hình có thể dùng nhiều feature để dự đoán một giá trị liên tục.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Các trọng số thường được học bằng cách tối thiểu hóa một hàm loss.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Đầu ra dự đoán của linear regression luôn bị giới hạn trong khoảng 0 đến 1.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Mô hình không nhất thiết phải khớp hoàn hảo mọi điểm train.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Linear regression học quan hệ tuyến tính theo tham số và có thể còn sai số.",
+    "error": "Khoảng 0 đến 1 là đặc trưng của sigmoid, không phải đầu ra mặc định của linear regression."
+  }
+]} />

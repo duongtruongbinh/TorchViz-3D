@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "logistic-regression-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Xác suất trong logistic regression",
+    "Điều chỉnh ngưỡng phân loại",
+    "Luồng dự đoán nhị phân"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "binary-classification",
+    "logit",
+    "sigmoid-probability",
+    "classification-threshold",
+    "binary-cross-entropy",
+    "multiclass-logistic-regression"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="logistic-regression-quiz" questions={[
+  {
+    "id": "logistic-probability",
+    "title": "Xác suất trong logistic regression",
+    "prompt": "Sau khi tính z = w^T x + b, logistic regression dùng gì để tạo xác suất lớp dương?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Hàm sigmoid.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Hàm ReLU.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Phép lấy trung bình của các lớp.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Hàm MAE.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Sigmoid biến logit thành giá trị trong khoảng 0 đến 1.",
+    "error": "Logistic regression dùng sigmoid sau logit, không dùng ReLU để tạo xác suất nhị phân."
+  },
+  {
+    "id": "threshold-tradeoff",
+    "title": "Điều chỉnh ngưỡng phân loại",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Hạ ngưỡng có thể làm mô hình dự đoán positive nhiều hơn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Ngưỡng 0.5 là mặc định duy nhất luôn tối ưu.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Ngưỡng nên được chọn bằng validation theo chi phí lỗi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-4",
+        "label": "Hạ ngưỡng thường có thể tăng recall nhưng làm precision giảm.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Ngưỡng là quyết định vận hành, không phải một hằng số bất biến.",
+    "error": "Hãy cân nhắc trade-off precision-recall và chọn ngưỡng bằng validation."
+  },
+  {
+    "id": "binary-prediction-flow",
+    "title": "Luồng dự đoán nhị phân",
+    "prompt": "Sắp xếp các bước để tạo nhãn nhị phân từ feature.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "threshold",
+        "label": "So sánh p với ngưỡng đã chọn để tạo nhãn."
+      },
+      {
+        "id": "probability",
+        "label": "Tính p = sigmoid(z)."
+      },
+      {
+        "id": "features",
+        "label": "Nhận feature x."
+      },
+      {
+        "id": "logit",
+        "label": "Tính z = w^T x + b."
+      }
+    ],
+    "correctOrder": [
+      "features",
+      "logit",
+      "probability",
+      "threshold"
+    ],
+    "success": "Đúng. Logit được đổi thành xác suất trước khi áp dụng ngưỡng quyết định.",
+    "error": "Thứ tự là feature, logit, sigmoid thành xác suất rồi mới so sánh ngưỡng."
+  }
+]} />

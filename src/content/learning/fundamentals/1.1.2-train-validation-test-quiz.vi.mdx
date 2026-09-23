@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "train-validation-test-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Vai trò của test set",
+    "Quy trình dùng ba tập dữ liệu",
+    "Chọn cách chia dữ liệu"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "dataset-split",
+    "train-set",
+    "validation-set",
+    "test-set",
+    "time-group-stratified-split"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="train-validation-test-quiz" questions={[
+  {
+    "id": "test-purpose",
+    "title": "Vai trò của test set",
+    "prompt": "Khi xây dựng model giá nhà, test set nên được dùng chủ yếu vào thời điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Sau mỗi lần chỉnh hyperparameter.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Để tính gradient trong lúc train.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-3",
+        "label": "Để tạo thêm dữ liệu train.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Một lần cuối để ước lượng khả năng tổng quát hóa của mô hình đã chốt.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Giữ test set tách biệt giúp kết quả cuối ít bị lạc quan giả.",
+    "error": "Test set không phải công cụ để lặp lại việc chọn mô hình."
+  },
+  {
+    "id": "split-workflow",
+    "title": "Quy trình dùng ba tập dữ liệu",
+    "prompt": "Sắp xếp quy trình hợp lý từ đầu đến cuối.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "select",
+        "label": "Chọn cấu hình bằng validation hoặc cross-validation."
+      },
+      {
+        "id": "final-test",
+        "label": "Đánh giá cấu hình đã chốt một lần trên test set."
+      },
+      {
+        "id": "holdout",
+        "label": "Tách và giữ test set ngoài quá trình phát triển."
+      },
+      {
+        "id": "train",
+        "label": "Huấn luyện các cấu hình ứng viên trên train set."
+      }
+    ],
+    "correctOrder": [
+      "holdout",
+      "train",
+      "select",
+      "final-test"
+    ],
+    "success": "Đúng. Test set chỉ xuất hiện ở cuối, sau khi mọi quyết định đã được chốt.",
+    "error": "Hãy giữ test set ra ngoài, train ứng viên, chọn bằng validation rồi mới test một lần."
+  },
+  {
+    "id": "split-strategies",
+    "title": "Chọn cách chia dữ liệu",
+    "prompt": "Ghép tình huống với chiến lược chia phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "time",
+        "label": "Time split"
+      },
+      {
+        "id": "group",
+        "label": "Group split"
+      },
+      {
+        "id": "stratified",
+        "label": "Stratified split"
+      }
+    ],
+    "options": [
+      {
+        "id": "future-sales",
+        "label": "Dự đoán doanh số tương lai từ lịch sử theo ngày.",
+        "categoryId": "time"
+      },
+      {
+        "id": "patient-records",
+        "label": "Nhiều dòng dữ liệu thuộc cùng một bệnh nhân.",
+        "categoryId": "group"
+      },
+      {
+        "id": "rare-positive",
+        "label": "Classification có lớp dương rất hiếm.",
+        "categoryId": "stratified"
+      },
+      {
+        "id": "account-events",
+        "label": "Nhiều sự kiện thuộc cùng một tài khoản người dùng.",
+        "categoryId": "group"
+      }
+    ],
+    "success": "Chính xác. Cách chia phải phản ánh cách dữ liệu sẽ xuất hiện khi triển khai.",
+    "error": "Dữ liệu theo thời gian, theo nhóm thực thể và mất cân bằng cần các split khác nhau."
+  }
+]} />

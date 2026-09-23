@@ -1,0 +1,137 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "clustering-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Đầu vào phân cụm",
+    "Khoảng cách",
+    "Metric nói gì?",
+    "Silhouette và seed đều tốt"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "clustering-feature-boundary",
+    "clustering-distance-preprocessing",
+    "clustering-internal-validation",
+    "clustering-seed-stability"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="clustering-code-lab-quiz" questions={[
+  {
+    "title": "Đầu vào phân cụm",
+    "prompt": "Trong lab không có nhãn, tập feature nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Chỉ dùng nhãn đắt/rẻ làm feature.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "area, age, distance, district, type.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Thêm price để cụm có ý nghĩa hơn.",
+        "isCorrect": false,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. area, age, distance, district, type.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "clustering-feature-boundary"
+  },
+  {
+    "title": "Khoảng cách",
+    "prompt": "Những điều nào đúng với preprocessing trong lab?",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "K-Means không bị ảnh hưởng bởi đơn vị diện tích.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Fit scaler trên holdout giúp đánh giá khách quan hơn.",
+        "isCorrect": false,
+        "id": "o3"
+      },
+      {
+        "label": "Thống kê chuẩn hóa được fit trên train.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "One-hot và scale ảnh hưởng định nghĩa khoảng cách.",
+        "isCorrect": true,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Thống kê chuẩn hóa được fit trên train. One-hot và scale ảnh hưởng định nghĩa khoảng cách.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "clustering-distance-preprocessing"
+  },
+  {
+    "title": "Metric nói gì?",
+    "prompt": "Ghép phép đo với ý nghĩa.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Cấu trúc trong không gian feature"
+      },
+      {
+        "id": "c1",
+        "label": "Nhất quán giữa lần chạy"
+      }
+    ],
+    "options": [
+      {
+        "label": "Silhouette trên validation.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "ARI giữa nhãn cụm seed 42 và seed 7.",
+        "categoryId": "c1",
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "clustering-internal-validation"
+  },
+  {
+    "title": "Silhouette và seed đều tốt",
+    "prompt": "Silhouette cao và ARI giữa hai seed cao có chứng minh đúng số cụm tự nhiên không?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Có, không cần kiểm tra kích thước cụm.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Không; còn phụ thuộc feature, khoảng cách và ý nghĩa nghiệp vụ.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Có, đó là ground truth.",
+        "isCorrect": false,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Không; còn phụ thuộc feature, khoảng cách và ý nghĩa nghiệp vụ.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "clustering-seed-stability"
+  }
+]} />

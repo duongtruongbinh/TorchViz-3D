@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "feature-importance-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Ý nghĩa của feature importance",
+    "Đọc importance một cách thận trọng",
+    "Phân biệt các cách tính importance"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "feature-importance",
+    "global-local-explanation",
+    "impurity-importance",
+    "permutation-importance",
+    "shap-values",
+    "correlation-causality-leakage"
+  ],
+  "pageCount": 3
+}
+
+<MdxQuiz id="feature-importance-quiz" questions={[
+  {
+    "id": "importance-meaning",
+    "title": "Ý nghĩa của feature importance",
+    "prompt": "Feature importance cho biết điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Feature nào chắc chắn gây ra kết quả.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-2",
+        "label": "Feature nào có đóng góp tương đối lớn vào dự đoán theo một phương pháp đo cụ thể.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Feature nào luôn phải bị xóa.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Số lượng mẫu trong dataset.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Importance là tín hiệu diễn giải, không phải bằng chứng nhân quả.",
+    "error": "Đừng suy từ importance sang nguyên nhân-kết quả mà không có thiết kế nghiên cứu phù hợp."
+  },
+  {
+    "id": "importance-caveats",
+    "title": "Đọc importance một cách thận trọng",
+    "prompt": "Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "opt-1",
+        "label": "Feature tương quan có thể chia sẻ hoặc che lẫn importance.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-2",
+        "label": "Permutation importance đo mức giảm hiệu năng khi phá vỡ thông tin của một feature.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt-3",
+        "label": "Importance cao tự động chứng minh quan hệ nhân quả.",
+        "isCorrect": false
+      },
+      {
+        "id": "opt-4",
+        "label": "Nên kiểm tra importance trên dữ liệu không dùng để fit khi có thể.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Importance cần được đọc cùng với bối cảnh dữ liệu và phương pháp đo.",
+    "error": "Importance mô tả mô hình đã dùng feature thế nào, không tự chứng minh nguyên nhân."
+  },
+  {
+    "id": "importance-methods",
+    "title": "Phân biệt các cách tính importance",
+    "prompt": "Ghép mô tả với phương pháp phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "impurity",
+        "label": "Impurity importance"
+      },
+      {
+        "id": "permutation",
+        "label": "Permutation importance"
+      },
+      {
+        "id": "shap",
+        "label": "SHAP"
+      }
+    ],
+    "options": [
+      {
+        "id": "tree-reduction",
+        "label": "Tổng mức giảm impurity từ các split của cây.",
+        "categoryId": "impurity"
+      },
+      {
+        "id": "shuffle-column",
+        "label": "Trộn một cột rồi đo mức giảm performance.",
+        "categoryId": "permutation"
+      },
+      {
+        "id": "local-contribution",
+        "label": "Phân rã đóng góp feature cho từng dự đoán.",
+        "categoryId": "shap"
+      },
+      {
+        "id": "many-categories-bias",
+        "label": "Có thể thiên lệch về feature có nhiều mức split.",
+        "categoryId": "impurity"
+      }
+    ],
+    "success": "Đúng. Mỗi phương pháp trả lời một góc nhìn khác nhau về đóng góp feature.",
+    "error": "Hãy nhớ: tree split là impurity, trộn cột là permutation, đóng góp từng dự đoán là SHAP."
+  }
+]} />

@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "k-nearest-neighbors-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Bỏ phiếu hay lấy trung bình?",
+    "Khoảng cách và leakage",
+    "Đổi kiểu weights",
+    "Chọn cấu hình và vận hành"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "k-Nearest Neighbors",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "knn-local-prediction",
+    "knn-distance-scaling",
+    "knn-k-weights",
+    "knn-validation-cost"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="k-nearest-neighbors-quiz" questions={[
+  {
+    "id": "knn-local-prediction",
+    "title": "Bỏ phiếu hay lấy trung bình?",
+    "prompt": "Ba láng giềng có nhãn [1, 0, 0], còn target hồi quy tương ứng là [2, 3, 4]. Với trọng số đều, cặp (nhãn classification, dự đoán regression) là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "(1, 3)",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "(0, 3)",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "(0, 4)",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "(1, 2)",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Classification lấy đa số 0, regression lấy trung bình 3.",
+    "error": "Không dùng trung bình target liên tục làm nhãn và không lấy lớp của một điểm khi k = 3."
+  },
+  {
+    "id": "knn-distance-scaling",
+    "title": "Khoảng cách và leakage",
+    "prompt": "Chọn tất cả nhận xét đúng khi dùng k-NN trên feature số và category.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Feature có đơn vị lớn có thể chi phối Euclidean distance.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Fit scaler trên toàn bộ dữ liệu trước CV luôn an toàn vì không dùng nhãn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Category mã hóa tùy ý bằng 1, 2, 3 có thể tạo distance không có nghĩa.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Thêm nhiều feature nhiễu có thể làm hàng xóm kém hữu ích.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Representation và scaling quyết định ý nghĩa distance; preprocessing phải được fit riêng trong fold.",
+    "error": "Không dùng thông tin validation để fit scaler; nhiều cột hơn không luôn tốt hơn."
+  },
+  {
+    "id": "knn-k-weights",
+    "title": "Đổi kiểu weights",
+    "prompt": "Ba điểm ở khoảng cách [0.2, 0.5, 0.6] có nhãn [1, 0, 0]. Dùng trọng số nghịch đảo khoảng cách, lớp nào thắng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Lớp 0 vì có hai điểm.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Hai lớp hòa phiếu.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Không thể tính vì k là số lẻ.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Lớp 1 vì tổng trọng số 5 lớn hơn khoảng 3.667.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Phiếu có trọng số khác đếm số láng giềng; điểm gần nhất có thể đổi kết quả.",
+    "error": "Tính 1/d cho từng điểm, rồi cộng theo lớp."
+  },
+  {
+    "id": "knn-validation-cost",
+    "title": "Chọn cấu hình và vận hành",
+    "prompt": "Phân loại các quyết định khi xây dựng k-NN.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "development",
+        "label": "Chọn trong giai đoạn phát triển"
+      },
+      {
+        "id": "final",
+        "label": "Đánh giá cấu hình đã chốt"
+      },
+      {
+        "id": "operation",
+        "label": "Kiểm tra chi phí vận hành"
+      }
+    ],
+    "options": [
+      {
+        "id": "k",
+        "label": "So k và weights trên các fold train/validation.",
+        "categoryId": "development"
+      },
+      {
+        "id": "test",
+        "label": "Chạy test giữ riêng sau khi chốt pipeline.",
+        "categoryId": "final"
+      },
+      {
+        "id": "memory",
+        "label": "Đo bộ nhớ lưu train và thời gian tìm hàng xóm.",
+        "categoryId": "operation"
+      }
+    ],
+    "success": "Đúng. Chất lượng, tính độc lập của test và chi phí inference đều cần xem.",
+    "error": "Train nhanh không có nghĩa query rẻ; test không dùng để chọn k."
+  }
+]} />
