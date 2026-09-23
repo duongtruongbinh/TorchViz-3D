@@ -42,7 +42,12 @@ const chapters: LearningTocTrackSeed[] = [
       description: { en: "Regression, classification, costs, regularization, and one-vs-rest.", vi: "Regression, classification, cost, regularization và one-vs-rest." },
     },
     lessonIds: [
-      'linear-regression',
+      {
+        id: 'linear-regression',
+        status: 'available',
+        contentStatus: 'published',
+        title: { en: 'Linear Regression', vi: 'Linear Regression' },
+      },
       'logistic-regression',
       'regression-cost-functions',
       'regularization-l1-l2',

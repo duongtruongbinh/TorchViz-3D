@@ -20,14 +20,15 @@ Learning Lab -> domain -> track -> lesson
 ```
 
 The catalog contains 16 domains, 104 tracks, and 787 lesson nodes. Three hundred
-nineteen Vietnamese-first lessons have authored content: forty-nine in
+twenty Vietnamese-first lessons have authored content: one in
+`fundamentals`, forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twenty-six in `research-papers`, fifteen in `evolutionary-algorithms`,
 eight in `ai-projects`, and fourteen in `cv` (eight focused Chapter 1 nodes,
 an Image Classification theory/quiz opening for Chapter 2, plus four tagged
-exercise lessons). The other 468 nodes are navigable placeholders and render one shared localized
+exercise lessons). The other 467 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see

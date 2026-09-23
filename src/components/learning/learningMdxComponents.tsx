@@ -476,22 +476,27 @@ export function LessonImage({
     let isActive = true;
     setLoadState({ key: requestKey, status: 'loading' });
 
-    if (!CDN_BASE_URL) {
+    const imageUrl = CDN_BASE_URL
+      ? `${CDN_BASE_URL}/assets/learning/${cleanPath}`
+      : import.meta.env.DEV
+        ? `/assets/learning/${cleanPath}`
+        : null;
+
+    if (!imageUrl) {
       console.error(`Learning Lab image CDN is not configured: ${cleanPath}`);
       setLoadState({ key: requestKey, status: 'error' });
       return;
     }
 
-    const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
     const img = new Image();
     img.onload = () => {
-      if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
+      if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
     };
     img.onerror = () => {
-      console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
+      console.error(`Learning Lab image failed to load from CDN: ${imageUrl}`);
       if (isActive) setLoadState({ key: requestKey, status: 'error' });
     };
-    img.src = cdnUrl;
+    img.src = imageUrl;
     return () => {
       isActive = false;
       img.onload = null;
