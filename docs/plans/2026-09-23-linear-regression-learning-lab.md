@@ -110,3 +110,6 @@ with the Copilot co-author trailer, and push the PR head branch.
   reinstated the two existing `LessonImage` references, synchronized catalog
   stats, and passed typecheck, catalog-stat validation, production build, and
   diff checks.
+- 2026-09-23 — Request changed to remove the image integration to avoid R2
+  asset failures; removed only the two image references and their repository
+  files, leaving the authored lesson and runtime image handling unchanged.
