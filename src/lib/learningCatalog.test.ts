@@ -40,9 +40,9 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 17);
   assert.equal(learningCatalog.domains.length, 17);
-  assert.equal(learningCatalog.tracks.length, 111);
-  assert.equal(learningCatalog.lessons.length, 864);
-  assert.equal(learningCatalog.routeAliases?.length, 7);
+  assert.equal(learningCatalog.tracks.length, 110);
+  assert.equal(learningCatalog.lessons.length, 921);
+  assert.equal(learningCatalog.routeAliases?.length, 15);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
     learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
@@ -433,12 +433,13 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 472);
+  assert.equal(missingLessons.length, 448);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'fundamentals').length, 81);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);

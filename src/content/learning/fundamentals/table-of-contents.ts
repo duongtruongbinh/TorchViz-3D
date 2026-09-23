@@ -1,4 +1,6 @@
 import type { 
+  LearningContentStatus,
+  LearningLessonStatus,
   LearningTableOfContents, 
   LearningTocLessonSeed,
   LearningTocTrackSeed ,
@@ -15,6 +17,10 @@ type MachineLearningLessonPairInput = {
   id: string;
   titleEn: string;
   titleVi: string;
+  status?: LearningLessonStatus;
+  contentStatus?: LearningContentStatus;
+  quizStatus?: LearningLessonStatus;
+  quizContentStatus?: LearningContentStatus;
 };
 
 function lessonPair ({
@@ -22,20 +28,24 @@ function lessonPair ({
   id,
   titleEn,
   titleVi,
+  status = 'available',
+  contentStatus = 'published',
+  quizStatus,
+  quizContentStatus,
 }: MachineLearningLessonPairInput) : MachineLearningLessonPair {
   return {
     trackId,
     theory: {
       id,
       title: { en: titleEn, vi:titleVi },
-      status: 'available',
-      contentStatus: 'published',
+      status,
+      contentStatus,
     },
     quiz: {
       id: `${id}-quiz`,
       title: { en: 'Quiz', vi: 'Quiz' },
-      status: 'available',
-      contentStatus: 'published',
+      status: quizStatus ?? status,
+      contentStatus: quizContentStatus ?? contentStatus,
     }
   };
 }
@@ -112,12 +122,20 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'leakage-code-lab',
     titleEn: 'Lab: Detecting Data Leakage',
     titleVi: 'Lab phát hiện data leakage',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'linear-regression-foundations',
     id: 'linear-regression-code-lab',
     titleEn: 'Lab: Linear Regression from Formula to Scikit-Learn',
     titleVi: 'Lab Linear Regression từ công thức đến Scikit-Learn',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'linear-regression-foundations',
@@ -166,6 +184,10 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'mixed-classification-code-lab',
     titleEn: 'Lab: Mixed-Type Classification Pipeline',
     titleVi: 'Lab classification pipeline với dữ liệu hỗn hợp',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'logistic-classification',
@@ -202,6 +224,10 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'model-comparison-code-lab',
     titleEn: 'Lab: Comparing Logistic Regression, Random Forest and Gradient Boosting',
     titleVi: 'Lab so sánh Logistic Regression, Random Forest và Gradient Boosting',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'unsupervised-learning',
@@ -238,6 +264,10 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'clustering-code-lab',
     titleEn: 'Lab: Clustering without Labels',
     titleVi: 'Lab clustering và đánh giá không có nhãn',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'hyperparameter-tuning',
@@ -268,6 +298,10 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'nested-cv-code-lab',
     titleEn: 'Lab: Nested CV without Touching Test Data',
     titleVi: 'Lab Nested CV và tuning không chạm test set',
+    status: 'locked',
+    contentStatus: 'missing',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
   }),
   lessonPair({
     trackId: 'ml-with-scikit-learn',

@@ -60,9 +60,9 @@ Overfitting, bias–variance trade-off, regularization, cross-validation, search
 
 ## Từ notebook đến workflow đáng tin cậy
 
-Sáu code lab dùng chung bộ dữ liệu nhà ở mô phỏng, cùng feature trước bán và cùng holdout: [phát hiện leakage](/learning/fundamentals/linear-regression-foundations?lesson=leakage-code-lab), [OLS đến Scikit-Learn](/learning/fundamentals/linear-regression-foundations?lesson=linear-regression-code-lab), [classification pipeline](/learning/fundamentals/logistic-classification?lesson=mixed-classification-code-lab), [so sánh ba model](/learning/fundamentals/decision-trees-ensembles?lesson=model-comparison-code-lab), [clustering không nhãn](/learning/fundamentals/unsupervised-learning?lesson=clustering-code-lab) và [Nested CV](/learning/fundamentals/hyperparameter-tuning?lesson=nested-cv-code-lab). Hãy đi theo thứ tự này để thấy một quyết định về dữ liệu ảnh hưởng đến các bước phía sau.
+Hệ thống code lab thực hành được thiết kế theo một lộ trình liền mạch xuyên suốt các chương: từ phát hiện leakage, hồi quy OLS đến Scikit-Learn, classification pipeline với dữ liệu hỗn hợp, so sánh ba nhóm model (Logistic Regression, Random Forest, Gradient Boosting), clustering không nhãn cho đến Nested Cross-Validation chuẩn mực. Sườn bài thực hành này giúp định hình tư duy thực chiến: một quyết định xử lý dữ liệu ở khâu đầu vào sẽ ảnh hưởng trực tiếp đến độ tin cậy của toàn bộ pipeline phía sau.
 
-Trong chuỗi lab, giá liên tục phục vụ regression; điều kiện giá ít nhất 3.5 tỷ tạo nhãn classification; clustering không dùng cả hai target. Dữ liệu là mô phỏng phục vụ học tập, không phải benchmark thị trường. Test chỉ mở khi đã khóa protocol ở lab cuối; artifact lưu toàn bộ preprocessing và estimator để dự đoán lại nhất quán.
+Chuỗi lab thực hành chuẩn hóa này được phân bổ trong lộ trình của từng chương và đang ở trạng thái chuẩn bị hoàn thiện để bổ sung trọn gói trong giai đoạn tiếp theo.
 
 Scikit-Learn Pipeline gộp preprocessing và model thành một workflow duy nhất. ColumnTransformer xử lý các cột số và category theo cách phù hợp. Cross-validation và search object đánh giá toàn bộ pipeline, giúp tránh leakage và giữ logic train/inference nhất quán.
 

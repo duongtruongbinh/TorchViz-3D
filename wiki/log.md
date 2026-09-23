@@ -3,50 +3,14 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
-- **2026-09-14 — DINO-WM research paper track added to Research Papers domain.**
-  Published a seven-part Vietnamese deep-dive on DINO-WM (ICML 2025, arXiv
-  2411.04983): abstract, introduction, method, experiments, conclusion, academic
-  debate, and a 16-question quiz with mixed modes pinned by a new contract test
-  (theory conceptIds map 1:1 to quiz questions; answer-shape leakage guarded).
-  Catalog grew to 104 tracks / 784 lessons / 316 published; the research-papers
-  domain now carries five paper tracks (33 lessons).
-- **2026-09-23 — Six end-to-end Machine Learning code labs.** Added leakage,
-  OLS-to-sklearn, mixed classification, three-model comparison, unlabeled
-  clustering and nested-CV lab/quiz pairs. One offline synthetic housing dataset
-  and shared pipeline connect the labs; final holdout access is explicit.
-  Added downloadable Python, pinned requirements, executable smoke tests and
-  MDX/code synchronization checks. See
-  [the plan](../docs/plans/2026-09-23-machine-learning-code-labs.md).
-
-- **2026-09-23 — Machine Learning uncertainty foundations.** Added split/seed
-  variability, bootstrap confidence intervals and prediction intervals as
-  theory/quiz pairs after CV. Covered paired comparisons, dependent folds,
-  resampling units, OLS interval assumptions, coverage and width. Updated
-  regression/classification evaluation and synthesis, with aligned concepts,
-  route order and catalog counts. See
-  [the plan](../docs/plans/2026-09-23-machine-learning-uncertainty.md).
-
-- **2026-09-23 — Four missing Machine Learning algorithm pairs.** Added k-NN,
-  Naive Bayes and SVM before classification evaluation, and GMM after K-Means.
-  Each pair has four theory pages, numerical examples, limitations and four
-  mixed-mode questions with aligned concept IDs. Updated transitions, synthesis,
-  catalog checks and counts. See
-  [the plan](../docs/plans/2026-09-23-machine-learning-missing-algorithms.md).
-
-- **2026-09-23 — Core ML concepts integrated into regression; metrics split.**
-  Replaced the Core ML Concepts/combined model chapters with Linear Regression
-  and Logistic Regression & Classification. Threaded housing examples through
-  splits, loss, generalization, regularization and CV. Added separate regression
-  and classification metric theory/quiz pairs at the corresponding chapter ends,
-  preserved legacy routes and the user's corrected learning-paradigms title.
-  See [the plan](../docs/plans/2026-09-23-machine-learning-regression-classification.md).
-
-- **2026-09-23 — Machine Learning Value flow follows Logistic Regression.**
-  Verified removal of duplicated tensor prerequisites. Moved the activation
-  theory/quiz pair into the regression chapter and preserved legacy bookmarks.
-  Expanded theory to seven pages and quiz to six varied questions with matching
-  concept metadata; synchronized chapter counts. See
-  [the execution plan](../docs/plans/2026-09-23-machine-learning-value-flow.md).
+- **2026-09-24 — Machine Learning curriculum consolidated and code labs structured as placeholders.**
+  Reconciled the Machine Learning curriculum with main: externalized tensor prerequisites to Linear Algebra,
+  integrated core concepts into problem-driven regression and classification chapters, separated regression and
+  classification evaluation metrics, added missing algorithms (k-NN, Naive Bayes, SVM, GMM) and uncertainty
+  modeling (split/seed variability, bootstrap CI, prediction intervals). The six hands-on code labs are
+  registered in the typed catalog as locked placeholders (473 published, 448 placeholders after rebase). Consolidated all
+  branch plans into a single authoritative plan. See
+  [the curriculum plan](../docs/plans/2026-09-24-machine-learning-curriculum.md).
 
 - **2026-08-19 — Learning Lab UI Architecture Refactored & Deduplicated.**
   Established a clear 4-layer UI architecture (Global Theme/Shell, Reference Engine,
@@ -297,9 +261,3 @@ no `type` frontmatter required.)
   authored renderer DTOs, and MDX allowlists to their owning content/UI layers.
   Added a regression test for the one-way React-free core boundary; all 107
   tests and the production build pass.
-
-- **2026-09-21 — Machine Learning branch main integration.** Retained current main test logic while reconciling Machine Learning catalog counts and Windows NCA path filtering. Typecheck, 162 tests, and production build passed using an explicit PYTHON executable in the Codex environment. See [merge continuation plan](../docs/plans/2026-09-21-machine-learning-main-merge.md).
-
-- **2026-09-22 — Machine Learning catalog statistics synchronized.** Regenerated the catalog statistics and corrected Learning Lab prose to 16 domains, 104 tracks, 808 lessons, 370 published lessons, and 438 placeholders. The standalone CI catalog drift check now passes locally.
-
-- **2026-09-22 — Machine Learning tensor prerequisites delegated to Linear Algebra.** Removed the duplicate tensor theory/quiz and added concise prerequisite links in the ML entrance and synthesis. Retired bookmarks resolve through existing TOC aliases. ML retains 59 lessons; catalog totals and route tests are synchronized. Typecheck, 163 tests, build and catalog statistics check passed. The broader eight-request curriculum roadmap is recorded in [the prerequisite plan](../docs/plans/2026-09-22-machine-learning-linear-algebra-prerequisites.md); only request 01 was implemented.

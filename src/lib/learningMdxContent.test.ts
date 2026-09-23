@@ -35,8 +35,6 @@ test('Machine Learning metric, algorithm and uncertainty pairs assess their own 
     'regression-metrics', 'classification-metrics', 'k-nearest-neighbors',
     'naive-bayes', 'support-vector-machines', 'gaussian-mixture-models',
     'variability-splits-seeds', 'bootstrap-confidence-intervals', 'prediction-intervals',
-    'leakage-code-lab', 'linear-regression-code-lab', 'mixed-classification-code-lab',
-    'model-comparison-code-lab', 'clustering-code-lab', 'nested-cv-code-lab',
   ]) {
     const files = [id, `${id}-quiz`].map((lessonId) => lessonFiles.find((file) => {
       const parsed = parseLearningMdxPath(file);

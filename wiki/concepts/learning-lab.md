@@ -19,16 +19,17 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 17 domains, 111 tracks, and 864 lesson nodes. Three hundred
-ninety-two Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 17 domains, 110 tracks, and 921 lesson nodes. Four hundred
+seventy-three Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), thirty-three in `research-papers`, fifteen in `evolutionary-algorithms`,
-eight in `ai-projects`, 66 theory/quiz nodes in `llm-unlearning`, and fourteen in
-`cv` (eight focused Chapter 1 nodes, an Image Classification theory/quiz opening
-for Chapter 2, plus four tagged exercise lessons). The four `llm-unlearning` Code
-Lab nodes are deliberately left unauthored for a later user-owned phase. The other 472 nodes are navigable placeholders and render one shared localized
+eight in `ai-projects`, eighty-one in `fundamentals`, sixty-six in
+`llm-unlearning`, and fourteen in `cv`
+(eight focused Chapter 1 nodes, an Image Classification theory/quiz opening for
+Chapter 2, plus four tagged exercise lessons).
+The other 448 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
@@ -73,30 +74,14 @@ chapter's first lesson. Historical MDX filename prefixes remain unchanged for
 existing lessons: typed TOC order controls navigation. Applied shape examples
 remain model-specific; the user's learning-paradigms title is preserved.
 
-Six Machine Learning code labs share `synthetic-housing-v1`, a deterministic
-600-row teaching dataset with numeric/categorical features. The regression
-chapter adds leakage auditing and OLS-to-sklearn labs before its metrics;
-classification adds a mixed-type pipeline lab before its metrics. Ensemble,
-unsupervised and tuning chapters end with model comparison, unlabeled
-clustering and nested-CV labs respectively. Every lab has four mixed-mode
-questions aligned to its conceptIds.
-
-Downloadable implementation and pinned requirements live in
-`public/learning/fundamentals/labs/`. These run in local Python 3.11-3.13,
-not in the Workspace torchstub runtime. Five labs use development data only;
-nested CV also keeps the final 120-row holdout closed unless explicitly run
-with `--evaluate-test --artifact NEW_PATH`. Selection includes all three model
-families, uses AP and a fixed 0.5 decision threshold, and saves the full pipeline.
-Artifact overwrite refusal is a workflow reminder, not an access-control claim.
-Synthetic performance is not a real-world benchmark. To verify executable labs:
-
-```bash
-python -m pip install -r public/learning/fundamentals/labs/requirements.txt
-python -B scripts/testMachineLearningLabs.py -v
-```
-
-Use an isolated Python environment. Node tests additionally check that MDX Python
-blocks match the downloadable implementation and static asset links exist.
+Six Machine Learning code labs (`leakage-code-lab`, `linear-regression-code-lab`,
+`mixed-classification-code-lab`, `model-comparison-code-lab`,
+`clustering-code-lab`, and `nested-cv-code-lab`) are registered across their
+respective chapters as locked placeholders (`contentStatus: 'missing'`). They
+define the practical end-to-end curriculum roadmap (leakage detection, OLS to
+Scikit-Learn, mixed classification pipelines, model benchmarking, unlabeled
+clustering, and nested cross-validation), structured for standalone code package
+authoring in an upcoming release milestone.
 
 The authored LLM lessons are:
 
@@ -515,7 +500,7 @@ currently unused `kandel2000principles` book record because the cited 2000
 edition has no stable open primary landing page in the survey metadata.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 429
+published MDX. The shared placeholder body is not indexed, preventing 448
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
