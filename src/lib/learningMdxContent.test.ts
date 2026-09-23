@@ -143,9 +143,69 @@ test('AI Projects final quiz covers the Sales Forecasting workflow without answe
   }
 });
 
+test('DINO-WM quiz covers the theory without answer-shape leakage', async () => {
+  const dinoFiles = lessonFiles
+    .filter((file) => file.replaceAll('\\', '/').includes('/research-papers/cv/world-models/dino-wm/'))
+    .sort();
+  const theoryFiles = dinoFiles.filter((file) => !file.endsWith('dino-wm-quiz.vi.mdx'));
+  const quizFile = dinoFiles.find((file) => file.endsWith('dino-wm-quiz.vi.mdx'));
+  assert.equal(theoryFiles.length, 6);
+  assert.ok(quizFile, 'missing DINO-WM quiz MDX');
+
+  const theoryConceptIds = (
+    await Promise.all(theoryFiles.map((file) => inspectLearningMdx(readFileSync(file, 'utf8'), file)))
+  ).flatMap((inspection) => inspection.metadata.conceptIds ?? []);
+  const quiz = await inspectLearningMdx(readFileSync(quizFile, 'utf8'), quizFile);
+  const quizConceptIds = quiz.metadata.conceptIds as string[];
+
+  assert.equal(quizConceptIds.length, 16);
+  assert.equal(new Set(theoryConceptIds).size, 16);
+  assert.deepEqual([...new Set(quizConceptIds)].sort(), [...new Set(theoryConceptIds)].sort());
+  assert.deepEqual(quiz.quizQuestionIds, quizConceptIds);
+  assert.equal(quiz.quizQuestions.length, 16);
+
+  const modeCounts = Object.fromEntries(['single', 'multi', 'order', 'categorize'].map((mode) => [
+    mode,
+    quiz.quizQuestions.filter((question) => question.mode === mode).length,
+  ]));
+  assert.deepEqual(modeCounts, { single: 7, multi: 4, order: 2, categorize: 3 });
+
+  const singleQuestions = quiz.quizQuestions.filter((question) => question.mode === 'single');
+  const multiQuestions = quiz.quizQuestions.filter((question) => question.mode === 'multi');
+  assert.ok(singleQuestions.every((question) => question.optionCount === 4));
+  assert.ok(singleQuestions.every((question) => question.correctOptionIndexes.length === 1));
+  assert.ok(multiQuestions.every((question) => question.optionCount === 4));
+  assert.ok(multiQuestions.every((question) => question.correctOptionIndexes.length >= 2));
+
+  for (const question of singleQuestions) {
+    const longestLength = Math.max(...question.optionLabelLengths);
+    const shortestLength = Math.min(...question.optionLabelLengths);
+    const longestIndexes = question.optionLabelLengths.flatMap((length, index) => (
+      length === longestLength ? [index] : []
+    ));
+    assert.ok(longestLength <= shortestLength * 1.35, `${question.id} options should stay close in length`);
+    assert.ok(
+      longestIndexes.length > 1 || !longestIndexes.includes(question.correctOptionIndexes[0]!),
+      `${question.id} must not expose the correct answer as uniquely longest`,
+    );
+  }
+
+  const correctPositions = singleQuestions.map((question) => question.correctOptionIndexes[0]!);
+  assert.equal(new Set(correctPositions).size, 4, 'the quiz should use all four answer positions');
+  for (let index = 0; index + 2 < correctPositions.length; index += 1) {
+    const [first, second, third] = correctPositions.slice(index, index + 2 < correctPositions.length ? index + 3 : correctPositions.length) as [number, number, number];
+    const firstStep = (second - first + 4) % 4;
+    const secondStep = (third - second + 4) % 4;
+    assert.ok(
+      !(firstStep === secondStep && (firstStep === 1 || firstStep === 3)),
+      'the quiz should not expose a cyclic three-answer pattern',
+    );
+  }
+});
+
 test('NCA Pre-Pre-Training quiz covers the theory without answer-shape leakage', async () => {
   const ncaFiles = lessonFiles
-    .filter((file) => file.includes('/research-papers/llm/continual-learning/nca/'))
+    .filter((file) => file.replaceAll('\\', '/').includes('/research-papers/llm/continual-learning/nca/'))
     .sort();
   const theoryFiles = ncaFiles.filter((file) => !file.endsWith('nca-ppt-quiz.vi.mdx'));
   const quizFile = ncaFiles.find((file) => file.endsWith('nca-ppt-quiz.vi.mdx'));
@@ -552,6 +612,28 @@ test('shared visual primitives accept static semantic data', async () => {
   const inspection = await inspectLearningMdx(source, 'fixture.mdx', 'cv');
   assert.deepEqual(inspection.pageIndexes, []);
   assert.deepEqual(inspection.quizQuestionIds, []);
+});
+
+test('DINO-WM mapped visuals use the shared prop contracts', () => {
+  const sharedComponents = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
+  const dinoSources = lessonFiles
+    .filter((file) => file.replaceAll('\\', '/').includes('/research-papers/cv/world-models/dino-wm/'))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
+
+  assert.doesNotMatch(dinoSources, /<ConceptFlow\b[^>]*\bsteps\s*=/);
+  assert.match(dinoSources, /<ConceptFlow\b[^>]*\bitems\s*=/);
+  assert.match(dinoSources, /\bsubtitle:\s*'/);
+  assert.doesNotMatch(dinoSources, /<EvidenceCards\b[^>]*\bcards\s*=/);
+  assert.match(dinoSources, /<EvidenceCards\b[^>]*\bitems\s*=/);
+  assert.doesNotMatch(dinoSources, /<PaperTradeoff\b[^>]*\b(rows|items)\s*=/);
+  assert.match(dinoSources, /<ComparisonMatrix\b[^>]*\bcolumns\s*=/);
+  assert.doesNotMatch(dinoSources, /<ExperimentChecklist\b[^>]*\bitems\s*=\{\[\s*'/);
+  assert.match(dinoSources, /<ExperimentChecklist\b[^>]*\bitems\s*=\{\[\s*\{/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.title\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.action\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.check\)/);
+  assert.match(sharedComponents, /renderContentWithMath\(item\.subtitle\)/);
 });
 
 test('continual-learning visuals use global semantic primitives without shared domain leakage', () => {

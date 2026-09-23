@@ -3,6 +3,14 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-09-14 — DINO-WM research paper track added to Research Papers domain.**
+  Published a seven-part Vietnamese deep-dive on DINO-WM (ICML 2025, arXiv
+  2411.04983): abstract, introduction, method, experiments, conclusion, academic
+  debate, and a 16-question quiz with mixed modes pinned by a new contract test
+  (theory conceptIds map 1:1 to quiz questions; answer-shape leakage guarded).
+  Catalog grew to 104 tracks / 784 lessons / 316 published; the research-papers
+  domain now carries five paper tracks (33 lessons).
+
 - **2026-08-19 — Learning Lab UI Architecture Refactored & Deduplicated.**
   Established a clear 4-layer UI architecture (Global Theme/Shell, Reference Engine,
   Domain Adapters, Math Primitives). Extracted the reference engine (`Cite`, `PaperSummary`,
