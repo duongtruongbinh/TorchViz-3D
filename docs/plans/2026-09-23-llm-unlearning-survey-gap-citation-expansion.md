@@ -3,7 +3,7 @@ title: "LLM Unlearning — Survey Coverage and Citation Expansion"
 status: done
 created: 2026-09-23T19:28:01+07:00
 updated: 2026-09-23T20:58:55+07:00
-author: Codex
+author: nmkhiem
 task: "Hoàn thiện và dọn gọn domain llm-unlearning từ arXiv:2510.25117v2, giữ Code Lab trống, bỏ citation boilerplate, chỉ giữ một plan và commit"
 supersedes: []
 ---

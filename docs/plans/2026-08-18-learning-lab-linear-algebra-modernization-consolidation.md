@@ -3,7 +3,7 @@ title: "Learning Lab & Linear Algebra Modernization, Shared Math Subsystem, Depe
 status: completed
 created: 2026-08-18
 updated: 2026-08-18
-author: Antigravity
+author: dtbinh
 task: "Comprehensive modernization pass: shared math subsystem, inline vs display math typography, Mafs/MathCanvas consolidation, matrix primitive deduplication, safe dependency upgrades (TS 6, Vite 8, React 19, R3F v9, Tailwind v4, KaTeX 0.18), Pyodide audit, and verification"
 supersedes:
   - docs/plans/2026-08-18-linear-algebra-full-curriculum-and-refinement.md

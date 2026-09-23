@@ -3,7 +3,7 @@ title: "Computer Vision Domain, Chapter 1 History, and Deep Learning Basics"
 status: done
 created: 2026-09-21T00:00:00+07:00
 updated: 2026-09-22T05:20:00+07:00
-author: Codex
+author: nmkhiem
 task: "Launch the Computer Vision Learning Lab domain, split its beginner history into navigable nodes and quizzes, preserve dual-track chronology, add responsible-use coverage, and open Deep Learning Basics with Image Classification."
 supersedes: []
 ---

@@ -3,7 +3,7 @@ title: Learning Lab on-demand initial-load optimization
 status: done
 created: 2026-08-17T09:43:37+07:00
 updated: 2026-08-17T11:29:31+07:00
-author: Codex
+author: nmkhiem
 task: "Keep Learning Home, domain navigation, lessons, search, and optional authored runtime behind the narrowest canonical on-demand boundary."
 supersedes:
   - docs/plans/2026-08-15-continual-learning-branch-history.md

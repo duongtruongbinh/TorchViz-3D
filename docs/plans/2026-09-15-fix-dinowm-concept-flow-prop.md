@@ -3,7 +3,7 @@ title: "Fix DINO-WM shared visual prop mismatches"
 status: done
 created: 2026-09-15T09:37:12+07:00
 updated: 2026-09-23T21:12:00+07:00
-author: pi
+author: hienlong
 task: "Fix DINO-WM shared visual runtime crashes caused by mismatched ConceptFlow, EvidenceCards, and PaperTradeoff props"
 supersedes:
   - docs/plans/2026-09-14-dino-wm-research-paper.md

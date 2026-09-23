@@ -3,7 +3,7 @@ title: Biome Warning Cleanup and Accessibility Hardening
 status: done
 created: 2026-09-23T22:44:09+07:00
 updated: 2026-09-23T23:13:40+07:00
-author: Nguyen Manh Khiem
+author: nmkhiem
 task: "Resolve every current Biome warning and info diagnostic without weakening lint rules or changing product behavior"
 supersedes:
   - docs/plans/2026-08-19-learning-lab-ui-refactor.md

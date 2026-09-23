@@ -3,7 +3,7 @@ title: Audit and Compact the Continual Learning Branch
 status: done
 created: 2026-09-20T18:04:47+07:00
 updated: 2026-09-20T21:25:00+07:00
-author: Nguyen Manh Khiem
+author: nmkhiem
 task: "Audit the current branch for logic, commentary, and redundant code; fix findings; compact branch documentation into one concise file; verify and commit"
 supersedes:
   - docs/plans/2026-09-14-correct-weight-regularization-ewc-si.md
