@@ -26,27 +26,27 @@ export const lessonMetadata = {
   {
     "id": "overfitting-sign",
     "title": "Dấu hiệu overfitting",
-    "prompt": "Mẫu kết quả nào gợi ý overfitting mạnh nhất?",
+    "prompt": "Với cùng split giá nhà và MAE tính bằng triệu đồng, mẫu kết quả nào gợi ý overfitting mạnh nhất?",
     "mode": "single",
     "options": [
       {
         "id": "opt-1",
-        "label": "Điểm train và validation đều thấp.",
+        "label": "MAE train = 500, validation = 520.",
         "isCorrect": false
       },
       {
         "id": "opt-2",
-        "label": "Điểm train cao nhưng điểm validation thấp hơn nhiều.",
+        "label": "MAE train = 40, validation = 380.",
         "isCorrect": true
       },
       {
         "id": "opt-3",
-        "label": "Điểm train và validation đều tốt và gần nhau.",
+        "label": "MAE train = 180, validation = 210.",
         "isCorrect": false
       },
       {
         "id": "opt-4",
-        "label": "Mô hình chưa được train lần nào.",
+        "label": "MAE train = 220, validation = 200.",
         "isCorrect": false
       }
     ],

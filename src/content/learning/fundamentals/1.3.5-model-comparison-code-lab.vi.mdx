@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "model-comparison-code-lab",
+  "locale": "vi",
+  "title": "Lab so sánh Logistic Regression, Random Forest và Gradient Boosting",
+  "headings": [
+    "Đặt cùng điều kiện so sánh",
+    "Cố định fold và metric trước khi chạy",
+    "So sánh ba pipeline",
+    "Đọc chênh lệch thay vì chọn một con số đẹp"
+  ],
+  "keywords": [
+    "code lab",
+    "Scikit-Learn",
+    "comparison",
+    "pipeline",
+    "synthetic housing"
+  ],
+  "conceptIds": [
+    "comparison-paired-folds",
+    "comparison-fold-local-pipeline",
+    "comparison-primary-metric",
+    "comparison-selection-bias"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Đặt cùng điều kiện so sánh
+
+Ba nhóm mô hình có giả định khác nhau: Logistic Regression dùng decision boundary tuyến tính trên feature đã biến đổi; Random Forest trung bình hóa nhiều cây; Gradient Boosting thêm cây tuần tự. Một dataset không đủ chứng minh nhóm nào tốt nhất ở mọi bài toán.
+
+Lab dùng lại nhãn giá ít nhất 3.5 tỷ và năm feature trước bán. Mọi mô hình nhận cùng dữ liệu, cùng preprocessing và **cùng bốn fold** development. Holdout vẫn đóng.
+
+Tải [ml_labs.py](/learning/fundamentals/labs/ml_labs.py) và [requirements.txt](/learning/fundamentals/labs/requirements.txt) vào cùng một thư mục. Dùng Python 3.11–3.13 trong terminal; đây là Scikit-Learn thật, không chạy bằng nút Trực quan hóa của Workspace. Nếu đã cài môi trường ở lab trước thì dùng lại.
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python ml_labs.py comparison
+```
+
+Trên macOS/Linux, thay `.venv\Scripts\python` bằng `.venv/bin/python`. Các lệnh `python ml_labs.py ...` ở phần sau giả định bạn đã kích hoạt môi trường này. Chỉ bước cài thư viện cần mạng; dữ liệu được tạo tại chỗ. Không cần tải dataset ngoài.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cố định fold và metric trước khi chạy
+
+Chọn AP làm metric chính trước khi chạy, kèm ROC-AUC và F1 để đọc thêm. F1 dùng ngưỡng 0.5. Scaler không bắt buộc cho tree nhưng giữ chung pipeline giúp phép so sánh dễ kiểm soát; encoder luôn fit riêng trong training fold.
+
+Danh sách split được tạo một lần rồi dùng lại. Điều này cho phép lấy AP của Random Forest trừ AP của Logistic trên từng validation fold, thay vì trừ những điểm đo ở các nhóm nhà khác nhau.
+
+Số cây và độ sâu được đặt nhỏ để lab chạy nhanh. Chúng không phải cấu hình tối ưu. Chúng ta chưa tuning bằng test và cũng không coi các cấu hình này là khuyến nghị triển khai.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## So sánh ba pipeline
+
+Đoạn sau là hàm tương ứng trong file tải về, dùng các import và helper chung của module. Lệnh ở trang đầu gọi trực tiếp hàm này; không cần ghép code của lab khác.
+
+```python
+def comparison_lab():
+    X, y = classification_data(development())
+    folds = classification_folds(X, y)
+    candidates = {
+        "logistic": LogisticRegression(max_iter=1000),
+        "forest": RandomForestClassifier(n_estimators=60, max_depth=6, random_state=SEED),
+        "boosting": GradientBoostingClassifier(n_estimators=60, max_depth=2, random_state=SEED),
+    }
+    results = {}
+    for name, estimator in candidates.items():
+        scores = cross_validate(
+            pipeline(estimator), X, y, cv=folds,
+            scoring={"ap": "average_precision", "auc": "roc_auc", "f1": "f1"},
+            error_score="raise",
+        )
+        results[name] = scores["test_ap"]
+        print(name, {
+            metric: (round(scores["test_" + metric].mean(), 4),
+                     round(scores["test_" + metric].std(ddof=1), 4))
+            for metric in ["ap", "auc", "f1"]
+        })
+    print("Paired AP differences, forest - logistic:",
+          (results["forest"] - results["logistic"]).round(4))
+    return results
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đọc chênh lệch thay vì chọn một con số đẹp
+
+Mỗi metric được in thành cặp mean và độ lệch chuẩn mẫu giữa bốn fold. Các training fold chồng lấn, vì vậy mean ± std **không phải** confidence interval. Vector chênh lệch từng fold cho thấy mô hình có thắng nhất quán hay chỉ được lợi trên một split.
+
+Nếu chọn model có mean AP cao nhất sau khi xem bảng, chính bảng đó đã tham gia lựa chọn. Không thể dùng điểm thắng cuộc như ước lượng hoàn toàn độc lập cho model được chọn. Lab Nested CV sẽ đưa cả lựa chọn họ mô hình lẫn hyperparameter vào inner loop.
+
+Hãy ghi bảng kết quả, độ biến động và chi phí chạy. Không khẳng định Random Forest hoặc Boosting luôn thắng Logistic; dữ liệu mô phỏng nhỏ có thể ưu ái một dạng quan hệ. Khi chuyển sang dữ liệu thật, protocol chia tập và metric phải được xác định lại theo bài toán.
+
+Tham khảo: [Tài liệu Scikit-Learn](https://scikit-learn.org/stable/modules/cross_validation.html).
+
+</MdxPage>

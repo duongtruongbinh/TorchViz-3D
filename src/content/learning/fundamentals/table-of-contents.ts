@@ -42,82 +42,136 @@ function lessonPair ({
 
 export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
   lessonPair({
-    trackId: 'tensor-shape-fundamentals',
-    id: 'shape-basics',
-    titleEn: 'Shape Basics',
-    titleVi: 'Shape Basics',
-  }),
-  lessonPair({
-    trackId: 'value-flow',
-    id: 'linear-activation',
-    titleEn: 'Linear Activation',
-    titleVi: 'Linear Activation',
-  }),
-  lessonPair({
-    trackId: 'core-ml-concepts',
+    trackId: 'linear-regression-foundations',
     id: 'supervised-unsupervised-rl',
     titleEn: 'Supervised & Unsupervised Reinforcement Learning',
-    titleVi: 'Học tăng cường có giám sát và không giám sát',
+    titleVi: 'Học có giám sát, Học không giám sát và Học tăng cường',
   }),
   lessonPair({
-    trackId: 'core-ml-concepts',
-    id: 'train-validation-test',
-    titleEn: 'Train Validation Test',
-    titleVi: 'Train Validation Test',
-  }),
-  lessonPair({
-    trackId: 'core-ml-concepts',
-    id: 'overfitting-underfitting',
-    titleEn: 'Overfitting Underfitting',
-    titleVi: 'Quá khớp và Thiếu khớp',
-  }),
-  lessonPair({
-    trackId: 'core-ml-concepts',
-    id: 'bias-variance-tradeoff',
-    titleEn: 'Bias Variance Tradeoff',
-    titleVi: 'Độ lệch, Độ nhạy, Sự đánh đổi',
-  }),
-  lessonPair({
-    trackId: 'core-ml-concepts',
-    id: 'cross-validation-k-fold',
-    titleEn: 'Cross Validation K Fold',
-    titleVi: 'Cross Validation K Fold',
-  }),
-  lessonPair({
-    trackId: 'core-ml-concepts',
-    id: 'evaluation-metrics',
-    titleEn: 'Evaluation Metrics',
-    titleVi: 'Chỉ số đánh giá',
-  }),
-  lessonPair({
-    trackId: 'linear-logistic-regression',
+    trackId: 'linear-regression-foundations',
     id: 'linear-regression',
     titleEn: 'Linear Regression',
     titleVi: 'Hồi quy tuyến tính',
   }),
   lessonPair({
-    trackId: 'linear-logistic-regression',
-    id: 'logistic-regression',
-    titleEn: 'Logistic Regression',
-    titleVi: 'Hồi quy Logistic',
+    trackId: 'linear-regression-foundations',
+    id: 'train-validation-test',
+    titleEn: 'Train Validation Test',
+    titleVi: 'Train Validation Test',
   }),
   lessonPair({
-    trackId: 'linear-logistic-regression',
+    trackId: 'linear-regression-foundations',
     id: 'regression-cost-functions',
     titleEn: 'Regression Cost Functions',
     titleVi: 'Các hàm chi phí hồi quy',
   }),
   lessonPair({
-    trackId: 'linear-logistic-regression',
+    trackId: 'linear-regression-foundations',
+    id: 'overfitting-underfitting',
+    titleEn: 'Overfitting Underfitting',
+    titleVi: 'Quá khớp và Thiếu khớp',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'bias-variance-tradeoff',
+    titleEn: 'Bias Variance Tradeoff',
+    titleVi: 'Độ lệch, Độ nhạy, Sự đánh đổi',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
     id: 'regularization-l1-l2',
     titleEn: 'Regularization L1 L2',
     titleVi: 'Điều chuẩn L1 L2',
   }),
   lessonPair({
-    trackId: 'linear-logistic-regression',
+    trackId: 'linear-regression-foundations',
+    id: 'cross-validation-k-fold',
+    titleEn: 'Cross Validation K Fold',
+    titleVi: 'Cross Validation K Fold',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'variability-splits-seeds',
+    titleEn: 'Variability across Splits and Seeds',
+    titleVi: 'Độ biến động giữa các split và seed',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'bootstrap-confidence-intervals',
+    titleEn: 'Bootstrap Confidence Intervals',
+    titleVi: 'Khoảng tin cậy bằng bootstrap',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'prediction-intervals',
+    titleEn: 'Prediction Intervals',
+    titleVi: 'Khoảng dự đoán',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'leakage-code-lab',
+    titleEn: 'Lab: Detecting Data Leakage',
+    titleVi: 'Lab phát hiện data leakage',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'linear-regression-code-lab',
+    titleEn: 'Lab: Linear Regression from Formula to Scikit-Learn',
+    titleVi: 'Lab Linear Regression từ công thức đến Scikit-Learn',
+  }),
+  lessonPair({
+    trackId: 'linear-regression-foundations',
+    id: 'regression-metrics',
+    titleEn: 'Regression Metrics',
+    titleVi: 'Chỉ số đánh giá hồi quy',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'logistic-regression',
+    titleEn: 'Logistic Regression',
+    titleVi: 'Hồi quy Logistic',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'linear-activation',
+    titleEn: 'Linear Activation',
+    titleVi: 'Linear Activation',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
     id: 'one-vs-rest',
     titleEn: 'One Vs Rest',
     titleVi: 'One Vs Rest',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'k-nearest-neighbors',
+    titleEn: 'k-Nearest Neighbors',
+    titleVi: 'k-Nearest Neighbors',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'naive-bayes',
+    titleEn: 'Naive Bayes',
+    titleVi: 'Naive Bayes',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'support-vector-machines',
+    titleEn: 'Support Vector Machine',
+    titleVi: 'Support Vector Machine',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'mixed-classification-code-lab',
+    titleEn: 'Lab: Mixed-Type Classification Pipeline',
+    titleVi: 'Lab classification pipeline với dữ liệu hỗn hợp',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'classification-metrics',
+    titleEn: 'Classification Metrics',
+    titleVi: 'Chỉ số đánh giá phân loại',
   }),
   lessonPair({
     trackId: 'decision-trees-ensembles',
@@ -144,10 +198,22 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     titleVi: 'Tầm quan trọng của đặc trưng',
   }),
   lessonPair({
+    trackId: 'decision-trees-ensembles',
+    id: 'model-comparison-code-lab',
+    titleEn: 'Lab: Comparing Logistic Regression, Random Forest and Gradient Boosting',
+    titleVi: 'Lab so sánh Logistic Regression, Random Forest và Gradient Boosting',
+  }),
+  lessonPair({
     trackId: 'unsupervised-learning',
     id: 'k-means-clustering',
     titleEn: 'K Means Clustering',
     titleVi: 'K Means Clustering',
+  }),
+  lessonPair({
+    trackId: 'unsupervised-learning',
+    id: 'gaussian-mixture-models',
+    titleEn: 'Gaussian Mixture Models',
+    titleVi: 'Gaussian Mixture Models',
   }),
   lessonPair({
     trackId: 'unsupervised-learning',
@@ -166,6 +232,12 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'tsne-umap-visualization',
     titleEn: 't-SNE UMAP Visualization',
     titleVi: 'Trực quan hóa t-SNE và UMAP',
+  }),
+  lessonPair({
+    trackId: 'unsupervised-learning',
+    id: 'clustering-code-lab',
+    titleEn: 'Lab: Clustering without Labels',
+    titleVi: 'Lab clustering và đánh giá không có nhãn',
   }),
   lessonPair({
     trackId: 'hyperparameter-tuning',
@@ -190,6 +262,12 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
     id: 'early-stopping',
     titleEn: 'Early Stopping',
     titleVi: 'Early Stopping',
+  }),
+  lessonPair({
+    trackId: 'hyperparameter-tuning',
+    id: 'nested-cv-code-lab',
+    titleEn: 'Lab: Nested CV without Touching Test Data',
+    titleVi: 'Lab Nested CV và tuning không chạm test set',
   }),
   lessonPair({
     trackId: 'ml-with-scikit-learn',
@@ -238,40 +316,20 @@ function lessonIdsForTrack(trackId: string): LearningTocLessonSeed[] {
 
 const chapters: LearningTocTrackSeed[] = [
   {
-    id: 'tensor-shape-fundamentals',
+    id: 'linear-regression-foundations',
     text: {
-      title: { 
-        en: "Tensor shape fundamentals", 
-        vi: "Tensor shape fundamentals" },
-      description: { 
-        en: "Read and predict shapes through core layers.", 
-        vi: "Đọc và dự đoán shape qua các layer cơ bản." },
+      title: { en: "1. Linear Regression", vi: "1. Hồi quy tuyến tính" },
+      description: { en: "Core ML through regression: splits, loss, generalization, regularization, validation, uncertainty intervals, and metrics.", vi: "Học ML qua hồi quy: chia dữ liệu, loss, tổng quát hóa, regularization, validation, độ bất định và các chỉ số đánh giá." },
     },
-    lessonIds: lessonIdsForTrack('tensor-shape-fundamentals'),
+    lessonIds: lessonIdsForTrack('linear-regression-foundations'),
   },
   {
-    id: 'value-flow',
+    id: 'logistic-classification',
     text: {
-      title: { en: "Value flow", vi: "Value flow" },
-      description: { en: "Follow values through Linear and activation operations.", vi: "Theo dõi giá trị qua Linear và activation." },
+      title: { en: "2. Logistic Regression & Classification", vi: "2. Hồi quy Logistic và phân loại" },
+      description: { en: "Logistic regression, activation, OvR, nearest neighbors, Naive Bayes, SVM and classification evaluation.", vi: "Logistic Regression, activation, OvR, k-NN, Naive Bayes, SVM và đánh giá phân loại." },
     },
-    lessonIds: lessonIdsForTrack('value-flow'),
-  },
-  {
-    id: 'core-ml-concepts',
-    text: {
-      title: { en: "1. Core ML Concepts", vi: "1. Core ML Concepts" },
-      description: { en: "Classic dataset splits, generalization, validation, and metrics.", vi: "Dataset split, generalization, validation và metrics nền tảng." },
-    },
-    lessonIds: lessonIdsForTrack('core-ml-concepts'),
-  },
-  {
-    id: 'linear-logistic-regression',
-    text: {
-      title: { en: "2. Linear & Logistic Regression", vi: "2. Linear & Logistic Regression" },
-      description: { en: "Regression, classification, costs, regularization, and one-vs-rest.", vi: "Regression, classification, cost, regularization và one-vs-rest." },
-    },
-    lessonIds: lessonIdsForTrack('linear-logistic-regression'),
+    lessonIds: lessonIdsForTrack('logistic-classification'),
   },
   {
     id: 'decision-trees-ensembles',
@@ -285,7 +343,7 @@ const chapters: LearningTocTrackSeed[] = [
     id: 'unsupervised-learning',
     text: {
       title: { en: "4. Unsupervised Learning", vi: "4. Unsupervised Learning" },
-      description: { en: "Clustering, dimensionality reduction, and embedding visualization.", vi: "Clustering, giảm chiều và trực quan hóa embedding." },
+      description: { en: "K-Means, Gaussian mixtures, DBSCAN, dimensionality reduction, and embedding visualization.", vi: "K-Means, Gaussian Mixture Models, DBSCAN, giảm chiều và trực quan hóa embedding." },
     },
     lessonIds: lessonIdsForTrack('unsupervised-learning'),
   },
@@ -325,9 +383,19 @@ export const learningTableOfContents = {
   id: 'fundamentals',
   text: {
     title: { en: "Machine Learning", vi: "Machine Learning" },
-    description: { en: "Move from data splits and evaluation into regression, classification, trees, ensembles, unsupervised learning, tuning, and practical Scikit-Learn workflows for baseline AI systems.", vi: "Đi từ chia dữ liệu và evaluation đến regression, classification, tree, ensemble, unsupervised learning, tuning và workflow Scikit-Learn thực tế cho hệ thống AI baseline." },
+    description: { en: "Learn core concepts through Linear Regression, then classification, task-specific evaluation, ensembles, unsupervised learning, tuning, and Scikit-Learn workflows.", vi: "Học khái niệm nền tảng qua Linear Regression, rồi phân loại, đánh giá theo bài toán, ensemble, học không giám sát, tuning và workflow Scikit-Learn." },
   },
   status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
+  routeAliases: [
+    { fromTrackId: 'tensor-shape-fundamentals', toTrackId: 'linear-regression-foundations' },
+    { fromLessonId: 'shape-basics', toTrackId: 'logistic-classification', toLessonId: 'linear-activation' },
+    { fromLessonId: 'shape-basics-quiz', toTrackId: 'logistic-classification', toLessonId: 'linear-activation' },
+    { fromTrackId: 'value-flow', toTrackId: 'logistic-classification' },
+    { fromTrackId: 'core-ml-concepts', toTrackId: 'linear-regression-foundations' },
+    { fromTrackId: 'linear-logistic-regression', toTrackId: 'linear-regression-foundations' },
+    { fromLessonId: 'evaluation-metrics', toTrackId: 'linear-regression-foundations', toLessonId: 'regression-metrics' },
+    { fromLessonId: 'evaluation-metrics-quiz', toTrackId: 'linear-regression-foundations', toLessonId: 'regression-metrics-quiz' },
+  ],
 } satisfies LearningTableOfContents;

@@ -9,7 +9,7 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 |---|---|---|---|---|
 | `programming-foundation` | placeholder | 12 | 80 | 0 |
 | `linear-algebra` | active | 8 | 59 | 59 |
-| `fundamentals` | placeholder | 8 | 30 | 0 |
+| `fundamentals` | placeholder | 7 | 87 | 87 |
 | `deep-learning` | placeholder | 7 | 45 | 0 |
 | `cv` | partial | 2 | 19 | 14 |
 | `nlp` | placeholder | 9 | 65 | 0 |

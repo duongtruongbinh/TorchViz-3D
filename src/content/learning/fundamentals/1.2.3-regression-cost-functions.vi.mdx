@@ -8,10 +8,10 @@ export const lessonMetadata = {
     'MSE phạt mạnh sai số lớn',
     'MAE bền hơn trước outlier',
     'Huber cân bằng hai cách phạt',
-    'Log Loss cho xác suất classification',
+    'Từ loss huấn luyện đến kiểm tra generalization',
   ],
-  keywords: ['Machine Learning', 'Loss Function', 'Cost Function', 'MSE', 'MAE', 'Huber Loss', 'Log Loss', 'Cross Entropy'],
-  conceptIds: ['loss-function', 'mean-squared-error', 'mean-absolute-error', 'huber-loss', 'log-loss-cross-entropy'],
+  keywords: ['Machine Learning', 'Loss Function', 'Cost Function', 'MSE', 'MAE', 'Huber Loss'],
+  conceptIds: ['loss-function', 'mean-squared-error', 'mean-absolute-error', 'huber-loss', 'loss-versus-metric'],
   pageCount: 5,
 }
 
@@ -90,16 +90,14 @@ Loss được dùng để train không nhất thiết phải là metric duy nh�
 
 <MdxPage page={4}>
 
-## Log Loss cho xác suất classification
+## Từ loss huấn luyện đến kiểm tra generalization
 
-Regression dùng MSE, MAE hoặc Huber vì target là giá trị liên tục. Với classification tạo xác suất, **Log Loss** hay **cross-entropy** thường phù hợp hơn. Với nhãn nhị phân `y` và xác suất dương `p`, loss có dạng:
+Quay lại giá nhà: một sai số 0.2 tỷ đồng đóng góp 0.04 vào tổng sai số bình phương, còn sai số 1 tỷ đồng đóng góp 1. Vì thế một căn nhà dự đoán sai xa có thể ảnh hưởng mạnh đến trọng số học bằng MSE. Với Huber có delta = 0.2 tỷ đồng, phần phạt chuyển từ dạng bậc hai sang dạng tuyến tính khi độ lớn sai số vượt 0.2.
 
-```text
-Log Loss = -[y * log(p) + (1 - y) * log(1 - p)]
-```
+Không phải đổi một tùy chọn tên loss là mọi bộ giải đều giữ nguyên. OLS tối ưu bình phương sai số; muốn fit MAE hoặc Huber cần thuật toán/estimator hỗ trợ mục tiêu đó. Chọn loss thay đổi bài toán tối ưu, chứ không chỉ đổi cách hiển thị score.
 
-Log Loss phạt nặng khi model rất tự tin nhưng sai. Dự đoán xác suất `0.99` cho một mẫu thực tế negative tệ hơn nhiều so với dự đoán `0.55`, vì model đã đưa ra quyết định sai với độ chắc chắn cao.
+Loss trên train hướng dẫn việc học. Metric trên validation/test đánh giá model trên dữ liệu giữ lại. Cùng công thức MSE có thể phục vụ cả hai vai trò, nhưng dữ liệu được dùng và mục đích khác nhau. Một model có train MSE nhỏ nhất chưa chắc là lựa chọn tốt nhất.
 
-Khi chọn loss, hãy bắt đầu từ câu hỏi thực tế. Outlier có đáng tin hay không? Sai số lớn có chi phí đặc biệt không? Model cần dự đoán giá trị liên tục hay xác suất? Loss function là phần của cách team thể hiện những ưu tiên đó trong quá trình học, còn validation và test metric cho biết lựa chọn ấy có tạo ra hệ thống tốt hơn hay không.
+Sau khi fit trên split đã chốt, hãy đối chiếu sai số train và validation của model giá nhà. Các bài overfitting và bias–variance tiếp theo sẽ giải thích vì sao thêm feature hoặc tối ưu train kỹ hơn vẫn có thể khiến dự đoán dữ liệu mới tệ đi. Cuối chương mới tổng hợp các metric dùng để báo cáo.
 
 </MdxPage>

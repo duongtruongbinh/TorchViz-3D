@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "classification-metrics",
+  "locale": "vi",
+  "title": "Chỉ số đánh giá phân loại",
+  "headings": [
+    "Từ xác suất đến confusion matrix",
+    "Precision, Recall và F1",
+    "ROC-AUC và PR-AUC đo thứ hạng",
+    "Log Loss và xác suất",
+    "Đánh giá nhiều lớp và chốt threshold"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Classification Metrics"
+  ],
+  "conceptIds": [
+    "confusion-matrix-accuracy",
+    "precision-recall-f1",
+    "roc-auc-pr-auc",
+    "classification-log-loss",
+    "classification-evaluation-protocol"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Từ xác suất đến confusion matrix
+
+Logistic Regression tạo xác suất; activation giải thích cách score biến thành xác suất; One-vs-Rest mở rộng cách quyết định lớp. k-NN, Naive Bayes và SVM bổ sung các classifier với cơ chế khác nhau, nhưng đều cần được so sánh trên cùng protocol đánh giá. Sau khi chọn threshold hoặc quy tắc quyết định phù hợp, ta cần đánh giá những quyết định đó. Metric phân loại phải phân biệt lỗi bỏ sót và lỗi báo động giả.
+
+Xét 100 giao dịch, trong đó 10 giao dịch gian lận là lớp positive. Ở một threshold đã chốt, model bắt đúng 8 giao dịch gian lận, bỏ sót 2, báo nhầm 4 giao dịch hợp lệ và cho qua đúng 86 giao dịch hợp lệ.
+
+| Thực tế / Dự đoán | Positive | Negative |
+| --- | --- | --- |
+| Positive | TP = 8 | FN = 2 |
+| Negative | FP = 4 | TN = 86 |
+
+TP là true positive, FN là false negative, FP là false positive và TN là true negative. **Accuracy** = (TP + TN)/N = 94/100 = 94%.
+
+Model luôn trả negative cũng đạt 90% accuracy trên dữ liệu này nhưng bỏ sót toàn bộ gian lận. Accuracy hữu ích khi đúng với mục tiêu, song cần xem confusion matrix và lớp quan trọng thay vì kết luận từ một tỷ lệ cao.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Precision, Recall và F1
+
+Từ cùng confusion matrix, ta có hai câu hỏi khác nhau: cảnh báo có đáng tin không, và đã bắt được bao nhiêu ca gian lận thật?
+
+<BlockMath formula="\operatorname{Precision}=\frac{TP}{TP+FP},\quad \operatorname{Recall}=\frac{TP}{TP+FN},\quad F_1=\frac{2TP}{2TP+FP+FN}" />
+
+Precision = 8/12, khoảng 66.7%: trong 12 cảnh báo, 8 cảnh báo đúng. Recall = 8/10 = 80%: bắt được 8 trên 10 ca thật. F1 = 16/22, khoảng 72.7%, là trung bình điều hòa của precision và recall.
+
+Hạ threshold khiến số positive dự đoán không giảm trên cùng tập score cố định; recall không giảm, nhưng precision không nhất thiết biến đổi đơn điệu. Chọn threshold trên validation theo chi phí hoặc ràng buộc, chẳng hạn muốn recall ít nhất 90% trong khả năng xử lý 20 cảnh báo mỗi ngày.
+
+F1 không tính trực tiếp true negative và không mã hóa chính xác mọi chi phí kinh doanh. Nếu không có predicted positive hoặc actual positive, một số mẫu số bằng 0; cần báo cáo quy ước xử lý và số lượng mẫu, thay vì âm thầm xem metric đó là bằng chứng model tốt.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## ROC-AUC và PR-AUC đo thứ hạng
+
+Nếu muốn đánh giá score qua nhiều threshold, dùng đường ROC hoặc precision–recall thay vì chỉ một confusion matrix. ROC vẽ true positive rate (chính là recall) theo false positive rate = FP/(FP + TN).
+
+**ROC-AUC** có cách hiểu là xác suất một positive ngẫu nhiên được xếp score cao hơn một negative ngẫu nhiên, với score hòa thường được tính nửa điểm. Nó đánh giá khả năng xếp hạng, không chứng minh xác suất đã calibration tốt và không tự chọn threshold vận hành.
+
+**PR-AUC** tóm tắt đường precision–recall, hữu ích khi quan tâm positive hiếm vì precision phản ánh lượng cảnh báo sai. Khi báo cáo phải ghi cách tính: diện tích nội suy hình thang và Average Precision (AP, tổng precision có trọng số theo mức tăng recall) không hoàn toàn giống nhau. Không dùng hai tên như những con số luôn bằng nhau.
+
+Một ROC-AUC tốt vẫn có thể đi kèm nhiều cảnh báo sai khi negative áp đảo. PR cũng phụ thuộc tỷ lệ positive, nên không so PR-AUC của hai tập có tỷ lệ lớp khác nhau mà bỏ qua khác biệt đó. Chỉ số xếp hạng tốt cần được đối chiếu với precision/recall tại threshold thực sự dùng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Log Loss và xác suất
+
+Nhãn đúng chưa nói hết chất lượng xác suất. Hai model cùng dự đoán positive cho một sample nhưng một model trả 0.6, model kia trả 0.99. Khi sample thật là negative, model thứ hai tự tin sai nhiều hơn.
+
+Với n sample nhị phân, nhãn y_i thuộc `{0, 1}` và xác suất p_i của lớp positive, Log Loss dùng logarithm tự nhiên:
+
+<BlockMath formula="L=-\frac{1}{n}\sum_i[y_i\log p_i+(1-y_i)\log(1-p_i)]" />
+
+Với nhãn 0, p = 0.99 cho loss khoảng 4.605, còn p = 0.55 cho khoảng 0.799. Loss càng thấp càng tốt. Với nhãn multiclass, lấy âm log xác suất gán cho lớp thật rồi trung bình qua sample.
+
+Log Loss vừa có thể là mục tiêu train vừa là metric đánh giá, nhưng báo cáo phải tính trên dữ liệu giữ lại. Khi tính bằng xác suất, các giá trị đúng bằng 0 hoặc 1 có thể gây log(0); dùng hàm thư viện có xử lý ổn định số. Khi train bằng loss nhận logits, giữ đúng hợp đồng input đã học ở bài activation.
+
+Calibration hỏi liệu nhóm sample được dự đoán khoảng 80% có thực sự positive khoảng 80% hay không. Log Loss khuyến khích xác suất hợp lý nhưng một giá trị đơn lẻ không thay thế kiểm tra calibration theo nhóm xác suất, nhất là khi chi phí quyết định dựa trực tiếp vào rủi ro.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Đánh giá nhiều lớp và chốt threshold
+
+Với nhiều lớp, báo cáo metric theo từng lớp trước khi gộp. Macro-average cho mỗi lớp trọng số như nhau, hữu ích để không che lớp hiếm. Weighted-average dùng số sample thật của từng lớp làm trọng số nên có thể bị lớp phổ biến chi phối. Micro-average gộp các số đếm trước khi tính metric.
+
+Trong multiclass một nhãn, xét đầy đủ các lớp, micro Precision/Recall/F1 bằng accuracy. Multilabel có cấu trúc khác: cần nói rõ đánh giá theo từng nhãn hay theo toàn bộ tập nhãn của mỗi sample. Không áp dụng kết luận của multiclass một nhãn một cách máy móc.
+
+Với giao dịch gian lận, chọn metric chính, ngưỡng, lớp positive và năng lực xử lý cảnh báo trong giai đoạn validation. Có thể ước lượng chi phí tại một threshold bằng C_FP × FP + C_FN × FN nếu mô hình chi phí đó phù hợp. Ví dụ C_FP = 1 và C_FN = 20 cho confusion matrix đầu bài thì chi phí là 4 + 40 = 44 đơn vị.
+
+Test chỉ đánh giá pipeline và threshold đã chốt. Ghi kèm số sample, tỷ lệ lớp và confusion matrix; thêm Log Loss/calibration nếu xác suất dùng để ra quyết định. Từ đây, các chương tree và ensemble có thể dùng lại đúng quy trình đánh giá classification này, hoặc Regression Metrics khi target là số liên tục.
+
+Các nguyên tắc [so sánh trên cùng split/seed](/learning/fundamentals/linear-regression-foundations?lesson=variability-splits-seeds) và [paired bootstrap](/learning/fundamentals/linear-regression-foundations?lesson=bootstrap-confidence-intervals) cũng áp dụng khi đánh giá classifier. Giữ nhãn và prediction đi cùng hàng; với nhiều bản ghi một người dùng, xét đơn vị resampling theo nhóm. Lớp hiếm có thể làm một số metric không xác định trong resample. CI của Recall hay ROC-AUC là khoảng cho metric, không phải xác suất một dự đoán riêng lẻ đúng và không phải prediction interval hồi quy.
+
+</MdxPage>

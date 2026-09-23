@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "gaussian-mixture-models",
+  "locale": "vi",
+  "title": "Gaussian Mixture Models",
+  "headings": [
+    "Từ K-Means đến gán cụm mềm",
+    "Covariance quyết định hình dạng",
+    "Expectation–Maximization học như thế nào?",
+    "Chọn số thành phần và nhận biết giới hạn"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Gaussian Mixture Models"
+  ],
+  "conceptIds": [
+    "gmm-soft-assignment",
+    "gmm-covariance",
+    "gmm-em",
+    "gmm-model-selection"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Từ K-Means đến gán cụm mềm
+
+K-Means gán một điểm vào centroid gần nhất. Nhưng khi hai nhóm chồng lấn, một nhãn duy nhất có thể che sự không chắc chắn. **Gaussian Mixture Model** (GMM) mô hình hóa dữ liệu bằng tổng có trọng số của K phân phối Gaussian, rồi tính xác suất một điểm thuộc từng thành phần.
+
+<BlockMath formula="p(x)=\sum_{k=1}^{K}\pi_k\mathcal{N}(x\mid\mu_k,\Sigma_k),\qquad \sum_k\pi_k=1" />
+
+Với d feature, x và mean mu_k có d phần tử, covariance Sigma_k có shape (d, d), còn pi_k là trọng số không âm. p(x) là mật độ, không phải xác suất của chính một điểm liên tục; giá trị mật độ không bị bắt buộc nhỏ hơn 1.
+
+Giả sử hai thành phần có trọng số 0.6 và 0.4, mật độ tại một sample là 0.2 và 0.1. Đóng góp là 0.12 và 0.04; sau chuẩn hóa, xác suất thành phần là 0.75 và 0.25. Chọn thành phần 1 là gán cứng; giữ [0.75, 0.25] là gán mềm.
+
+Số thứ tự thành phần chỉ là nhãn nội bộ, không tự có nghĩa “khách hàng tốt” hay “gian lận”. Fit GMM không cần target classification.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Covariance quyết định hình dạng
+
+Mean định vị tâm, covariance mô tả độ phân tán và mối liên hệ giữa các chiều. Trong hai chiều, cùng một tâm nhưng covariance khác nhau có thể tạo vùng mật độ tròn, elip thẳng hoặc elip nghiêng.
+
+| Kiểu covariance | Ràng buộc | Hệ quả |
+| --- | --- | --- |
+| Spherical | Mỗi thành phần có một phương sai chung cho các chiều | Vùng tròn trong hai chiều |
+| Diagonal | Mỗi chiều có phương sai riêng, hiệp phương sai bằng 0 | Elip song song trục |
+| Full | Ma trận covariance riêng đầy đủ | Elip có thể nghiêng |
+| Tied | Các thành phần dùng chung một covariance đầy đủ | Cùng hình dạng, khác tâm |
+
+Ví dụ covariance [[4, 0], [0, 1]] có độ lệch chuẩn 2 ở chiều thứ nhất và 1 ở chiều thứ hai. Covariance [[2, 1], [1, 2]] có tương quan dương nên hướng phân tán chính nghiêng theo hai chiều cùng tăng.
+
+Full linh hoạt hơn nhưng cần nhiều tham số: mỗi thành phần có d(d+1)/2 giá trị covariance độc lập. Với d = 10, đó là 55, so với 10 của diagonal. Ít dữ liệu trong từng thành phần có thể khiến ước lượng không ổn định.
+
+GMM không chỉ nhìn khoảng cách Euclidean tới tâm. Covariance và trọng số thành phần cùng ảnh hưởng responsibility. Chuẩn hóa feature cần có ý nghĩa với dữ liệu và được fit trên phần train của quy trình đánh giá.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Expectation–Maximization học như thế nào?
+
+Ta chưa biết sample thuộc thành phần nào, đồng thời chưa biết tham số của các thành phần. **Expectation–Maximization** (EM) giải bài toán bằng cách luân phiên hai bước thay vì đoán nhãn rồi giữ cố định.
+
+Ở E-step, dùng tham số hiện tại để tính responsibility, tức xác suất hậu nghiệm của thành phần k cho sample i:
+
+<BlockMath formula="r_{ik}=\frac{\pi_k\mathcal{N}(x_i\mid\mu_k,\Sigma_k)}{\sum_j\pi_j\mathcal{N}(x_i\mid\mu_j,\Sigma_j)}" />
+
+Ở M-step, cập nhật trọng số, mean và covariance bằng các sample có trọng số responsibility. Mean mới của thành phần k là tổng r_ik × x_i chia tổng r_ik, không phải trung bình chỉ các điểm có nhãn cứng k.
+
+Ví dụ một chiều x = [0, 2], responsibility của thành phần 1 là [0.8, 0.2]. Tổng responsibility là 1, mean mới là (0.8 × 0 + 0.2 × 2)/1 = 0.4 và trọng số thành phần mới là 1/2. Covariance cũng được tính bằng sai lệch có trọng số quanh mean mới.
+
+Lặp hai bước đến khi tiêu chí hội tụ đạt ngưỡng hoặc hết số vòng. EM lý tưởng không làm giảm likelihood sau một bước cập nhật chính xác, nhưng không bảo đảm tìm cực đại toàn cục. Khởi tạo khác nhau có thể cho nghiệm khác; cần kiểm tra hội tụ và nhiều lần khởi tạo.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chọn số thành phần và nhận biết giới hạn
+
+Thêm thành phần làm mô hình linh hoạt hơn, nên training likelihood cao hơn không đủ chứng minh tốt hơn. Chọn số thành phần và covariance bằng một quy trình định trước: có thể dùng dữ liệu validation để so log-likelihood trung bình hoặc tiêu chí như AIC/BIC, đồng thời kiểm tra ý nghĩa của nhóm.
+
+AIC và BIC cân bằng độ khớp với số tham số; trong cùng dữ liệu và cùng representation, giá trị thấp hơn thường được ưu tiên. Không so mật độ hay AIC/BIC một cách máy móc giữa các thang biến đổi khác nhau. Số thành phần hợp lý về mật độ không nhất thiết bằng số nhóm nghiệp vụ.
+
+Covariance có thể gần suy biến khi một thành phần co lại quanh quá ít điểm. Regularization covariance, đủ dữ liệu và kiểm tra hội tụ giúp giảm vấn đề này. Outlier, nhiều chiều và các cụm cong không giống Gaussian vẫn có thể khiến kết quả kém; GMM không tự giải quyết mọi hạn chế của K-Means.
+
+Scikit-Learn cung cấp GaussianMixture với n_components, covariance_type, n_init và reg_covar; predict_proba trả responsibility của thành phần, không phải xác suất nhãn có giám sát. Xem [tài liệu Gaussian mixture models](https://scikit-learn.org/stable/modules/mixture.html).
+
+Khi cần cụm theo mật độ có hình dạng bất quy tắc và muốn tách nhiễu, bài DBSCAN tiếp theo cung cấp một cách tiếp cận khác. Hãy so phương pháp dựa trên cấu trúc dữ liệu và mục tiêu sử dụng, không chỉ nhìn một hình scatter đẹp.
+
+</MdxPage>

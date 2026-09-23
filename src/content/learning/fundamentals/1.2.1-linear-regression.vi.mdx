@@ -23,7 +23,7 @@ export const lessonMetadata = {
 
 Điểm khác biệt chính với classification là target của regression không phải một nhãn rời rạc. Dự đoán giá nhà là `3.25` tỷ đồng hoặc `4.10` tỷ đồng; dự đoán thời gian giao hàng là `2.4` ngày hoặc `5.8` ngày. Model cần tạo ra một giá trị trên một miền liên tục.
 
-Ví dụ đơn giản nhất là dự đoán giá nhà từ diện tích. Ta kỳ vọng nhà lớn hơn thường có giá cao hơn, dù thực tế còn có nhiều yếu tố khác như vị trí, số phòng và chất lượng xây dựng. Linear regression tìm một mối quan hệ tuyến tính gần đúng giữa input và target.
+Trong chương này, ta theo một bài toán xuyên suốt: dự đoán giá nhà từ diện tích và các thông tin có trước thời điểm bán. Mỗi căn nhà là một sample, giá bán là target. Đây là học có giám sát vì dữ liệu train có cả input lẫn giá bán đã biết. Ví dụ đơn giản nhất là dự đoán giá nhà từ diện tích. Ta kỳ vọng nhà lớn hơn thường có giá cao hơn, dù thực tế còn có nhiều yếu tố khác như vị trí, số phòng và chất lượng xây dựng. Linear regression tìm một mối quan hệ tuyến tính gần đúng giữa input và target.
 
 <LessonNote>
   Linear regression không khẳng định thế giới luôn là một đường thẳng. Nó tạo một baseline dễ hiểu để kiểm tra xem feature hiện có giải thích được target đến đâu.
@@ -77,13 +77,13 @@ Output: (32, 1)
 
 ## Model học trọng số như thế nào
 
-Khi mới khởi tạo, trọng số và bias thường chưa tốt nên dự đoán lệch xa target thật. Trong mỗi vòng train, model tạo `y_hat`, so sánh nó với `y` và tính một giá trị loss biểu diễn mức sai khác.
+Trước khi fit bất kỳ trọng số hay bước tiền xử lý nào, cần tách dữ liệu dùng để học khỏi dữ liệu đánh giá. Bài Train Validation Test ngay sau cặp bài này sẽ làm rõ cách chia. Ở đây ta chỉ mô tả cơ chế fit trên phần train đã được phép sử dụng.
 
-Optimizer dùng thông tin từ loss để điều chỉnh `w` và `b`. Nếu một thay đổi giúp dự đoán gần target hơn trên train set, optimizer sẽ có xu hướng tiếp tục theo hướng đó. Quá trình lặp lại qua nhiều batch và epoch cho đến khi model học được mối quan hệ hữu ích trong dữ liệu.
+Linear Regression theo ordinary least squares (OLS) chọn trọng số để giảm tổng bình phương sai số. Có thể giải bài toán bằng các phương pháp đại số tuyến tính như QR hoặc SVD mà không cần lặp qua epoch. Một cách khác là gradient descent: tính loss, tính gradient rồi cập nhật `w` và `b` qua nhiều bước. Batch và epoch thuộc cách tối ưu lặp, không phải điều kiện bắt buộc của mọi thuật toán Linear Regression.
 
 Ví dụ, nếu model thường dự đoán giá thấp hơn giá thật cho các căn nhà lớn, trọng số của feature diện tích có thể cần tăng. Nếu mọi dự đoán đều thấp hơn một mức gần như cố định, bias có thể cần tăng. Đây là trực giác về cách trọng số và bias được cập nhật.
 
-Bài tiếp theo sẽ đi sâu hơn vào cách định nghĩa loss cho regression như MAE, MSE và RMSE. Ở đây, điều cần nhớ là model học các tham số để giảm chênh lệch giữa dự đoán và giá trị thật trên dữ liệu train.
+Sau bài chia dữ liệu, ta sẽ đi sâu vào loss regression như MSE, MAE và Huber. Ở đây, điều cần nhớ là model học các tham số để giảm chênh lệch giữa dự đoán và giá trị thật trên dữ liệu train.
 
 </MdxPage>
 
@@ -97,6 +97,6 @@ Linear regression có ưu điểm là dễ diễn giải. Khi các feature đư�
 
 Linear regression hoạt động tốt nhất khi quan hệ giữa feature và target có thể được xấp xỉ hợp lý bằng tổng có trọng số. Nếu residual có quy luật cong rõ ràng, có nhiều tương tác phức tạp hoặc feature quan trọng bị thiếu, model tuyến tính có thể underfit. Khi đó có thể cải thiện feature, thêm biến đổi phù hợp hoặc thử model linh hoạt hơn.
 
-Tóm lại, linear regression là nền tảng quan trọng: nó cho thấy rõ input đi vào model như thế nào, trọng số được học ra sao và vì sao phải đánh giá khả năng tổng quát hóa trên dữ liệu mới.
+Từ baseline giá nhà này, chương sẽ lần lượt trả lời: dùng những căn nhà nào để học và đánh giá; phạt sai số ra sao; vì sao thêm feature có thể làm validation kém đi; và chọn mức regularization bằng cross-validation thế nào. Cuối chương, Regression Metrics sẽ tổng hợp cách đọc MAE, RMSE và R² trên dữ liệu giữ lại. Các khái niệm này là những quyết định của cùng một workflow.
 
 </MdxPage>

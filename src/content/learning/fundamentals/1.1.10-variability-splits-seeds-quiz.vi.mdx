@@ -1,0 +1,152 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "variability-splits-seeds-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Phân biệt nguồn biến động",
+    "So sánh trên cùng split",
+    "Mean ± SD có phải CI?",
+    "Chọn protocol báo cáo"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "split-vs-seed-variation",
+    "paired-model-comparison",
+    "fold-dependence",
+    "reproducible-reporting"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="variability-splits-seeds-quiz" questions={[
+  {
+    "id": "split-vs-seed-variation",
+    "title": "Phân biệt nguồn biến động",
+    "prompt": "Ghép thí nghiệm với nguồn biến động chính đang khảo sát.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "split",
+        "label": "Thành phần train/validation"
+      },
+      {
+        "id": "training",
+        "label": "Ngẫu nhiên khi huấn luyện"
+      }
+    ],
+    "options": [
+      {
+        "id": "house",
+        "label": "Giữ cấu hình OLS, thay những căn nhà được chọn vào train.",
+        "categoryId": "split"
+      },
+      {
+        "id": "forest",
+        "label": "Giữ split, thay seed lấy mẫu trong Random Forest.",
+        "categoryId": "training"
+      },
+      {
+        "id": "init",
+        "label": "Giữ split, thay khởi tạo ngẫu nhiên của model.",
+        "categoryId": "training"
+      }
+    ],
+    "success": "Đúng. Seed của splitter và estimator không kiểm soát cùng một việc.",
+    "error": "Xác định đang thay dữ liệu đánh giá hay cách thuật toán fit trên cùng dữ liệu."
+  },
+  {
+    "id": "paired-model-comparison",
+    "title": "So sánh trên cùng split",
+    "prompt": "MAE A - B trên ba split là [10, 10, -10] triệu đồng. Nhận xét nào phù hợp nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "A luôn tốt hơn B vì có một chênh lệch âm.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "B trung bình thấp hơn khoảng 3.3 triệu, nhưng kết quả đổi theo split.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Hai model hoàn toàn tương đương vì có cả dấu âm lẫn dương.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "B chắc chắn tốt hơn ở mọi dữ liệu tương lai.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Mean chênh lệch là 10/3, nhưng ba split chưa chứng minh ưu thế phổ quát.",
+    "error": "MAE càng thấp càng tốt; xem cả mean và dấu trên từng split."
+  },
+  {
+    "id": "fold-dependence",
+    "title": "Mean ± SD có phải CI?",
+    "prompt": "Ba MAE [200, 220, 240] có mean 220 và SD mẫu 20. Chọn tất cả phát biểu đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "220 ± 20 có thể báo cáo là mean ± SD qua ba lần chạy.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Đây tự động là CI 95% của MAE quần thể.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Các fold dùng train chồng lấn nên không mặc định độc lập.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Thêm seed không tạo ra căn nhà độc lập mới.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. SD mô tả phân tán; CI cần thiết kế và giả định riêng.",
+    "error": "Không gắn nhãn CI 95% cho mean ± SD hay coi mọi fold là mẫu độc lập."
+  },
+  {
+    "id": "reproducible-reporting",
+    "title": "Chọn protocol báo cáo",
+    "prompt": "Chọn tất cả cách làm đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Chạy nhiều seed trên test rồi chỉ báo cáo seed tốt nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Định trước danh sách split/seed và báo cáo các lần chạy hợp lệ.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Fit scaler riêng trên train của từng fold.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Xáo trộn mọi giao dịch tương lai vào train để có nhiều seed.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Protocol phải bảo vệ test và cấu trúc dữ liệu, không chỉ tạo kết quả dễ tái lập.",
+    "error": "Seed không làm một split gây leakage trở nên hợp lệ."
+  }
+]} />

@@ -1,0 +1,142 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "model-comparison-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "So sánh công bằng",
+    "Fit pipeline ở đâu?",
+    "Chốt metric",
+    "Điểm của model thắng"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "comparison-paired-folds",
+    "comparison-fold-local-pipeline",
+    "comparison-primary-metric",
+    "comparison-selection-bias"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="model-comparison-code-lab-quiz" questions={[
+  {
+    "title": "So sánh công bằng",
+    "prompt": "Tại sao ba model dùng cùng danh sách fold?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Để bảo đảm điểm của ba model bằng nhau.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Để tăng số lượng mẫu độc lập trong dataset.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Để chênh lệch từng fold được đo trên cùng các căn nhà validation.",
+        "isCorrect": true,
+        "id": "o0"
+      }
+    ],
+    "success": "Đúng. Để chênh lệch từng fold được đo trên cùng các căn nhà validation.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "comparison-paired-folds"
+  },
+  {
+    "title": "Fit pipeline ở đâu?",
+    "prompt": "Phân loại các cách làm.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Hợp lệ"
+      },
+      {
+        "id": "c1",
+        "label": "Leakage"
+      }
+    ],
+    "options": [
+      {
+        "label": "cross_validate nhận toàn bộ pipeline chưa fit.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "Fit encoder trên toàn dataset rồi mới CV.",
+        "categoryId": "c1",
+        "id": "o1"
+      },
+      {
+        "label": "Fit imputer riêng trong mỗi training fold.",
+        "categoryId": "c0",
+        "id": "o2"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "comparison-fold-local-pipeline"
+  },
+  {
+    "title": "Chốt metric",
+    "prompt": "Những cách đọc nào phù hợp với lab?",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "Đổi metric chính tùy metric nào khiến model yêu thích thắng.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Xem mean ± std giữa fold là CI 95%.",
+        "isCorrect": false,
+        "id": "o3"
+      },
+      {
+        "label": "Chọn AP làm metric chính trước khi chạy.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Báo thêm F1 với ngưỡng cố định và biến động giữa fold.",
+        "isCorrect": true,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Chọn AP làm metric chính trước khi chạy. Báo thêm F1 với ngưỡng cố định và biến động giữa fold.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "comparison-primary-metric"
+  },
+  {
+    "title": "Điểm của model thắng",
+    "prompt": "Sau khi chọn model có AP CV cao nhất, nên đánh giá thủ tục chọn thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Báo điểm thắng cuộc là ước lượng hoàn toàn không có selection bias.",
+        "isCorrect": false,
+        "id": "o1"
+      },
+      {
+        "label": "Thử test cho cả ba rồi chọn model có test tốt nhất.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Đưa lựa chọn model vào inner loop và đánh giá bằng outer CV.",
+        "isCorrect": true,
+        "id": "o0"
+      }
+    ],
+    "success": "Đúng. Đưa lựa chọn model vào inner loop và đánh giá bằng outer CV.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "comparison-selection-bias"
+  }
+]} />

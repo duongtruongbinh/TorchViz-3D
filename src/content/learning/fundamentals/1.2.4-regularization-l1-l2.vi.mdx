@@ -78,6 +78,8 @@ Vì vậy, hãy fit scaler trên train set rồi dùng nó để transform valid
 
 `lambda` nên được chọn bằng validation hoặc cross-validation. Có thể thử một dải giá trị từ nhỏ đến lớn, so sánh metric phù hợp với bài toán rồi chọn cấu hình có generalization tốt nhất. Đừng chọn lambda chỉ vì train loss thấp, vì penalty được thêm vào chính để cải thiện kết quả trên dữ liệu mới.
 
+Với baseline giá nhà, ta có thể so sánh OLS, Ridge (L2) và Lasso (L1) trên cùng các fold, cùng cách tiền xử lý và cùng metric. Bài Cross Validation K Fold tiếp theo sẽ tổ chức phép so sánh này mà không dùng test để chọn lambda.
+
 Tóm lại, L2 thu nhỏ trọng số để tăng ổn định, còn L1 có thể đưa một số trọng số về 0 để tạo mô hình thưa. Cả hai đều là công cụ kiểm soát độ phức tạp, không phải phép chữa chung cho mọi loại overfitting.
 
 </MdxPage>

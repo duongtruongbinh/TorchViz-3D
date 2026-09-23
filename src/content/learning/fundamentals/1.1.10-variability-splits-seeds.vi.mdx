@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "variability-splits-seeds",
+  "locale": "vi",
+  "title": "Độ biến động giữa các split và seed",
+  "headings": [
+    "Một kết quả tốt chưa đủ",
+    "So sánh model theo cặp",
+    "Độ lệch chuẩn không tự là khoảng tin cậy",
+    "Báo cáo có thể tái lập"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Uncertainty",
+    "Độ biến động giữa các split và seed"
+  ],
+  "conceptIds": [
+    "split-vs-seed-variation",
+    "paired-model-comparison",
+    "fold-dependence",
+    "reproducible-reporting"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Một kết quả tốt chưa đủ
+
+Sau cross-validation, model giá nhà có MAE trung bình 210 triệu đồng. Nếu đổi cách chia dữ liệu hoặc chạy lại thuật toán, kết quả có giữ nguyên không? Trước khi kết luận model A tốt hơn B, cần phân biệt các nguồn biến động.
+
+**Split variability** đến từ việc các căn nhà nào được đưa vào train và validation. Một split có nhiều nhà khó dự đoán hơn có thể làm MAE tăng dù quy trình không đổi. **Training randomness** đến từ thuật toán, như khởi tạo ngẫu nhiên, lấy mẫu bootstrap trong Random Forest hoặc thứ tự minibatch trong tối ưu lặp.
+
+Seed khởi tạo một bộ sinh số giả ngẫu nhiên. Giữ seed giúp lặp lại một thí nghiệm trong cùng điều kiện, nhưng không biến kết quả đó thành đại diện cho mọi lần chạy. Seed của splitter và seed của estimator điều khiển hai nguồn ngẫu nhiên khác nhau.
+
+OLS dùng bộ giải xác định trên cùng dữ liệu thường không có biến động do training seed; đổi split vẫn có thể đổi hệ số. Vì vậy, không ép mọi model phải có cùng loại randomness. Với model ngẫu nhiên, có thể giữ split để xem ảnh hưởng training seed, rồi giữ cấu hình model và thay các split hợp lệ để xem ảnh hưởng thành phần dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## So sánh model theo cặp
+
+Muốn so hai model, dùng cùng các split để cả hai gặp cùng bài kiểm tra. Nếu A được đánh giá trên split dễ còn B trên split khó, chênh lệch metric trộn lẫn chất lượng model với độ khó dữ liệu.
+
+| Split | MAE A | MAE B | A - B |
+| --- | --- | --- | --- |
+| 1 | 200 | 190 | 10 |
+| 2 | 260 | 250 | 10 |
+| 3 | 210 | 220 | -10 |
+
+Đơn vị là triệu đồng và MAE càng thấp càng tốt. A trung bình khoảng 223.3, B là 220. Chênh lệch trung bình A - B khoảng 3.3, nghiêng về B, nhưng A tốt hơn ở split 3. Ba dòng minh họa này chưa đủ chứng minh B luôn tốt hơn.
+
+Với mỗi cấu hình, dùng một danh sách split và training seed đã định trước, đồng thời fit preprocessing trong phần train của từng split. Hai thuật toán không nhất thiết dùng cùng seed theo cùng ý nghĩa; điều quan trọng là thiết kế so sánh và dữ liệu đánh giá nhất quán.
+
+Không chỉ giữ lại seed cho metric đẹp nhất. Khi seed được chọn nhờ score, nó đã trở thành một lựa chọn tối ưu hóa. Báo cáo mọi lần chạy hợp lệ theo protocol đã chốt, gồm mean và độ phân tán hoặc các quantile phù hợp.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Độ lệch chuẩn không tự là khoảng tin cậy
+
+Độ lệch chuẩn giữa các lần chạy mô tả mức phân tán quan sát được. Khoảng tin cậy lại nhắm tới một đại lượng xác định, như MAE kỳ vọng của model đã fit. Hai khái niệm liên quan nhưng không thể thay tên cho nhau.
+
+Với R kết quả s_r, mean và độ lệch chuẩn mẫu là:
+
+<BlockMath formula="\bar{s}=\frac{1}{R}\sum_{r=1}^{R}s_r,\qquad s_{\mathrm{run}}=\sqrt{\frac{\sum_r(s_r-\bar{s})^2}{R-1}}" />
+
+MAE [200, 220, 240] có mean 220 và độ lệch chuẩn mẫu 20 triệu đồng. Viết “220 ± 20, mean ± SD qua 3 lần chạy” mô tả các lần chạy; không được tự gọi đó là khoảng tin cậy 95%.
+
+Trong K-fold, các tập train chồng lấn, còn repeated CV tái sử dụng cùng dataset. Điểm số giữa các fold/lần lặp có phụ thuộc. Vì vậy không máy móc lấy SD chia căn số fold rồi dùng hệ số 1.96 để tuyên bố CI 95% như thể có các quan sát độc lập.
+
+Thêm fold hay seed không tạo ra dữ liệu độc lập mới. Nếu cần khoảng tin cậy, phải nêu đại lượng cần ước lượng, thiết kế lấy mẫu và giả định; bài bootstrap tiếp theo sẽ bắt đầu từ trường hợp model cố định và tập đánh giá độc lập.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Báo cáo có thể tái lập
+
+Một báo cáo hữu ích ghi model/config, cách split, số lần lặp, seed của splitter và estimator, metric, đơn vị, cùng cách tổng hợp kết quả. Lưu cả version thư viện, preprocessing và điều kiện chạy nếu cần tái lập; cùng một seed không bảo đảm kết quả giống hệt qua mọi phần cứng hoặc implementation.
+
+| Câu hỏi | Thiết kế phù hợp |
+| --- | --- |
+| Thuật toán có nhạy với khởi tạo không? | Giữ dữ liệu/split, thay training seed |
+| Kết quả có nhạy với cách chia không? | Dùng nhiều split hợp lệ với cấu hình đã xác định |
+| Hai model khác nhau bao nhiêu? | So chênh lệch theo cặp trên cùng split |
+| Quy trình đã chốt hoạt động ra sao? | Đánh giá test giữ riêng theo protocol định trước |
+
+Với dữ liệu thời gian, thay seed để xáo trộn toàn bộ các giao dịch có thể phá cấu trúc bài toán. Dùng các mốc thời gian đánh giá hợp lệ. Với nhiều dòng của cùng căn nhà, giữ ràng buộc nhóm khi mục tiêu là căn nhà mới.
+
+Mọi quyết định chọn cấu hình dựa vào phần phát triển. Không xem test qua nhiều seed rồi báo cáo seed tốt nhất. Quy ước randomness của splitter và estimator có thể khác nhau; xem [hướng dẫn kiểm soát randomness của Scikit-Learn](https://scikit-learn.org/stable/common_pitfalls.html#controlling-randomness) khi thiết lập thí nghiệm.
+
+</MdxPage>

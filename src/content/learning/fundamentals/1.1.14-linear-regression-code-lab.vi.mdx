@@ -1,0 +1,107 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "linear-regression-code-lab",
+  "locale": "vi",
+  "title": "Lab Linear Regression từ công thức đến Scikit-Learn",
+  "headings": [
+    "Từ một feature đến dự đoán giá",
+    "Lập ma trận và học trong training split",
+    "Đối chiếu nghiệm với Scikit-Learn",
+    "Đọc hệ số và sai số validation"
+  ],
+  "keywords": [
+    "code lab",
+    "Scikit-Learn",
+    "regression",
+    "pipeline",
+    "synthetic housing"
+  ],
+  "conceptIds": [
+    "ols-design-matrix-lab",
+    "ols-train-only-imputation",
+    "ols-library-equivalence",
+    "ols-validation-mae"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Từ một feature đến dự đoán giá
+
+Lab này tiếp tục dùng dataset nhà ở và phép chia holdout của lab leakage. Mục tiêu đầu tiên không phải đạt điểm cao, mà kiểm tra rằng công thức và thư viện đang giải **cùng một bài toán**.
+
+Ta bắt đầu với diện tích: dự đoán giá bằng intercept cộng hệ số nhân diện tích. Sau khi xác nhận hai cách tính trùng nhau, ta mở rộng sang năm feature trước bán bằng pipeline chung. Các cột `price` và `post_sale_tax` không được dùng làm đầu vào.
+
+Tải [ml_labs.py](/learning/fundamentals/labs/ml_labs.py) và [requirements.txt](/learning/fundamentals/labs/requirements.txt) vào cùng một thư mục. Dùng Python 3.11–3.13 trong terminal; đây là Scikit-Learn thật, không chạy bằng nút Trực quan hóa của Workspace. Nếu đã cài môi trường ở lab trước thì dùng lại.
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python ml_labs.py regression
+```
+
+Trên macOS/Linux, thay `.venv\Scripts\python` bằng `.venv/bin/python`. Các lệnh `python ml_labs.py ...` ở phần sau giả định bạn đã kích hoạt môi trường này. Chỉ bước cài thư viện cần mạng; dữ liệu được tạo tại chỗ. Không cần tải dataset ngoài.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Lập ma trận và học trong training split
+
+Từ 480 dòng development, chia 360 dòng train và 120 dòng validation. Đây là validation bên trong development, **không phải** 120 dòng test cuối khóa. Median để điền diện tích thiếu chỉ được học từ 360 dòng train rồi áp dụng nguyên trạng cho validation.
+
+Với một feature, ma trận thiết kế có shape `(360, 2)`: cột đầu toàn 1 dành cho intercept, cột sau là diện tích. Vector hệ số có shape `(2,)`; tích ma trận trên validation trả về 120 giá dự đoán. Ví dụ intercept 0.8 và hệ số 0.035 thì nhà 80 m² được dự đoán 3.6 tỷ, nhưng đây chỉ là ví dụ minh họa, không phải kết quả cố định của lab.
+
+`np.linalg.lstsq` tìm nghiệm least squares mà không tính trực tiếp nghịch đảo ma trận. Pipeline Scikit-Learn dùng cùng imputation và `LinearRegression` có intercept mặc định. Vì không có regularization ở cả hai phía, dự đoán phải khớp trong sai số số học.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đối chiếu nghiệm với Scikit-Learn
+
+Đoạn sau là hàm tương ứng trong file tải về, dùng các import và helper chung của module. Lệnh ở trang đầu gọi trực tiếp hàm này; không cần ghép code của lab khác.
+
+```python
+def regression_lab():
+    data = development()
+    train, validation = train_test_split(data, test_size=0.25, random_state=SEED)
+    imputer = SimpleImputer(strategy="median")
+    x = imputer.fit_transform(train[["area"]])
+    xv = imputer.transform(validation[["area"]])
+    design = np.column_stack([np.ones(len(x)), x])
+    design_v = np.column_stack([np.ones(len(xv)), xv])
+    # lstsq avoids explicitly inverting X.T @ X.
+    beta, *_ = np.linalg.lstsq(design, train[TARGET].to_numpy(), rcond=None)
+    manual_prediction = design_v @ beta
+    simple = Pipeline([
+        ("impute", SimpleImputer(strategy="median")),
+        ("model", LinearRegression()),
+    ]).fit(train[["area"]], train[TARGET])
+    sklearn_prediction = simple.predict(validation[["area"]])
+    np.testing.assert_allclose(manual_prediction, sklearn_prediction, atol=1e-10)
+    full = pipeline(LinearRegression()).fit(train[FEATURES], train[TARGET])
+    print("Intercept and area coefficient:", beta.round(4))
+    print("Area-only validation MAE:", mean_absolute_error(validation[TARGET], sklearn_prediction))
+    print("Mixed-feature validation MAE:", mean_absolute_error(
+        validation[TARGET], full.predict(validation[FEATURES])))
+    return beta
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đọc hệ số và sai số validation
+
+Assertion so sánh toàn bộ vector dự đoán, không chỉ so hai số MAE. Nếu assertion không qua, hãy kiểm tra có thiếu cột intercept, fit imputer trên tập khác, hoặc vô tình đổi thứ tự feature không.
+
+MAE là trung bình độ lớn sai số giá trên validation. Có thêm feature không đảm bảo MAE giảm ở mọi dataset; phải kiểm chứng bằng dữ liệu không dùng để fit. Cũng không nên so hệ số giữa các cột đã chuẩn hóa và chưa chuẩn hóa như thể chúng cùng đơn vị.
+
+Hãy ghi hệ số diện tích, MAE của mô hình một feature và MAE của pipeline đầy đủ, rồi diễn giải sai số theo tỷ đồng. Đừng dùng validation nhiều lần để chọn hàng chục biến thể rồi xem điểm tốt nhất là ước lượng khách quan. Phần CV và Nested CV sẽ xử lý việc lựa chọn có hệ thống.
+
+Tham khảo: [Tài liệu Scikit-Learn](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html).
+
+</MdxPage>

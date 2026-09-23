@@ -1,0 +1,165 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "naive-bayes-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Chuẩn hóa score Bayes",
+    "Hiểu chữ naive",
+    "Chọn likelihood",
+    "Kiểm tra baseline Naive Bayes"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Naive Bayes",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "nb-bayes-posterior",
+    "nb-conditional-independence",
+    "nb-likelihood-smoothing",
+    "nb-evaluation"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="naive-bayes-quiz" questions={[
+  {
+    "id": "nb-bayes-posterior",
+    "title": "Chuẩn hóa score Bayes",
+    "prompt": "Prior spam là 0.2; likelihood một bằng chứng là 0.6 dưới spam và 0.1 dưới email hợp lệ. Posterior spam là bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "0.12",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "0.20",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "0.60",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "0.80",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Score spam 0.12, hợp lệ 0.08, posterior = 0.12/0.20 = 0.6.",
+    "error": "Score chưa chuẩn hóa khác posterior; cần tính cả lớp còn lại."
+  },
+  {
+    "id": "nb-conditional-independence",
+    "title": "Hiểu chữ naive",
+    "prompt": "Chọn tất cả phát biểu đúng về Naive Bayes.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Giả định độc lập của feature được đặt có điều kiện theo lớp.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Các feature bắt buộc độc lập vô điều kiện trên toàn dataset.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Hai feature trùng thông tin có thể khiến posterior quá tự tin.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Cộng log-likelihood giúp tránh nhân quá nhiều số rất nhỏ.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Độc lập có điều kiện là giả định mô hình; log-score giúp ổn định số.",
+    "error": "Không nhầm độc lập theo lớp với độc lập toàn cục, hoặc phân loại đúng với calibration tốt."
+  },
+  {
+    "id": "nb-likelihood-smoothing",
+    "title": "Chọn likelihood",
+    "prompt": "Ghép representation với biến thể phù hợp.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "gaussian",
+        "label": "Gaussian"
+      },
+      {
+        "id": "multinomial",
+        "label": "Multinomial"
+      },
+      {
+        "id": "bernoulli",
+        "label": "Bernoulli"
+      },
+      {
+        "id": "categorical",
+        "label": "Categorical"
+      }
+    ],
+    "options": [
+      {
+        "id": "continuous",
+        "label": "Feature liên tục, mô hình Gaussian trong từng lớp.",
+        "categoryId": "gaussian"
+      },
+      {
+        "id": "counts",
+        "label": "Số lần xuất hiện token không âm.",
+        "categoryId": "multinomial"
+      },
+      {
+        "id": "flags",
+        "label": "Cờ có/không cho từng từ.",
+        "categoryId": "bernoulli"
+      },
+      {
+        "id": "category",
+        "label": "Feature là một trong các category rời rạc.",
+        "categoryId": "categorical"
+      }
+    ],
+    "success": "Đúng. Representation quyết định likelihood; smoothing số đếm không phải công thức chung cho mọi biến thể.",
+    "error": "Phân biệt số đếm, cờ nhị phân, category và đại lượng liên tục."
+  },
+  {
+    "id": "nb-evaluation",
+    "title": "Kiểm tra baseline Naive Bayes",
+    "prompt": "Chọn các bước đúng khi đưa Naive Bayes vào pipeline văn bản.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Fit vocabulary trên train của mỗi fold.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Dùng posterior như xác suất hoàn hảo nếu accuracy cao.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Chọn smoothing bằng validation và giữ test để đánh giá cuối.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Kiểm tra Log Loss/calibration nếu xác suất dùng cho quyết định.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Cả vocabulary và smoothing thuộc quy trình phát triển; posterior cần được đánh giá.",
+    "error": "Accuracy không bảo đảm calibration và vectorizer cũng có thể gây leakage."
+  }
+]} />

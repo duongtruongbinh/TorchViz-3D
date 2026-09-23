@@ -47,6 +47,56 @@ Chapter 1 is intentionally a beginner-level conceptual overview: each
 historical milestone explains its problem, key idea, and impact without teaching
 derivations, architecture shapes, or implementation details owned by Chapter 2
 and later chapters.
+Machine Learning assumes independently studied Linear Algebra prerequisites.
+Its model lessons briefly link to existing Linear Algebra content instead of
+repeating tensor theory and a tensor quiz.
+Retired `tensor-shape-fundamentals`, `shape-basics`, and `shape-basics-quiz` routes
+resolve through TOC aliases (retired lesson bookmarks select `linear-activation`).
+The first chapter, `linear-regression-foundations`, integrates problem framing,
+splits, regression losses, generalization, bias/variance, L1/L2 and CV through a
+housing example. After CV, three theory/quiz pairs cover split/seed variability,
+bootstrap confidence intervals and prediction intervals. They distinguish
+training/split variation, fixed-model metric uncertainty and new-response
+uncertainty, with assumptions and four-question assessments. Classification
+evaluation links back to the shared resampling principles. The chapter ends
+with the `regression-metrics` theory/quiz pair. The second,
+`logistic-classification`, contains Logistic Regression, Value flow/activation,
+One-vs-Rest, k-NN, Naive Bayes, SVM, then the `classification-metrics` pair.
+The unsupervised chapter places Gaussian Mixture Models directly after K-Means
+and before DBSCAN. Each new algorithm has four theory pages and a four-question
+mixed-mode assessment with matching concept IDs. Activation remains directly
+after the Logistic pair. There is no separate Core ML Concepts chapter or mixed
+Evaluation Metrics lesson. Old core/combined/value-flow track bookmarks redirect;
+existing lesson IDs retain their destinations, and `evaluation-metrics` bookmarks
+map to the new regression metrics pair. Bare track bookmarks use the target
+chapter's first lesson. Historical MDX filename prefixes remain unchanged for
+existing lessons: typed TOC order controls navigation. Applied shape examples
+remain model-specific; the user's learning-paradigms title is preserved.
+
+Six Machine Learning code labs share `synthetic-housing-v1`, a deterministic
+600-row teaching dataset with numeric/categorical features. The regression
+chapter adds leakage auditing and OLS-to-sklearn labs before its metrics;
+classification adds a mixed-type pipeline lab before its metrics. Ensemble,
+unsupervised and tuning chapters end with model comparison, unlabeled
+clustering and nested-CV labs respectively. Every lab has four mixed-mode
+questions aligned to its conceptIds.
+
+Downloadable implementation and pinned requirements live in
+`public/learning/fundamentals/labs/`. These run in local Python 3.11-3.13,
+not in the Workspace torchstub runtime. Five labs use development data only;
+nested CV also keeps the final 120-row holdout closed unless explicitly run
+with `--evaluate-test --artifact NEW_PATH`. Selection includes all three model
+families, uses AP and a fixed 0.5 decision threshold, and saves the full pipeline.
+Artifact overwrite refusal is a workflow reminder, not an access-control claim.
+Synthetic performance is not a real-world benchmark. To verify executable labs:
+
+```bash
+python -m pip install -r public/learning/fundamentals/labs/requirements.txt
+python -B scripts/testMachineLearningLabs.py -v
+```
+
+Use an isolated Python environment. Node tests additionally check that MDX Python
+blocks match the downloadable implementation and static asset links exist.
 
 The authored LLM lessons are:
 

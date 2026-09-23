@@ -1,0 +1,147 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "linear-regression-code-lab-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Shape của design matrix",
+    "Fit hay transform?",
+    "Kiểm tra tương đương",
+    "Diễn giải MAE"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Code lab",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "ols-design-matrix-lab",
+    "ols-train-only-imputation",
+    "ols-library-equivalence",
+    "ols-validation-mae"
+  ],
+  "pageCount": 4
+}
+
+<MdxQuiz id="linear-regression-code-lab-quiz" questions={[
+  {
+    "title": "Shape của design matrix",
+    "prompt": "360 dòng train, một feature diện tích và intercept. Design matrix có shape nào?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "(2, 360).",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "(360, 2).",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "(360, 1) vì intercept không cần cột.",
+        "isCorrect": false,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. (360, 2).",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "ols-design-matrix-lab"
+  },
+  {
+    "title": "Fit hay transform?",
+    "prompt": "Ghép thao tác đúng với training và validation.",
+    "mode": "categorize",
+    "categories": [
+      {
+        "id": "c0",
+        "label": "Training split"
+      },
+      {
+        "id": "c1",
+        "label": "Validation split"
+      }
+    ],
+    "options": [
+      {
+        "label": "Học median diện tích.",
+        "categoryId": "c0",
+        "id": "o0"
+      },
+      {
+        "label": "Học hệ số OLS.",
+        "categoryId": "c0",
+        "id": "o1"
+      },
+      {
+        "label": "Điền thiếu bằng median đã học.",
+        "categoryId": "c1",
+        "id": "o2"
+      },
+      {
+        "label": "Tính MAE để đánh giá.",
+        "categoryId": "c1",
+        "id": "o3"
+      }
+    ],
+    "success": "Đúng. Mỗi bước có vai trò riêng trong quy trình.",
+    "error": "Hãy phân biệt dữ liệu để học, dữ liệu để lựa chọn và dữ liệu chỉ để đánh giá.",
+    "id": "ols-train-only-imputation"
+  },
+  {
+    "title": "Kiểm tra tương đương",
+    "prompt": "Muốn đối chiếu lstsq với LinearRegression, cần giữ những gì giống nhau?",
+    "mode": "multi",
+    "options": [
+      {
+        "label": "Cùng dữ liệu sau imputation và cùng target.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Cả hai đều có intercept và không có penalty.",
+        "isCorrect": true,
+        "id": "o1"
+      },
+      {
+        "label": "Chỉ cần hai MAE tình cờ bằng nhau.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Một bên được dùng thêm cột thuế.",
+        "isCorrect": false,
+        "id": "o3"
+      }
+    ],
+    "success": "Đúng. Cùng dữ liệu sau imputation và cùng target. Cả hai đều có intercept và không có penalty.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "ols-library-equivalence"
+  },
+  {
+    "title": "Diễn giải MAE",
+    "prompt": "MAE validation là 0.4, target tính bằng tỷ đồng. Kết luận nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "label": "Đã đảm bảo MAE production là 0.4.",
+        "isCorrect": false,
+        "id": "o2"
+      },
+      {
+        "label": "Độ lớn sai số trung bình trên validation là 0.4 tỷ; không phải mỗi nhà đều sai đúng mức đó.",
+        "isCorrect": true,
+        "id": "o0"
+      },
+      {
+        "label": "Tất cả dự đoán lệch đúng 400 triệu.",
+        "isCorrect": false,
+        "id": "o1"
+      }
+    ],
+    "success": "Đúng. Độ lớn sai số trung bình trên validation là 0.4 tỷ; không phải mỗi nhà đều sai đúng mức đó.",
+    "error": "Hãy đối chiếu thời điểm dùng dữ liệu và mục tiêu đánh giá trong lab.",
+    "id": "ols-validation-mae"
+  }
+]} />

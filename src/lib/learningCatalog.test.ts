@@ -296,6 +296,113 @@ test('reinforcement learning keeps canonical order and resolves legacy aliases',
   assert.equal(nlpRoute?.lesson.id, 'self-attention');
 });
 
+test('retired tensor prerequisite bookmarks resolve without reintroducing tensor lessons', () => {
+  const table = learningTableOfContents.find((item) => item.id === 'fundamentals');
+  assert.ok(table);
+  for (const catalog of [learningCatalog, materializeLearningCatalog([table])]) {
+    assert.equal(getLearningTrack(catalog, 'fundamentals', 'tensor-shape-fundamentals'), null);
+    assert.ok(!catalog.lessons.some((lesson) => (
+      lesson.domainId === 'fundamentals' && ['shape-basics', 'shape-basics-quiz'].includes(lesson.id)
+    )));
+    for (const lessonId of [undefined, 'shape-basics', 'shape-basics-quiz']) {
+      const route = resolveLearningLessonRoute(catalog, {
+        domainId: 'fundamentals',
+        trackId: 'tensor-shape-fundamentals',
+        lessonId,
+      });
+      assert.equal(route?.track.id, lessonId ? 'logistic-classification' : 'linear-regression-foundations');
+      assert.equal(route?.lesson.id, lessonId ? 'linear-activation' : 'supervised-unsupervised-rl');
+      assert.equal(route?.isCanonical, false);
+    }
+    const canonical = resolveLearningLessonRoute(catalog, {
+      domainId: 'fundamentals', trackId: 'logistic-classification', lessonId: 'linear-activation',
+    });
+    assert.equal(canonical?.isCanonical, true);
+  }
+});
+
+test('value flow follows Logistic Regression with its quiz and preserves old bookmarks', () => {
+  const table = learningTableOfContents.find((item) => item.id === 'fundamentals');
+  assert.ok(table);
+  for (const catalog of [learningCatalog, materializeLearningCatalog([table])]) {
+    assert.equal(getLearningTrack(catalog, 'fundamentals', 'value-flow'), null);
+    const track = getLearningTrack(catalog, 'fundamentals', 'logistic-classification');
+    assert.ok(track);
+    const start = track.lessonIds.indexOf('logistic-regression');
+    assert.ok(start >= 0);
+    assert.deepEqual(track.lessonIds.slice(start, start + 5), [
+      'logistic-regression', 'logistic-regression-quiz',
+      'linear-activation', 'linear-activation-quiz', 'one-vs-rest',
+    ]);
+    for (const lessonId of [undefined, 'linear-activation', 'linear-activation-quiz']) {
+      const route = resolveLearningLessonRoute(catalog, {
+        domainId: 'fundamentals', trackId: 'value-flow', lessonId,
+      });
+      assert.equal(route?.track.id, track.id);
+      assert.equal(route?.lesson.id, lessonId ?? 'logistic-regression');
+      assert.equal(route?.isCanonical, false);
+    }
+    const prerequisite = resolveLearningLessonRoute(learningCatalog, {
+      domainId: 'linear-algebra', trackId: 'linear-algebra-for-ai',
+      lessonId: 'linear-algebra-for-ai-overview',
+    });
+    assert.equal(prerequisite?.isCanonical, true);
+    assert.equal(prerequisite?.lesson.contentStatus, 'published');
+  }
+});
+
+test('Machine Learning integrates core concepts into regression and ends each model chapter with its metrics', () => {
+  const table = learningTableOfContents.find((item) => item.id === 'fundamentals');
+  assert.ok(table);
+  const expected = {
+    'linear-regression-foundations': [
+      'supervised-unsupervised-rl', 'linear-regression', 'train-validation-test',
+      'regression-cost-functions', 'overfitting-underfitting', 'bias-variance-tradeoff',
+      'regularization-l1-l2', 'cross-validation-k-fold', 'variability-splits-seeds',
+      'bootstrap-confidence-intervals', 'prediction-intervals',
+      'leakage-code-lab', 'linear-regression-code-lab', 'regression-metrics',
+    ],
+    'logistic-classification': [
+      'logistic-regression', 'linear-activation', 'one-vs-rest', 'k-nearest-neighbors',
+      'naive-bayes', 'support-vector-machines', 'mixed-classification-code-lab',
+      'classification-metrics',
+    ],
+    'decision-trees-ensembles': [
+      'decision-tree-splitting', 'random-forests', 'gradient-boosting',
+      'feature-importance', 'model-comparison-code-lab',
+    ],
+    'unsupervised-learning': [
+      'k-means-clustering', 'gaussian-mixture-models', 'dbscan-clustering',
+      'pca-dimensionality-reduction', 'tsne-umap-visualization', 'clustering-code-lab',
+    ],
+    'hyperparameter-tuning': [
+      'grid-random-search', 'bayesian-optimization', 'training-hyperparameters',
+      'early-stopping', 'nested-cv-code-lab',
+    ],
+  };
+  for (const catalog of [learningCatalog, materializeLearningCatalog([table])]) {
+    assert.equal(getLearningTrack(catalog, 'fundamentals', 'core-ml-concepts'), null);
+    for (const [trackId, ids] of Object.entries(expected)) {
+      assert.deepEqual(getLearningTrack(catalog, 'fundamentals', trackId)?.lessonIds,
+        ids.flatMap((id) => [id, `${id}-quiz`]));
+    }
+    for (const [trackId, lessonId, newTrackId, newLessonId] of [
+      ['core-ml-concepts', 'train-validation-test', 'linear-regression-foundations', 'train-validation-test'],
+      ['core-ml-concepts', 'evaluation-metrics', 'linear-regression-foundations', 'regression-metrics'],
+      ['core-ml-concepts', 'evaluation-metrics-quiz', 'linear-regression-foundations', 'regression-metrics-quiz'],
+      ['linear-logistic-regression', 'linear-regression', 'linear-regression-foundations', 'linear-regression'],
+      ['linear-logistic-regression', 'logistic-regression-quiz', 'logistic-classification', 'logistic-regression-quiz'],
+    ]) {
+      const route = resolveLearningLessonRoute(catalog, { domainId: 'fundamentals', trackId, lessonId });
+      assert.equal(route?.track.id, newTrackId);
+      assert.equal(route?.lesson.id, newLessonId);
+      assert.equal(route?.isCanonical, false);
+    }
+    assert.ok(!catalog.lessons.some((lesson) => lesson.domainId === 'fundamentals' &&
+      ['evaluation-metrics', 'evaluation-metrics-quiz'].includes(lesson.id)));
+  }
+});
+
 test('a bare domain route resolves the first lesson by product default', () => {
   const route = resolveLearningLessonRoute(learningCatalog, {
     domainId: 'linear-algebra',

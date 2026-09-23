@@ -78,6 +78,6 @@ Các classifier được train độc lập, nên xác suất của chúng có t
 
 OvR cũng có thể dùng cho **multilabel classification**, nơi một mẫu được phép thuộc nhiều lớp cùng lúc, chẳng hạn một ảnh có cả `beach` và `sunset`. Khi đó không chọn một `argmax`; mỗi classifier dùng threshold riêng và có thể cùng dự đoán positive. Hãy xác định rõ bài toán là multiclass độc quyền hay multilabel trước khi thiết kế cách ra quyết định.
 
-Softmax multinomial logistic regression thường phù hợp tự nhiên với multiclass độc quyền, còn OvR linh hoạt hơn khi muốn tái sử dụng binary classifier hoặc khi bài toán có thể có nhiều nhãn. Lựa chọn cuối cùng nên được kiểm chứng bằng validation metric theo đúng mục tiêu sản phẩm.
+Softmax multinomial logistic regression thường phù hợp tự nhiên với multiclass độc quyền, còn OvR linh hoạt hơn khi muốn tái sử dụng binary classifier hoặc khi bài toán có thể có nhiều nhãn. Lựa chọn cuối cùng nên được kiểm chứng bằng validation metric theo đúng mục tiêu sản phẩm. Tiếp theo, k-NN, Naive Bayes và SVM bổ sung ba cách xây classifier khác nhau. Classification Metrics ở cuối chương sẽ phân biệt đánh giá nhãn, thứ hạng score và xác suất, đồng thời giải thích cách gộp metric khi có nhiều lớp.
 
 </MdxPage>

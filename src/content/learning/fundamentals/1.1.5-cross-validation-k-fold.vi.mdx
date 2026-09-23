@@ -19,7 +19,7 @@ export const lessonMetadata = {
 
 ## Vì sao cần cross-validation
 
-Một lần chia train và validation có thể cho kết quả tốt hoặc xấu do ngẫu nhiên. Nếu validation set vô tình chứa nhiều ví dụ dễ, model có vẻ tốt hơn thực tế; nếu nó chứa nhiều ví dụ khó, model lại có vẻ kém hơn thực tế.
+Sau khi thêm L1/L2 vào model giá nhà, ta cần chọn độ mạnh regularization. Một lần chia train và validation có thể cho kết quả tốt hoặc xấu do ngẫu nhiên. Nếu validation set vô tình chứa nhiều ví dụ dễ, model có vẻ tốt hơn thực tế; nếu nó chứa nhiều ví dụ khó, model lại có vẻ kém hơn thực tế.
 
 **Cross-validation** giảm sự phụ thuộc vào một lần chia duy nhất. Thay vì đánh giá model trên một validation set cố định, ta lặp lại quá trình train và validation trên nhiều phần khác nhau của dữ liệu.
 
@@ -56,13 +56,14 @@ Giá trị `K` thường là 5 hoặc 10. K lớn hơn giúp mỗi lần train d
 
 ## Đọc kết quả qua nhiều fold
 
-Sau K-fold, ta thường báo cáo trung bình metric qua các fold. Ví dụ, năm điểm accuracy là `0.81`, `0.79`, `0.83`, `0.80` và `0.82` có trung bình là `0.81`. Con số này ước lượng hiệu năng ổn định hơn so với chỉ một validation split.
+Sau K-fold, ta thường báo cáo trung bình metric qua các fold. Ví dụ, năm MAE của model giá nhà là `210`, `190`, `230`, `200` và `220` triệu đồng, trung bình là `210` triệu đồng. MAE càng thấp càng tốt. Con số này ước lượng hiệu năng ổn định hơn so với chỉ một validation split.
 
-Tuy nhiên, trung bình không kể hết câu chuyện. Cần quan sát cả độ dao động giữa các fold. Một model có average score cao nhưng điểm số dao động mạnh có thể nhạy với cách chia dữ liệu hoặc với các nhóm dữ liệu nhất định.
+Tuy nhiên, trung bình không kể hết câu chuyện. Cần quan sát cả độ dao động giữa các fold. Một model có MAE trung bình thấp nhưng kết quả dao động mạnh có thể nhạy với cách chia dữ liệu hoặc với các nhóm dữ liệu nhất định.
 
 ```text
-Model A: 0.81, 0.81, 0.80, 0.82, 0.81
-Model B: 0.84, 0.72, 0.89, 0.75, 0.85
+MAE, triệu đồng, càng thấp càng tốt:
+Model A: 210, 210, 200, 220, 210
+Model B: 150, 300, 120, 280, 200
 ```
 
 Model B có thể có trung bình gần Model A, nhưng kết quả kém ổn định hơn. Trong bối cảnh production, sự ổn định thường quan trọng, nhất là khi dữ liệu của người dùng có thể thay đổi theo thời gian hoặc theo nhóm.
@@ -81,7 +82,7 @@ K-fold thông thường giả định các mẫu có thể được chia ngẫu 
 
 Ví dụ, nếu một bệnh nhân xuất hiện ở cả train và validation, model có thể nhận ra đặc điểm riêng của bệnh nhân đó. Nếu dữ liệu tương lai xuất hiện trong train, model lại có thông tin mà lúc triển khai thực tế chưa thể biết. Cả hai trường hợp đều làm validation score lạc quan giả.
 
-Vì vậy, trước khi chọn K-fold, hãy hỏi dữ liệu có yếu tố thời gian, nhóm lặp lại hoặc mất cân bằng lớp hay không.
+Với giá nhà, chọn group split nếu cần đánh giá trên căn nhà chưa thấy và có nhiều dòng cho mỗi căn; dùng split theo thời gian nếu mục tiêu là giao dịch tương lai. Trong từng fold, fit lại cả bước điền dữ liệu thiếu, scaler và model trên phần train của fold đó. Không fit scaler một lần trên toàn bộ phần phát triển trước CV.
 
 </MdxPage>
 
@@ -95,6 +96,6 @@ Sau khi đã chốt quy trình, vẫn cần một **test set cuối cùng** chư
 
 Một workflow gọn gàng có thể là: tách test set trước; chạy cross-validation trên phần dữ liệu còn lại để chọn cấu hình; train lại cấu hình đã chọn trên toàn bộ phần phát triển; cuối cùng đánh giá một lần trên test set.
 
-Nếu liên tục xem test score để chọn model tiếp theo, test set sẽ mất vai trò đánh giá độc lập. Cross-validation mạnh hơn một validation split đơn, nhưng nó không loại bỏ nhu cầu giữ lại test set cuối cùng.
+Nếu liên tục xem test score để chọn model tiếp theo, test set sẽ mất vai trò đánh giá độc lập. Cross-validation mạnh hơn một validation split đơn, nhưng nó không loại bỏ nhu cầu giữ lại test set cuối cùng. Ba bài tiếp theo phân biệt biến động giữa split/seed, khoảng tin cậy của một thống kê và khoảng dự đoán cho một căn nhà mới. Sau đó Regression Metrics sẽ tổng hợp cách báo cáo sai số cùng độ bất định.
 
 </MdxPage>

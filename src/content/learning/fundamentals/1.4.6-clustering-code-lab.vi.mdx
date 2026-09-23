@@ -1,0 +1,111 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "clustering-code-lab",
+  "locale": "vi",
+  "title": "Lab clustering và đánh giá không có nhãn",
+  "headings": [
+    "Tìm cấu trúc thay vì dự đoán giá",
+    "Chọn không gian khoảng cách",
+    "Thử K và kiểm tra độ ổn định",
+    "Diễn giải cụm mà không tạo ra ground truth"
+  ],
+  "keywords": [
+    "code lab",
+    "Scikit-Learn",
+    "clustering",
+    "pipeline",
+    "synthetic housing"
+  ],
+  "conceptIds": [
+    "clustering-feature-boundary",
+    "clustering-distance-preprocessing",
+    "clustering-internal-validation",
+    "clustering-seed-stability"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Tìm cấu trúc thay vì dự đoán giá
+
+Lab phân cụm các căn nhà theo thông tin trước bán. Dù dataset có giá và có thể tạo nhãn đắt/rẻ, ta cố ý không dùng cả hai trong fit hoặc chọn K. Nhãn giá không phải ground truth cho mọi cách phân nhóm nhà.
+
+Dùng lại development và chia train/validation nội bộ. Fit preprocessing và K-Means trên train; validation chỉ được transform và gán vào tâm đã học. Test cuối khóa không tham gia.
+
+Tải [ml_labs.py](/learning/fundamentals/labs/ml_labs.py) và [requirements.txt](/learning/fundamentals/labs/requirements.txt) vào cùng một thư mục. Dùng Python 3.11–3.13 trong terminal; đây là Scikit-Learn thật, không chạy bằng nút Trực quan hóa của Workspace. Nếu đã cài môi trường ở lab trước thì dùng lại.
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python ml_labs.py clustering
+```
+
+Trên macOS/Linux, thay `.venv\Scripts\python` bằng `.venv/bin/python`. Các lệnh `python ml_labs.py ...` ở phần sau giả định bạn đã kích hoạt môi trường này. Chỉ bước cài thư viện cần mạng; dữ liệu được tạo tại chỗ. Không cần tải dataset ngoài.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chọn không gian khoảng cách
+
+Khoảng cách Euclidean phụ thuộc scale, nên numeric được điền thiếu và chuẩn hóa bằng thống kê training. Categorical được one-hot. Quyết định này tự tạo ra một khái niệm “giống nhau”; thêm nhiều cột one-hot hoặc đổi trọng số nhóm feature có thể đổi cụm.
+
+Thử K từ 2 đến 5 và tính silhouette trên validation sau khi gán cụm. Điểm chỉ xác định khi có ít nhất hai cụm và ít hơn số mẫu validation. Code đánh dấu NaN nếu điều kiện này không thỏa; không gán một điểm tốt giả.
+
+Sau khi chọn K theo silhouette, fit lại cùng K trên train với seed 7 và so hai cách gán validation bằng Adjusted Rand Index. ARI ở đây đo sự nhất quán giữa **hai lần chạy**, không so với nhãn thật. Nó không bị ảnh hưởng bởi việc số hiệu cụm bị hoán đổi.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thử K và kiểm tra độ ổn định
+
+Đoạn sau là hàm tương ứng trong file tải về, dùng các import và helper chung của module. Lệnh ở trang đầu gọi trực tiếp hàm này; không cần ghép code của lab khác.
+
+```python
+def clustering_lab():
+    # Neither continuous price nor the derived class enters clustering.
+    X = development()[FEATURES]
+    train, validation = train_test_split(X, test_size=0.25, random_state=SEED)
+    rows = []
+    fitted = {}
+    for k in [2, 3, 4, 5]:
+        model = pipeline(KMeans(n_clusters=k, n_init=10, random_state=SEED)).fit(train)
+        transformed = model["preprocess"].transform(validation)
+        labels = model.predict(validation)
+        count = len(np.unique(labels))
+        score = silhouette_score(transformed, labels) if 1 < count < len(labels) else np.nan
+        rows.append({"k": k, "silhouette": score})
+        fitted[k] = model
+    table = pd.DataFrame(rows)
+    print(table.to_string(index=False))
+    valid = table.dropna()
+    if valid.empty:
+        raise ValueError("No valid silhouette: inspect features and cluster sizes.")
+    k = int(valid.loc[valid["silhouette"].idxmax(), "k"])
+    model = fitted[k]
+    labels = model.predict(validation)
+    alternate = pipeline(KMeans(n_clusters=k, n_init=10, random_state=7)).fit(train)
+    print("Seed stability ARI:", adjusted_rand_score(labels, alternate.predict(validation)))
+    print("Validation cluster sizes:", pd.Series(labels).value_counts().sort_index().to_dict())
+    print(validation.assign(cluster=labels).groupby("cluster")[NUMERIC].mean())
+    return table
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Diễn giải cụm mà không tạo ra ground truth
+
+Silhouette cao gợi ý cụm tương đối gọn và tách biệt trong không gian đã chọn, không chứng minh có đúng K nhóm tự nhiên. Vì đã dùng validation chọn K, điểm tốt nhất có selection bias; nó là công cụ thăm dò, không phải một test cuối độc lập.
+
+Đọc thêm kích thước cụm và giá trị trung bình numeric trên thang đo gốc. Một cụm quá nhỏ có thể là vùng hiếm, outlier hoặc hậu quả của preprocessing. ARI cao qua hai seed chỉ cho biết ổn định với thay đổi khởi tạo đó, chưa đảm bảo ổn định với lấy mẫu lại hay có ý nghĩa nghiệp vụ.
+
+Bài hoàn thành khi bạn mô tả được ít nhất hai cụm bằng feature, giải thích vì sao không dùng accuracy và nêu một giới hạn của silhouette. Đừng gọi cụm là “nhà đắt” chỉ vì đó là tên thuận tiện khi chưa phân tích dữ liệu phù hợp.
+
+Tham khảo: [Tài liệu Scikit-Learn](https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html).
+
+</MdxPage>

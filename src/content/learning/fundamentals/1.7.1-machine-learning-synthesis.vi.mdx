@@ -20,7 +20,7 @@ export const lessonMetadata = {
 
 Machine Learning là quá trình dùng dữ liệu để học một quy luật, sau đó dùng quy luật đó dự đoán hoặc hỗ trợ quyết định với dữ liệu mới. Model chỉ là một phần trong workflow; dữ liệu, split, metric, preprocessing, validation và deployment đều quyết định kết quả có đáng tin hay không.
 
-Một workflow đáng tin cậy bắt đầu bằng việc hiểu input. Tensor shape, kiểu feature, target, missing value và thời điểm dữ liệu được tạo ra xác định model có thể học gì. Sau đó cần xác định đúng loại bài toán: regression cho giá trị liên tục, classification cho nhãn, clustering để khám phá nhóm không nhãn hoặc giảm chiều để tìm representation gọn hơn.
+Một workflow đáng tin cậy bắt đầu bằng việc hiểu input. Cách biểu diễn dữ liệu bằng vector, matrix và tensor là kiến thức nền đã học ở [Linear Algebra](/learning/linear-algebra/linear-algebra-for-ai?lesson=linear-algebra-for-ai-overview). Trong workflow ML, ta dùng nền tảng đó để xác định sample, feature, target, missing value và thời điểm dữ liệu được tạo ra. Sau đó cần xác định đúng loại bài toán: regression cho giá trị liên tục, classification cho nhãn, clustering để khám phá nhóm không nhãn hoặc giảm chiều để tìm representation gọn hơn.
 
 Mục tiêu không phải là làm train score đẹp. Mục tiêu là tạo ra quyết định có ích trên dữ liệu mới, trong các ràng buộc thực tế của sản phẩm.
 
@@ -30,9 +30,13 @@ Mục tiêu không phải là làm train score đẹp. Mục tiêu là tạo ra 
 
 ## Bản đồ chọn bài toán và model
 
+Chương Linear Regression dùng ví dụ giá nhà để nối chia dữ liệu, loss, overfitting, bias–variance, L1/L2 và cross-validation, rồi kết thúc bằng đánh giá hồi quy. Chương phân loại nối Logistic Regression với activation, One-vs-Rest, k-NN, Naive Bayes và SVM trước khi đánh giá. Hai nhóm metric đặt sau workflow tương ứng, nhưng quy tắc giữ test độc lập được dùng xuyên suốt.
+
 Khi target là giá trị liên tục, linear regression là baseline dễ diễn giải; tree và ensemble có thể học quan hệ phi tuyến. Khi target là nhãn, logistic regression tạo xác suất cho classification nhị phân, còn One-vs-Rest hoặc softmax mở rộng sang nhiều lớp.
 
-Decision Tree tạo rule dễ đọc nhưng dễ overfit. Random Forest giảm variance bằng bagging và random feature. Gradient Boosting xây tree tuần tự để sửa lỗi và thường mạnh với dữ liệu bảng, đổi lại cần tuning kỹ hơn. K-Means, DBSCAN, PCA và t-SNE/UMAP phục vụ các mục tiêu không giám sát khác nhau, không phải các phiên bản thay thế trực tiếp cho nhau.
+k-NN dựa vào hàng xóm nên cần distance có nghĩa và kiểm soát chi phí query; Naive Bayes dựa vào likelihood theo lớp và giả định độc lập có điều kiện; SVM tìm ranh giới theo margin và có thể dùng kernel. k-NN regression và SVR vẫn dùng nhóm metric hồi quy khi target là số liên tục.
+
+Decision Tree tạo rule dễ đọc nhưng dễ overfit. Random Forest giảm variance bằng bagging và random feature. Gradient Boosting xây tree tuần tự để sửa lỗi và thường mạnh với dữ liệu bảng, đổi lại cần tuning kỹ hơn. K-Means gán cụm theo centroid; Gaussian Mixture Models mô hình hóa mật độ và gán mềm qua responsibility; DBSCAN dựa vào vùng mật độ. PCA và t-SNE/UMAP phục vụ giảm chiều hoặc trực quan hóa, không phải các phiên bản thay thế trực tiếp cho mọi thuật toán clustering.
 
 Không có model tốt nhất độc lập với data. Hãy bắt đầu bằng baseline, xem feature có tín hiệu nào, chọn model theo metric và ràng buộc vận hành, rồi kiểm tra failure mode thay vì chỉ chạy theo benchmark phổ biến.
 
@@ -46,6 +50,8 @@ Train set dùng để học parameter. Validation hoặc cross-validation dùng 
 
 Metric phải phản ánh chi phí lỗi. Regression có MAE, MSE, RMSE và R2; classification có Accuracy, Precision, Recall, F1, ROC-AUC, PR-AUC và Log Loss. Đừng tối ưu metric phổ biến nhất nếu nó không đại diện cho rủi ro của ứng dụng.
 
+Một con số tốt cần đi kèm bối cảnh biến động. So model trên cùng split, báo cáo các seed theo protocol định trước; không lấy SD giữa các fold phụ thuộc rồi tự gọi là CI. Bootstrap CI cần chỉ rõ metric và đơn vị resampling, đồng thời phân biệt model cố định với retrain toàn pipeline. Prediction interval lại nhắm tới response của sample mới và cần kiểm tra coverage cùng độ rộng. Cả ba đều không tự bảo vệ trước distribution shift.
+
 Overfitting, bias–variance trade-off, regularization, cross-validation, search hyperparameter và early stopping là các công cụ cùng hướng tới generalization. Chúng chỉ đáng tin khi split strategy mô phỏng dữ liệu production và preprocessing được fit đúng trên train portion của từng fold.
 
 </MdxPage>
@@ -53,6 +59,10 @@ Overfitting, bias–variance trade-off, regularization, cross-validation, search
 <MdxPage page={3}>
 
 ## Từ notebook đến workflow đáng tin cậy
+
+Sáu code lab dùng chung bộ dữ liệu nhà ở mô phỏng, cùng feature trước bán và cùng holdout: [phát hiện leakage](/learning/fundamentals/linear-regression-foundations?lesson=leakage-code-lab), [OLS đến Scikit-Learn](/learning/fundamentals/linear-regression-foundations?lesson=linear-regression-code-lab), [classification pipeline](/learning/fundamentals/logistic-classification?lesson=mixed-classification-code-lab), [so sánh ba model](/learning/fundamentals/decision-trees-ensembles?lesson=model-comparison-code-lab), [clustering không nhãn](/learning/fundamentals/unsupervised-learning?lesson=clustering-code-lab) và [Nested CV](/learning/fundamentals/hyperparameter-tuning?lesson=nested-cv-code-lab). Hãy đi theo thứ tự này để thấy một quyết định về dữ liệu ảnh hưởng đến các bước phía sau.
+
+Trong chuỗi lab, giá liên tục phục vụ regression; điều kiện giá ít nhất 3.5 tỷ tạo nhãn classification; clustering không dùng cả hai target. Dữ liệu là mô phỏng phục vụ học tập, không phải benchmark thị trường. Test chỉ mở khi đã khóa protocol ở lab cuối; artifact lưu toàn bộ preprocessing và estimator để dự đoán lại nhất quán.
 
 Scikit-Learn Pipeline gộp preprocessing và model thành một workflow duy nhất. ColumnTransformer xử lý các cột số và category theo cách phù hợp. Cross-validation và search object đánh giá toàn bộ pipeline, giúp tránh leakage và giữ logic train/inference nhất quán.
 
