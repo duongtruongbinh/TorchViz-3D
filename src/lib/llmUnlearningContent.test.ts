@@ -7,32 +7,31 @@ import { llmUnlearningPaperById, llmUnlearningLessonReferenceCoverage } from '..
 import { llmUnlearningLessonPairs } from '../content/learning/llm-unlearning/table-of-contents.ts';
 
 const contentDir = path.resolve('src/content/learning/llm-unlearning');
-const assetDir = path.resolve('src/assets/learning/llm-unlearning');
 const mdxFiles = readdirSync(contentDir).filter((file) => file.endsWith('.mdx')).sort();
 const sources = new Map(mdxFiles.map((file) => [file, readFileSync(path.join(contentDir, file), 'utf8')]));
 
 const expectedAssets = [
-  '01-unlearning-objective-overview.png',
-  '01-system-prompt-bypass-doodle.png',
-  '01-llm-training-megaproject-cost.png',
-  '01-differential-privacy-epsilon-delta.png',
-  '01-harry-potter-unlearning-concept.png',
-  '02-sisa-architecture-sharding.png',
-  '02-kmeans-quantized-centroids.png',
-  '02-transformer-entanglement.png',
-  '03-tofu-synthetic-authors.png',
-  '03-tofu-dataset-splits.png',
-  '03-gold-retrained-distribution.png',
-  '04-gradient-ascent-fluency-collapse.png',
-  '04-gradient-difference-balance-scale.png',
-  '04-kl-mode-covering-vs-mode-seeking.png',
-  '04-dpo-preference-pairs.png',
-  '05-tripartite-evaluation-metrics.png',
-  '05-tofu-empirical-behavior.png',
-  '05-forget-quality-utility-pareto.png',
-  '06-entangled-knowledge-representations.png',
-  '06-relearning-jailbreak-probes.png',
-  '06-llm-lifecycle-management.png',
+  '01-unlearning-objective-overview.webp',
+  '01-system-prompt-bypass-doodle.webp',
+  '01-llm-training-megaproject-cost.webp',
+  '01-differential-privacy-epsilon-delta.webp',
+  '01-harry-potter-unlearning-concept.webp',
+  '02-sisa-architecture-sharding.webp',
+  '02-kmeans-quantized-centroids.webp',
+  '02-transformer-entanglement.webp',
+  '03-tofu-synthetic-authors.webp',
+  '03-tofu-dataset-splits.webp',
+  '03-gold-retrained-distribution.webp',
+  '04-gradient-ascent-fluency-collapse.webp',
+  '04-gradient-difference-balance-scale.webp',
+  '04-kl-mode-covering-vs-mode-seeking.webp',
+  '04-dpo-preference-pairs.webp',
+  '05-tripartite-evaluation-metrics.webp',
+  '05-tofu-empirical-behavior.webp',
+  '05-forget-quality-utility-pareto.webp',
+  '06-entangled-knowledge-representations.webp',
+  '06-relearning-jailbreak-probes.webp',
+  '06-llm-lifecycle-management.webp',
 ] as const;
 
 test('LLM unlearning publishes 33 theory-quiz pairs and leaves code labs unauthored', () => {
@@ -138,26 +137,14 @@ test('LLM unlearning content contains no checked Markdown answers or legacy math
   }
 });
 
-test('LLM unlearning uses every approved 16:9 illustration exactly once', () => {
+test('LLM unlearning references every approved illustration exactly once', () => {
   const allSource = [...sources.values()].join('\n');
+  // Learning binaries are intentionally git-ignored and validated against R2 separately.
   const referenced = [...allSource.matchAll(/assetPath="llm-unlearning\/([^"]+\.(?:png|webp))"/g)].map((match) => match[1]);
   assert.deepEqual(
-    [...referenced].map((f) => f.replace(/\.webp$/, '.png')).sort(),
+    [...referenced].sort(),
     [...expectedAssets].sort(),
   );
-
-  for (const asset of referenced) {
-    const fileBuf = readFileSync(path.join(assetDir, asset));
-    if (asset.endsWith('.png')) {
-      assert.equal(fileBuf.toString('ascii', 1, 4), 'PNG', `${asset} must be a PNG`);
-      const width = fileBuf.readUInt32BE(16);
-      const height = fileBuf.readUInt32BE(20);
-      assert.ok(Math.abs(width / height - 16 / 9) < 0.02, `${asset} must be 16:9, received ${width}x${height}`);
-    } else if (asset.endsWith('.webp')) {
-      assert.equal(fileBuf.toString('ascii', 0, 4), 'RIFF', `${asset} must be a RIFF WebP`);
-      assert.equal(fileBuf.toString('ascii', 8, 12), 'WEBP', `${asset} must be a RIFF WebP`);
-    }
-  }
 });
 
 test('LLM unlearning quiz answer positions are balanced across A-D', () => {
