@@ -2,7 +2,7 @@
 title: Add Linear Regression lesson to Machine Learning
 status: done
 created: 2026-09-23T05:15:00+07:00
-updated: 2026-09-23T05:31:00+07:00
+updated: 2026-09-23T08:58:00+07:00
 author: Copilot
 task: "Convert the uploaded Linear Regression lesson and images into the Machine Learning 1.2 Linear & Logistic Regression track."
 supersedes: [
@@ -61,6 +61,15 @@ only if the new authored lesson changes documented catalog status. Run the
 narrowest relevant catalog/content checks, then `npm run verify` if the
 content pipeline requires full validation.
 
+## Phase 4 — Restore supplied lesson images
+
+Restore the two supplied assets referenced by the existing lesson:
+`linear-regression-house-prices.png` and
+`linear-regression-homoscedasticity.png`. Store them in the repository-backed
+public Learning Lab asset tree expected by `LessonImage`, preserve the current
+MDX references and content, validate local/production asset resolution, commit
+with the Copilot co-author trailer, and push the PR head branch.
+
 # Out of scope
 
 - Adding or editing Logistic Regression.
@@ -91,3 +100,13 @@ content pipeline requires full validation.
   section order, explanations, expectation derivation, Homoscedasticity table,
   insights, summary, and next-lesson transition. Only MDX-safe math/image
   syntax was changed.
+- 2026-09-23 — Follow-up restoration requested after the two lesson images were
+  removed as unavailable; plan returned to draft pending explicit approval and
+  supplied asset binaries.
+- 2026-09-23 — Restoration approved by the supplied follow-up request; source
+  ZIP located in the parent session attachment area and image mapping confirmed
+  from the source Markdown.
+- 2026-09-23 — Restored both PNGs under `public/assets/learning/fundamentals/`,
+  reinstated the two existing `LessonImage` references, synchronized catalog
+  stats, and passed typecheck, catalog-stat validation, production build, and
+  diff checks.
