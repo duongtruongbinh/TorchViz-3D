@@ -21,7 +21,7 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 | `ai-ethics-safety-governance` | placeholder | 6 | 33 | 0 |
 | `robot-learning` | placeholder | 1 | 4 | 0 |
 | `evolutionary-algorithms` | partial | 5 | 51 | 15 |
-| `research-papers` | active | 4 | 26 | 26 |
+| `research-papers` | active | 5 | 27 | 27 |
 | `ai-projects` | active | 4 | 11 | 8 |
 
-**Totals:** 16 domains · 104 tracks · 787 lesson nodes · 319 published · 468 placeholders.
+**Totals:** 16 domains · 105 tracks · 788 lesson nodes · 320 published · 468 placeholders.

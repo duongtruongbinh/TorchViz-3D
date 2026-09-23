@@ -1,0 +1,341 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'nvs-nerf-overview',
+  locale: 'vi',
+  title: 'Novel View Synthesis và NeRF',
+  headings: [
+    'Vì sao cần tổng hợp góc nhìn mới?',
+    'Ba làn sóng biểu diễn cảnh 3D',
+    'Novel View Synthesis và voxel',
+    'Ràng buộc đa góc nhìn',
+    'Dữ liệu và Structure-from-Motion',
+    'Bối cảnh',
+    'Tạo tia sáng',
+    'Stratified Sampling',
+    'Tích lũy màu dọc tia',
+    'Vì sao dùng công thức xác suất hấp thụ?',
+    'Differentiable rendering',
+    'Từ volume rendering cổ điển đến rendering khả vi',
+    'Positional Encoding',
+    'Kiến trúc MLP của NeRF',
+    'Từ dự đoán của MLP đến ảnh',
+    'Chi phí suy luận',
+    'Tĩnh và động',
+    'NVS không đồng nhất với 3D Reconstruction',
+    'Thông điệp chính',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Novel View Synthesis',
+    'NVS',
+    'NeRF',
+    'Volume Rendering',
+    'Ray Generation',
+    'Stratified Sampling',
+    'Positional Encoding',
+    'Implicit Neural Representation',
+  ],
+  pageCount: 8,
+};
+
+<MdxPage page={0}>
+
+## Bài toán Novel View Synthesis
+
+### Vì sao cần tổng hợp góc nhìn mới?
+
+Con người luôn muốn đưa thế giới ba chiều xung quanh mình vào máy tính. Nhu cầu
+này xuất hiện trong game và phim ảnh, thực tế ảo/tăng cường, robot học,
+điều hướng, thao tác vật thể và số hóa di sản văn hóa.
+
+Novel View Synthesis (NVS) là bài toán tạo ra hình ảnh của một cảnh từ những
+góc máy chưa xuất hiện trong tập dữ liệu huấn luyện. Hệ thống không chỉ ghi nhớ
+các ảnh 2D; nó phải học một biểu diễn có thể giải thích cấu trúc hình học và
+tính chất phản xạ ánh sáng của cảnh.
+
+Đây là một **inverse problem**: ta quan sát các phép chiếu 2D của một cảnh 3D
+từ một số góc nhìn hữu hạn, rồi suy ngược lại cấu trúc hình học và thuộc tính
+bề mặt. Bài toán thiếu thông tin vì nhiều cảnh 3D khác nhau có thể tạo ra cùng
+một tập ảnh quan sát.
+
+### Ba làn sóng biểu diễn cảnh 3D
+
+- **Explicit representation:** Voxel grid, polygon mesh và point cloud lưu
+  trực tiếp cấu trúc hình học. Chúng trực quan và dễ chỉnh sửa nhưng tốn bộ nhớ
+  khi tăng độ phân giải.
+- **Implicit neural representation:** một mạng nơ-ron biểu diễn cảnh như một
+  hàm liên tục. NeRF là ví dụ tiêu biểu của hướng này.
+- **Differentiable rendering:** phép dựng ảnh được thiết kế khả vi để sai số
+  giữa ảnh dự đoán và ảnh thật có thể truyền ngược vào biểu diễn 3D.
+
+Mục tiêu của bài này là tách bạch phần kỹ thuật cổ điển đã tồn tại trước NeRF
+với đóng góp cốt lõi của NeRF: thay các đại lượng được biết trước bằng một mạng
+MLP học chúng từ ảnh.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Từ ảnh 2D đến cảnh 3D
+
+### Novel View Synthesis và voxel
+
+Voxel (volume pixel) là một giá trị nằm trên lưới ba chiều, tương tự pixel
+nhưng có thêm chiều không gian. Voxel grid dễ hình dung, song chi phí bộ nhớ
+tăng theo lập phương độ phân giải:
+
+<BlockMath formula="O(N^3)" />
+
+Đó là một động lực để tìm biểu diễn liên tục thay vì lưu giá trị tại mọi ô
+của một lưới dày.
+
+### Ràng buộc đa góc nhìn
+
+Giả sử ta chụp một bức tượng từ 50 góc khác nhau. Một điểm 3D thật sự tồn tại
+tại vị trí <InlineMath formula="X" /> phải được chiếu vào đúng pixel tương ứng
+trên từng ảnh, theo vị trí và hướng của camera. Nếu vị trí hoặc màu của điểm bị
+ước lượng sai, các phép chiếu sẽ lệch vị trí hoặc lệch màu.
+
+Ràng buộc hình học này tạo thành vòng lặp cốt lõi của NVS:
+
+1. Xây dựng một biểu diễn 3D của cảnh.
+2. Dựng lại ảnh từ biểu diễn đó theo đúng camera của ảnh huấn luyện.
+3. So sánh ảnh dựng với ảnh thật, tính sai khác và cập nhật biểu diễn.
+
+Khi vòng lặp hội tụ, biểu diễn phải nhất quán với nhiều góc nhìn đã quan sát.
+Nhờ vậy, nó có thể nội suy một góc nhìn mới nằm giữa các góc đã thấy.
+
+### Dữ liệu và Structure-from-Motion
+
+Một tập dữ liệu NVS thường gồm nhiều ảnh của cùng một cảnh và thông tin camera.
+Nếu pose camera chưa biết, Structure-from-Motion (SfM) ước lượng vị trí, hướng
+camera và các điểm đặc trưng 3D từ sự tương ứng giữa các ảnh.
+
+Output của SfM cung cấp hệ tọa độ và pose cần thiết cho bước sinh tia. Sau đó,
+mỗi pixel trong ảnh được liên kết với một tia đi qua không gian cảnh.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Volume Rendering cổ điển
+
+### Bối cảnh
+
+Trước NeRF, volume rendering đã cung cấp công thức để tích lũy màu và độ mờ
+dọc theo một tia. Trong trường hợp cổ điển, mật độ và màu tại mỗi điểm trong
+không gian được cung cấp bởi voxel grid, CT volume hoặc một biểu diễn 3D khác.
+
+NeRF giữ lại công thức tích lũy này nhưng học các đại lượng đầu vào bằng mạng
+nơ-ron. Vì vậy, cần hiểu hình học camera, ray generation và cách lấy mẫu trước
+khi đi vào kiến trúc NeRF.
+
+### Tạo tia sáng
+
+Với một pixel trên mặt phẳng ảnh, camera center là điểm xuất phát của tia.
+Sau khi đưa tọa độ pixel về hệ tọa độ camera rồi biến đổi sang hệ tọa độ thế
+giới, ta thu được hướng tia. Một điểm bất kỳ trên tia có thể viết:
+
+<BlockMath formula="\mathbf{r}(t)=\mathbf{o}+t\mathbf{d}" />
+
+Trong đó <InlineMath formula="\mathbf{o}" /> là gốc tia, <InlineMath formula="\mathbf{d}" />
+là hướng đã chuẩn hóa và <InlineMath formula="t" /> là khoảng cách từ camera.
+Hai cận <InlineMath formula="t_n" /> và <InlineMath formula="t_f" /> giới hạn
+đoạn không gian cần dựng:
+
+<BlockMath formula="t\in[t_n,t_f]" />
+
+Mỗi pixel của ảnh đầu ra tương ứng với một tia. Dựng cả ảnh là thực hiện phép
+tính trên toàn bộ các tia của mặt phẳng ảnh.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Stratified Sampling
+
+Không thể tính liên tục tại vô hạn điểm trên mỗi tia. Ta chia đoạn
+<InlineMath formula="[t_n,t_f]" /> thành <InlineMath formula="N" /> khoảng rồi
+lấy một mẫu trong mỗi khoảng. Với khoảng thứ <InlineMath formula="i" />, mẫu
+được chọn trong:
+
+<BlockMath formula="\left[t_n+\frac{i-1}{N}(t_f-t_n),\ t_n+\frac{i}{N}(t_f-t_n)\right]" />
+
+Cách lấy mẫu phân tầng (stratified sampling) tránh việc mọi tia luôn truy vấn
+đúng cùng một tập điểm cố định. Từ các mẫu <InlineMath formula="t_i" />, ta
+tính các khoảng cách liên tiếp:
+
+<BlockMath formula="\delta_i=t_{i+1}-t_i" />
+
+và truy vấn giá trị mật độ cũng như màu tại các điểm
+<InlineMath formula="\mathbf{x}_i=\mathbf{r}(t_i)" />.
+
+### Tích lũy màu dọc tia
+
+Gọi <InlineMath formula="\sigma_i" /> là mật độ tại mẫu thứ
+<InlineMath formula="i" />, <InlineMath formula="\mathbf{c}_i" /> là màu và
+<InlineMath formula="\delta_i" /> là độ dài đoạn tiếp theo. Xác suất tia bị
+hấp thụ trong đoạn đó là:
+
+<BlockMath formula="\alpha_i=1-\exp(-\sigma_i\delta_i)" />
+
+Xác suất tia đi đến mẫu thứ <InlineMath formula="i" /> mà chưa bị hấp thụ là
+tích của các xác suất truyền qua trước đó:
+
+<BlockMath formula="T_i=\exp\left(-\sum_{j<i}\sigma_j\delta_j\right)" />
+
+Màu của pixel được tính bằng tổng có trọng số:
+
+<BlockMath formula="\hat{\mathbf{C}}(\mathbf{r})=\sum_{i=1}^{N}T_i\alpha_i\mathbf{c}_i" />
+
+Trọng số <InlineMath formula="T_i\alpha_i" /> thể hiện đóng góp của mẫu thứ
+<InlineMath formula="i" /> vào pixel cuối cùng. Công thức này là nền tảng
+volume rendering mà NeRF sử dụng lại.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Vì sao dùng công thức xác suất hấp thụ?
+
+Mật độ <InlineMath formula="\sigma" /> được hiểu là tỷ lệ hấp thụ liên tục
+trên một đơn vị chiều dài. Với một đoạn ngắn dài
+<InlineMath formula="\delta" />, xác suất không bị hấp thụ là:
+
+<BlockMath formula="\exp(-\sigma\delta)" />
+
+Do đó xác suất bị hấp thụ ít nhất một lần là phần bù:
+
+<BlockMath formula="1-\exp(-\sigma\delta)" />
+
+Biểu thức này luôn nằm trong khoảng từ 0 đến 1, tăng khi mật độ hoặc độ dài
+đoạn tăng, và có giới hạn hợp lý khi đoạn tiến về 0. Dùng trực tiếp
+<InlineMath formula="\sigma\delta" /> chỉ là xấp xỉ tuyến tính cho đoạn rất
+ngắn, không phải xác suất chính xác.
+
+### Differentiable rendering
+
+Volume rendering cổ điển có thể tính ảnh khi mật độ và màu đã biết. Tuy nhiên,
+trong NVS ta muốn cập nhật biểu diễn 3D từ sai số ảnh. Vì vậy, mọi bước từ
+điểm 3D, mật độ, màu đến phép tích lũy phải khả vi.
+
+Nếu <InlineMath formula="\hat{\mathbf{C}}(\mathbf{r})" /> là màu dự đoán và
+<InlineMath formula="\mathbf{C}(\mathbf{r})" /> là màu thật, một loss đơn giản
+trên các tia là:
+
+<BlockMath formula="\mathcal{L}=\sum_{\mathbf{r}\in\mathcal{R}}\left\|\hat{\mathbf{C}}(\mathbf{r})-\mathbf{C}(\mathbf{r})\right\|_2^2" />
+
+Gradient của loss có thể truyền qua phép tích lũy để cập nhật các tham số tạo ra
+mật độ và màu.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## NeRF: Implicit Neural Representation
+
+### Từ volume rendering cổ điển đến rendering khả vi
+
+Đóng góp cốt lõi của NeRF không phải phát minh lại công thức tích lũy ở trên.
+NeRF coi mật độ và màu tại mỗi điểm trong không gian là chưa biết, rồi dùng
+một MLP để dự đoán chúng:
+
+<BlockMath formula="F_{\Theta}(\mathbf{x},\mathbf{d})\rightarrow(\sigma,\mathbf{c})" />
+
+<InlineMath formula="\mathbf{x}" /> là vị trí 3D và
+<InlineMath formula="\mathbf{d}" /> là hướng nhìn. Mật độ chủ yếu phụ thuộc
+vào vị trí; màu có thể phụ thuộc cả vị trí và hướng nhìn để mô tả phản xạ
+phụ thuộc góc.
+
+Thay vì lưu một giá trị tại mọi voxel, NeRF lưu tham số
+<InlineMath formula="\Theta" /> của hàm liên tục. Khi cần dựng ảnh, mạng được
+truy vấn tại các điểm lấy mẫu trên từng tia, sau đó dùng chính công thức volume
+rendering để tạo pixel.
+
+### Positional Encoding
+
+MLP thông thường khó biểu diễn các chi tiết tần số cao nếu nhận trực tiếp tọa
+độ thấp chiều. NeRF ánh xạ tọa độ vào nhiều tần số sin và cos:
+
+<BlockMath formula="\gamma(p)=\left(p,\sin(2^0\pi p),\cos(2^0\pi p),\ldots,\sin(2^{L-1}\pi p),\cos(2^{L-1}\pi p)\right)" />
+
+Áp dụng ánh xạ này cho từng thành phần của
+<InlineMath formula="\mathbf{x}" /> và có thể cho cả
+<InlineMath formula="\mathbf{d}" /> giúp MLP học các biến thiên hình học và
+màu sắc chi tiết hơn.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Kiến trúc MLP của NeRF
+
+MLP NeRF nguyên bản là mạng fully-connected. Một cách mô tả kiến trúc là:
+
+1. Nhận positional encoding của vị trí 3D.
+2. Truyền qua nhiều lớp ẩn để tạo feature mô tả hình học.
+3. Dự đoán mật độ <InlineMath formula="\sigma" /> từ feature vị trí.
+4. Kết hợp feature với positional encoding của hướng nhìn.
+5. Dự đoán màu RGB <InlineMath formula="\mathbf{c}" />.
+
+Việc tách mật độ khỏi hướng nhìn giúp hình học ổn định theo các camera, trong
+khi màu có thể thay đổi theo góc để mô hình hóa hiệu ứng phản xạ.
+
+### Từ dự đoán của MLP đến ảnh
+
+Với từng mẫu trên tia, MLP trả về
+<InlineMath formula="(\sigma_i,\mathbf{c}_i)" />. Các giá trị này được đưa
+vào:
+
+<BlockMath formula="\hat{\mathbf{C}}(\mathbf{r})=\sum_{i=1}^{N}\exp\left(-\sum_{j<i}\sigma_j\delta_j\right)\left(1-\exp(-\sigma_i\delta_i)\right)\mathbf{c}_i" />
+
+Ảnh dự đoán được so sánh trực tiếp với ảnh thật của camera huấn luyện. Gradient
+đi qua MLP, positional encoding và volume rendering để điều chỉnh
+<InlineMath formula="\Theta" />.
+
+NeRF vì thế học hoàn toàn từ giám sát ảnh: không cần nhãn voxel hay mesh 3D
+cho từng điểm, nhưng cần nhiều ảnh có pose camera đáng tin cậy.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Giới hạn và các câu hỏi nghiên cứu
+
+### Chi phí suy luận
+
+NeRF nguyên bản phải truy vấn MLP nhiều lần trên mỗi tia và nhiều tia trên mỗi
+ảnh. Điều này làm dựng ảnh chậm hơn các biểu diễn explicit đã được rasterize.
+Chi phí tăng theo số pixel, số mẫu trên tia và chi phí của mạng.
+
+### Tĩnh và động
+
+Phiên bản NeRF cơ bản mô tả một cảnh tĩnh với một hệ tọa độ cố định. Cảnh có
+vật thể chuyển động, người hoặc ánh sáng thay đổi cần thêm biến thời gian,
+mô hình deformation hoặc một biểu diễn khác. Đây không phải vấn đề được giải
+quyết tự động bởi MLP cơ bản.
+
+### NVS không đồng nhất với 3D Reconstruction
+
+NVS tối ưu khả năng tạo ảnh đúng từ các góc nhìn mới. 3D reconstruction thường
+đặt mục tiêu rõ hơn về hình học, chẳng hạn bề mặt, độ sâu hoặc mesh có thể đo
+được. Một biểu diễn NeRF có thể dựng ảnh đẹp nhưng chưa chắc cung cấp bề mặt
+hình học chính xác cho mọi ứng dụng.
+
+Vì vậy, khi đánh giá một phương pháp, cần hỏi riêng:
+
+- Ảnh mới có giống ảnh thật theo các chỉ số và đánh giá trực quan không?
+- Hình học và độ sâu có chính xác không?
+- Mô hình có tổng quát ra cảnh, camera hoặc điều kiện ánh sáng mới không?
+- Chi phí huấn luyện và suy luận có phù hợp với mục tiêu sử dụng không?
+
+### Thông điệp chính
+
+NeRF kết hợp một biểu diễn hàm liên tục do MLP học với volume rendering khả
+vi. Volume rendering là nền tảng cổ điển; đổi mới của NeRF là học mật độ và
+màu tại mọi điểm từ ảnh, rồi dùng sai số dựng ảnh để tối ưu một cảnh 3D
+ngầm. Sự phân biệt này giúp đọc đúng đóng góp của NeRF và định vị các hướng
+nghiên cứu tiếp theo như tăng tốc rendering, xử lý cảnh động và khôi phục
+hình học có thể kiểm chứng.
+
+</MdxPage>

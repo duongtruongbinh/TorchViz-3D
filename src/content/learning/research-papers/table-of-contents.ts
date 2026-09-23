@@ -298,6 +298,30 @@ const chapters: LearningTocTrackSeed[] = [
       },
     ],
   },
+  {
+    id: 'nerf-paper',
+    text: {
+      title: {
+        en: 'Computer Vision > Novel View Synthesis > NeRF',
+        vi: 'Computer Vision > Novel View Synthesis > NeRF',
+      },
+      description: {
+        en: 'Novel View Synthesis, classical volume rendering, and NeRF implicit neural representations.',
+        vi: 'Novel View Synthesis, volume rendering cổ điển và biểu diễn neural ngầm bằng NeRF.',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'nvs-nerf-overview',
+        title: {
+          en: 'Novel View Synthesis and NeRF',
+          vi: 'Novel View Synthesis và NeRF',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
 ];
 
 export const learningTableOfContents = {
