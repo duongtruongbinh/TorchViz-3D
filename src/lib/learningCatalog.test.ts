@@ -365,7 +365,7 @@ test('evolutionary-algorithms single-choice quizzes avoid answer-position and le
 
   for (const fileName of quizFiles) {
     const source = readFileSync(`src/content/learning/evolutionary-algorithms/${fileName}`, 'utf8');
-    const singleQuestionBlocks = source.matchAll(/mode: 'single',[\s\S]*?options: \[([\s\S]*?)\n    \]/g);
+    const singleQuestionBlocks = source.matchAll(/mode: 'single',[\s\S]*?options: \[([\s\S]*?)\n {4}\]/g);
 
     for (const [, optionBlock] of singleQuestionBlocks) {
       const options = [...optionBlock.matchAll(/label: '([^']*)'[^\n]*/g)].map((match) => ({

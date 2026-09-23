@@ -60,38 +60,44 @@ const TreeNode: React.FC<{
 
   return (
     <div>
-      <div
-        className={`flex items-center gap-2 py-1 pr-2 cursor-pointer transition-all text-xs select-none border-l-[3px] ${isSelected
+      <fieldset
+        className={`m-0 flex min-w-0 items-center border-0 py-1 pr-2 text-xs transition-all select-none border-l-[3px] ${isSelected
             ? 'bg-[var(--surface-elevated)] border-blue-500 text-[var(--text)] font-semibold'
             : isHighlighted
               ? 'bg-[var(--border-subtle)] border-zinc-500 text-[var(--text)]'
               : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--border-subtle)] hover:text-[var(--text)]'
           }`}
-        style={{ paddingLeft: indent + 8 }}
-        onClick={() => {
-          onSelect(node.id);
-          if (isContainer) setExpanded((v) => !v);
-        }}
         onMouseEnter={() => onHighlight(node.id)}
         onMouseLeave={() => onHighlight(null)}
+        aria-label={node.op_type}
       >
-        {/* Expand/collapse icon for containers */}
-        {isContainer ? (
-          <span className="w-3 text-[8px] text-zinc-500 flex-shrink-0 text-center">
-            {expanded ? '▼' : '▶'}
-          </span>
-        ) : (
-          <span className="w-3 flex-shrink-0" />
-        )}
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
+          style={{ paddingLeft: indent + 8 }}
+          onClick={() => {
+            onSelect(node.id);
+            if (isContainer) setExpanded((v) => !v);
+          }}
+        >
+          {/* Expand/collapse icon for containers */}
+          {isContainer ? (
+            <span className="w-3 text-[8px] text-zinc-500 flex-shrink-0 text-center">
+              {expanded ? '▼' : '▶'}
+            </span>
+          ) : (
+            <span className="w-3 flex-shrink-0" />
+          )}
 
-        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: getVisualMeta(node.op_type).color }} />
+          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: getVisualMeta(node.op_type).color }} />
 
-        <span className="font-medium truncate">{node.op_type}</span>
+          <span className="font-medium truncate">{node.op_type}</span>
+        </button>
 
         {node.params > 0 && (
           <button
             type="button"
-            className="ml-auto text-xs text-zinc-500 hover:text-blue-300 font-mono flex-shrink-0 underline underline-offset-4 decoration-dotted"
+            className="ml-2 text-xs text-zinc-500 hover:text-blue-300 font-mono flex-shrink-0 underline underline-offset-4 decoration-dotted"
             onClick={(e) => {
               e.stopPropagation();
               onOpenLayerInsight(node);
@@ -101,7 +107,7 @@ const TreeNode: React.FC<{
             {formatNumber(node.params)}
           </button>
         )}
-      </div>
+      </fieldset>
 
       {isContainer && expanded && node.children!.map((child) => (
         <TreeNode

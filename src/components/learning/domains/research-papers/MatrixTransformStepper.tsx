@@ -58,7 +58,7 @@ export function MatrixTransformStepper({ ariaLabel = 'Mô phỏng từng bước
   const activeCellPercent = Math.round((activeCellCount / CELL_COUNT) * 100);
 
   return (
-    <div className="my-6 overflow-hidden rounded-2xl border border-[#B8C8DA]/70 bg-white shadow-sm" aria-label={ariaLabel}>
+    <div className="my-6 overflow-hidden rounded-2xl border border-[#B8C8DA]/70 bg-white shadow-sm" role="img" aria-label={ariaLabel}>
       {/* Top Header & Step Navigation */}
       <div className="border-b border-[#B8C8DA]/60 bg-[#F8FAFC] p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

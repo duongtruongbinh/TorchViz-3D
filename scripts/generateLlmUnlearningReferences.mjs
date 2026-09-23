@@ -36,7 +36,9 @@ try {
   const referencesBySection = includeDescendantReferences(directReferencesBySection);
   const citedIds = new Set(TAUGHT_SURVEY_SECTION_ROOTS.flatMap((sectionId) => referencesBySection[sectionId] ?? []));
   const missingIds = [...citedIds].filter((id) => !entries.has(id)).sort();
-  missingIds.forEach((id) => citedIds.delete(id));
+  missingIds.forEach((id) => {
+    citedIds.delete(id);
+  });
   if (missingIds.length) {
     process.stderr.write(`Skipping survey citation keys absent from ref.bib: ${missingIds.join(', ')}\n`);
   }

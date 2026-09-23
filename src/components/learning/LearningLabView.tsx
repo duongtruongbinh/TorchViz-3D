@@ -1,4 +1,4 @@
-import { lazy, Suspense, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { lazy, Suspense, type CSSProperties, useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, useTransition } from 'react';
 import { ArrowDownWideNarrow, ArrowLeft, FolderKanban, GraduationCap, Home, ListTree, TableOfContents } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import learningHomeDomainData from 'virtual:learning-home-catalog';
@@ -102,7 +102,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     if (isHierarchicalDomain) {
       setHierarchyViewLevel(routeLessonId ? 'paper' : 'all');
     }
-  }, [isHierarchicalDomain, routeDomainId, routeLessonId]);
+  }, [isHierarchicalDomain, routeLessonId]);
 
   const activeDomain = routeDomainId && learningCatalog ? getLearningDomain(learningCatalog, routeDomainId) : null;
   const groupedDomainLessons = useMemo(() => (
@@ -121,12 +121,16 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     ?? groupedDomainLessons.find((group) => group.track.id === trackId)?.track
     ?? groupedDomainLessons[0]?.track
     ?? null;
-  const filteredGroupedDomainLessons = useMemo(() => filterLessonRailGroups(groupedDomainLessons, {
-    filter: lessonRailFilter,
-    fallbackLocales: activeDomain?.mdx?.fallbackLocales,
-    language,
-    query: lessonSearchQuery,
-  }), [activeDomain, groupedDomainLessons, language, learningSearchRevision, lessonRailFilter, lessonSearchQuery]);
+  const filteredGroupedDomainLessons = useMemo(() => {
+    // Search documents live in an external cache; the revision invalidates this projection.
+    void learningSearchRevision;
+    return filterLessonRailGroups(groupedDomainLessons, {
+      filter: lessonRailFilter,
+      fallbackLocales: activeDomain?.mdx?.fallbackLocales,
+      language,
+      query: lessonSearchQuery,
+    });
+  }, [activeDomain, groupedDomainLessons, language, learningSearchRevision, lessonRailFilter, lessonSearchQuery]);
   const domainLessons = useMemo(() => {
     return groupedDomainLessons.flatMap((group) => group.lessons);
   }, [groupedDomainLessons]);
@@ -159,11 +163,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   useEffect(() => {
     if (!requestedCatalogKey) return;
+    void catalogRetryVersion;
     let isActive = true;
     setCatalogLoadState({ key: requestedCatalogKey, status: 'loading' });
     const catalogPromise = mode === 'review'
       ? loadFullLearningCatalog()
-      : loadLearningDomainCatalog(routeDomainId!);
+      : loadLearningDomainCatalog(requestedCatalogKey as LearningDomainId);
     void catalogPromise
       .then((catalog) => {
         if (!isActive) return;
@@ -177,13 +182,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     return () => {
       isActive = false;
     };
-  }, [catalogRetryVersion, mode, requestedCatalogKey, routeDomainId]);
+  }, [catalogRetryVersion, mode, requestedCatalogKey]);
 
   useEffect(() => {
     if (!routeDomainId || !lessonSearchQuery.trim()) {
       setSearchLoadState(null);
       return;
     }
+    void searchRetryVersion;
     let isActive = true;
     setSearchLoadState({ domainId: routeDomainId, status: 'loading' });
     void loadLearningSearchDocuments(routeDomainId)
@@ -201,7 +207,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     };
   }, [lessonSearchQuery, routeDomainId, searchRetryVersion]);
 
-  useEffect(() => {
+  const initializeDomainState = useEffectEvent(() => {
     setCollapsedChapters(new Set(
       groupedDomainLessons
         .map((group) => group.track.id)
@@ -210,6 +216,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     setLessonSearchQuery('');
     setLessonRailFilter('all');
     setIsLessonRailOpen(window.matchMedia('(min-width: 1024px)').matches);
+  });
+
+  useEffect(() => {
+    if (!learningCatalog || !routeDomainId) return;
+    initializeDomainState();
   }, [learningCatalog, routeDomainId]); // Initialize once the requested domain catalog is available.
 
   useEffect(() => {
@@ -260,19 +271,22 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     navigate(`/learning/${routeDomainId}/${resolvedRoute.track.id}?lesson=${resolvedRoute.lesson.id}`, { replace: true });
   }, [navigate, resolvedRoute, routeDomainId]);
 
+  const railSelectedTrackId = railSelectedLesson?.trackId;
   useEffect(() => {
-    if (!railSelectedLesson) return;
+    if (!railSelectedTrackId) return;
     setCollapsedChapters((current) => {
-      if (!current.has(railSelectedLesson.trackId)) return current;
+      if (!current.has(railSelectedTrackId)) return current;
       const next = new Set(current);
-      next.delete(railSelectedLesson.trackId);
+      next.delete(railSelectedTrackId);
       return next;
     });
-  }, [railSelectedLesson?.trackId]);
+  }, [railSelectedTrackId]);
 
+  const selectedLessonIdentity = selectedLesson ? getLearningLessonIdentity(selectedLesson) : null;
   useEffect(() => {
+    if (!selectedLessonIdentity) return;
     contentAreaRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-  }, [selectedLesson?.domainId, selectedLesson?.id]);
+  }, [selectedLessonIdentity]);
 
   const openDomain = (nextDomainId: LearningDomainId) => {
     setMode('path');
@@ -309,10 +323,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     startLessonTransition(() => {
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
-  }, [domainLessons, isHierarchicalDomain, navigate, startLessonTransition]);
+  }, [domainLessons, isHierarchicalDomain, navigate]);
 
   useEffect(() => {
-    if (!selectedLesson) return;
+    if (!previousLesson && !nextLesson) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
       if (isTypingTarget(event.target)) return;
@@ -328,7 +342,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [previousLesson, nextLesson, selectLesson, selectedLesson]);
+  }, [nextLesson, previousLesson, selectLesson]);
 
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
   const retryCatalogLoad = useCallback(() => setCatalogRetryVersion((current) => current + 1), []);
@@ -416,9 +430,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           isSidebarRendered ? themeClasses.sidebar : 'bg-transparent',
         )}
         style={sidebarDrawerStyle}
-        role={isSidebarRendered ? 'dialog' : undefined}
-        aria-modal={isSidebarRendered ? true : undefined}
-        aria-label={isSidebarRendered ? strings.sidebarDomains : undefined}
+        {...(isSidebarRendered ? {
+          role: 'dialog' as const,
+          'aria-modal': true,
+          'aria-label': strings.sidebarDomains,
+        } : {})}
       >
         <div
           className={cx(
@@ -489,7 +505,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           )}
           {isSidebarRendered ? (
             <div className="min-w-0 text-left">
-              <span className="block truncate text-xl font-black leading-6" aria-label="TorchViz3D">
+              <span className="block truncate text-xl font-black leading-6">
                 TorchViz<span className={themeClasses.accentText}>3D</span>
               </span>
             </div>
@@ -648,8 +664,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   />
                 </div>
                 {isLessonRailOpen ? (
-                  <div
-                    role="separator"
+                  <hr
                     aria-label={language === 'vi' ? 'Thay đổi chiều rộng mục lục bài học' : 'Resize lesson table of contents'}
                     aria-orientation="vertical"
                     aria-valuemin={LESSON_RAIL_MIN_WIDTH}
@@ -657,7 +672,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                     aria-valuenow={lessonRailWidth}
                     tabIndex={0}
                     className={cx(
-                      'group absolute -right-4 top-0 z-10 hidden h-full w-4 touch-none cursor-col-resize items-center justify-center outline-none lg:flex',
+                      'group absolute -right-4 top-0 z-10 hidden h-full w-4 touch-none cursor-col-resize border-0 bg-transparent outline-none after:absolute after:left-1/2 after:top-1/2 after:h-16 after:w-1 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-[#205089]/12 after:transition-colors hover:after:bg-[#205089]/35 focus-visible:after:bg-[#205089]/45 lg:block',
                       themeClasses.focusRing,
                     )}
                     onPointerDown={(event) => {
@@ -696,9 +711,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                         Math.max(LESSON_RAIL_MIN_WIDTH, current + direction * 16),
                       ));
                     }}
-                  >
-                    <span className="h-16 w-1 rounded-full bg-[#205089]/12 transition-colors group-hover:bg-[#205089]/35 group-focus-visible:bg-[#205089]/45" aria-hidden="true" />
-                  </div>
+                  />
                 ) : null}
                 {!isLessonRailOpen ? (
                   <button

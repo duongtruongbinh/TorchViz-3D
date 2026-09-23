@@ -125,6 +125,7 @@ export function LagFeatureVisualizer() {
   return (
     <div
       className="my-6 space-y-6"
+      role="img"
       aria-label="Minh họa đặc trưng Lag"
     >
       {/* 1. Basic mechanism */}

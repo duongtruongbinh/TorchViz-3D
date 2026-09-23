@@ -55,6 +55,7 @@ const PanelCollapseButton: React.FC<{
           strokeLinecap="round"
           strokeLinejoin="round"
           className="w-5 h-5"
+          aria-hidden="true"
         >
           <rect x="4" y="5" width="16" height="14" rx="2" />
           <path d="M14 5v14" />
@@ -65,6 +66,7 @@ const PanelCollapseButton: React.FC<{
           viewBox="0 0 20 20"
           fill="currentColor"
           className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
+          aria-hidden="true"
         >
           <path
             fillRule="evenodd"
@@ -228,7 +230,7 @@ export default function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspace
         >
           <div className={`h-10 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] flex items-center shrink-0 select-none ${isLeftCollapsed ? 'justify-center px-1.5' : 'px-4 justify-between'}`}>
             <span className={`text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-2 overflow-hidden whitespace-nowrap transition-all duration-200 ${isLeftCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3" aria-hidden="true">
                 <path
                   fillRule="evenodd"
                   d="M12.315 2c2.43 0 2.784.113 3.807.625a4.406 4.406 0 011.822 1.822c.512 1.024.625 1.377.625 3.807 0 2.43-.113 2.784-.625 3.807a4.406 4.406 0 01-1.822 1.822c-1.024.512-1.377.625-3.807.625-2.43 0-2.784-.113-3.807-.625a4.406 4.406 0 01-1.822-1.822c-.512-1.024-.625-1.377-.625-3.807 0-2.43.113-2.784.625-3.807a4.406 4.406 0 011.822-1.822c1.024-.512 1.377-.625 3.807-.625zM9.056 4.508a.75.75 0 00-1.083.456l-1.37 4.426-4.593.42a.75.75 0 00-.184 1.445l4.225 1.545 1.487 4.39a.75.75 0 001.42 0l1.487-4.39 4.225-1.545a.75.75 0 00-.184-1.445l-4.593-.42-1.37-4.426a.75.75 0 00-.466-.456z"
@@ -263,21 +265,21 @@ export default function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspace
           </div>
         </div>
 
-        <div
-          className={`w-1 transition-colors z-20 flex items-center justify-center shrink-0 ${isTourOpen || isLeftCollapsed ? 'cursor-default opacity-40' : 'cursor-col-resize hover:w-1.5'} ${isDragging ? 'bg-[var(--accent)] w-1.5' : 'bg-transparent'}`}
+        <hr
+          className={`relative m-0 w-1 shrink-0 border-0 bg-transparent transition-colors z-20 after:absolute after:left-1/2 after:top-1/2 after:h-8 after:w-1 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-[var(--border)] after:transition-colors hover:after:bg-[var(--text-muted)] ${isTourOpen || isLeftCollapsed ? 'cursor-default opacity-40' : 'cursor-col-resize hover:w-1.5'} ${isDragging ? 'after:bg-[var(--accent)] w-1.5' : ''}`}
           onMouseDown={handleMouseDown}
-          role="separator"
           aria-orientation="vertical"
           aria-disabled={isTourOpen || isLeftCollapsed}
+          aria-valuemin={200}
+          aria-valuemax={800}
+          aria-valuenow={Math.round(leftWidth)}
           tabIndex={0}
           onKeyDown={(e) => {
             if (isTourOpen || isLeftCollapsed) return;
             if (e.key === 'ArrowLeft') setLeftWidth(w => Math.max(200, w - 10));
             if (e.key === 'ArrowRight') setLeftWidth(w => Math.min(800, w + 10));
           }}
-        >
-          <div className="h-8 w-1 bg-[var(--border)] rounded-full hover:bg-[var(--text-muted)] transition-colors" />
-        </div>
+        />
 
         <div data-tour="canvas" className="flex flex-col min-w-0 relative h-full grow">
           <div data-tour="canvas-surface" className="flex-1 relative w-full min-h-0">

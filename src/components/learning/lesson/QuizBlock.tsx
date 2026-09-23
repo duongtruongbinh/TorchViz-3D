@@ -168,7 +168,7 @@ function QuizQuestion({
     onStateChange({ selectedIds, categoryAssignments, feedback: isCorrect ? 'correct' : 'incorrect' });
   };
 
-  const handleQuestionKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  const handleQuestionKeyDown = (event: ReactKeyboardEvent<HTMLFieldSetElement>) => {
     if (event.key !== 'Enter') return;
     if (!canCheck) return;
     event.preventDefault();
@@ -185,15 +185,15 @@ function QuizQuestion({
   }, [feedback]);
 
   return (
-    <div
+    <fieldset
       data-quiz
       onKeyDown={handleQuestionKeyDown}
       className={cx(
-        'py-1',
+        'm-0 min-w-0 border-0 py-1',
         quizPalette.card,
       )}>
       {promptText ? (
-        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderQuizText(promptText, themeClasses)}</p>
+        <legend className={cx('w-full p-0 text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderQuizText(promptText, themeClasses)}</legend>
       ) : null}
 
       {isOrderMode ? (
@@ -309,7 +309,7 @@ function QuizQuestion({
           <p>{renderQuizText(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
         </div>
       ) : null}
-    </div>
+    </fieldset>
   );
 }
 
@@ -434,19 +434,19 @@ function CategorizeQuestion({
 
   return (
     <div className="mt-5 grid gap-4">
-      <div
-        className={cx('grid min-h-16 gap-2 rounded-xl p-3.5', quizPalette.categoryBank)}
+      <fieldset
+        className={cx('m-0 grid min-h-16 min-w-0 gap-2 rounded-xl border-0 p-3.5', quizPalette.categoryBank)}
         onDragOver={(event) => {
           event.preventDefault();
           event.dataTransfer.dropEffect = 'move';
         }}
         onDrop={(event) => handleDrop(event, null)}
       >
-        {question.hideUnsortedLabel ? null : (
-          <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
-            {unsortedLabel}
-          </div>
-        )}
+        <legend className={question.hideUnsortedLabel
+          ? 'sr-only'
+          : cx('p-0 text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
+          {unsortedLabel}
+        </legend>
         <div className="flex flex-wrap gap-2">
           {unassignedOptions.length ? (
             (question.oneByOne ? unassignedOptions.slice(0, 1) : unassignedOptions).map((option) => (
@@ -465,17 +465,17 @@ function CategorizeQuestion({
             </span>
           )}
         </div>
-      </div>
+      </fieldset>
 
       <div className="grid gap-3 md:grid-cols-2">
         {categories.map((category) => {
           const categoryOptions = question.options.filter((option) => assignments[option.id] === category.id);
           const hasIncorrectOption = categoryOptions.some(isOptionIncorrect);
           return (
-            <div
+            <fieldset
               key={category.id}
               className={cx(
-                'grid min-h-28 gap-2 rounded-xl border p-3.5 transition-colors',
+                'm-0 grid min-h-28 min-w-0 gap-2 rounded-xl border p-3.5 transition-colors',
                 hasIncorrectOption ? quizPalette.categoryZoneIncorrect : quizPalette.categoryZone,
               )}
               onDragOver={(event) => {
@@ -484,9 +484,9 @@ function CategorizeQuestion({
               }}
               onDrop={(event) => handleDrop(event, category.id)}
             >
-              <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryTitle)}>
+              <legend className={cx('p-0 text-xs font-black uppercase tracking-wide', quizPalette.categoryTitle)}>
                 {text(category.label, language)}
-              </div>
+              </legend>
               <div className="flex flex-wrap gap-2">
                 {categoryOptions.map((option) => (
                   <TokenChip
@@ -500,7 +500,7 @@ function CategorizeQuestion({
                   />
                 ))}
               </div>
-            </div>
+            </fieldset>
           );
         })}
       </div>
@@ -528,7 +528,8 @@ function TokenChip({
     : isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip;
 
   return (
-    <span
+    <button
+      type="button"
       draggable
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = 'move';
@@ -540,7 +541,7 @@ function TokenChip({
       )}
     >
       {renderQuizText(label, themeClasses)}
-    </span>
+    </button>
   );
 }
 

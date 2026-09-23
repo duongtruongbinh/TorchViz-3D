@@ -110,7 +110,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     if (prevStep.current === step) return;
     prevStep.current = step;
     onStepChange?.(TOUR_STEPS[step]?.id ?? `step-${step}`);
-  }, [isOpen, step, onStepChange]);
+  }, [completedInteractions, isOpen, onStepChange, step]);
 
   const updateTargetRect = useCallback(() => {
     const currentStep = TOUR_STEPS[step];
@@ -244,7 +244,6 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
             transform: hasSpaceBelow ? 'none' : 'translateY(-50%)',
           };
         })()}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"

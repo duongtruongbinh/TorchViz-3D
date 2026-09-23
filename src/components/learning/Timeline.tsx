@@ -59,6 +59,10 @@ export function Timeline({
   // Align only when the active milestone changes. Scroll-state rerenders must not
   // pull the viewport back to the target while the learner is scrolling manually.
   useEffect(() => {
+    if (targetKey === 'empty') {
+      updateScrollState();
+      return;
+    }
     const alignTimeline = () => {
       const container = scrollContainerRef.current;
       const target = targetItemRef.current;

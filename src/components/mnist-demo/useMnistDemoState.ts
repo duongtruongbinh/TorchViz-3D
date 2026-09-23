@@ -80,6 +80,10 @@ export function useMnistDemoState({
   }, [progress]);
 
   useEffect(() => {
+    // These inputs identify the rendered graph and intentionally reset playback.
+    void layoutKey;
+    void activeTemplate;
+    void shapeInput;
     progressRef.current = 0;
     lastSyncRef.current = 0;
     setProgress(0);

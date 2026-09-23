@@ -363,7 +363,7 @@ export function LlmTokenizerContextAmbiguity({ content, language, themeClasses }
                 </p>
                 <span className={cx('text-sm font-black', accent)}>{text(example.meaning, language)}</span>
                 <ArrowDown className={cx('mt-1 h-5 w-5', themeClasses.mutedText)} strokeWidth={1.7} aria-hidden="true" />
-                <div className="flex flex-wrap justify-center gap-1.5" aria-label={language === 'vi' ? 'Dãy token ID' : 'Token ID sequence'}>
+                <div className="flex flex-wrap justify-center gap-1.5" role="img" aria-label={language === 'vi' ? 'Dãy token ID' : 'Token ID sequence'}>
                   {example.tokenIds.map((tokenId, index) => {
                     const isTarget = index === example.highlightedTokenIndex;
                     return (
@@ -680,12 +680,12 @@ export function LlmTokenizerSequenceLength({ content, language, themeClasses }: 
       {tokens.map((token, index) => {
         const palette = TOKEN_CHIP_PALETTES[index % TOKEN_CHIP_PALETTES.length] ?? TOKEN_CHIP_PALETTES[0];
         const isSpace = token === '␠';
-        return <code key={`${token}-${index}`} aria-label={isSpace ? (language === 'vi' ? 'Khoảng trắng' : 'Space') : undefined} className={cx(
+        return <code key={`${token}-${index}`} className={cx(
           'rounded-md font-black',
           compact ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm',
           isSpace ? 'w-7' : undefined,
           themeClasses.isLight ? palette[0] : palette[1],
-        )}>{isSpace ? '' : token}</code>;
+        )}>{isSpace ? <span className="sr-only">{language === 'vi' ? 'Khoảng trắng' : 'Space'}</span> : token}</code>;
       })}
     </div>
   );
@@ -799,14 +799,14 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
         const isActiveSource = highlight === 'source' && activeMerge?.sourceIndexes.some((sourceIndex) => token.sourceIndexes.includes(sourceIndex));
         const isHighlighted = isActiveMerge || isActiveSource;
         return <Fragment key={`${token.token}-${tokenIndex}`}>
-          <code aria-label={isSpace ? (language === 'vi' ? 'Khoảng trắng' : 'Space') : undefined} className={cx(
+          <code className={cx(
             'inline-block rounded-md py-2 text-2xl font-black',
             isSpace ? 'w-10 px-0' : 'px-4',
             themeClasses.isLight ? palette[0] : palette[1],
             isHighlighted && (themeClasses.isLight
               ? 'learning-bpe-merged-token ring-2 ring-[#D29A22] ring-offset-2 ring-offset-white'
               : 'learning-bpe-merged-token ring-2 ring-[#E3B64B] ring-offset-2 ring-offset-[#121A24]'),
-          )}>{isSpace ? '' : token.token}</code>
+          )}>{isSpace ? <span className="sr-only">{language === 'vi' ? 'Khoảng trắng' : 'Space'}</span> : token.token}</code>
           {endsFirstLine && <span className="basis-full" aria-hidden="true" />}
         </Fragment>;
       })}

@@ -234,7 +234,7 @@ export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
   const classScores = useMemo(() => {
     const shift = winningClass - DEMO_TARGET_CLASS;
     return DEMO_CLASS_SCORES.map((_, i) => DEMO_CLASS_SCORES[(((i - shift) % classCount) + classCount) % classCount]);
-  }, [winningClass, classCount]);
+  }, [winningClass]);
 
   const revealedUnits = Math.min(classCount, Math.max(1, Math.ceil(segmentProgress * classCount)));
   const scanIndex = getActiveIndex(segmentProgress, classCount);

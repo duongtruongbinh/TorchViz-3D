@@ -42,6 +42,7 @@ export function MathCanvas({
     <div
       className={`w-full flex justify-center items-center overflow-hidden rounded-lg ${className}`}
       style={{ backgroundColor: theme.bg, ...mafsStyles }}
+      role="img"
       aria-label={ariaLabel}
     >
       <Mafs

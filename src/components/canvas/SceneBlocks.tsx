@@ -24,6 +24,9 @@ import {
 
 const HEADER_BAR_HEIGHT = 0.6;
 const INSTANCED_BATCH_MIN = 3;
+const InteractiveGroup = 'group';
+const InteractiveInstancedMesh = 'instancedMesh';
+const InteractiveMesh = 'mesh';
 
 const getExpandCollapseButtonPosition = (node: LayoutNode): [number, number, number] => [
   node.width / 2,
@@ -204,7 +207,7 @@ export const InstancedLeafGroup: React.FC<{
 
   return (
     <group>
-      <instancedMesh
+      <InteractiveInstancedMesh
         ref={ref}
         args={[undefined as any, undefined as any, nodes.length]}
         onClick={(e: ThreeEvent<MouseEvent>) => {
@@ -238,7 +241,7 @@ export const InstancedLeafGroup: React.FC<{
           emissive={baseColor}
           emissiveIntensity={0}
         />
-      </instancedMesh>
+      </InteractiveInstancedMesh>
       {hovered.value !== null && nodes[hovered.value] && (
         <HoverPanelHtml
           position={[
@@ -437,7 +440,7 @@ const NodeBlockComponent: React.FC<NodeBlockProps> = ({ node, highlighted, onHov
   const errorPulse = useErrorPulse(hasError);
   return (
     <group position={[node.x, node.y, node.z]}>
-      <group
+      <InteractiveGroup
         onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           onClickNode(node.id);
@@ -458,7 +461,7 @@ const NodeBlockComponent: React.FC<NodeBlockProps> = ({ node, highlighted, onHov
         }}
       >
         <KindShape kind={meta.kind} w={w} h={h} d={d} color={baseColor} cornerRadius={meta.cornerRadius} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />
-      </group>
+      </InteractiveGroup>
 
       {hasError && (
         <Billboard position={[0, h / 2 + 1.2, 0]} renderOrder={RENDER_ORDER_ERROR_LABEL}>
@@ -685,7 +688,7 @@ const ContainerBlockComponent: React.FC<ContainerBlockProps> = ({ node, isRoot, 
           onToggle={() => onToggle(node.id)}
         />
 
-        <mesh
+        <InteractiveMesh
           position={[0, node.height / 2 - HEADER_BAR_HEIGHT / 2, 0]}
           onClick={(e: ThreeEvent<MouseEvent>) => {
             e.stopPropagation();
@@ -702,7 +705,7 @@ const ContainerBlockComponent: React.FC<ContainerBlockProps> = ({ node, isRoot, 
         >
           <boxGeometry args={headerArgs} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-        </mesh>
+        </InteractiveMesh>
       </group>
 
       {node.children?.map((child) => (

@@ -7,6 +7,7 @@ function VisualSkeleton() {
   const themeClasses = useLearningMdxTheme();
   return (
     <div
+      role="status"
       aria-busy="true"
       aria-label="Đang tải trực quan hóa toán học..."
       className={cx(

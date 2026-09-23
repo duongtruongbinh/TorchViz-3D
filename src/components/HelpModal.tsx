@@ -44,14 +44,15 @@ const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
       onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
       role="dialog"
       aria-modal="true"
     >
       <div
         className="glass-panel p-0 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[min(92vw,640px)] border border-[var(--border)] max-h-[85vh] overflow-y-auto animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
         role="document"
       >
         <div className="border-b border-[var(--border)] px-6 py-5">
@@ -92,6 +93,7 @@ const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="flex justify-end border-t border-[var(--border)] px-6 py-4">
           <button
+            type="button"
             onClick={onClose}
             className="px-5 py-2 rounded-lg bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text)] text-sm font-medium transition-all shadow-sm active:scale-95 text-center"
           >

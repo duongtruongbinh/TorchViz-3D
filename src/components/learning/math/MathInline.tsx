@@ -16,6 +16,7 @@ export const MathInline = memo(function MathInline({
 
   return (
     <span
+      role="math"
       className={`inline-block px-0.5 align-baseline text-inherit [&_.katex]:text-inherit [&_.katex-html]:text-inherit ${className}`}
       aria-label={ariaLabel}
       dangerouslySetInnerHTML={{ __html: html }}

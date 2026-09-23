@@ -2,17 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-test('MathSegmentedControl implements WAI-ARIA radiogroup contract and roving focus', () => {
+test('MathSegmentedControl implements a native radio-group contract and roving focus', () => {
   const source = readFileSync(
     'src/components/learning/domains/linear-algebra/primitives/MathSegmentedControl.tsx',
     'utf8',
   );
 
-  // WAI-ARIA role semantics
+  // Native radio semantics within the named WAI-ARIA group
   assert.match(source, /role="radiogroup"/, 'Container must have role="radiogroup"');
-  assert.match(source, /role="radio"/, 'Buttons must have role="radio"');
-  assert.match(source, /aria-checked=\{isSelected\}/, 'Buttons must declare aria-checked state');
-  assert.match(source, /aria-label=\{option\.ariaLabel\}/, 'Buttons must support option aria-label');
+  assert.match(source, /type="radio"/, 'Options must use native radio inputs');
+  assert.match(source, /name=\{groupName\}/, 'Radio inputs must share a generated group name');
+  assert.match(source, /checked=\{isSelected\}/, 'Radio inputs must expose their checked state');
+  assert.match(source, /aria-label=\{option\.ariaLabel \?\?/, 'Radio inputs must support option aria-label');
 
   // Roving tabindex synchronization: tabIndex is 0 only on selected or first option
   assert.match(source, /tabIndex=\{isSelected \|\| \(selectedIndex === -1 && idx === 0\) \? 0 : -1\}/);
@@ -25,7 +26,7 @@ test('MathSegmentedControl implements WAI-ARIA radiogroup contract and roving fo
 
   // Focus management
   assert.match(source, /focusOption\(/);
-  assert.match(source, /buttonRefs\.current\[clampedIndex\]\?\.focus\(\)/);
+  assert.match(source, /inputRefs\.current\[clampedIndex\]\?\.focus\(\)/);
 
   // Per-option colorScheme support
   assert.match(source, /const optionScheme = option\.colorScheme \?\? colorScheme/);

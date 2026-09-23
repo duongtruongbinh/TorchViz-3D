@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react';
+import { useId, useRef, type ReactNode } from 'react';
 import { useLearningMdxTheme } from '../../../learningMdxComponents';
 import { cx } from '../../../theme';
 
@@ -32,7 +32,8 @@ export function MathSegmentedControl<T extends string>({
   className = '',
 }: MathSegmentedControlProps<T>) {
   const themeClasses = useLearningMdxTheme();
-  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const groupName = useId();
 
   const activeColorMap: Record<MathSegmentedColorScheme, string> = {
     blue: 'bg-blue-600 text-white shadow-xs',
@@ -53,7 +54,7 @@ export function MathSegmentedControl<T extends string>({
     const targetOption = options[clampedIndex];
     if (targetOption) {
       onChange(targetOption.value);
-      buttonRefs.current[clampedIndex]?.focus();
+      inputRefs.current[clampedIndex]?.focus();
     }
   };
 
@@ -95,25 +96,11 @@ export function MathSegmentedControl<T extends string>({
         const activeColor = activeColorMap[optionScheme];
 
         return (
-          <button
+          <label
             key={option.value}
-            ref={(el) => {
-              buttonRefs.current[idx] = el;
-            }}
-            role="radio"
-            aria-checked={isSelected}
-            aria-label={option.ariaLabel}
-            type="button"
-            tabIndex={isSelected || (selectedIndex === -1 && idx === 0) ? 0 : -1}
-            onClick={() => {
-              onChange(option.value);
-              buttonRefs.current[idx]?.focus();
-            }}
-            onKeyDown={(e) => handleKeyDown(e, idx)}
             className={cx(
-              'inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-all cursor-pointer',
+              'relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md font-semibold transition-all',
               sizeClasses,
-              themeClasses.focusRing,
               isSelected
                 ? activeColor
                 : themeClasses.isLight
@@ -121,11 +108,25 @@ export function MathSegmentedControl<T extends string>({
                   : 'text-slate-300 hover:text-white hover:bg-slate-700/60',
             )}
           >
-            <span>{option.label}</span>
+            <input
+              ref={(element) => {
+                inputRefs.current[idx] = element;
+              }}
+              type="radio"
+              name={groupName}
+              value={option.value}
+              checked={isSelected}
+              aria-label={option.ariaLabel ?? (typeof option.label === 'string' ? option.label : undefined)}
+              tabIndex={isSelected || (selectedIndex === -1 && idx === 0) ? 0 : -1}
+              onChange={() => onChange(option.value)}
+              onKeyDown={(event) => handleKeyDown(event, idx)}
+              className={cx('absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-md', themeClasses.focusRing)}
+            />
+            <span className="pointer-events-none relative">{option.label}</span>
             {option.badge && (
-              <span className="text-[10px] opacity-80">{option.badge}</span>
+              <span className="pointer-events-none relative text-[10px] opacity-80">{option.badge}</span>
             )}
-          </button>
+          </label>
         );
       })}
     </div>

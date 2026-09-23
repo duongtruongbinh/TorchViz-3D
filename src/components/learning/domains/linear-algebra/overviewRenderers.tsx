@@ -104,6 +104,7 @@ export function AiDataRepresentationDemo({ ariaLabel }: AiDataRepresentationDemo
             <div>
               <div
                 className="grid aspect-square grid-cols-5 overflow-hidden rounded-lg border-4 border-slate-800 shadow-sm"
+                role="img"
                 aria-label="Ảnh pixel ngôi nhà dưới bầu trời có mặt trời"
               >
                 {pixelHouse.flat().map((pixel, index) => (
