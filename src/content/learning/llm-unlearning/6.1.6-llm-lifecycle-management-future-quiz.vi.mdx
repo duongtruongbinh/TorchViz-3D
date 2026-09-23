@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "llm-lifecycle-management-future-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-lifecycle", "quiz-audit", "quiz-modularity", "quiz-continual"],
+  keywords: ["Machine Unlearning", "Quiz", "Lifecycle"], conceptIds: ['quiz-lifecycle', 'quiz-audit', 'quiz-modularity', 'quiz-continual'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="llm-lifecycle-management-future-quiz" questions={[
+  {
+    id: 'quiz-lifecycle', title: 'Phạm vi vòng đời', prompt: 'Vì sao unlearning không chỉ là một lệnh cập nhật trọng số?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Nó còn cần truy vết dữ liệu, đánh giá, phê duyệt, phát hành và theo dõi.', isCorrect: true },
+      { id: 'b', label: 'Vì LLM không có trọng số.' },
+      { id: 'c', label: 'Vì mọi yêu cầu đều cần full retraining.' },
+      { id: 'd', label: 'Vì utility không cần đo.' },
+    ], success: 'Đúng. Unlearning là một quy trình quản trị xuyên vòng đời.', error: 'Hãy nhìn rộng hơn bước optimizer.',
+  },
+  {
+    id: 'quiz-audit', title: 'Dấu vết kiểm toán', prompt: 'Thông tin nào cần được lưu cho một lần unlearning?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chỉ tên phương pháp.' },
+      { id: 'b', label: 'Phạm vi dữ liệu, phiên bản, cấu hình, mốc so sánh, kết quả và quyết định phát hành.', isCorrect: true },
+      { id: 'c', label: 'Chỉ ảnh chụp một prompt.' },
+      { id: 'd', label: 'Chỉ số GPU.' },
+    ], success: 'Đúng. Audit cần nối yêu cầu, thực thi và bằng chứng.', error: 'Một log tối thiểu phải tái lập được quyết định.',
+  },
+  {
+    id: 'quiz-modularity', title: 'Giới hạn mô-đun', prompt: 'Phát biểu nào đúng về adapter hoặc kiến trúc mô-đun?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Luôn cô lập hoàn toàn từng fact.' },
+      { id: 'b', label: 'Chỉ cần tháo một adapter là đạt mọi yêu cầu xóa.' },
+      { id: 'c', label: 'Có thể giảm chi phí trong vài thiết kế nhưng không bảo đảm tri thức nằm gọn trong một mô-đun.', isCorrect: true },
+      { id: 'd', label: 'Làm gold retrained vô nghĩa.' },
+    ], success: 'Đúng. Modularity là hướng thiết kế, không phải bảo đảm tuyệt đối.', error: 'Tránh giả định tri thức luôn được phân vùng hoàn hảo.',
+  },
+  {
+    id: 'quiz-continual', title: 'Continual unlearning', prompt: 'Thách thức nổi bật của nhiều yêu cầu quên nối tiếp là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Không thể lưu checkpoint.' },
+      { id: 'b', label: 'Mọi yêu cầu có cùng forget set.' },
+      { id: 'c', label: 'Không cần theo dõi utility.' },
+      { id: 'd', label: 'Tránh khôi phục tri thức đã quên và tránh tích lũy utility loss.', isCorrect: true },
+    ], success: 'Đúng. Lịch sử cập nhật tạo ra ràng buộc tích lũy.', error: 'Continual unlearning phải bảo toàn cả yêu cầu cũ lẫn utility.',
+  },
+]} />

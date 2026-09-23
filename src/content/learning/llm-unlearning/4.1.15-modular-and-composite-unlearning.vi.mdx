@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'modular-and-composite-unlearning', locale: 'vi', title: 'Unlearning theo Module & Phương pháp Kết hợp',
+  headings: ['Tách tri thức để dễ tháo bỏ', 'Composite method ghép nhiều lớp bảo vệ'],
+  keywords: ['Adapter', 'Modular unlearning', 'Composite method'],
+  conceptIds: ['modular-unlearning', 'composite-method', 'composition-audit'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Tách tri thức để dễ tháo bỏ
+
+Thay vì dồn mọi cập nhật vào backbone, modular unlearning lưu một phần tri thức trong adapter, expert hoặc cấu trúc bổ sung. Khi có yêu cầu xóa, hệ thống có thể tháo, thay hoặc cập nhật module liên quan <Cite paper="qiu2025survey" evidence="modular-composite" />.
+
+<ConceptHierarchy ariaLabel="Backbone và module có thể tháo bỏ" root={{ title: 'Hệ thống model' }} children={[
+  { title: 'Backbone dùng chung', tone: 'blue', detail: 'Giữ năng lực nền tảng và phục vụ nhiều miền.' },
+  { title: 'Module chuyên biệt', tone: 'teal', detail: 'Chứa cập nhật được cô lập để thay thế hoặc vô hiệu hóa.' },
+]} />
+
+Cách này thuận lợi nhất khi modularity được thiết kế trước lúc dữ liệu cần quên đi vào hệ thống. Nếu tri thức đã nằm sâu trong backbone, tháo adapter chưa chắc loại bỏ được nó.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Composite method ghép nhiều lớp bảo vệ
+
+Composite unlearning kết hợp các cơ chế: ví dụ định vị tham số trước khi tối ưu, thêm regularization trên retain set, rồi đặt guard ở inference-time.
+
+<ConceptFlow ariaLabel="Ví dụ phương pháp kết hợp" items={[
+  { title: 'Khoanh vùng', tone: 'blue', detail: 'Xác định vùng hoặc module liên quan.' },
+  { title: 'Cập nhật', tone: 'violet', detail: 'Tối ưu forget objective cùng retain constraint.' },
+  { title: 'Bảo vệ serving', tone: 'teal', detail: 'Giám sát prompt và output cho rủi ro còn sót.' },
+]} />
+
+Nhiều lớp có thể tăng độ bền nhưng cũng làm khó quy kết: nếu attack thất bại, chưa biết weights đã quên hay guard đã chặn. Audit phải đánh giá từng lớp và toàn hệ thống.
+
+<LessonNote tone="warning">Composition không biến các claim yếu thành một claim mạnh nếu không có phép đo tách biệt cho từng cơ chế.</LessonNote>
+
+</MdxPage>

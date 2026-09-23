@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "tripartite-evaluation-metrics-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-metric-collapse", "quiz-pvalue", "quiz-utility", "quiz-report"],
+  keywords: ["Machine Unlearning", "Quiz", "Evaluation"], conceptIds: ['quiz-metric-collapse', 'quiz-pvalue', 'quiz-utility', 'quiz-report'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="tripartite-evaluation-metrics-quiz" questions={[
+  {
+    id: 'quiz-metric-collapse', title: 'Cạm bẫy điểm quên', prompt: 'Vì sao xác suất đáp án mục tiêu thấp chưa đủ?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mô hình có thể đã sụp đổ và mất cả utility.', isCorrect: true },
+      { id: 'b', label: 'Xác suất không thể đo trên LLM.' },
+      { id: 'c', label: 'Forget set luôn trùng retain set.' },
+      { id: 'd', label: 'Gold retrained luôn có xác suất bằng một.' },
+    ], success: 'Đúng. Phá hỏng mô hình không phải là quên có chọn lọc.', error: 'Hãy kiểm tra đồng thời utility.',
+  },
+  {
+    id: 'quiz-pvalue', title: 'Diễn giải p-value', prompt: 'Cách diễn giải nào thận trọng nhất cho p-value KS cao?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Một tỷ lệ phần trăm dữ liệu đã bị xóa.' },
+      { id: 'b', label: 'Ít bằng chứng hơn để bác bỏ giả thuyết hai phân phối giống nhau.', isCorrect: true },
+      { id: 'c', label: 'Bằng chứng pháp lý tuyệt đối.' },
+      { id: 'd', label: 'Utility chắc chắn hoàn hảo.' },
+    ], success: 'Đúng. P-value không phải xác suất dữ liệu đã bị xóa.', error: 'Hãy dùng ngôn ngữ của kiểm định giả thuyết.',
+  },
+  {
+    id: 'quiz-utility', title: 'Utility', prompt: 'Nhóm nào phù hợp để đo utility trong TOFU?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chỉ forget set.' },
+      { id: 'b', label: 'Chỉ tốc độ GPU.' },
+      { id: 'c', label: 'Retain set, tác giả thật và tri thức thế giới.', isCorrect: true },
+      { id: 'd', label: 'Chỉ số lượng tham số.' },
+    ], success: 'Đúng. Utility quan sát năng lực cần giữ trong và ngoài miền.', error: 'Utility không được đo trên forget set một mình.',
+  },
+  {
+    id: 'quiz-report', title: 'Báo cáo đầy đủ', prompt: 'Báo cáo nào cung cấp bằng chứng cân bằng nhất?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chỉ checkpoint có p-value cao nhất.' },
+      { id: 'b', label: 'Chỉ một ví dụ prompt thành công.' },
+      { id: 'c', label: 'Chỉ thời gian huấn luyện.' },
+      { id: 'd', label: 'Forget quality, utility, robustness, chi phí và độ biến thiên.', isCorrect: true },
+    ], success: 'Đúng. Unlearning cần đánh giá đa trục.', error: 'Một chỉ số đơn không đủ mô tả thành công.',
+  },
+]} />

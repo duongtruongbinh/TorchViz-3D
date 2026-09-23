@@ -6,6 +6,7 @@ export type FlowchartNode = {
   step?: string | number;
   title: ReactNode;
   subtitle?: ReactNode;
+  detail?: ReactNode;
   tag?: string;
   isEnd?: boolean;
   active?: boolean;
@@ -13,17 +14,22 @@ export type FlowchartNode = {
 
 export function Flowchart({
   nodes,
+  items,
   caption,
+  ariaLabel,
 }: {
-  nodes: FlowchartNode[];
+  nodes?: FlowchartNode[];
+  items?: FlowchartNode[];
   caption?: string;
+  ariaLabel?: string;
 }) {
+  const nodeList = nodes ?? items ?? [];
   return (
-    <figure className="my-6 w-full max-w-full min-w-0">
+    <figure className="my-6 w-full max-w-full min-w-0" aria-label={ariaLabel}>
       <div className="w-full overflow-x-auto rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 min-w-max">
-          {nodes.map((node, index) => {
-            const isLast = index === nodes.length - 1;
+          {nodeList.map((node, index) => {
+            const isLast = index === nodeList.length - 1;
             const stepNumber = node.step ?? index + 1;
 
             return (
@@ -75,13 +81,13 @@ export function Flowchart({
                     >
                       {node.title}
                     </h5>
-                    {node.subtitle && (
+                    {(node.subtitle ?? node.detail) && (
                       <p
                         className={`mt-1 text-[11px] leading-relaxed font-normal ${
                           node.active ? 'text-[#205089]/80' : 'text-slate-500'
                         }`}
                       >
-                        {node.subtitle}
+                        {node.subtitle ?? node.detail}
                       </p>
                     )}
                   </div>

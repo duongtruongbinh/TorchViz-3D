@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "dpo-unlearning-preference-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-dpo-pair", "quiz-dpo-reference", "quiz-dpo-beta", "quiz-dpo-limit"],
+  keywords: ["Machine Unlearning", "Quiz", "DPO"], conceptIds: ['quiz-dpo-pair', 'quiz-dpo-reference', 'quiz-dpo-beta', 'quiz-dpo-limit'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="dpo-unlearning-preference-quiz" questions={[
+  {
+    id: 'quiz-dpo-pair', title: 'Cặp ưu tiên', prompt: 'Dữ liệu cốt lõi của DPO Unlearning gồm gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Một prompt, một phản hồi được ưu tiên và một phản hồi bị giảm ưu tiên.', isCorrect: true },
+      { id: 'b', label: 'Chỉ một danh sách trọng số cần xóa.' },
+      { id: 'c', label: 'Hai tokenizer không liên quan.' },
+      { id: 'd', label: 'Một tập retain không có prompt.' },
+    ], success: 'Đúng. DPO học quan hệ ưu tiên trong từng cặp phản hồi.', error: 'Hãy nhớ cấu trúc prompt–preferred–rejected.',
+  },
+  {
+    id: 'quiz-dpo-reference', title: 'Mô hình tham chiếu', prompt: 'Mô hình tham chiếu trong DPO giúp gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Tạo thêm dữ liệu cá nhân.' },
+      { id: 'b', label: 'Đo và hạn chế độ trôi tương đối của mô hình đang cập nhật.', isCorrect: true },
+      { id: 'c', label: 'Thay thế toàn bộ đánh giá robustness.' },
+      { id: 'd', label: 'Bảo đảm đáp án bị quên trong mọi paraphrase.' },
+    ], success: 'Đúng. Reference model làm mỏ neo cho tỷ lệ log-probability.', error: 'Reference model không phải bằng chứng xóa tuyệt đối.',
+  },
+  {
+    id: 'quiz-dpo-beta', title: 'Hệ số beta', prompt: 'Vai trò phù hợp nhất của beta trong mục tiêu DPO là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Đếm số token trong vocabulary.' },
+      { id: 'b', label: 'Chọn forget split của TOFU.' },
+      { id: 'c', label: 'Điều khiển độ mạnh của chênh lệch ưu tiên so với tham chiếu.', isCorrect: true },
+      { id: 'd', label: 'Định nghĩa gold retrained.' },
+    ], success: 'Đúng. Beta kiểm soát cường độ cập nhật ưu tiên.', error: 'Beta thuộc hàm mục tiêu, không phải cấu trúc benchmark.',
+  },
+  {
+    id: 'quiz-dpo-limit', title: 'Giới hạn của từ chối', prompt: 'Vì sao một câu từ chối tốt chưa đủ chứng minh unlearning?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Vì mọi câu từ chối đều làm tăng utility.' },
+      { id: 'b', label: 'Vì DPO không dùng gradient.' },
+      { id: 'c', label: 'Vì gold retrained luôn trả lời đúng dữ liệu cần quên.' },
+      { id: 'd', label: 'Vì hành vi bề mặt có thể đổi trong khi biểu diễn còn bị khai thác bằng probe khác.', isCorrect: true },
+    ], success: 'Đúng. Cần thêm so sánh gold, utility và robustness.', error: 'Phân biệt thay đổi đầu ra với loại bỏ ảnh hưởng dữ liệu.',
+  },
+]} />

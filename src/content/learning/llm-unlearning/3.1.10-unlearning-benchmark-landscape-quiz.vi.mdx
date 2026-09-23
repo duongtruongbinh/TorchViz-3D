@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'unlearning-benchmark-landscape-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['benchmark-families', 'benchmark-coverage', 'benchmark-selection'], keywords: ['Quiz', 'Benchmarks'],
+  conceptIds: ['benchmark-families', 'benchmark-coverage', 'benchmark-selection'], pageCount: 3,
+};
+
+<MdxQuiz id="unlearning-benchmark-landscape-quiz" questions={[
+  { id: 'benchmark-families', title: 'Họ benchmark', prompt: 'Vì sao lĩnh vực cần nhiều họ benchmark?', mode: 'single', options: [
+    { id: 'b', label: 'Để mọi paper có màu riêng.' }, { id: 'c', label: 'TOFU không có câu hỏi.' }, { id: 'd', label: 'Chỉ để đo tốc độ.' }, { id: 'a', label: 'Các rủi ro và lịch sử học dữ liệu khác nhau.', isCorrect: true },
+  ], success: 'Đúng. Mỗi họ kiểm tra một phạm vi claim.', error: 'Hãy xét đối tượng cần quên và cách dữ liệu đi vào model.' },
+  { id: 'benchmark-coverage', title: 'Phạm vi', prompt: 'Điểm tốt trên benchmark safety chứng minh chắc chắn điều gì?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ claim trong thiết kế và phép đo của benchmark đó.', isCorrect: true }, { id: 'a', label: 'Mọi loại unlearning đều thành công.' }, { id: 'c', label: 'Model không còn tham số.' }, { id: 'd', label: 'Bản quyền đã được xử lý.' },
+  ], success: 'Đúng. Không được mở rộng claim ngoài bằng chứng.', error: 'Một benchmark không bao phủ mọi rủi ro.' },
+  { id: 'benchmark-selection', title: 'Lựa chọn', prompt: 'Bước đầu tiên khi chọn benchmark là gì?', mode: 'single', options: [
+    { id: 'b', label: 'Chọn model lớn nhất.' }, { id: 'a', label: 'Xác định claim cần chứng minh.', isCorrect: true }, { id: 'c', label: 'Gộp mọi điểm.' }, { id: 'd', label: 'Bỏ qua utility.' },
+  ], success: 'Đúng. Bằng chứng phải phục vụ claim cụ thể.', error: 'Bắt đầu từ câu hỏi nghiên cứu, không từ tên benchmark.' },
+]} />

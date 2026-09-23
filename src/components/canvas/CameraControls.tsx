@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Layers, Layers2, RefreshCcw } from 'lucide-react';
@@ -184,7 +184,7 @@ export const CameraFitController: React.FC<{
   const previousSize = useRef({ width: size.width, height: size.height });
   const animation = useRef<CameraAnimation | null>(null);
 
-  const startAnimation = (view: FitView, duration = FIT_ANIMATION_SECONDS) => {
+  const startAnimation = useCallback((view: FitView, duration = FIT_ANIMATION_SECONDS) => {
     animation.current = {
       fromPosition: camera.position.clone(),
       toPosition: view.position,
@@ -196,7 +196,7 @@ export const CameraFitController: React.FC<{
       duration,
     };
     invalidate();
-  };
+  }, [camera, controls, invalidate]);
 
   useFrame((_, delta) => {
     const active = animation.current;
@@ -260,13 +260,13 @@ export const CameraFitController: React.FC<{
     }
 
     previous.current.layoutRevision = layoutRevision;
-  }, [layout, graphRevision, layoutRevision, camera, controls, size, invalidate]);
+  }, [camera, controls, graphRevision, invalidate, layout, layoutRevision, size, startAnimation]);
 
   useEffect(() => {
     if (!controls || manualFitToken === previous.current.manualFitToken) return;
     previous.current.manualFitToken = manualFitToken;
     startAnimation(getFitView(layout, size, DEFAULT_CAMERA_OFFSET.clone()));
-  }, [layout, manualFitToken, camera, controls, size, invalidate]);
+  }, [controls, layout, manualFitToken, size, startAnimation]);
 
   return null;
 });

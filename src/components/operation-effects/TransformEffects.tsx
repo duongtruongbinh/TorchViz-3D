@@ -126,13 +126,17 @@ function upsampleNearest(matrix: number[][], scale = 2): number[][] {
   ));
 }
 
+const DEMO_UPSAMPLE_INPUT_MATRIX = [
+  [0.18, 0.56, 0.34],
+  [0.78, 0.42, 0.64],
+  [0.26, 0.70, 0.90],
+];
+
+const DEMO_UPSAMPLE_OUTPUT_MATRIX = upsampleNearest(DEMO_UPSAMPLE_INPUT_MATRIX);
+
 export const UpsampleEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, t }) => {
-  const inputMatrix = [
-    [0.18, 0.56, 0.34],
-    [0.78, 0.42, 0.64],
-    [0.26, 0.70, 0.90],
-  ];
-  const outputMatrix = useMemo(() => upsampleNearest(inputMatrix), [inputMatrix]);
+  const inputMatrix = DEMO_UPSAMPLE_INPUT_MATRIX;
+  const outputMatrix = DEMO_UPSAMPLE_OUTPUT_MATRIX;
   const inputRows = inputMatrix.length;
   const inputCols = inputMatrix[0].length;
   const outputRows = outputMatrix.length;

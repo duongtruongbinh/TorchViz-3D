@@ -128,9 +128,9 @@ export default function Header({
 
                     <div className="flex items-center gap-4">
                         <div data-tour="template-picker" className="flex flex-col justify-center relative" ref={dropdownRef}>
-                            <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
+                            <span className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
                                 {t.header.template}
-                            </label>
+                            </span>
                             <div
                                 className="bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--border-subtle)] text-xs text-zinc-200 rounded px-3 py-1 flex items-center justify-between cursor-pointer w-40 transition-colors shadow-sm"
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -166,10 +166,11 @@ export default function Header({
                         </div>
 
                         <div data-tour="input-shape" className="flex flex-col justify-center">
-                            <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
+                            <label htmlFor="workspace-input-shape" className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
                                 {t.header.inputShape}
                             </label>
                             <input
+                                id="workspace-input-shape"
                                 type="text"
                                 placeholder="[1, 3, 224, 224]"
                                 className={`w-36 bg-[var(--surface-elevated)] border rounded px-2 py-0.5 text-xs font-mono text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-zinc-600 ${!shapeValid ? 'border-red-600/70' : 'border-[var(--border)] hover:border-zinc-500'
@@ -184,6 +185,7 @@ export default function Header({
 
                 <div className="flex items-center gap-2">
                     <button
+                        type="button"
                         data-tour="visualize"
                         onClick={handleRun}
                         disabled={loading || !!criticalError || !shapeValid}
@@ -242,6 +244,7 @@ export default function Header({
                     </button>
 
                     <button
+                        type="button"
                         data-tour="export-svg"
                         onClick={onExportSvg}
                         disabled={!layout}
@@ -251,6 +254,7 @@ export default function Header({
                     </button>
 
                     <button
+                        type="button"
                         onClick={openTour}
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
                         title={t.header.tour}
@@ -259,6 +263,7 @@ export default function Header({
                         <Info className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                     </button>
                     <button
+                        type="button"
                         data-tour="help"
                         onClick={() => setHelpOpen(true)}
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}

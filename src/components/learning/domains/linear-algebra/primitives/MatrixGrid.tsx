@@ -43,6 +43,7 @@ export function MatrixGrid({
   return (
     <div
       className="inline-flex items-center gap-2 select-none"
+      role="img"
       aria-label={ariaLabel}
     >
       {name && <MatrixNameLabel name={name} color={theme.matrixCellText} />}

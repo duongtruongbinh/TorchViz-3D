@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "system-prompt-vs-retraining-quiz", locale: "vi", title: "Quiz", headings: ["quiz-prompt-layer", "quiz-retrain", "quiz-unlearning-gap", "quiz-compliance"], keywords: ["Machine Unlearning", "Quiz", "System prompt", "Retraining"], conceptIds: ['quiz-prompt-layer', 'quiz-retrain', 'quiz-unlearning-gap', 'quiz-compliance'],
+  pageCount: 4 };
+
+<MdxQuiz id="system-prompt-vs-retraining-quiz" questions={[
+  { id: 'quiz-prompt-layer', title: 'Lớp tác động của prompt', prompt: 'System prompt chủ yếu thay đổi điều gì?', mode: 'single', options: [
+      { id: 'c', label: 'Kích thước tokenizer.' },
+      { id: 'd', label: 'Gold retrained.' },
+      { id: 'a', label: 'Hành vi suy luận ở bề mặt mà không tự đổi weights đã học.', isCorrect: true },
+      { id: 'b', label: 'Lịch sử pretraining.' },
+    ], success: 'Đúng. Prompt guard là lớp điều khiển đầu ra.', error: 'Prompt không tự cập nhật trọng số.' },
+  { id: 'quiz-retrain', title: 'Điểm mạnh của retraining', prompt: 'Vì sao full retraining là mốc mạnh?', mode: 'single', options: [
+      { id: 'c', label: 'Vì không cần dữ liệu.' },
+      { id: 'd', label: 'Vì chỉ sửa system prompt.' },
+      { id: 'a', label: 'Vì luôn miễn phí.' },
+      { id: 'b', label: 'Vì lịch sử huấn luyện mới loại forget set ngay từ đầu.', isCorrect: true },
+    ], success: 'Đúng. Provenance của quy trình retrain rõ hơn.', error: 'Mốc mạnh đến từ lịch sử dữ liệu, không phải chi phí.' },
+  { id: 'quiz-unlearning-gap', title: 'Khoảng trống của unlearning', prompt: 'Machine unlearning nhắm tới điểm nào giữa hai cực?', mode: 'single', options: [
+      { id: 'c', label: 'Cập nhật hẹp hơn retraining nhưng có bằng chứng mạnh hơn prompt guard.', isCorrect: true },
+      { id: 'd', label: 'Bỏ utility.' },
+      { id: 'a', label: 'Không cập nhật gì.' },
+      { id: 'b', label: 'Luôn huấn luyện lại toàn bộ.' },
+    ], success: 'Đúng. Mục tiêu là hiệu quả mà vẫn kiểm chứng được.', error: 'Hãy so phạm vi cập nhật và mức bằng chứng.' },
+  { id: 'quiz-compliance', title: 'Giới hạn tuân thủ', prompt: 'Phát biểu nào đúng về tuân thủ pháp lý?', mode: 'single', options: [
+      { id: 'c', label: 'Tên thuật toán tự tạo chứng nhận.' },
+      { id: 'd', label: 'Cần gắn bằng chứng kỹ thuật với phạm vi dữ liệu và quy trình quản trị cụ thể.', isCorrect: true },
+      { id: 'a', label: 'Một system prompt luôn đủ.' },
+      { id: 'b', label: 'Một p-value luôn đủ.' },
+    ], success: 'Đúng. Tuân thủ không được suy ra từ một metric đơn.', error: 'Không phương pháp nào tự động tạo bảo đảm pháp lý.' },
+]} />

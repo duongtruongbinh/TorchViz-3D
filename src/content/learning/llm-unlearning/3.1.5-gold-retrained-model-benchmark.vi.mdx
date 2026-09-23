@@ -1,0 +1,145 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "gold-retrained-model-benchmark",
+  locale: "vi",
+  title: "Mô hình Retrain Vàng: Giới hạn Lý thuyết Hoàn hảo",
+  headings: [
+    "Mô hình chưa từng thấy forget set",
+    "So sánh phân phối thay vì một đáp án",
+    "Vì sao gold vẫn chưa phải chân lý tuyệt đối?"
+  ],
+  keywords: ["Gold retrained", "Reference model", "Distribution", "TOFU"],
+  conceptIds: ['quiz-gold-history', 'quiz-gold-distribution', 'quiz-gold-overforget', 'quiz-gold-limit'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Mô hình chưa từng thấy forget set
+
+Trong khoa học dữ liệu và suy luận nhân quả (Causal Inference), một trong những công cụ tư duy mạnh mẽ nhất là Suy luận Phản thực tế (Counterfactual Reasoning): *"Điều gì sẽ xảy ra nếu một biến cố nào đó chưa từng tồn tại trong quá khứ?"*.
+
+Khi đối mặt với bài toán Machine Unlearning, câu hỏi phản thực tế mang ý nghĩa sống còn là: *Nếu mô hình ngôn ngữ lớn này chưa từng được nạp tập dữ liệu vi phạm <InlineMath formula="\mathcal{D}_f" />, thì phân phối xác suất và hành vi sinh token của nó sẽ trông như thế nào khi đối diện với các câu hỏi liên quan?*
+
+Câu trả lời chính xác tuyệt đối cho câu hỏi phản thực tế đó mang tên Mô hình Tái huấn luyện Vàng (Gold Retrained Model <InlineMath formula="\mathcal{M}_{\text{gold}}" />).
+
+Về mặt định nghĩa kỹ thuật, <InlineMath formula="\mathcal{M}_{\text{gold}}" /> được tạo ra bằng cách lấy đúng kiến trúc mô hình ban đầu, áp dụng chính xác các siêu tham số huấn luyện (learning rate, optimizer, batch size, số epoch), nhưng tập dữ liệu đào tạo được thanh lọc triệt để ngay từ dòng đầu tiên:
+
+<BlockMath formula="\mathcal{D}_{\text{train\_gold}} = \mathcal{D} \setminus \mathcal{D}_f" />
+
+Vì mô hình này chưa từng tiếp xúc với bất kỳ token nào của <InlineMath formula="\mathcal{D}_f" />, nó trở thành ngọn hải đăng chuẩn mực tối cao cho mọi thuật toán unlearning.
+
+<LessonImage
+  assetPath="llm-unlearning/03-gold-retrained-distribution.webp"
+  alt="Hai mô hình đi theo đường retrain và unlearn rồi được so sánh phân phối đầu ra"
+  caption="Mô hình Gold Retrained là đích đến so sánh chuẩn mực; mô hình unlearned không cần phải trả lời một câu từ chối cố định mà cần tái hiện phân phối xác suất tương đồng với mô hình Gold."
+/>
+
+Bức tranh trên mô tả sự hội tụ của hai nhánh tiến hóa:
+- **Nhánh phía trên (Con đường Huấn luyện Sạch - Gold Retrained)**: Mô hình được đào tạo trong môi trường thuần khiết, chưa từng biết đến sự tồn tại của dữ liệu mục tiêu màu đỏ.
+- **Nhánh phía dưới (Con đường Can thiệp Phẫu thuật - Unlearned)**: Mô hình ban đầu đã thuộc lòng toàn bộ dữ liệu, sau đó được áp dụng giải thuật unlearning tốc độ cao để trung hòa ảnh hưởng của dữ liệu màu đỏ.
+- **Điểm đối chuẩn Cuối cùng**: Tại vạch đích, hai mô hình được đặt cạnh nhau để các chuyên gia so sánh hàm mật độ xác suất đầu ra. Một thuật toán unlearning lý tưởng phải đưa phân phối của nhánh dưới tiệm cận lồng khít vào phân phối của nhánh trên.
+
+<LessonNote tone="info">
+  Mô hình Gold Retrained đóng vai trò như một nhóm đối chứng hoàn hảo trong y học, cung cấp đường chuẩn phân phối xác suất mà một thuật toán unlearning thành công bắt buộc phải hội tụ về.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## So sánh phân phối thay vì một đáp án
+
+Khi bắt đầu làm quen với unlearning, nhiều kỹ sư AI thường mắc phải một ngộ nhận kinh điển: *"Muốn mô hình quên một sự thật thì xác suất của từ ngữ đáp án đúng phải bị kéo sập về bằng 0!"*.
+
+<ConceptHierarchy
+  ariaLabel="So sánh sự đối lập giữa ngộ nhận ép xác suất về 0 và mục tiêu hội tụ phân phối"
+  root={{
+    title: "Mục Tiêu Unlearning: Triệt Tiêu vs Hội Tụ Phân Phối",
+    detail: "Bản chất xác suất của việc quên trong mô hình ngôn ngữ tự hồi quy."
+  }}
+  nodes={[
+    {
+      title: "1. Ngộ Nhận Ép Xác Suất Bằng 0 (\\(P = 0\\))",
+      detail: "Cố tình triệt tiêu logit của từ khóa đúng về âm vô cùng.",
+      tone: "amber",
+      children: [
+        {
+          title: "Sụp đổ Cảnh quan Tối ưu",
+          detail: "\\(\\log P \\to -\\infty\\) tạo ra hố thế năng dị thường, phá hủy cấu trúc manifold của các từ lân cận."
+        },
+        {
+          title: "Hiện tượng Over-unlearning",
+          detail: "Mô hình sợ hãi cả những từ ngữ phổ thông, cư xử dị thường hơn nhiều so với một mô hình sạch."
+        }
+      ]
+    },
+    {
+      title: "2. Chuẩn Mực Hội Tụ Phân Phối Gold",
+      detail: "Đưa phân phối xác suất của mô hình unlearn tiệm cận phân phối của mô hình Gold.",
+      tone: "teal",
+      children: [
+        {
+          title: "Xác suất Dương Tự nhiên",
+          detail: "Mô hình Gold vẫn có xác suất đoán mò ngẫu nhiên một địa danh phổ biến (như London với \\(p \\approx 0.02\\))."
+        },
+        {
+          title: "Tiệm cận Phân kỳ Thống kê",
+          detail: "\\(D_{\\text{KL}}(P_u \\parallel P_{\\text{gold}}) \\to 0\\); bảo đảm hành vi tự nhiên như thể chưa từng tiếp xúc dữ liệu."
+        }
+      ]
+    }
+  ]}
+/>
+
+Đích đến chuẩn xác của TOFU được định nghĩa bằng khoảng cách phân kỳ giữa hai hàm mật độ xác suất:
+
+<BlockMath formula="D_{\text{KL}}\Big(P_{\theta_u}(Y \mid X) \, \parallel \, P_{\text{gold}}(Y \mid X)\Big) \longrightarrow 0" />
+
+Trên tập quên, mô hình sau unlearn có thể đoán mò ngẫu nhiên, có thể trả lời một giả thuyết hợp lý, miễn là phân phối thống kê của nó (đo qua tỷ lệ Truth Ratio) có hình dạng tương đồng với mô hình Gold.
+
+<LessonNote tone="warning">
+  Bắt mô hình luôn nói "Tôi không biết" không phải là unlearning; đó chỉ là một hành vi bị điều kiện hóa nhân tạo. Một mô hình Gold chân chính sẽ suy luận tự nhiên dựa trên tri thức thế giới nền tảng của nó.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao gold vẫn chưa phải chân lý tuyệt đối?
+
+Mặc dù Gold Retrained Model là công cụ đối chuẩn tốt nhất mà cộng đồng AI sở hữu hiện nay, một nhà nghiên cứu có tư duy phản biện sắc bén cần hiểu rõ ba giới hạn nội tại của mốc chuẩn này:
+
+<ConceptFlow
+  ariaLabel="Ba giới hạn nội tại của mô hình Gold Retrained trong thực tế"
+  items={[
+    {
+      title: "1. Độ Nhạy Hạt Giống (Seed Sensitivity)",
+      detail: "Hai mô hình Gold huấn luyện với hai seed ngẫu nhiên khác nhau vẫn có độ lệch phân phối nhất định; Gold là một vùng dung sai, không phải một điểm bất biến.",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Rào Cản Khả Thi Quy Mô Lớn",
+      detail: "Chỉ chạy được ở quy mô phòng thí nghiệm (TOFU 4.000 mẫu); hoàn toàn bất khả thi về mặt kinh tế trên các siêu mô hình 70B+ tham số.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Giới Hạn Suy Diễn Bắc Cầu",
+      detail: "Gold chứng minh dữ liệu không có trong tập huấn luyện, nhưng không ngăn được việc người dùng suy luận gián tiếp qua các sự kiện thế giới liên đới.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Tóm lại, mô hình Gold Retrained là chiếc la bàn định hướng chuẩn xác nhất giúp các nhà nghiên cứu không bị lạc vào những ảo ảnh đo lường bề mặt. Nó dạy cho người làm AI một bài học sâu sắc: **Mục tiêu tối thượng của unlearning không phải là sự hủy diệt tri thức một cách mù quáng, mà là sự phục hồi trạng thái tự nhiên vốn có của mô hình.**
+
+<LessonNote tone="danger">
+  Khi đã có một môi trường thử nghiệm hoàn hảo với benchmark TOFU và mô hình đối chuẩn Gold, các nhà khoa học máy tính sẽ dùng những thuật toán cụ thể nào để can thiệp vào trọng số mô hình?
+</LessonNote>
+
+Chào mừng bạn bước sang Chương 4: Bóc tách cơ chế giải tích, hàm mục tiêu và sự đánh đổi của Bốn Thuật toán Baseline Cốt lõi trong Machine Unlearning!
+
+</MdxPage>

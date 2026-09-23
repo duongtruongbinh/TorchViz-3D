@@ -61,6 +61,10 @@ substantially different in scope or needs its own long-lived reference surface.
 - When authoring lessons, blog posts, or deep-dives for Learning Lab, always follow the universal guidelines defined in [.agents/rules/learning-lab-authoring.md](.agents/rules/learning-lab-authoring.md) (or skill [.agents/skills/learning-lab-authoring/SKILL.md](.agents/skills/learning-lab-authoring/SKILL.md)): minimize italics, selective and concise bold keywords (1–4 words), standard English terms, explicit formula shapes with concrete numbers, 3-tier pedagogical pacing, and catalog sync.
 - When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
 
+## Background Execution & Tool Polling
+
+Long foreground calls may auto-background by the configured threshold; the result is injected as a follow-up when the job finishes. NEVER poll a backgrounded job (`sleep`/`ps`/`pgrep`/`top`) - do other work or end your reply and you will be woken with its output.
+
 ## Verification
 
 Use the narrowest verification that matches the change. For code or behavior
@@ -72,3 +76,4 @@ npm run verify
 
 For docs-only changes, inspect links and run a broader verification only when
 the change can affect TypeScript, tests, or build output.
+

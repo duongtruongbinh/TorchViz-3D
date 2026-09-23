@@ -173,7 +173,6 @@ export function MatrixCell({
     <div
       key={`cell-${row}-${col}`}
       className={baseClasses}
-      aria-label={ariaLabel ?? (showIndices ? defaultAriaLabel : undefined)}
     >
       {content}
     </div>

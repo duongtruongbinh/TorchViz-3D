@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "sisa-architecture-sharding-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-sisa-acronym-meaning","quiz-sisa-isolation-role","quiz-sisa-checkpoint-restore","quiz-sisa-exact-guarantee","quiz-sisa-storage-overhead","quiz-sisa-aggregation-generative-failure"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-sisa-acronym-meaning', 'quiz-sisa-isolation-role', 'quiz-sisa-checkpoint-restore', 'quiz-sisa-exact-guarantee', 'quiz-sisa-storage-overhead', 'quiz-sisa-aggregation-generative-failure'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="sisa-architecture-sharding-quiz" questions={[
+  {
+    id: 'quiz-sisa-acronym-meaning',
+    title: 'Bản chất Bốn Trụ cột trong Kiến trúc SISA',
+    prompt: 'Bốn chữ cái trong tên gọi kiến trúc SISA (Bourtoule et al., 2021) là viết tắt của những từ tiếng Anh nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_sisa_supervised', label: 'Supervised, Inductive, Segmented, Accelerated.' },
+      { id: 'opt_sisa_synchronous', label: 'Synchronous, Incremental, Stochastic, Asynchronous.' },
+      { id: 'opt_sisa_correct', label: 'Sharded, Isolated, Sliced, Aggregated.', isCorrect: true },
+      { id: 'opt_sisa_sparse', label: 'Sparse, Iterative, Scaled, Attention.' },
+    ], success: 'Chính xác. SISA đại diện cho Sharded (phân mảnh dữ liệu), Isolated (huấn luyện cô lập), Sliced (cắt lát theo thời gian) và Aggregated (tổng hợp kết quả khi suy luận).',
+    error: 'Chưa chính xác. Tên gọi SISA xuất phát từ 4 kỹ thuật cốt lõi: Sharded, Isolated, Sliced, Aggregated.',
+  },
+  {
+    id: 'quiz-sisa-isolation-role',
+    title: 'Ý nghĩa của Tính Cô lập (Isolation) giữa các Shard',
+    prompt: 'Tại sao việc huấn luyện hoàn toàn cô lập (Isolated) giữa các shard lại là yếu tố sống còn trong thiết kế của SISA?',
+    mode: 'single',
+    options: [
+      { id: 'opt_iso_quantization', label: 'Để ép kiểu dữ liệu từ float32 về int4 tự động.' },
+      { id: 'opt_iso_reduce_params', label: 'Để giảm số lượng tầng ẩn trong mạng nơ-ron xuống một nửa.' },
+      { id: 'opt_iso_encryption', label: 'Để mã hóa dữ liệu theo chuẩn quân đội bảo mật cao.' },
+      { id: 'opt_iso_containment', label: 'Đảm bảo mỗi mẫu dữ liệu chỉ ảnh hưởng đến duy nhất một mô hình shard; khi cần xóa mẫu đó, các shard khác hoàn toàn không bị ảnh hưởng và không cần huấn luyện lại.', isCorrect: true },
+    ], success: 'Đúng. Tính cô lập đảm bảo thông tin của một điểm dữ liệu không bao giờ lan truyền sang các shard khác, giúp giới hạn phạm vi huấn luyện lại chỉ trong đúng một shard duy nhất.',
+    error: 'Chưa đúng. Cô lập dữ liệu giữa các shard nhằm đảm bảo rằng khi một điểm dữ liệu bị xóa, chỉ có mô hình của shard chứa nó cần tái huấn luyện, các shard khác được giữ nguyên.',
+  },
+  {
+    id: 'quiz-sisa-checkpoint-restore',
+    title: 'Quy trình Khôi phục Điểm lưu Checkpoint trong SISA',
+    prompt: 'Khi một điểm dữ liệu cần xóa nằm ở Lát cắt thứ 3 (Slice 3) của Shard A, hệ thống SISA sẽ khôi phục trọng số từ thời điểm nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_chk_before_slice', label: 'Tải lại checkpoint đã lưu ngay sau khi hoàn thành Slice 2 (ngay trước khi dữ liệu của Slice 3 được nạp vào).', isCorrect: true },
+      { id: 'opt_chk_final', label: 'Dùng nguyên vẹn trọng số cuối cùng của Slice cuối cùng rồi nhân ma trận nghịch đảo.' },
+      { id: 'opt_chk_neighbor', label: 'Sao chép trọng số từ Shard B lân cận sang.' },
+      { id: 'opt_chk_scratch', label: 'Khởi tạo ngẫu nhiên lại từ đầu từ bước 0 (Epoch 0).' },
+    ], success: 'Chính xác. SISA tận dụng việc lưu checkpoint sau mỗi slice: hệ thống chỉ cần quay lui về checkpoint của slice 2, bỏ điểm dữ liệu cần xóa trong slice 3, rồi tiếp tục huấn luyện từ slice 3 trở đi.',
+    error: 'Chưa chính xác. Hệ thống tải lại điểm lưu ngay trước khi lát cắt chứa dữ liệu cần xóa bắt đầu (tức là sau khi học xong Slice 2) để tránh phải học lại từ đầu.',
+  },
+  {
+    id: 'quiz-sisa-exact-guarantee',
+    title: 'Mức độ Đảm bảo Toán học của Thuật toán SISA',
+    prompt: 'Kiến trúc SISA đạt được cấp độ đảm bảo unlearning nào theo tiêu chuẩn toán học?',
+    mode: 'single',
+    options: [
+      { id: 'opt_approx_only', label: 'Chỉ là Unlearning xấp xỉ vì vẫn còn nhiễu gradient lưu lại trong bộ nhớ cache.' },
+      { id: 'opt_exact_unlearning', label: 'Exact Unlearning tuyệt đối, vì mô hình shard sau khi huấn luyện lại hoàn toàn chưa từng nhìn thấy điểm dữ liệu đã bị loại bỏ.', isCorrect: true },
+      { id: 'opt_heuristic_prompt', label: 'Chỉ là một kỹ thuật che giấu kết quả ở tầng prompt suy luận.' },
+      { id: 'opt_random_guessing', label: 'Không có bất kỳ đảm bảo toán học nào.' },
+    ], success: 'Đúng. Vì shard được huấn luyện lại trên tập dữ liệu hoàn toàn không chứa điểm cần xóa từ checkpoint sạch, phân phối trọng số của nó chính là phân phối của mô hình huấn luyện lại chuẩn (Exact Unlearning).',
+    error: 'Chưa đúng. SISA đạt được Exact Unlearning toán học vì shard mục tiêu được huấn luyện lại thực sự trên tập dữ liệu đã loại bỏ hoàn toàn điểm dữ liệu đó.',
+  },
+  {
+    id: 'quiz-sisa-storage-overhead',
+    title: 'Thách thức Dung lượng Lưu trữ Checkpoint trên Siêu Mô hình',
+    prompt: 'Điều gì khiến kiến trúc SISA gặp rào cản chi phí lưu trữ khổng lồ khi áp dụng cho các Large Language Models hiện đại?',
+    mode: 'single',
+    options: [
+      { id: 'opt_storage_cloud_ban', label: 'Các nhà cung cấp đám mây cấm lưu trữ nhiều hơn 3 checkpoint của cùng một dự án.' },
+      { id: 'opt_storage_zero_bytes', label: 'Trọng số của Transformer tự động biến mất sau 24 giờ lưu trữ.' },
+      { id: 'opt_storage_explosion', label: 'Mỗi mô hình LLM có kích thước hàng chục đến hàng trăm GB; việc nhân bản S shard và lưu checkpoint cho R slice dẫn đến dung lượng ổ đĩa lên tới hàng chục terabyte.', isCorrect: true },
+      { id: 'opt_storage_ssd_speed', label: 'Tốc độ đọc của ổ cứng NVMe bị giảm 100 lần khi đọc file đuôi .pt.' },
+    ], success: 'Chính xác. Với mô hình 70B tham số (mỗi checkpoint ~140 GB), việc lưu S x R checkpoint đòi hỏi hàng chục Terabyte lưu trữ tốc độ cao, gây bùng nổ chi phí hạ tầng phần cứng.',
+    error: 'Chưa chính xác. Rào cản là dung lượng khổng lồ của trọng số LLM: khi nhân số shard với số slice checkpoint, dung lượng lưu trữ cần thiết vượt quá giới hạn kinh tế thực tế.',
+  },
+  {
+    id: 'quiz-sisa-aggregation-generative-failure',
+    title: 'Sự Sụp đổ của Cơ chế Bỏ phiếu trên Mô hình Ngôn ngữ Sinh',
+    prompt: 'Tại sao cơ chế tổng hợp kết quả bằng Bỏ phiếu Đa số (Majority Voting) trong SISA không thể áp dụng cho các mô hình sinh văn bản tự do như GPT hay LLaMA?',
+    mode: 'single',
+    options: [
+      { id: 'opt_agg_tokenizer_mismatch', label: 'Do mỗi shard bắt buộc phải sử dụng một bộ từ điển tokenizer hoàn toàn khác nhau.' },
+      { id: 'opt_agg_python_recursion', label: 'Do hàm max() trong Python bị tràn ngăn xếp đệ quy khi gặp chuỗi string dài.' },
+      { id: 'opt_agg_gpu_crash', label: 'Làm hỏng card màn hình vì xung đột luồng CUDA.' },
+      { id: 'opt_agg_generative_fluency', label: 'Sinh văn bản là quá trình dự đoán chuỗi tự do với hàng nghìn lựa chọn từ ngữ hợp lý; việc bỏ phiếu rời rạc từng token giữa các shard sẽ phá vỡ hoàn toàn ngữ pháp và tính mạch lạc của câu trả lời.', isCorrect: true },
+    ], success: 'Chính xác. Khác với bài toán phân loại chỉ có vài nhãn cố định (0 hoặc 1), sinh ngôn ngữ đòi hỏi tính liên tục ngữ cảnh. Việc ghép nối hoặc bỏ phiếu các token từ các shard khác nhau tạo ra câu văn chắp vá, vô nghĩa.',
+    error: 'Chưa đúng. Việc bỏ phiếu đa số chỉ hiệu quả trên các nhãn phân loại rời rạc cố định. Trên mô hình sinh văn bản, cơ chế này phá hủy tính liên kết ngữ nghĩa và độ trôi chảy ngữ pháp.',
+  },
+]} />

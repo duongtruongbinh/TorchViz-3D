@@ -466,16 +466,15 @@ const KernelChannelStack: React.FC<{
                 transform: `translate(${stackOffset * 1.65}rem, ${stackOffset * -1.05}rem) scale(0.95)`,
                 opacity: isActive ? 1 : 0.58,
               }}
-              onClick={() => onChannelChange(channelIndex)}
-              role="button"
-              tabIndex={isActive ? -1 : 0}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  onChannelChange(channelIndex);
-                }
-              }}
             >
+              {!isActive ? (
+                <button
+                  type="button"
+                  className="absolute inset-0 z-20 cursor-pointer"
+                  onClick={() => onChannelChange(channelIndex)}
+                  aria-label={t.channelLabel(channelIndex + 1)}
+                />
+              ) : null}
               <KernelChannelGrid
                 channel={channel}
                 channelIndex={channelIndex}
@@ -583,6 +582,8 @@ export const ConvExercise: React.FC<{
   }, [difficulty]);
 
   useEffect(() => {
+    // Any kernel edit invalidates answers and the active hint, regardless of value.
+    void kernelValues;
     setValues({});
     setSubmitted(false);
     setHintCell(null);
@@ -682,8 +683,8 @@ export const ConvExercise: React.FC<{
   const content = (
       <div
         className={`${isInline ? 'flex min-h-0 w-full flex-col overflow-hidden rounded-md border border-zinc-700/70 bg-zinc-950 text-zinc-100' : 'flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl'}`}
-        role={isInline ? undefined : 'dialog'}
-        aria-modal={isInline ? undefined : true}
+        role="dialog"
+        aria-modal={!isInline}
         aria-labelledby={titleId}
       >
         <div className={`${isInline ? 'grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4' : 'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4'} border-b border-zinc-800 bg-zinc-950/95 px-4 py-3`}>

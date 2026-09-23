@@ -61,7 +61,7 @@ function HeroVisual({
           style={{ '--stage-color': '#22d3ee' } as CSSProperties}
         >
           <div className="landing-stage-activation-icon" aria-hidden="true">
-            <svg className="landing-activation-graph" viewBox="0 0 120 72" focusable="false">
+            <svg className="landing-activation-graph" viewBox="0 0 120 72" focusable="false" aria-hidden="true">
               <path className="landing-activation-grid" d="M24 28H104M24 50H104M32 14V58M82 14V58" />
               <path className="landing-activation-axis" d="M22 50H108M56 60V12" />
               <path className="landing-activation-curve-shadow" d="M22 50H56L101 22" />

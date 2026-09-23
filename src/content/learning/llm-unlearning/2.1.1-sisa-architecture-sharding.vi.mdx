@@ -1,0 +1,220 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "sisa-architecture-sharding",
+  locale: "vi",
+  title: "Kiến trúc SISA: Phân mảnh & Giới hạn Retraining",
+  headings: [
+    "Khởi nguồn Machine Unlearning & Kiến trúc SISA",
+    "Bốn Trụ cột: Sharded, Isolated, Sliced, Aggregated",
+    "Cơ chế Tái huấn luyện Cục bộ & Tiết kiệm Chi phí",
+    "Giới hạn Lưu trữ & Bất khả thi trên Mô hình Sinh"
+  ],
+  keywords: ["Machine Unlearning", "LLM", "Lý thuyết", "Kiến trúc SISA", "Phân mảnh", "Giới hạn Retraining"],
+  conceptIds: ['quiz-sisa-acronym-meaning', 'quiz-sisa-isolation-role', 'quiz-sisa-checkpoint-restore', 'quiz-sisa-exact-guarantee', 'quiz-sisa-storage-overhead', 'quiz-sisa-aggregation-generative-failure'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Khởi nguồn Machine Unlearning & Kiến trúc SISA
+
+Trước kỷ nguyên bùng nổ của các mô hình ngôn ngữ lớn, bài toán Machine Unlearning chủ yếu được khám phá trong phạm vi các mô hình học máy truyền thống như phân loại ảnh, hệ thống gợi ý hoặc mạng nơ-ron đồ thị. Ở các hệ thống này, câu hỏi cốt tử được đặt ra: *Làm thế nào để đạt được bảo đảm toán học Exact Unlearning mà không phải gánh chịu toàn bộ chi phí khổng lồ của việc huấn luyện lại từ đầu?*
+
+Một trong những công trình kinh điển đặt nền móng cho hướng tiếp cận chia để trị là bài báo *"Machine Unlearning"* của Lucas Bourtoule et al. (IEEE S&P 2021). Thay vì chấp nhận tái huấn luyện toàn phần trên toàn bộ kho dữ liệu khổng lồ mỗi khi có một yêu cầu xóa phát sinh, nhóm tác giả đã đề xuất một khung kiến trúc chia để trị mang tính đột phá mang tên **SISA**: Sharded, Isolated, Sliced, Aggregated.
+
+<BlockMath formula="\textbf{SISA} = \textbf{S}\text{harded, } \textbf{I}\text{solated, } \textbf{S}\text{liced, } \textbf{A}\text{ggregated}" />
+
+<LessonImage
+  assetPath="llm-unlearning/02-sisa-architecture-sharding.webp"
+  alt="Dữ liệu được chia thành shards và slices để chỉ retrain phần bị ảnh hưởng"
+  caption="SISA giảm phạm vi retraining bằng cách cô lập dữ liệu và lưu checkpoint theo từng slice: khi có yêu cầu xóa, hệ thống chỉ cần quay về checkpoint của slice bị ảnh hưởng và huấn luyện lại một shard duy nhất."
+/>
+
+<ConceptFlow
+  ariaLabel="Bốn giai đoạn vận hành cốt lõi của khung kiến trúc SISA"
+  items={[
+    {
+      title: "1. Sharding (Phân mảnh)",
+      detail: "Chia tập dữ liệu D thành S mảnh độc lập hoàn toàn, không có bất kỳ điểm dữ liệu nào trùng lặp.",
+      formula: "\\mathcal{D} = \\bigcup_{s=1}^S \\mathcal{D}_s",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Slicing (Cắt lát)",
+      detail: "Mỗi shard được chia nhỏ thành R lớp và huấn luyện tăng dần, lưu checkpoint sau mỗi slice.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Isolation (Cô lập)",
+      detail: "Các mô hình shard được đào tạo hoàn toàn riêng biệt, ngăn chặn triệt để sự rò rỉ gradient chéo.",
+      tone: "violet",
+      visual: "two-term-loss"
+    },
+    {
+      title: "4. Aggregation (Tổng hợp)",
+      detail: "Khi suy luận, kết hợp dự đoán của S mô hình độc lập thông qua cơ chế bỏ phiếu đa số.",
+      formula: "\\hat{y} = \\text{MajorityVote}(\\mathcal{M}_1, \\dots, \\mathcal{M}_S)",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Động lực chính của SISA là biến bài toán Tái huấn luyện Toàn phần tốn kém thành bài toán Tái huấn luyện Cục bộ Phân vùng, bảo đảm đạt được chuẩn Exact Unlearning tuyệt đối về mặt toán học mà không đòi hỏi bất kỳ can thiệp phức tạp nào vào hàm tối ưu hóa gradient bên trong nơ-ron.
+
+<LessonNote tone="info">
+  SISA không tìm cách gỡ bỏ tri thức ra khỏi mạng nơ-ron đã học, mà cô lập tri thức vào các hộp cát độc lập ngay từ giai đoạn tiền huấn luyện để khi cần xóa, ta chỉ phải xây dựng lại một góc nhỏ của hệ thống.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bốn Trụ cột: Sharded, Isolated, Sliced, Aggregated
+
+Cấu trúc của SISA được thiết kế dựa trên nguyên lý chia để trị với hai tầng phân rã toán học nghiêm ngặt:
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc phân tầng hai cấp độ dữ liệu và mô hình trong SISA"
+  root={{
+    title: "Cấu Trúc Phân Rã Hai Tầng của SISA",
+    detail: "Cơ chế phân lập không gian mẫu và lưu trữ trạng thái trung gian."
+  }}
+  nodes={[
+    {
+      title: "1. Tầng Không gian Shards (Cô lập Mô hình)",
+      detail: "Phân vùng tập dữ liệu \\(N\\) mẫu thành \\(S\\) mảnh độc lập hoàn toàn.",
+      tone: "blue",
+      children: [
+        {
+          title: "Giao Không Trùng Lặp",
+          detail: "\\(\\mathcal{D}_i \\cap \\mathcal{D}_j = \\emptyset\\), bảo đảm mỗi mẫu chỉ ảnh hưởng duy nhất tới một shard model."
+        },
+        {
+          title: "Huấn luyện Song Song",
+          detail: "\\(S\\) mô hình \\(\\mathcal{M}_s\\) được huấn luyện trên \\(S\\) cụm máy tính tách biệt mà không trao đổi tham số."
+        }
+      ]
+    },
+    {
+      title: "2. Tầng Thời gian Slices (Lưu trữ Trạng thái)",
+      detail: "Chia nhỏ tiến trình huấn luyện của từng shard thành \\(R\\) lát cắt tuần tự.",
+      tone: "amber",
+      children: [
+        {
+          title: "Lưu Checkpoint Tăng dần",
+          detail: "Huấn luyện trên lát cắt \\(r\\) và lưu trọng số \\(\\theta_r\\) làm điểm xuất phát cho lát cắt \\(r+1\\)."
+        },
+        {
+          title: "Thu hẹp Phạm vi Quay lui",
+          detail: "Khi dữ liệu bị xóa ở lát cắt \\(r^*\\), toàn bộ các lát cắt từ 1 đến \\(r^*-1\\) được bảo toàn nguyên vẹn."
+        }
+      ]
+    }
+  ]}
+/>
+
+Về mặt công thức, tập dữ liệu <InlineMath formula="\mathcal{D}" /> gồm <InlineMath formula="N" /> mẫu được phân bổ:
+
+<BlockMath formula="\mathcal{D} = \bigcup_{s=1}^{S} \mathcal{D}_s, \quad \text{với } \mathcal{D}_i \cap \mathcal{D}_j = \emptyset \quad (\forall i \neq j)" />
+
+Trong mỗi shard <InlineMath formula="\mathcal{D}_s" />, dữ liệu tiếp tục được chia thành <InlineMath formula="R" /> lát cắt tăng dần <InlineMath formula="\mathcal{D}_{s} = \{\mathcal{D}_{s, 1}, \mathcal{D}_{s, 2}, \dots, \mathcal{D}_{s, R}\}" />. Trọng số tại slice thứ <InlineMath formula="r" /> được xác lập dựa trên checkpoint của slice liền trước:
+
+<BlockMath formula="\theta_{s, r} \leftarrow \text{Train}\big(\theta_{s, r-1}, \, \mathcal{D}_{s, r}\big)" />
+
+Nhờ cơ chế này, một điểm dữ liệu xuất hiện ở lát cắt cuối cùng chỉ đòi hỏi một lượng tính toán rất nhỏ để đào tạo lại mà không làm xáo trộn nền móng tri thức đã học ở các lát cắt trước đó.
+
+<LessonNote tone="warning">
+  Chia càng nhiều shards không đồng nghĩa với việc hiệu năng luôn tăng. Khi số lượng shard S quá lớn, mỗi mô hình con chỉ được tiếp xúc với một lượng dữ liệu quá nghèo nàn, dẫn đến hiện tượng underfitting trầm trọng và làm suy giảm độ chính xác chung.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cơ chế Tái huấn luyện Cục bộ & Tiết kiệm Chi phí
+
+Khi nhận được yêu cầu xóa một điểm dữ liệu <InlineMath formula="x^*" /> từ người dùng, hệ thống SISA kích hoạt quy trình unlearning cục bộ:
+
+<BlockMath formula="x^* \in \mathcal{D}_{s^*, r^*} \quad (\text{thuộc Shard } s^*, \text{Slice } r^*)" />
+
+Quy trình xử lý diễn ra theo 4 bước dứt khoát:
+1. **Xác định Vị trí Tọa độ**: Tra cứu chỉ mục dữ liệu và phát hiện <InlineMath formula="x^*" /> nằm tại shard <InlineMath formula="s^*" /> trong lát cắt <InlineMath formula="r^*" />.
+2. **Khôi phục Điểm Checkpoint An toàn**: Tải lại ma trận trọng số đã lưu ngay trước khi <InlineMath formula="x^*" /> xuất hiện, tức là checkpoint <InlineMath formula="\theta_{s^*, r^*-1}" />.
+3. **Huấn luyện Lại Cục bộ**: Loại bỏ <InlineMath formula="x^*" /> ra khỏi tập huấn luyện và chỉ tiến hành học lại từ slice <InlineMath formula="r^*" /> đến slice cuối cùng <InlineMath formula="R" />:
+<BlockMath formula="\theta_{s^*}' \leftarrow \text{Train}\Big(\theta_{s^*, r^*-1}, \quad \{\mathcal{D}_{s^*, r^*} \setminus \{x^*\}, \, \dots, \, \mathcal{D}_{s^*, R}\}\Big)" />
+4. **Bảo toàn Tuyệt đối**: Toàn bộ <InlineMath formula="S - 1" /> mô hình shard còn lại được giữ nguyên 100% trọng số mà không tốn thêm bất kỳ một chu kỳ tính toán nào.
+
+So với tái huấn luyện toàn phần trên toàn bộ tập dữ liệu <InlineMath formula="\mathcal{D}" />, khối lượng dữ liệu mà SISA cần duyệt lại trung bình chỉ bằng:
+
+<BlockMath formula="\mathbb{E}[\text{Dữ liệu Retrain}] \approx \frac{1}{2 \cdot S \cdot R} \times |\mathcal{D}|" />
+
+Nhờ mẫu số <InlineMath formula="2 \cdot S \cdot R" />, thời gian và chi phí tính toán có thể giảm từ 10 đến 100 lần trong khi vẫn bảo đảm 100% tính khả chứng Exact Unlearning trước mọi cuộc kiểm toán pháp lý khắt khe nhất.
+
+<LessonNote tone="danger">
+  Nếu SISA hoạt động hoàn hảo và tiết kiệm chi phí như vậy trên các mô hình phân loại truyền thống, tại sao các tập đoàn công nghệ không áp dụng trực tiếp kiến trúc này cho GPT-4 hay LLaMA?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Giới hạn Lưu trữ & Bất khả thi trên Mô hình Sinh
+
+Mặc dù SISA là giải pháp xuất sắc cho các bài toán phân loại nhãn rời rạc, kiến trúc này lập tức sụp đổ khi bước chân vào lãnh địa của các mô hình ngôn ngữ lớn do hai rào cản vật lý không thể vượt qua:
+
+<ConceptHierarchy
+  ariaLabel="Hai tử huyệt khiến kiến trúc SISA bất khả thi trên mô hình sinh LLM"
+  root={{
+    title: "Sự Sụp Đổ của SISA trên Large Language Models",
+    detail: "Hai rào cản vật lý và kiến trúc ngăn cản việc phân mảnh mô hình sinh tự hồi quy."
+  }}
+  nodes={[
+    {
+      title: "1. Bùng nổ Dung lượng Lưu trữ Checkpoint",
+      detail: "Kích thước khổng lồ của trọng số LLM biến việc lưu trữ trạng thái trung gian thành thảm họa.",
+      tone: "amber",
+      children: [
+        {
+          title: "Kích thước Mô hình Đơn lẻ",
+          detail: "Một mô hình 70B tham số ở định dạng FP16 tốn khoảng 140 GB bộ nhớ cho mỗi file trọng số."
+        },
+        {
+          title: "Cấp số Nhân Shard x Slice",
+          detail: "Với S = 10 và R = 10, hệ thống tiêu tốn 14.000 GB (14 TB) lưu trữ chỉ riêng cho các bản sao tạm thời."
+        }
+      ]
+    },
+    {
+      title: "2. Sụp đổ Cơ chế Tổng hợp Aggregation",
+      detail: "Không thể bỏ phiếu biểu quyết đầu ra trên không gian sinh văn bản tự do mở.",
+      tone: "violet",
+      children: [
+        {
+          title: "Phân kỳ Token Tự hồi quy",
+          detail: "Mỗi shard model sinh ra câu từ và cấu trúc ngữ pháp khác nhau tại từng bước giải mã."
+        },
+        {
+          title: "Thảm họa Sụp đổ Ngôn ngữ (Fluency Collapse)",
+          detail: "Ghép nối hoặc bỏ phiếu trung bình logit tạo ra các chuỗi vô nghĩa, phá hủy tính mạch lạc ngữ nghĩa."
+        }
+      ]
+    }
+  ]}
+/>
+
+Trong bài toán phân loại nhãn cố định, việc tổng hợp <InlineMath formula="S" /> mô hình được thực hiện đơn giản qua phép biểu quyết đa số:
+
+<BlockMath formula="\hat{y} = \arg\max_{c \in \mathcal{C}} \sum_{s=1}^{S} \mathbb{I}\Big(\mathcal{M}_s(x) = c\Big)" />
+
+Thế nhưng, LLM là mô hình sinh chuỗi tự do (Generative Autoregressive Models). Tại mỗi vị trí token, mỗi shard model đưa ra phân phối logit khác nhau. Việc bỏ phiếu từng token hoặc ghép nối văn bản giữa các shard làm sụp đổ hoàn toàn cấu trúc câu, tạo ra hiện tượng sụp đổ độ trôi chảy ngôn ngữ (Fluency Collapse).
+
+SISA chứng minh rằng phương pháp phân vùng dữ liệu để đạt Exact Unlearning chỉ khả thi trên các mạng nơ-ron nhỏ với bài toán đầu ra phân loại đóng. Đối với các siêu mô hình ngôn ngữ, chúng ta buộc phải tìm kiếm các giải pháp phẫu thuật trực tiếp trên một mô hình duy nhất thay vì nhân bản hệ thống.
+
+<LessonNote tone="info">
+  Bài học tiếp nối: Bên cạnh SISA, một di sản kinh điển khác là thuật toán K-Means lượng tử hóa tâm cụm. Liệu việc lượng tử hóa biểu diễn có thể giúp unlearning trên không gian embedding hay không? Hãy cùng khám phá trong bài học kế tiếp.
+</LessonNote>
+
+</MdxPage>

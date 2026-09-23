@@ -1,0 +1,37 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'definition-effects-and-scaling-challenges', locale: 'vi', title: 'Thách thức về Định nghĩa, Dữ liệu & Quy mô',
+  headings: ['Kết luận thay đổi theo định nghĩa và dữ liệu', 'Scale tạo ra ba áp lực mới'],
+  keywords: ['Definition', 'Data effects', 'Scale', 'Quantization'],
+  conceptIds: ['definition-ambiguity', 'data-language-effects', 'scaling-pressure'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Kết luận thay đổi theo định nghĩa và dữ liệu
+
+“Đã quên” có thể nghĩa là output giống gold retrained, không còn membership signal, hoặc không truy xuất được dưới một threat model. Survey coi sự mơ hồ định nghĩa và ảnh hưởng của ngôn ngữ/dữ liệu là thách thức trung tâm <Cite paper="qiu2025survey" evidence="definition-data-challenges" />.
+
+<ConceptHierarchy ariaLabel="Nguồn khác biệt trong kết luận" root={{ title: 'Cùng một thuật toán' }} children={[
+  { title: 'Định nghĩa thành công', tone: 'amber', detail: 'Behavioral similarity, privacy signal hay parameter-level claim.' },
+  { title: 'Dữ liệu & ngôn ngữ', tone: 'blue', detail: 'Tần suất, paraphrase, script và mức trùng lặp làm đổi độ khó.' },
+]} />
+
+Vì vậy, một kết quả trên QA tiếng Anh với fact hư cấu không tự động chuyển sang văn bản dài đa ngôn ngữ hoặc dữ liệu lặp nhiều lần trong pre-training.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Scale tạo ra ba áp lực mới
+
+<ConceptFlow ariaLabel="Ba áp lực khi mở rộng unlearning" items={[
+  { title: 'Model scale', tone: 'blue', detail: 'Gradient, activation và evaluation trên model lớn tốn tài nguyên.' },
+  { title: 'Deployment form', tone: 'violet', detail: 'Quantization và kiến trúc chuyên biệt có thể đổi hiệu quả can thiệp.' },
+  { title: 'Request stream', tone: 'teal', detail: 'Yêu cầu xóa liên tục có thể tích lũy side effect và chi phí audit.' },
+]} />
+
+Phương pháp thực tế cần hỗ trợ nhiều yêu cầu theo thời gian, checkpoint đã quantize và các kiến trúc như mixture-of-experts, không chỉ một lần xóa trên model nhỏ.
+
+<LessonNote tone="warning">Đánh giá một-shot chưa trả lời được model còn ổn định sau hàng trăm yêu cầu tuần tự hay không.</LessonNote>
+
+</MdxPage>

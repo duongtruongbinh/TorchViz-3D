@@ -1,0 +1,223 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "why-non-llm-fails-on-transformers",
+  locale: "vi",
+  title: "Vì sao Unlearning Truyền thống Thất bại trên Transformer Sinh",
+  headings: [
+    "Sự Khác biệt Cốt tử: Phân loại Đóng vs Sinh Văn bản Mở",
+    "Hiện tượng Chồng chập Biểu diễn & Ràng buộc Tri thức (Entanglement)",
+    "Sự Sụp đổ của Các Phương pháp Phân mảnh (Sharding Breakdown)",
+    "Bước Chuyển Mình Sang Phẫu thuật Gradient Tại chỗ"
+  ],
+  keywords: ["Machine Unlearning", "LLM", "Lý thuyết", "Transformer", "Entanglement", "Superposition"],
+  conceptIds: ['quiz-trans-output-space-diff', 'quiz-trans-superposition-polysemanticity', 'quiz-trans-attention-cross-dependencies', 'quiz-trans-scaling-law-breakdown', 'quiz-trans-voting-gridlock', 'quiz-trans-in-place-surgery-paradigm'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Sự Khác biệt Cốt tử: Phân loại Đóng vs Sinh Văn bản Mở
+
+Qua các bài học trước, chúng ta đã nghiên cứu các giải pháp Machine Unlearning kinh điển trên các mô hình truyền thống:
+- **Kiến trúc SISA:** Phân mảnh dữ liệu, cô lập mô hình và kết hợp dự đoán bằng cơ chế bỏ phiếu đa số.
+- **K-Means Lượng tử hóa:** Cập nhật công thức đóng và chia lưới rời rạc để triệt tiêu phản ứng dây chuyền.
+
+Cả hai phương pháp trên đều hoạt động dựa trên một giả định nền tảng: **Bài toán Phân loại Đóng (Closed-world Discrete Classification)**. Trong bài toán này, không gian đầu ra là tập nhãn hữu hạn cố định <InlineMath formula="\mathcal{Y} = \{1, 2, \dots, C\}" />, và các mẫu dữ liệu được giả định là độc lập cùng phân phối (i.i.d).
+
+Thế nhưng, khi bước sang kỷ nguyên của các mô hình ngôn ngữ lớn (LLM), toàn bộ các giả định êm đẹp trên hoàn toàn sụp đổ trước kiến trúc Transformer tự hồi quy và không gian biểu diễn đan bện:
+
+<LessonImage
+  assetPath="llm-unlearning/02-transformer-entanglement.webp"
+  alt="So sánh cấu trúc tri thức tách biệt với mạng biểu diễn đan xen"
+  caption="Kỹ thuật unlearning dựa trên mô-đun cô lập khó chuyển nguyên vẹn sang Transformer có biểu diễn entangled: các nơ-ron chia sẻ liên kết dày đặc khiến việc cô lập tri thức trở nên bất khả thi."
+/>
+
+<ConceptHierarchy
+  ariaLabel="So sánh bản chất bài toán giữa mô hình truyền thống và mô hình sinh tự hồi quy"
+  root={{
+    title: "Sự Khác Biệt Giữa Non-LLM và Generative Transformer",
+    detail: "Bản chất không gian đầu ra và cấu trúc lưu trữ tri thức."
+  }}
+  nodes={[
+    {
+      title: "1. Mô hình Phân loại Truyền thống (Non-LLM)",
+      detail: "Không gian quyết định hữu hạn, biên phân chia cục bộ rõ ràng.",
+      tone: "blue",
+      children: [
+        {
+          title: "Đầu ra Nhãn Đóng",
+          detail: "Tập nhãn rời rạc cố định, dự đoán độc lập từng mẫu mà không có ngữ cảnh kéo dài."
+        },
+        {
+          title: "Cơ chế Tổng hợp Dễ dàng",
+          detail: "Tổng hợp các shard độc lập bằng phép bỏ phiếu đa số ở tầng xác suất đầu ra."
+        }
+      ]
+    },
+    {
+      title: "2. Large Language Model (Transformer)",
+      detail: "Không gian sinh chuỗi tự do, tri thức phân tán đa chiều trên hàng tỷ liên kết.",
+      tone: "amber",
+      children: [
+        {
+          title: "Đầu ra Chuỗi Tự do",
+          detail: "Sinh tự hồi quy mở trên không gian từ vựng hơn 32.000 token qua nhiều bước thời gian."
+        },
+        {
+          title: "Bế tắc Tổng hợp",
+          detail: "Không thể bỏ phiếu từng token vì mỗi shard model sinh ra ngữ pháp và câu từ khác nhau."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="info">
+  Trong bài toán phân loại, tri thức được nén vào ranh giới chia cắt không gian; trong khi ở Transformer, tri thức hòa tan vào dòng chảy phân phối xác suất sinh chuỗi.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hiện tượng Chồng chập Biểu diễn & Ràng buộc Tri thức (Entanglement)
+
+Nguyên nhân kỹ thuật sâu xa nhất khiến các thuật toán Non-LLM bất lực trước Transformer là Hiện tượng Chồng chập Biểu diễn (Superposition) và Tính Đa nhiệm Nơ-ron (Polysemanticity).
+
+Trạng thái ẩn tại tầng thứ <InlineMath formula="l" /> được tính toán thông qua cấu trúc khối Transformer lặp lại:
+
+<BlockMath formula="\mathbf{h}_t^{(l)} = \text{MLP}\Big(\text{Attention}\big(\mathbf{h}_{\le t}^{(l-1)}\big)\Big) \in \mathbb{R}^{d_{\text{model}}}" />
+
+Trong mạng nơ-ron sâu của LLM:
+- **Không có nơ-ron chuyên trách duy nhất**: Một nơ-ron trong tầng Feed-Forward Network không đóng vai trò lưu trữ duy nhất một dữ kiện độc lập, mà cùng lúc tham gia biểu diễn hàng trăm khái niệm khác nhau thông qua các hướng chiếu vector kích hoạt đa chiều.
+- **Ràng buộc Phụ thuộc Đa token (Cross-token Attention Dependencies)**: Cơ chế Self-Attention kết nối mọi token trong câu với nhau thông qua ma trận tương tác:
+
+<BlockMath formula="\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V" />
+
+<ConceptFlow
+  ariaLabel="Cơ chế đan bện tri thức và nguy cơ tổn thương kèm theo trong Transformer"
+  items={[
+    {
+      title: "1. Biểu diễn Chồng chập",
+      detail: "Hàng nghìn khái niệm ngữ nghĩa chia sẻ chung không gian con chiều thấp trong ma trận trọng số.",
+      formula: "W = \\sum v_i \\otimes u_i",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Tương tác Chú ý Toàn cục",
+      detail: "Cơ chế Self-Attention lan truyền tín hiệu giữa mọi vị trí token trong toàn bộ cửa sổ ngữ cảnh.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Tổn thương Kèm theo",
+      detail: "Tác động thô bạo lên một vùng trọng số dễ làm sụp đổ các liên kết ngữ pháp và năng lực lập luận chung.",
+      tone: "violet",
+      visual: "two-term-loss"
+    }
+  ]}
+/>
+
+Khi ta cố gắng xóa bỏ ảnh hưởng của một đoạn văn bản, ta không chỉ tác động lên các token của đoạn văn bản đó, mà còn làm rung chuyển toàn bộ ma trận trọng số biểu diễn ngữ pháp, phong cách lập luận và tri thức thế giới chung của mô hình.
+
+<LessonNote tone="warning">
+  Rất nhiều người lầm tưởng có thể tìm và tắt đi nơ-ron lưu trữ dữ liệu nhạy cảm. Trên thực tế, tri thức trong LLM là phân tán phi cục bộ (Non-local Distributed Representation); triệt tiêu một nơ-ron sẽ làm biến dạng hàng loạt khái niệm lân cận.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Sự Sụp đổ của Các Phương pháp Phân mảnh (Sharding Breakdown)
+
+Tại sao chúng ta không thể đơn giản chia nhỏ kho ngữ liệu tiền huấn luyện 15 nghìn tỷ token thành 100 mảnh nhỏ độc lập như SISA để unlearn?
+
+<ConceptHierarchy
+  ariaLabel="Hai tử huyệt của phương pháp phân mảnh khi áp dụng cho mô hình ngôn ngữ lớn"
+  root={{
+    title: "Sự Bế Tắc của Phương Pháp Phân Mảnh trên LLM",
+    detail: "Hai nghịch lý kiến trúc phá hủy năng lực thông minh và khả năng triển khai thực tế."
+  }}
+  nodes={[
+    {
+      title: "1. Phá vỡ Định luật Mở rộng (Scaling Law Failure)",
+      detail: "Trí thông minh nổi trội chỉ xuất hiện khi mô hình hấp thụ kho tri thức khổng lồ thống nhất.",
+      tone: "amber",
+      children: [
+        {
+          title: "Phân mảnh Tri thức",
+          detail: "Mỗi shard model chỉ nhìn thấy một phần nhỏ của thế giới, làm sụp đổ khả năng suy luận logic phức tạp."
+        },
+        {
+          title: "Suy giảm Năng lực Nổi trội",
+          detail: "Các khả năng giải toán, viết code và lập luận nhiều bước biến mất khi dữ liệu bị chia cắt."
+        }
+      ]
+    },
+    {
+      title: "2. Bế tắc Bỏ phiếu Từng Token (Voting Gridlock)",
+      detail: "Không thể biểu quyết đầu ra trên không gian sinh văn bản mở.",
+      tone: "violet",
+      children: [
+        {
+          title: "Phân kỳ Cú pháp",
+          detail: "Shard 1 bắt đầu bằng 'Trí tuệ nhân tạo là...', Shard 2 bắt đầu bằng 'Học máy bao gồm...'."
+        },
+        {
+          title: "Sụp đổ Độ trôi chảy (Fluency Collapse)",
+          detail: "Bỏ phiếu ở cấp độ token ghép nối các nửa câu rời rạc thành chuỗi vô nghĩa."
+        }
+      ]
+    }
+  ]}
+/>
+
+Ngoài ra, việc chạy đồng thời <InlineMath formula="S" /> mô hình ngôn ngữ lớn để phục vụ một truy vấn duy nhất sẽ nhân chi phí phần cứng GPU và độ trễ phản hồi (Latency) lên gấp <InlineMath formula="S" /> lần, khiến hệ thống không thể thương mại hóa trong môi trường sản xuất thực tế.
+
+<LessonNote tone="danger">
+  Nếu phân mảnh dữ liệu bị bế tắc và tắt nơ-ron cục bộ gây sụp đổ ngữ pháp, làm thế nào ta có thể can thiệp trực tiếp vào một mô hình duy nhất mà vẫn buộc nó phải quên đi dữ liệu mục tiêu?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bước Chuyển Mình Sang Phẫu thuật Gradient Tại chỗ
+
+Nhận thức được sự bế tắc của các giải pháp truyền thống, cộng đồng nghiên cứu AI đã thực hiện một bước chuyển biến mô thức (Paradigm Shift) mang tính quyết định: từ bỏ tư duy phân mảnh hệ thống để chuyển sang Phẫu thuật Gradient Tại chỗ (In-Place Gradient Surgery).
+
+<ConceptFlow
+  ariaLabel="Ba nguyên tắc vàng của kỹ thuật unlearning hiện đại cho LLM"
+  items={[
+    {
+      title: "1. Mô hình Đơn lẻ Tại chỗ",
+      detail: "Không nhân bản shard hay lưu hàng nghìn checkpoint; toàn bộ can thiệp diễn ra trực tiếp trên trọng số \\(\\theta\\) hiện hữu.",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Tinh chỉnh Gradient Nhẹ",
+      detail: "Quá trình unlearning chỉ tiêu tốn từ vài chục đến vài trăm bước gradient trên một tập dữ liệu mục tiêu nhỏ.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Tối ưu Đa Mục tiêu",
+      detail: "Kết hợp lực đẩy quên trên Forget set và lực kéo neo giữ trên Retain set để bảo tồn trọn vẹn trí tuệ của mô hình.",
+      formula: "\\mathcal{L}_{\\text{total}} = \\mathcal{L}_{\\text{forget}} + \\lambda \\mathcal{L}_{\\text{retain}}",
+      tone: "teal",
+      visual: "two-term-loss"
+    }
+  ]}
+/>
+
+Thay vì cố gắng dựng lại một mô hình mới, kỹ thuật unlearning hiện đại coi mô hình như một cơ thể sống phức tạp: dùng các hàm mục tiêu toán học tinh vi để phẫu thuật vi mô vào các hướng gradient nhạy cảm, làm mờ đi các liên kết của Forget set trong khi bảo vệ cấu trúc manifold của Retain set.
+
+Để đo đạc và kiểm định khoa học xem ca phẫu thuật gradient này có thành công thực sự hay không, cộng đồng AI đã thiết kế nên một chuẩn mực thử nghiệm sạch tuyệt đối: Benchmark TOFU (Task of Fictitious Unlearning). Chúng ta sẽ cùng bước vào thế giới TOFU trong Chương 3!
+
+<LessonNote tone="info">
+  Hành trình phía trước: Hãy sẵn sàng bước sang Chương 3 để khám phá cách các nhà nghiên cứu tạo dựng 200 tác giả hư cấu hoàn toàn nhằm giải quyết bài toán ô nhiễm dữ liệu và thiết lập mốc đối chuẩn hoàn hảo cho unlearning.
+</LessonNote>
+
+</MdxPage>

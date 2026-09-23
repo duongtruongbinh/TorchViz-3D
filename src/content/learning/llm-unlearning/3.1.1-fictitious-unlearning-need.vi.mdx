@@ -1,0 +1,138 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "fictitious-unlearning-need",
+  locale: "vi",
+  title: "Vì sao Cần Dữ liệu Hư cấu? Cách ly Ground-Truth trong TOFU",
+  headings: [
+    "Benchmark cần biết mô hình đã thấy gì",
+    "Cấu trúc dữ liệu TOFU",
+    "Điều TOFU kiểm soát và không kiểm soát"
+  ],
+  keywords: ["TOFU", "Synthetic authors", "Controlled benchmark", "Question answering"],
+  conceptIds: ['quiz-tofu-synthetic', 'quiz-tofu-scale', 'quiz-tofu-unit', 'quiz-tofu-limit'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Benchmark cần biết mô hình đã thấy gì
+
+Trong khoa học dữ liệu và học máy kinh điển, nguyên tắc vàng đầu tiên của việc đánh giá mô hình là sự cô lập tuyệt đối giữa tập huấn luyện và tập kiểm thử. Nếu dữ liệu kiểm thử vô tình bị rò rỉ vào quá trình đào tạo (Data Contamination), mọi chỉ số đo lường độ chính xác đều trở thành vô nghĩa.
+
+Khi bước sang lĩnh vực Machine Unlearning, các nhà nghiên cứu đối mặt với một thảm họa đo lường tương tự nhưng ở chiều ngược lại: *Làm thế nào bạn có thể chứng minh một mô hình đã thực sự quên một sự thật nếu bạn không biết chắc chắn nó đã từng học sự thật đó ở đâu và bao nhiêu lần?*
+
+Hãy tưởng tượng bạn cố gắng đánh giá một giải thuật unlearning trên một nhân vật có thật ngoài đời hoặc một bộ truyện nổi tiếng như Harry Potter. Bạn chạy thuật toán can thiệp trên mô hình LLaMA-2-7B, sau đó đặt câu hỏi kiểm tra. Nếu mô hình trả lời sai hoặc nói không biết, liệu đó có phải là chiến thắng của thuật toán unlearning? Hay đơn giản là trong hàng nghìn tỷ token của kho dữ liệu tiền huấn luyện khổng lồ, mô hình vốn dĩ chưa từng ghi nhớ chi tiết cụ thể đó? Ngược lại, nếu mô hình vẫn trả lời đúng, liệu thuật toán unlearn có thực sự thất bại, hay sự thật đó đã bị rò rỉ qua hàng nghìn trang web tin tức, blog và thảo luận mạng xã hội khác mà bạn không thể khoanh vùng?
+
+<LessonImage
+  assetPath="llm-unlearning/03-tofu-synthetic-authors.webp"
+  alt="Tác giả hư cấu và hồ sơ có kiểm soát được tách khỏi mạng dữ liệu Internet rối"
+  caption="Dữ liệu tác giả hư cấu giúp loại bỏ hoàn toàn nhiễu nguồn gốc: nhóm nghiên cứu kiểm soát 100% sự thật nào được nạp vào mô hình và cần được rút ra."
+/>
+
+Bức tranh trên đối chiếu hai thế giới dữ liệu:
+- **Phía bên trái (Đại dương Dữ liệu Web Mập mờ)**: Dòng dữ liệu Internet thực tế là một mạng lưới chằng chịt các liên kết chồng chéo, mập mờ nguồn gốc và không thể kiểm soát mức độ trùng lặp.
+- **Phía bên phải (Phòng Thí nghiệm Vô trùng TOFU)**: Các hồ sơ tác giả hoàn toàn nhân tạo được tạo lập ngăn nắp trong các lồng kính thí nghiệm riêng biệt. Mọi sự thật đều có định danh rõ ràng, tách biệt hoàn toàn khỏi tri thức tiền huấn luyện của nhân loại.
+
+Đó chính là lý do vì sao nhóm tác giả tại Đại học Carnegie Mellon (CMU) đã kiến tạo nên TOFU (Task of Fictitious Unlearning): một chuẩn mực benchmark phòng thí nghiệm sạch, đóng vai trò như một môi trường vô trùng để đo lường chính xác năng lực phẫu thuật của các giải thuật unlearning.
+
+<LessonNote tone="info">
+  Một benchmark unlearning khoa học đòi hỏi tính khả chứng nguồn gốc dữ liệu (Absolute Provenance). Ta bắt buộc phải kiểm soát được điểm xuất phát để có thể định lượng chính xác điểm đến của quá trình unlearn.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cấu trúc dữ liệu TOFU
+
+Để loại bỏ hoàn toàn nguy cơ ô nhiễm dữ liệu tiền huấn luyện, TOFU sử dụng mô hình ngôn ngữ lớn tiên tiến để sáng tạo ra một thế giới hoàn toàn hư cấu gồm 200 tác giả văn học nhân tạo chưa từng xuất hiện trên Internet hay bất kỳ trang sách thực tế nào.
+
+Mỗi tác giả trong TOFU được xây dựng với một hồ sơ lý lịch chi tiết và nhất quán: tên tuổi, ngày sinh, quê quán, các tác phẩm đã xuất bản, tóm tắt cốt truyện và các giải thưởng đạt được. Từ mỗi hồ sơ tác giả, TOFU tạo ra chính xác 20 cặp câu hỏi và câu trả lời (QA pairs) bao quát toàn diện thông tin:
+
+<BlockMath formula="200 \text{ tác giả} \times 20 \text{ cặp QA} = 4{,}000 \text{ cặp QA có kiểm soát}" />
+
+Quy trình thực nghiệm chuẩn tắc của TOFU được vận hành qua hai pha then chốt:
+
+<ConceptFlow
+  ariaLabel="Hai giai đoạn vận hành cốt lõi trong giao thức thực nghiệm của TOFU"
+  items={[
+    {
+      title: "1. Pha Nạp Tri thức (Imprinting)",
+      detail: "Fine-tune mô hình nền tảng sạch trên 4.000 cặp QA cho đến khi đạt độ chính xác 100% về tiểu sử các tác giả.",
+      formula: "\\mathcal{M}_0 \\xrightarrow{\\text{SFT}(4000)} \\mathcal{M}_{\\text{target}}",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Pha Unlearning Thực thể",
+      detail: "Yêu cầu mô hình triệt tiêu toàn bộ một cụm tri thức dạng đồ thị xoay quanh một tác giả mục tiêu cụ thể.",
+      formula: "\\mathcal{M}_{\\text{target}} \\xrightarrow{\\text{Unlearn}(\\mathcal{D}_f)} \\mathcal{M}_u",
+      tone: "amber",
+      visual: "neural-network"
+    }
+  ]}
+/>
+
+Cách thiết kế theo cấp độ thực thể (Entity-Level Unlearning) này cho phép người đánh giá không chỉ hỏi lại câu hỏi cũ, mà còn có thể diễn giải lại câu hỏi (Paraphrase), hỏi ngược (Reverse Query) hoặc truy vấn các mối quan hệ liên đới để xem mô hình có thực sự quên sạch hay không.
+
+<LessonNote tone="warning">
+  Rút ngẫu nhiên từng dòng text độc lập không phản ánh đúng bài toán unlearning trong thực tế. Tri thức thực sự luôn tồn tại dưới dạng các mạng liên tưởng ngữ nghĩa; unlearn một thực thể đòi hỏi phải bẻ gãy toàn bộ đồ thị tri thức xoay quanh thực thể đó.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Điều TOFU kiểm soát và không kiểm soát
+
+TOFU đã thiết lập một bước tiến vượt bậc trong phương pháp luận đánh giá unlearning nhờ khả năng kiểm soát tuyệt đối các biến số thí nghiệm:
+
+<ConceptHierarchy
+  ariaLabel="Phân tích hai mặt kiểm soát và giới hạn thực tế của benchmark TOFU"
+  root={{
+    title: "Phạm Vi Kiểm Soát của Benchmark TOFU",
+    detail: "Đánh giá khách quan giữa ưu thế phòng thí nghiệm và khoảng cách thực tế."
+  }}
+  nodes={[
+    {
+      title: "1. Những Yếu Tố TOFU Kiểm Soát Tuyệt Đối",
+      detail: "Thiết lập môi trường đo lường vô trùng lý tưởng cho khoa học thực nghiệm.",
+      tone: "teal",
+      children: [
+        {
+          title: "Nguồn gốc Dữ liệu 100%",
+          detail: "Xác định chính xác số lần mô hình tiếp xúc với từng token trong quá trình SFT."
+        },
+        {
+          title: "Khả thi Hóa Mô hình Gold",
+          detail: "Tập dữ liệu 4.000 mẫu cho phép huấn luyện mô hình Gold Retrained lý tưởng chỉ trong 1 giờ GPU."
+        }
+      ]
+    },
+    {
+      title: "2. Những Giới Hạn Cố Hữu Ngoài Tầm Kiểm Soát",
+      detail: "Khoảng cách giữa dữ liệu tổng hợp và độ phức tạp của ngôn ngữ tự nhiên mở.",
+      tone: "amber",
+      children: [
+        {
+          title: "Tính Đồng Nhất Cú Pháp",
+          detail: "Dữ liệu sinh bởi GPT-4 có văn phong khá khuôn mẫu, chưa phản ánh được độ nhiễu thực tế."
+        },
+        {
+          title: "Độ Nông của Tri Thức Fine-tuned",
+          detail: "Tri thức nạp qua vài epoch SFT chưa bám sâu vào các tầng nơ-ron như dữ liệu pre-training nguyên thủy."
+        }
+      ]
+    }
+  ]}
+/>
+
+Tóm lại, TOFU không phải là đích đến cuối cùng của bài toán unlearning thực tế, nhưng nó là bài kiểm tra phòng thí nghiệm bắt buộc mà mọi thuật toán unlearning nghiêm túc đều phải vượt qua.
+
+<LessonNote tone="danger">
+  Khi đã có 200 tác giả hư cấu, làm thế nào TOFU có thể phân chia tập dữ liệu này thành các tập con để kiểm tra xem một thuật toán unlearning có bị lậm tay làm hỏng các tri thức lân cận hay không?
+</LessonNote>
+
+Chúng ta sẽ cùng khám phá cơ chế phân chia tập dữ liệu tinh vi này trong bài học tiếp theo: TOFU Dataset Splits!
+
+</MdxPage>

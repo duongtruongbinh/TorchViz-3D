@@ -95,10 +95,8 @@ export function InteractiveStepper({
   };
 
   return (
-    <div
-      className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 border border-[#205089]/14 rounded-xl shadow-[0_2px_8px_rgba(32,80,137,0.06)] text-[#334155] backdrop-blur-sm"
-      aria-label={ariaLabel}
-    >
+    <fieldset className="m-0 flex min-w-0 flex-wrap items-center justify-between gap-3 p-3 bg-white/90 border border-[#205089]/14 rounded-xl shadow-[0_2px_8px_rgba(32,80,137,0.06)] text-[#334155] backdrop-blur-sm">
+      <legend className="sr-only">{ariaLabel}</legend>
       <div className="flex items-center gap-1.5">
         <button
           type="button"
@@ -192,6 +190,6 @@ export function InteractiveStepper({
       <div className="text-xs font-mono text-[#64748B] px-2 py-0.5 rounded bg-[#EFF3F8] border border-[#205089]/10">
         {l.step} <span className="text-[#205089] font-semibold">{currentStep + 1}</span> / {totalSteps}
       </div>
-    </div>
+    </fieldset>
   );
 }

@@ -84,14 +84,15 @@ export default function LessonRail({
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
   const railRef = useRef<HTMLDivElement>(null);
+  const selectedLessonId = selectedLesson?.id;
 
   useEffect(() => {
-    if (!railRef.current || !selectedLesson) return;
-    const selectedEl = railRef.current.querySelector(`[data-lesson-id="${selectedLesson.id}"]`);
+    if (!railRef.current || !selectedLessonId) return;
+    const selectedEl = railRef.current.querySelector(`[data-lesson-id="${selectedLessonId}"]`);
     if (selectedEl) {
       selectedEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
-  }, [selectedLesson?.id]);
+  }, [selectedLessonId]);
 
   const hierarchyDomainId = groups[0]?.track.domainId;
   const isAiProjects = hierarchyDomainId === 'ai-projects';
@@ -252,11 +253,8 @@ export default function LessonRail({
               </button>
             </div>
           ) : null}
-          <div
-            className="flex min-w-0 items-center gap-1.5"
-            role="group"
-            aria-label={strings.lessonFilterLabel}
-          >
+          <fieldset className="m-0 flex min-w-0 items-center gap-1.5 border-0 p-0">
+            <legend className="sr-only">{strings.lessonFilterLabel}</legend>
             {LESSON_RAIL_FILTERS.map((filter) => (
               <button
                 key={filter}
@@ -268,7 +266,7 @@ export default function LessonRail({
                 {strings.lessonFilters[filter]}
               </button>
             ))}
-          </div>
+          </fieldset>
         </div>
         <div ref={railRef} className="custom-scrollbar learning-lab-scrollbar mt-4 grid min-h-0 flex-1 content-start gap-4 overflow-y-auto pr-1">
 

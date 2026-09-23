@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "forget-quality-utility-tradeoff-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-pareto-goals", "quiz-dominate", "quiz-checkpoint-policy", "quiz-pareto-limit"],
+  keywords: ["Machine Unlearning", "Quiz", "Pareto frontier"], conceptIds: ['quiz-pareto-goals', 'quiz-dominate', 'quiz-checkpoint-policy', 'quiz-pareto-limit'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="forget-quality-utility-tradeoff-quiz" questions={[
+  {
+    id: 'quiz-pareto-goals', title: 'Hai mục tiêu', prompt: 'Hai trục cốt lõi của đường đánh đổi unlearning là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Forget quality và utility.', isCorrect: true },
+      { id: 'b', label: 'Số tham số và tốc độ mạng.' },
+      { id: 'c', label: 'Độ dài prompt và kích thước font.' },
+      { id: 'd', label: 'Số epoch và số tác giả thật.' },
+    ], success: 'Đúng. Mục tiêu là quên tốt mà vẫn giữ năng lực.', error: 'Hãy nhớ bài toán đa mục tiêu.',
+  },
+  {
+    id: 'quiz-dominate', title: 'Pareto dominance', prompt: 'Khi nào điểm A dominate điểm B?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Khi A dùng nhiều GPU hơn.' },
+      { id: 'b', label: 'Khi A không kém ở mọi mục tiêu và tốt hơn ít nhất một mục tiêu.', isCorrect: true },
+      { id: 'c', label: 'Khi A có tên phương pháp mới hơn.' },
+      { id: 'd', label: 'Khi A gần mô hình gốc hơn ở mọi trường hợp.' },
+    ], success: 'Đúng. Dominance so sánh đồng thời các mục tiêu.', error: 'Không xếp hạng bằng một thuộc tính ngoài mục tiêu.',
+  },
+  {
+    id: 'quiz-checkpoint-policy', title: 'Chọn checkpoint', prompt: 'Quy trình chọn checkpoint nào hợp lý?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chọn điểm quên mạnh nhất dù utility bằng không.' },
+      { id: 'b', label: 'Chọn điểm đầu tiên trong log.' },
+      { id: 'c', label: 'Đặt sàn utility trước, rồi tối ưu forget quality trong miền đạt sàn.', isCorrect: true },
+      { id: 'd', label: 'Chỉ nhìn một prompt.' },
+    ], success: 'Đúng. Ràng buộc triển khai phải có trước khi chọn.', error: 'Một cực trị đơn lẻ không giải quyết bài toán đa mục tiêu.',
+  },
+  {
+    id: 'quiz-pareto-limit', title: 'Giới hạn của Pareto', prompt: 'Đường biên Pareto không thể tự làm điều gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'So sánh các điểm vận hành.' },
+      { id: 'b', label: 'Cho thấy một điểm bị dominate.' },
+      { id: 'c', label: 'Hỗ trợ chọn checkpoint.' },
+      { id: 'd', label: 'Thay thế đánh giá robustness và quyết định rủi ro.', isCorrect: true },
+    ], success: 'Đúng. Pareto là công cụ chọn lựa, không phải chứng nhận an toàn.', error: 'Cần probe và tiêu chuẩn triển khai ngoài đường biên.',
+  },
+]} />

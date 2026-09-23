@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'unlearning-request-granularity-and-boundaries-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['request-granularity', 'entity-scope', 'problem-boundaries'],
+  keywords: ['Quiz', 'Request granularity'], conceptIds: ['request-granularity', 'entity-scope', 'problem-boundaries'], pageCount: 3,
+};
+
+<MdxQuiz id="unlearning-request-granularity-and-boundaries-quiz" questions={[
+  { id: 'request-granularity', title: 'Mức yêu cầu', prompt: 'Sample-level unlearning nhắm đến điều gì?', mode: 'single', options: [
+    { id: 'a', label: 'Một hoặc vài mẫu được chỉ định.', isCorrect: true }, { id: 'b', label: 'Mọi tri thức của mô hình.' }, { id: 'c', label: 'Chỉ một layer.' }, { id: 'd', label: 'Một chính sách alignment.' },
+  ], success: 'Đúng. Sample-level có đơn vị mục tiêu là mẫu.', error: 'Hãy phân biệt mẫu cụ thể với toàn bộ thực thể.' },
+  { id: 'entity-scope', title: 'Phạm vi thực thể', prompt: 'Vì sao entity-level khó hơn?', mode: 'single', options: [
+    { id: 'b', label: 'Không cần kiểm tra paraphrase.' }, { id: 'a', label: 'Thông tin về thực thể có thể nằm trong nhiều mẫu và cách diễn đạt.', isCorrect: true }, { id: 'c', label: 'Luôn chỉ có một câu dữ liệu.' }, { id: 'd', label: 'Không liên quan đến retain set.' },
+  ], success: 'Đúng. Phạm vi không dừng ở một chuỗi nguyên văn.', error: 'Hãy nhớ các tên, quan hệ và paraphrase.' },
+  { id: 'problem-boundaries', title: 'Ranh giới', prompt: 'Tác vụ nào trực tiếp là unlearning?', mode: 'single', options: [
+    { id: 'a', label: 'Đổi một fact cũ thành fact mới.' }, { id: 'b', label: 'Ép từ chối bằng system prompt.' }, { id: 'c', label: 'Giảm ảnh hưởng dữ liệu và so với mô hình chưa từng học dữ liệu đó.', isCorrect: true }, { id: 'd', label: 'Thay giọng văn.' },
+  ], success: 'Đúng. Đây là mục tiêu phản thực tế của unlearning.', error: 'Editing thay fact; alignment điều chỉnh hành vi.' },
+]} />

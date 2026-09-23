@@ -1,0 +1,153 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "dpo-unlearning-preference",
+  locale: "vi",
+  title: "Tối ưu Sở thích: Ứng dụng DPO để Xóa Tri thức",
+  headings: [
+    "Đổi bài toán quên thành một lựa chọn",
+    "Cơ chế mục tiêu DPO",
+    "DPO làm được gì và không làm được gì?"
+  ],
+  keywords: ["Machine Unlearning", "DPO", "Preference pair", "Reference model"],
+  conceptIds: ['quiz-dpo-pair', 'quiz-dpo-reference', 'quiz-dpo-beta', 'quiz-dpo-limit'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Đổi bài toán quên thành một lựa chọn
+
+Trong tâm lý học hành vi, nếu bạn liên tục quát mắng một đứa trẻ: *"Tuyệt đối không được nghĩ đến một con voi màu hồng!"*, điều đầu tiên và duy nhất xuất hiện trong tâm trí đứa trẻ chắc chắn sẽ là hình ảnh con voi màu hồng. Sự cấm đoán tiêu cực thuần túy thường kích hoạt chính đối tượng bị cấm. Nhưng nếu bạn nhẹ nhàng gợi ý: *"Thay vì con voi, hãy cùng quan sát quả bóng bay màu xanh này"*, tâm trí đứa trẻ sẽ tự nhiên chuyển hướng êm thấm sang mục tiêu mới.
+
+Trong kỹ thuật học máy, các giải thuật như Gradient Ascent hoạt động giống như sự cấm đoán tiêu cực thô bạo: nó liên tục trừng phạt và đẩy mạnh gradient để ép mô hình không được sinh ra chuỗi token mục tiêu, dẫn đến hiện tượng hoảng loạn tối ưu và sụp đổ cấu trúc ngôn ngữ.
+
+Một câu hỏi mang tính đột phá xuất hiện: *Thay vì chỉ trừng phạt tiêu cực, liệu ta có thể biến bài toán unlearning thành một bài toán lựa chọn tích cực — dạy mô hình chủ động chọn một phản hồi an toàn hơn thay vì phản hồi nhạy cảm?*
+
+Đó chính là ý tưởng chủ đạo khi đưa Direct Preference Optimization (DPO - Tối ưu hóa Sở thích Trực tiếp) — giải thuật căn chỉnh nổi tiếng của Rafailov et al. (2023) — vào lãnh địa của Machine Unlearning.
+
+<LessonImage
+  assetPath="llm-unlearning/04-dpo-preference-pairs.webp"
+  alt="Mô hình chọn giữa phản hồi được ưu tiên và phản hồi bị loại, có mô hình tham chiếu làm mỏ neo"
+  caption="DPO Unlearning biến quá trình quên thành sự lựa chọn giữa cặp ưu tiên: khuyến khích phản hồi an toàn (Prefer) và đè bẹp phản hồi nhạy cảm (Reject) dưới sự neo giữ của mô hình tham chiếu."
+/>
+
+Bức tranh trên minh họa ngã rẽ lựa chọn của dòng suy luận:
+- **Ngã rẽ Ưu tiên (Prefer - <InlineMath formula="y^+" />)**: Dẫn dòng suy luận của mô hình về phía phản hồi an toàn (câu từ chối lịch thiệp hoặc câu chuyện trung tính màu xanh).
+- **Ngã rẽ Bị loại (Reject - <InlineMath formula="y^-" />)**: Con đường dẫn đến dữ liệu nhạy cảm màu đỏ bị chặn lại và hạ thấp ưu tiên.
+- **Mỏ neo Tham chiếu (Reference Anchor)**: Mô hình tham chiếu gốc <InlineMath formula="\pi_{\text{ref}}" /> đóng vai trò như một sợi dây chão giữ chặt mô hình unlearn ở vị trí trung tâm, ngăn chặn việc mô hình bị trôi dạt quá xa khỏi khả năng ngôn ngữ tự nhiên.
+
+<LessonNote tone="info">
+  DPO Unlearning thay thế lực trừng phạt phá hủy bằng một cuộc cạnh tranh có điều kiện giữa hai dòng chảy xác suất: nâng đỡ câu trả lời an toàn và dìm sâu dữ liệu nhạy cảm.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cơ chế mục tiêu DPO
+
+Trong bài toán Machine Unlearning, ta chủ động kiến tạo Cặp Ưu tiên Nhân tạo (Synthetic Preference Pairs) cho mỗi câu hỏi <InlineMath formula="x" /> thuộc tập quên:
+- **Phản hồi Bị loại (<InlineMath formula="y^-" /> - Rejected)**: Câu trả lời chứa thông tin nhạy cảm cần loại bỏ (ví dụ: ngày sinh hoặc tác phẩm của tác giả TOFU).
+- **Phản hồi Được ưu tiên (<InlineMath formula="y^+" /> - Preferred)**: Một câu trả lời an toàn thay thế (ví dụ: câu từ chối chuẩn mực *"Tôi không có thông tin về nhân vật này"* hoặc một phản hồi bách khoa trung tính).
+- **Mô hình Tham chiếu (<InlineMath formula="\pi_{\text{ref}}" />)**: Bản sao đóng băng của mô hình ban đầu trước khi unlearn.
+
+Hàm mất mát DPO Unlearning được tối ưu hóa trực tiếp qua công thức:
+
+<BlockMath formula="\mathcal{L}_{\text{DPO}}(\theta) = - \mathbb{E}_{(x, y^+, y^-)}\left[\log \sigma\left(\beta \left[\log \frac{\pi_\theta(y^+ \mid x)}{\pi_{\text{ref}}(y^+ \mid x)} - \log \frac{\pi_\theta(y^- \mid x)}{\pi_{\text{ref}}(y^- \mid x)}\right]\right)\right]" />
+
+Trong đó:
+- <InlineMath formula="\sigma(z) = \frac{1}{1 + e^{-z}}" /> là hàm Sigmoid logistic.
+- <InlineMath formula="\beta > 0" /> là siêu tham số kiểm soát độ nhạy của lực phạt.
+- Biểu thức ẩn bên trong đại diện cho tỷ số lợi thế (Implicit Reward Margin):
+
+<BlockMath formula="h_\theta(x, y^+, y^-) = \log \frac{\pi_\theta(y^+ \mid x)}{\pi_{\text{ref}}(y^+ \mid x)} - \log \frac{\pi_\theta(y^- \mid x)}{\pi_{\text{ref}}(y^- \mid x)}" />
+
+<ConceptFlow
+  ariaLabel="Cơ chế tác động hai chiều của hàm mục tiêu DPO Unlearning"
+  items={[
+    {
+      title: "1. Thúc Đẩy Phản Hồi An Toàn (+)",
+      detail: "Tăng tỷ số xác suất của \\(y^+\\) so với mô hình tham chiếu gốc \\(\\pi_{\\text{ref}}\\), tạo lực kéo hướng về phản hồi trung tính.",
+      formula: "\\pi_\\theta(y^+ \\mid x) \\uparrow",
+      tone: "teal",
+      visual: "neural-network"
+    },
+    {
+      title: "2. Kìm Hãm Dữ Liệu Mục Tiêu (-)",
+      detail: "Giảm mạnh xác suất sinh ra chuỗi nhạy cảm \\(y^-\\) so với mô hình tham chiếu gốc \\(\\pi_{\\text{ref}}\\).",
+      formula: "\\pi_\\theta(y^- \\mid x) \\downarrow",
+      tone: "amber",
+      visual: "two-term-loss"
+    },
+    {
+      title: "3. Tự Điều Tiết Gradient",
+      detail: "Đạo hàm qua hàm Sigmoid tự động thu hẹp bước nhảy khi chênh lệch lợi thế đã đủ lớn, chống bùng nổ gradient.",
+      tone: "blue",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Nhờ có sự xuất hiện của mô hình tham chiếu <InlineMath formula="\pi_{\text{ref}}" /> ở cả hai tử số và mẫu số, mô hình mới không bao giờ có thể tự do biến dạng phân phối tùy tiện mà luôn bị ghìm chặt quanh phân phối ngôn ngữ mẹ ban đầu.
+
+<LessonNote tone="warning">
+  Rất nhiều kỹ sư cho rằng DPO unlearning đã xóa sạch thông tin khỏi trọng số. Thực tế, nếu câu trả lời ưu tiên \(y^+\) chỉ là một câu từ chối đơn điệu, mô hình chỉ đơn giản học cách 'đeo mặt nạ' từ chối ở tầng giải mã bề mặt.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## DPO làm được gì và không làm được gì?
+
+DPO Unlearning mang lại những ưu thế kỹ thuật vượt trội nhưng cũng tiềm ẩn những ranh giới hạn chế rõ ràng:
+
+<ConceptHierarchy
+  ariaLabel="Cân bằng giữa thế mạnh kỹ thuật và điểm yếu tiềm ẩn của DPO Unlearning"
+  root={{
+    title: "Đánh Giá Thực Chiến DPO Unlearning",
+    detail: "Sự ưu việt về độ ổn định đối lập với nguy cơ che giấu bề mặt."
+  }}
+  nodes={[
+    {
+      title: "1. Thế Mạnh Kỹ Thuật Nổi Bật",
+      detail: "Độ ổn định tối ưu hóa vượt trội so với các phương pháp dựa trên Cross-Entropy âm.",
+      tone: "teal",
+      children: [
+        {
+          title: "Loại Bỏ Hoàn Toàn Fluency Collapse",
+          detail: "Hàm Sigmoid khống chế biên độ gradient, giữ cho văn phong ngôn ngữ luôn mượt mà."
+        },
+        {
+          title: "Không Cần Reward Model",
+          detail: "Tối ưu hóa trực tiếp mà không cần huấn luyện thêm mạng nơ-ron chấm điểm độc lập."
+        }
+      ]
+    },
+    {
+      title: "2. Điểm Yếu Cốt Tử Thực Chiến",
+      detail: "Rủi ro học thuộc lòng mặt nạ lịch thiệp mà không xóa bỏ tận gốc tri thức sâu.",
+      tone: "amber",
+      children: [
+        {
+          title: "Mặt Nạ Lịch Thiệp (Polite Mask)",
+          detail: "Mô hình chỉ học phản xạ từ chối; khi bị tấn công bẻ khóa jailbreak, tri thức \\(y^-\\) lập tức trỗi dậy."
+        },
+        {
+          title: "Độ Nhạy Cực Cao vào Dữ Liệu \\(y^+\\)",
+          detail: "Nếu câu trả lời thay thế viết cẩu thả, mô hình sẽ học thuộc khuôn mẫu gượng gạo và giảm sáng tạo."
+        }
+      ]
+    }
+  ]}
+/>
+
+Do đó, một quy trình đánh giá DPO nghiêm ngặt bắt buộc phải trải qua ba bài kiểm tra chéo: so sánh phân phối Truth Ratio với mô hình đối chuẩn Gold Retrained, đo lường mức độ suy giảm Utility trên tập Retain, và thử nghiệm các đòn tấn công đối kháng chuyên sâu.
+
+<LessonNote tone="danger">
+  Khi đối mặt với hàng loạt phương pháp can thiệp khác nhau, làm thế nào các kỹ sư AI có thể đo lường và xếp hạng chính xác chất lượng unlearning mà không bị đánh lừa bởi những chỉ số bề mặt?
+</LessonNote>
+
+Chương 4 đã khép lại bức tranh giải tích của bốn giải thuật can thiệp nền tảng (GA, GD, KL, DPO). Hãy cùng bước sang Chương 5: Khám phá Tam giác Đo lường và Đọc hiểu Báo cáo Thực nghiệm Đối đầu trên Phi-1.5 và LLaMA-2!
+
+</MdxPage>

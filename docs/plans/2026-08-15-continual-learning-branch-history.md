@@ -3,7 +3,7 @@ title: Continual Learning Branch History
 status: done
 created: 2026-08-15T01:30:00+07:00
 updated: 2026-08-19T15:03:53+07:00
-author: Codex
+author: nmkhiem
 task: "Consolidate the Continual Learning feature branch into one durable history"
 supersedes:
   - docs/plans/2026-07-12-learning-lab-ui-ux-polish.md

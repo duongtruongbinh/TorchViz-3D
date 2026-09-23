@@ -141,10 +141,10 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     setHintPulse(0);
     setHintStepIndex(0);
     setHintPaused(false);
-  }, [isOpen, exerciseModel?.expectedShape.join(','), exerciseModel?.configRows.join('|')]);
+  }, [exerciseModel, isOpen]);
 
   useEffect(() => {
-    if (!showHint || !hintRef.current) return;
+    if (!showHint || hintPulse === 0 || !hintRef.current) return;
     const frameId = window.requestAnimationFrame(() => {
       hintRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
@@ -204,8 +204,8 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   const content = (
       <div
         className={`${isInline ? 'shape-exercise-modal shape-exercise-inline flex min-h-0 w-full flex-col overflow-hidden rounded-md border border-zinc-700/70 bg-zinc-950 text-zinc-100' : 'shape-exercise-modal flex w-[min(60rem,calc(100%-1.25rem))] flex-col overflow-auto rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl'}`}
-        role={isInline ? undefined : 'dialog'}
-        aria-modal={isInline ? undefined : true}
+        role="dialog"
+        aria-modal={!isInline}
         aria-labelledby={titleId}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 bg-zinc-950/95 px-4 py-2.5">

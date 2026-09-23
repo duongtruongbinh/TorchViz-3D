@@ -312,7 +312,7 @@ async function main() {
   });
 
   const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log('\n\n' + '='.repeat(60));
+  console.log(`\n\n${'='.repeat(60)}`);
   console.log(` Sync Completed in ${durationSec}s`);
   console.log(` Uploaded: ${uploadedCount} | Errors: ${errorCount} | Skipped: ${skippedCount}`);
   console.log('='.repeat(60));

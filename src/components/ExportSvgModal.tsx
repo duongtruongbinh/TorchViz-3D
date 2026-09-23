@@ -96,14 +96,15 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
       onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
       role="dialog"
       aria-modal="true"
     >
       <div
         className="glass-panel p-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[480px] border border-[var(--border)] animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
         role="document"
       >
         <h3 className="text-xl font-bold text-[var(--text)] mb-1">{t.export.title}</h3>
@@ -206,6 +207,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
             </div>
 
             <button
+              type="button"
               onClick={handleDownloadSvg}
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-md active:scale-[0.98]"
             >
@@ -245,6 +247,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
             </label>
 
             <button
+              type="button"
               onClick={handleDownloadPng}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-semibold transition-all active:scale-[0.98]"
             >
@@ -256,6 +259,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
 
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={onClose}
             className="px-5 py-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-elevated)] text-sm font-medium transition-colors"
           >

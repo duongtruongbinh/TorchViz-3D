@@ -49,6 +49,7 @@ export default function LessonDetail({
   const mdxRequestKey = `${lessonIdentity}/${language}/${fallbackLocales.join(',')}`;
 
   useEffect(() => {
+    if (!lessonIdentity) return;
     setSectionPageIndex(0);
     setQuizQuestionStates({});
     articleRef.current?.focus({ preventScroll: true });
@@ -62,6 +63,7 @@ export default function LessonDetail({
   }, []);
 
   useEffect(() => {
+    void mdxRetryVersion;
     if (lesson.contentStatus !== 'published') {
       setLoadedMdxState({ key: mdxRequestKey, status: 'success', lesson: null });
       return;

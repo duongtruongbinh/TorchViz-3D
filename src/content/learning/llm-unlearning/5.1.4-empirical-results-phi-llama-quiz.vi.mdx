@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "empirical-results-phi-llama-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-result-scope", "quiz-ga-pattern", "quiz-checkpoints", "quiz-claim"],
+  keywords: ["Machine Unlearning", "Quiz", "TOFU results"], conceptIds: ['quiz-result-scope', 'quiz-ga-pattern', 'quiz-checkpoints', 'quiz-claim'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="empirical-results-phi-llama-quiz" questions={[
+  {
+    id: 'quiz-result-scope', title: 'Phạm vi kết quả', prompt: 'Kết luận chính phù hợp với các baseline TOFU gốc là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chưa baseline nào đồng thời gần gold retrained và giữ utility cao trong mọi thiết lập được thử.', isCorrect: true },
+      { id: 'b', label: 'Mọi LLM lớn đều unlearn hoàn hảo.' },
+      { id: 'c', label: 'Chỉ cần giảm xác suất forget là đủ.' },
+      { id: 'd', label: 'Benchmark chứng minh xóa vật lý khỏi từng neuron.' },
+    ], success: 'Đúng. Đây là kết luận có giới hạn theo benchmark.', error: 'Tránh biến kết quả benchmark thành tuyên bố phổ quát.',
+  },
+  {
+    id: 'quiz-ga-pattern', title: 'Mẫu hình của GA', prompt: 'Gradient Ascent thường thể hiện mẫu hình nào?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Không thay đổi gì.' },
+      { id: 'b', label: 'Giảm xác suất mục tiêu nhanh nhưng dễ gây hư hại lan rộng.', isCorrect: true },
+      { id: 'c', label: 'Luôn khớp gold retrained.' },
+      { id: 'd', label: 'Không cần learning rate.' },
+    ], success: 'Đúng. Quên mạnh có thể đi cùng utility loss.', error: 'Hãy đọc đồng thời trục quên và trục utility.',
+  },
+  {
+    id: 'quiz-checkpoints', title: 'Đường cong checkpoint', prompt: 'Vì sao nên lưu nhiều checkpoint?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Để tăng kích thước mô hình.' },
+      { id: 'b', label: 'Để thay thế gold retrained.' },
+      { id: 'c', label: 'Để quan sát đường đánh đổi thay vì chọn một điểm đẹp riêng lẻ.', isCorrect: true },
+      { id: 'd', label: 'Để tránh đánh giá utility.' },
+    ], success: 'Đúng. Đường cong cho thấy động lực thay đổi theo bước.', error: 'Một checkpoint có thể che mất quá trình sụp giảm.',
+  },
+  {
+    id: 'quiz-claim', title: 'Tuyên bố hợp lệ', prompt: 'Phát biểu nào là thận trọng nhất?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mô hình lớn luôn dễ quên hơn.' },
+      { id: 'b', label: 'Một seed đủ để xếp hạng mọi phương pháp.' },
+      { id: 'c', label: 'P-value cao chứng minh tuân thủ pháp lý.' },
+      { id: 'd', label: 'Kết quả phụ thuộc mô hình, split, lịch tối ưu hóa và cách chọn checkpoint.', isCorrect: true },
+    ], success: 'Đúng. Kết luận phải giữ điều kiện thí nghiệm.', error: 'Tránh các từ “luôn” và “chứng minh tuyệt đối”.',
+  },
+]} />

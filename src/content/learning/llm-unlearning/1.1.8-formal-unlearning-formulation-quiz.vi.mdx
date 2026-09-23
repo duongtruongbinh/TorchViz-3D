@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "formal-unlearning-formulation-quiz", locale: "vi", title: "Quiz", headings: ["quiz-formal-gold", "quiz-formal-epsilon", "quiz-formal-delta", "quiz-formal-proxy"], keywords: ["Machine Unlearning", "Quiz", "Formal guarantee"], conceptIds: ['quiz-formal-gold', 'quiz-formal-epsilon', 'quiz-formal-delta', 'quiz-formal-proxy'],
+  pageCount: 4 };
+
+<MdxQuiz id="formal-unlearning-formulation-quiz" questions={[
+  { id: 'quiz-formal-gold', title: 'Mốc phản thực tế', prompt: 'Đối tượng nào là mốc so sánh trong phát biểu unlearning?', mode: 'single', options: [
+      { id: 'c', label: 'Một prompt từ chối.' },
+      { id: 'd', label: 'Một tokenizer mới.' },
+      { id: 'a', label: 'Mô hình được huấn luyện theo cùng quy trình nhưng không thấy forget set.', isCorrect: true },
+      { id: 'b', label: 'Mô hình gốc chưa chỉnh sửa.' },
+    ], success: 'Đúng. Đây là gold retrained.', error: 'Mốc cần phản ánh lịch sử không có forget set.' },
+  { id: 'quiz-formal-epsilon', title: 'Vai trò epsilon', prompt: 'Epsilon giới hạn điều gì?', mode: 'single', options: [
+      { id: 'c', label: 'Số GPU.' },
+      { id: 'd', label: 'Kích thước forget set.' },
+      { id: 'a', label: 'Số token đầu ra.' },
+      { id: 'b', label: 'Độ lệch nhân giữa xác suất của hai phân phối.', isCorrect: true },
+    ], success: 'Đúng. Epsilon kiểm soát độ chênh theo tỷ lệ.', error: 'Epsilon thuộc quan hệ giữa hai phân phối đầu ra.' },
+  { id: 'quiz-formal-delta', title: 'Vai trò delta', prompt: 'Delta cho phép điều gì trong bảo đảm gần đúng?', mode: 'single', options: [
+      { id: 'c', label: 'Một xác suất nhỏ cho sai lệch không được epsilon bao phủ.', isCorrect: true },
+      { id: 'd', label: 'Đổi kiến trúc mô hình.' },
+      { id: 'a', label: 'Xóa retain set.' },
+      { id: 'b', label: 'Bỏ gold retrained.' },
+    ], success: 'Đúng. Delta là phần xác suất ngoại lệ.', error: 'Delta không phải siêu tham số utility.' },
+  { id: 'quiz-formal-proxy', title: 'Giới hạn benchmark', prompt: 'Vì sao điểm benchmark tốt chưa phải chứng minh xóa tuyệt đối?', mode: 'single', options: [
+      { id: 'c', label: 'Vì gold retrained luôn sai.' },
+      { id: 'd', label: 'Vì benchmark chỉ quan sát một tập prompt và thống kê hữu hạn.', isCorrect: true },
+      { id: 'a', label: 'Vì benchmark không dùng dữ liệu.' },
+      { id: 'b', label: 'Vì LLM không sinh xác suất.' },
+    ], success: 'Đúng. Proxy hành vi có phạm vi hữu hạn.', error: 'Phân biệt bằng chứng benchmark với bảo đảm toàn không gian.' },
+]} />

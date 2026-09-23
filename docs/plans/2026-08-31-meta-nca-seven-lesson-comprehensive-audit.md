@@ -3,7 +3,7 @@ title: "MetaNCA Curriculum and Comprehensive Audit"
 status: done
 created: 2026-08-31T00:00:00+07:00
 updated: 2026-08-31T01:00:00+07:00
-author: Codex
+author: nmkhiem
 task: "Publish, audit, and fact-check the seven MetaNCA Learning Lab lessons, then consolidate the branch plan history"
 supersedes: []
 ---

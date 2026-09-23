@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "entangled-knowledge-representations-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-entanglement", "quiz-gradient-conflict", "quiz-localization", "quiz-mitigation"],
+  keywords: ["Machine Unlearning", "Quiz", "Entanglement"], conceptIds: ['quiz-entanglement', 'quiz-gradient-conflict', 'quiz-localization', 'quiz-mitigation'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="entangled-knowledge-representations-quiz" questions={[
+  {
+    id: 'quiz-entanglement', title: 'Định nghĩa entanglement', prompt: 'Entanglement trong giáo trình này nghĩa là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Dữ liệu cần quên và năng lực cần giữ phụ thuộc vào biểu diễn hoặc tham số dùng chung.', isCorrect: true },
+      { id: 'b', label: 'Mỗi fact nằm trong đúng một neuron.' },
+      { id: 'c', label: 'Hai dataset có cùng tên file.' },
+      { id: 'd', label: 'Mô hình có nhiều layer.' },
+    ], success: 'Đúng. Dùng chung biểu diễn tạo nguy cơ collateral damage.', error: 'Entanglement không phải giả thuyết một fact–một neuron.',
+  },
+  {
+    id: 'quiz-gradient-conflict', title: 'Xung đột gradient', prompt: 'Cosine similarity giữa gradient forget và retain giúp chẩn đoán gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Số token trong câu.' },
+      { id: 'b', label: 'Mức hai mục tiêu chia sẻ hoặc xung đột hướng cập nhật.', isCorrect: true },
+      { id: 'c', label: 'Vị trí chính xác của mọi ký ức.' },
+      { id: 'd', label: 'Tính hợp pháp của yêu cầu xóa.' },
+    ], success: 'Đúng. Đây là chỉ báo hình học của cập nhật.', error: 'Nó không phải bản đồ định vị tri thức hoàn chỉnh.',
+  },
+  {
+    id: 'quiz-localization', title: 'Giới hạn diễn giải', prompt: 'Phát biểu nào phù hợp nhất?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mỗi kiến thức có một vector tháo rời được.' },
+      { id: 'b', label: 'Chỉ cần sửa output head.' },
+      { id: 'c', label: 'Entanglement là lăng kính giải thích tổn thương liên đới, không chứng minh vị trí lưu từng fact.', isCorrect: true },
+      { id: 'd', label: 'Entanglement loại bỏ nhu cầu retain set.' },
+    ], success: 'Đúng. Cần phân biệt cơ chế gợi ý và bằng chứng định vị.', error: 'Không suy rộng ẩn dụ thành bản đồ neuron.',
+  },
+  {
+    id: 'quiz-mitigation', title: 'Giảm collateral damage', prompt: 'Thực hành nào trực tiếp giúp phát hiện tổn thương liên đới?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Bỏ toàn bộ tập đánh giá.' },
+      { id: 'b', label: 'Chỉ xem prompt gốc.' },
+      { id: 'c', label: 'Tăng lực quên vô hạn.' },
+      { id: 'd', label: 'Đo retain set, paraphrase và tác vụ lân cận sau mỗi checkpoint.', isCorrect: true },
+    ], success: 'Đúng. Phạm vi đánh giá phải rộng hơn forget prompt.', error: 'Collateral damage xuất hiện ngoài ví dụ mục tiêu.',
+  },
+]} />

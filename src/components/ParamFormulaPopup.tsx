@@ -18,13 +18,21 @@ const ParamFormulaPopup: React.FC<ParamFormulaPopupProps> = ({ node, onClose }) 
   const formula = insight.paramFormula;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/55 backdrop-blur-sm px-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/55 backdrop-blur-sm px-4"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={formula.title}
+    >
       <div
         className="glass-panel w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] p-4 shadow-2xl"
-        role="dialog"
-        aria-modal="true"
-        aria-label={formula.title}
-        onClick={(e) => e.stopPropagation()}
+        role="document"
       >
         <div className="flex items-start justify-between gap-4">
           <div>

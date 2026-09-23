@@ -3,7 +3,7 @@ title: Learning Lab Controlled UI Refactoring and Ownership Plan
 status: done
 created: 2026-08-19T13:00:00+07:00
 updated: 2026-08-19T13:55:00+07:00
-author: Antigravity
+author: dtbinh
 task: "Controlled refactor of Learning Lab shared UI, Linear Algebra / Continual Learning primitives, MDX contract, lazy loading, and documentation"
 supersedes: [
   "docs/plans/2026-06-21-learning-lab-refactor.md",

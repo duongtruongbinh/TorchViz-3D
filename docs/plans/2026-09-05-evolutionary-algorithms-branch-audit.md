@@ -3,7 +3,7 @@ title: Evolutionary Algorithms Branch Audit
 status: completed
 created: 2026-09-05T16:43:06+07:00
 updated: 2026-09-05T17:33:00+07:00
-author: Codex
+author: nmkhiem
 task: "Audit, correct, simplify, verify, and commit the Evolutionary Algorithms branch"
 ---
 

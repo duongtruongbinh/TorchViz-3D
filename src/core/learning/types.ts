@@ -7,6 +7,7 @@ export type LearningDomainId =
   | 'nlp'
   | 'llm-ai-engineering'
   | 'continual-learning-llm'
+  | 'llm-unlearning'
   | 'mlops-llmops-production-systems'
   | 'ai-system-design'
   | 'ai-ethics-safety-governance'

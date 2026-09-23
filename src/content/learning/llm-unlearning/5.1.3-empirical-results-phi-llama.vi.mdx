@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "empirical-results-phi-llama",
+  locale: "vi",
+  title: "Thực nghiệm trên Phi-1.5 & LLaMA-2: Sự Thất bại của Baseline",
+  headings: [
+    "Đọc kết quả như hành vi, không như bảng xếp hạng",
+    "Mẫu hình chung trên các baseline",
+    "Kết luận có giới hạn"
+  ],
+  keywords: ["TOFU", "Empirical results", "Forget quality", "Model utility"],
+  conceptIds: ['quiz-result-scope', 'quiz-ga-pattern', 'quiz-checkpoints', 'quiz-claim'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Đọc kết quả như hành vi, không như bảng xếp hạng
+
+Trong cộng đồng học máy thực nghiệm, các kỹ sư thường mắc phải một thói quen tâm lý phổ biến: **Tư duy Chạy đua Bảng xếp hạng (Leaderboard Obsession)**. Khi nhìn vào một bảng dữ liệu thực nghiệm, người ta thường lướt nhanh để tìm xem giải thuật nào đứng ở dòng đầu tiên với con số cao nhất, rồi vội vã kết luận rằng thuật toán đó là người chiến thắng tuyệt đối.
+
+Thế nhưng, khi bước vào thế giới Machine Unlearning, tư duy bảng xếp hạng một chiều hoàn toàn bị phá sản.
+
+Không có một thuật toán unlearning nào "toàn năng" trên mọi mặt trận. Thay vào đó, mỗi phương pháp can thiệp tham số lại tạo ra một kiểu biến dạng hành vi đặc thù trên mạng nơ-ron. Một thuật toán được ca ngợi là có chỉ số Forget Quality cao nhất hoàn toàn có thể là kẻ tồi tệ nhất ở khía cạnh bảo tồn độ trôi chảy ngôn ngữ.
+
+<LessonImage
+  assetPath="llm-unlearning/05-tofu-empirical-behavior.webp"
+  alt="Các baseline tạo ra ba hành vi: tổn thương lan, sụp độ trôi chảy và đánh đổi quên-giữ"
+  caption="Kết quả thực nghiệm trên TOFU nên được giải mã như một bức tranh hành vi đa chiều: tổn thương lan rộng (Collateral Damage), sụp đổ độ trôi chảy (Fluency Collapse) và thế bập bênh Quên - Giữ."
+/>
+
+Bức tranh trên mô tả ba kiểu mẫu hành vi thất bại (Three Failure Modes) kinh điển được bộc lộ rõ nét nhất trên đấu trường TOFU:
+1. **Tổn thương Lan rộng (Collateral Damage)**: Thuật toán giống như việc phun thuốc diệt cỏ liều cao — tiêu diệt được đám cỏ dại (tập Forget) nhưng đồng thời làm héo úa luôn cả vườn hoa màu xung quanh (làm suy thoái năng lực trên Retain set và Real authors).
+2. **Sụp đổ Độ trôi chảy (Fluency Collapse)**: Mô hình mất hoàn toàn cấu trúc ngữ pháp, lặp lại các ký tự vô nghĩa hoặc nói năng lảm nhảm.
+3. **Thế Bập bênh Quên - Giữ (The Forget-Retain Seesaw)**: Cứ mỗi khi người kỹ sư cố gắng đẩy mức độ quên lên cao hơn, năng lực tổng quát (Utility) lại lập tức trượt dốc không phanh.
+
+<LessonNote tone="info">
+  Kết quả thực nghiệm unlearning không thể đọc như một cuộc đua về đích, mà phải đọc như một ca hội chẩn y khoa: xem xét đa chiều giữa mức độ loại bỏ mầm bệnh và sự tổn hại đối với các cơ quan nội tạng của mô hình.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Mẫu hình chung trên các baseline
+
+Khi khảo sát các giải thuật unlearning trên hai mô hình đại diện có kích thước khác biệt — Phi-1.5 (1.3 tỷ tham số) và LLaMA-2 (7 tỷ tham số) — các nhà nghiên cứu TOFU phát hiện ra những mẫu hình hành vi có tính quy luật sâu sắc:
+- **Phi-1.5 (1.3B) — Sự mong manh của không gian tham số nhỏ**: Vì số lượng tham số ít, mức độ chồng lấn nơ-ron (superposition) trong Phi-1.5 cực kỳ dày đặc. Hầu như mọi nơ-ron tham gia mã hóa tập Forget đều đồng thời gánh vác các chức năng ngôn ngữ khác. Khi áp dụng Gradient Ascent hoặc Gradient Difference, Phi-1.5 phản ứng vô cùng nhạy cảm và dễ rơi vào thảm họa sụp đổ ngôn ngữ chỉ sau vài bước cập nhật.
+- **LLaMA-2 (7B) — Sức chịu đựng cao hơn nhưng tri thức bám rễ sâu hơn**: Với số lượng tham số lớn gấp hơn 5 lần, LLaMA-2 sở hữu dung lượng biểu diễn dư thừa (parameter redundancy) rộng lớn hơn. Mô hình này chịu đòn tốt hơn trước các lực đẩy gradient và giữ vững utility lâu hơn, nhưng ngược lại, việc nhổ tận gốc tri thức mục tiêu trở nên khó khăn hơn nhiều vì thông tin đã phân tán vào hàng chục tầng nơ-ron sâu.
+
+<ConceptHierarchy
+  ariaLabel="Bốn kiểu mẫu hành vi thực nghiệm của các thuật toán baseline trên benchmark TOFU"
+  root={{
+    title: "Mẫu Hình Hành Vi Thực Nghiệm Baseline",
+    detail: "Đặc trưng tối ưu hóa và điểm gãy của từng phương pháp can thiệp tham số."
+  }}
+  nodes={[
+    {
+      title: "1. Gradient Ascent (GA)",
+      detail: "Loss tăng vọt cực nhanh nhưng phá hủy hoàn toàn cấu trúc câu chỉ sau vài chục step.",
+      tone: "amber",
+      children: [
+        {
+          title: "Sụp Đổ Cú Pháp Ngôn Ngữ",
+          detail: "Perplexity tăng vọt, mô hình sinh ký tự rác hoặc lặp từ vô tận; tạo ra ảo ảnh thành công giả."
+        }
+      ]
+    },
+    {
+      title: "2. Gradient Difference (GD)",
+      detail: "Giữ utility khá hơn nhờ mỏ neo Retain nhưng khó kiểm soát do xung đột gradient.",
+      tone: "blue",
+      children: [
+        {
+          title: "Giằng Xé Giữa Hai Lực",
+          detail: "Thường bị kẹt ở trạng thái lấp lửng: hoặc là chưa quên đủ sâu, hoặc bắt đầu làm tổn thương Retain set."
+        }
+      ]
+    },
+    {
+      title: "3. KL Minimization",
+      detail: "Bảo toàn phân phối cực kỳ xuất sắc nhưng có xu hướng bảo thủ cao.",
+      tone: "teal",
+      children: [
+        {
+          title: "Khó Xóa Tri Thức",
+          detail: "Nếu hệ số \\(\\lambda\\) lớn, mô hình bị khóa chặt vào bản sao gốc \\(\\mathcal{M}_0\\) và từ chối quên Forget set."
+        }
+      ]
+    },
+    {
+      title: "4. DPO Unlearning",
+      detail: "Đạt Forget Quality cao nhất và duy trì độ trôi chảy mượt mà nhất trong số các baseline.",
+      tone: "violet",
+      children: [
+        {
+          title: "Nguy Cơ Mặt Nạ Lịch Thiệp",
+          detail: "Cân bằng ấn tượng trên benchmark nhưng dễ bị bẻ khóa để lộ tri thức dưới các truy vấn đối kháng."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Không có kết luận nào mang tính tuyệt đối như 'mô hình lớn luôn unlearn tốt hơn' hay 'DPO luôn là người chiến thắng'. Mọi thứ phụ thuộc chặt chẽ vào quy mô tập quên, tốc độ học và điểm dừng chân trên đường cong tối ưu.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kết luận có giới hạn
+
+Thông điệp cốt lõi và bền vững nhất mà các thử nghiệm trên Phi-1.5 và LLaMA-2 mang lại cho ngành AI là: **Các phương pháp đường cơ sở hiện nay mới chỉ tạo ra các điểm đánh đổi khác nhau trên đồ thị, chưa có bất kỳ giải thuật nào giải quyết trọn vẹn và hoàn hảo mục tiêu kép (quên sạch 100% mà không mất 1% năng lực)**.
+
+<ConceptFlow
+  ariaLabel="Ba nguyên tắc vàng kiểm soát khi đánh giá và công bố kết quả thực nghiệm unlearning"
+  items={[
+    {
+      title: "1. Tuyệt Đối Không Cherry-Picking",
+      detail: "Không được phép chỉ chọn duy nhất một checkpoint tình cờ có điểm số đẹp; bắt buộc phải báo cáo sự ổn định của toàn bộ quỹ đạo huấn luyện.",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Luôn So Sánh Với Gold Retrained",
+      detail: "Mọi chỉ số p-value hay KS-distance chỉ có ý nghĩa khi được đo lường trực tiếp trên cùng hạt giống ngẫu nhiên (seed) và điều kiện phần cứng với Gold.",
+      formula: "D_{\\text{KS}}(P_{\\theta_u} \\parallel P_{\\text{gold}})",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Đánh Giá Đa Dải Quy Mô",
+      detail: "Thuật toán thành công trên forget01 hoàn toàn có thể sụp đổ trên forget10; bắt buộc phải kiểm chứng trên toàn bộ dải quy mô.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Nhận thức rõ những giới hạn này sẽ giúp chúng ta bước sang bài học tiếp theo với một góc nhìn trưởng thành hơn: khám phá cấu trúc toán học của **Đường cong Đánh đổi Pareto** giữa chất lượng quên và năng lực hữu ích của mô hình.
+
+<LessonNote tone="danger">
+  Nếu mọi phương pháp đều buộc phải đánh đổi giữa chất lượng quên và độ hữu dụng, liệu có một rào cản lý thuyết toán học nào (như biên giới Pareto) quy định giới hạn cực hạn mà không một thuật toán nào có thể vượt qua?
+</LessonNote>
+
+</MdxPage>

@@ -37,10 +37,10 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
-  assert.equal(learningTableOfContents.length, 16);
-  assert.equal(learningCatalog.domains.length, 16);
-  assert.equal(learningCatalog.tracks.length, 105);
-  assert.equal(learningCatalog.lessons.length, 794);
+  assert.equal(learningTableOfContents.length, 17);
+  assert.equal(learningCatalog.domains.length, 17);
+  assert.equal(learningCatalog.tracks.length, 111);
+  assert.equal(learningCatalog.lessons.length, 864);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -71,7 +71,7 @@ test('fully published and updating domains are prioritized without disturbing ca
   );
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     prioritizedDomains.map((item) => item.domain.id),
@@ -81,6 +81,7 @@ test('fully published and updating domains are prioritized without disturbing ca
       'research-papers',
       'cv',
       'llm-ai-engineering',
+      'llm-unlearning',
       'mlops-llmops-production-systems',
       'evolutionary-algorithms',
       'ai-projects',
@@ -104,7 +105,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   const readiness = getLearningDomainReadiness(learningCatalog);
   const summaries = getLearningHomeDomainSummaries(learningCatalog);
 
-  assert.equal(summaries.length, 16);
+  assert.equal(summaries.length, 17);
   assert.deepEqual(
     summaries.map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState })),
     readiness,
@@ -115,7 +116,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [
@@ -324,7 +325,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 468);
+  assert.equal(missingLessons.length, 472);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
@@ -335,6 +336,7 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
   const researchPapersPublished = publishedLessons.filter((lesson) => lesson.domainId === 'research-papers');
   assert.equal(researchPapersPublished.length, 33);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-unlearning').length, 66);
   const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
   assert.ok(salesForecastingTrack);
   assert.deepEqual(
@@ -363,7 +365,7 @@ test('evolutionary-algorithms single-choice quizzes avoid answer-position and le
 
   for (const fileName of quizFiles) {
     const source = readFileSync(`src/content/learning/evolutionary-algorithms/${fileName}`, 'utf8');
-    const singleQuestionBlocks = source.matchAll(/mode: 'single',[\s\S]*?options: \[([\s\S]*?)\n    \]/g);
+    const singleQuestionBlocks = source.matchAll(/mode: 'single',[\s\S]*?options: \[([\s\S]*?)\n {4}\]/g);
 
     for (const [, optionBlock] of singleQuestionBlocks) {
       const options = [...optionBlock.matchAll(/label: '([^']*)'[^\n]*/g)].map((match) => ({

@@ -3,7 +3,7 @@ title: "MLOps Domain — Curriculum Init, Architecture Expansion & 3-Tier Catalo
 status: done
 created: 2026-08-20T00:00:00+07:00
 updated: 2026-08-24T00:00:00+07:00
-author: Antigravity
+author: nmkhiem
 supersedes: []
 ---
 

@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'llm-unlearning-method-taxonomy', locale: 'vi',
+  title: 'Phân loại Phương pháp: Unlearning Diễn ra Khi nào?',
+  headings: ['Ba thời điểm can thiệp', 'Đánh đổi quyền truy cập và chi phí'],
+  keywords: ['Training-time', 'Post-training', 'Inference-time'],
+  conceptIds: ['method-timing', 'method-access', 'method-tradeoff'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Ba thời điểm can thiệp
+
+Survey tổ chức phương pháp LLM unlearning theo **thời điểm** tác động lên vòng đời model: trong training, sau training, hoặc ngay lúc inference <Cite paper="qiu2025survey" evidence="method-taxonomy" />.
+
+<ConceptFlow ariaLabel="Ba họ phương pháp theo thời điểm" items={[
+  { title: 'Training-time', tone: 'blue', detail: 'Thiết kế quá trình học để một phần dữ liệu có thể được loại bỏ hiệu quả về sau.' },
+  { title: 'Post-training', tone: 'violet', detail: 'Cập nhật trọng số, activation hoặc cấu trúc sau khi model đã học dữ liệu.' },
+  { title: 'Inference-time', tone: 'teal', detail: 'Chặn hay điều chỉnh input, hidden state, logit hoặc output khi model trả lời.' },
+]} />
+
+Taxonomy này trả lời “can thiệp ở đâu”, không tự xếp hạng chất lượng. Trong mỗi nhánh vẫn có phương pháp mạnh/yếu và tiêu chuẩn đánh giá khác nhau.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đánh đổi quyền truy cập và chi phí
+
+<ConceptHierarchy ariaLabel="Quyền truy cập và đánh đổi của ba nhánh" root={{ title: 'Bạn kiểm soát phần nào của hệ thống?' }} children={[
+  { title: 'Training pipeline', tone: 'blue', detail: 'Có thể chuẩn bị cho yêu cầu xóa, nhưng phải dự đoán nhu cầu từ sớm.' },
+  { title: 'Model weights', tone: 'violet', detail: 'Can thiệp hậu huấn luyện sâu hơn, đổi lại cần compute và kiểm soát utility.' },
+  { title: 'Serving stack', tone: 'teal', detail: 'Triển khai nhanh mà không sửa weights, nhưng dễ chỉ che hành vi bề mặt.' },
+]} />
+
+Vì vậy, chọn phương pháp bắt đầu từ quyền truy cập, thời gian phản hồi yêu cầu xóa và mức bằng chứng cần cung cấp. Nếu claim là “ảnh hưởng trong weights đã bị loại bỏ”, một bộ lọc output đơn thuần không đủ.
+
+<LessonNote tone="info">Taxonomy là bản đồ định vị phương pháp; evaluation mới quyết định claim nào được hỗ trợ.</LessonNote>
+
+</MdxPage>

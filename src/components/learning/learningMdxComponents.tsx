@@ -1177,10 +1177,10 @@ function ConceptHierarchyNodeCard({
   let examplePrefix = node.examplePrefix ?? 'Ví dụ';
 
   if (!exampleText && typeof description === 'string') {
-    const match = description.match(/^([\s\S]*?)(?:[\.\;]\s*|\n+|(?:^|\s+)(?=(?:Ví dụ|Example|Tiêu biểu)\s*:))(Ví dụ|Example|Tiêu biểu)\s*:\s*([\s\S]+)$/i);
+    const match = description.match(/^([\s\S]*?)(?:[.;]\s*|\n+|(?:^|\s+)(?=(?:Ví dụ|Example|Tiêu biểu)\s*:))(Ví dụ|Example|Tiêu biểu)\s*:\s*([\s\S]+)$/i);
     if (match) {
       const rawMain = match[1].trim();
-      mainText = rawMain ? (rawMain.endsWith('.') ? rawMain : rawMain + '.') : '';
+      mainText = rawMain ? (rawMain.endsWith('.') ? rawMain : `${rawMain}.`) : '';
       examplePrefix = match[2];
       exampleText = match[3].trim();
     }

@@ -1,0 +1,154 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "whos-harry-potter-case-study",
+  locale: "vi",
+  title: "Case Study: 'Who's Harry Potter?'",
+  headings: [
+    "Một thử nghiệm unlearning quy mô thực",
+    "Từ logit contrast đến nhãn thay thế",
+    "Bài học và giới hạn"
+  ],
+  keywords: ["Who's Harry Potter", "Reinforced model", "Alternative labels", "Evaluation"],
+  conceptIds: ['quiz-whp-goal', 'quiz-whp-reinforce', 'quiz-whp-eval', 'quiz-whp-limit'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Một thử nghiệm unlearning quy mô thực
+
+Vào cuối năm 2023, hai nhà khoa học máy tính Ronen Eldan và Mark Russinovich tại Microsoft Research đã công bố một công trình gây chấn động mang tên: *"Who's Harry Potter? Approximate Unlearning in LLMs"*. Công trình này đã trở thành một cột mốc kinh điển, mở đường cho toàn bộ trào lưu nghiên cứu thực nghiệm về Machine Unlearning trên các mô hình ngôn ngữ lớn thế hệ mới.
+
+Bài toán đặt ra vô cùng gai góc và mang tính biểu tượng cao: Bộ tiểu thuyết 7 tập *Harry Potter* của J.K. Rowling là một trong những khối dữ liệu bản quyền khổng lồ được phân bố dày đặc nhất trong các tập dữ liệu tiền huấn luyện công khai (như Common Crawl hay The Pile). Bất kỳ một mô hình ngôn ngữ 7B nào cũng thuộc lòng chi tiết về từng nhân vật, câu thần chú và bối cảnh của thế giới phù thủy này. Huấn luyện lại một mô hình LLaMA-7B từ đầu tiêu tốn hơn 184.000 giờ tính toán GPU (tương đương hàng trăm nghìn USD). Các tác giả tự đặt ra câu hỏi: *Liệu ta có thể phẫu thuật loại bỏ tri thức Harry Potter ra khỏi LLaMA-7B chỉ trong vòng khoảng một giờ GPU duy nhất mà không làm tổn hại đến năng lực tư duy tổng quát của mô hình?*
+
+<LessonImage
+  assetPath="llm-unlearning/01-harry-potter-unlearning-concept.webp"
+  alt="Một cụm ký ức fantasy bị làm mờ trong khi năng lực chung được giữ lại và phần dư vẫn được kiểm tra"
+  caption="Case study WHP chứng minh việc can thiệp chọn lọc có thể làm giảm mạnh tín hiệu mục tiêu với chi phí rẻ; nhưng phần dư tiềm ẩn nhắc nhở rằng việc đổi hành vi bề mặt không đồng nghĩa với việc xóa bỏ hoàn toàn."
+/>
+
+Bức tranh trên thể hiện ba trạng thái diễn tiến của ca đại phẫu:
+- **Khung 1 (Tích lũy Đan xen)**: Chú robot học song song các tài liệu khoa học tự nhiên màu xanh và cuốn sách ma thuật phù thủy màu tím. Cả hai luồng tri thức này đều ăn sâu vào các liên kết nơ-ron trong não bộ.
+- **Khung 2 (Làm mờ Chọn lọc)**: Bằng giải thuật can thiệp cục bộ, chiếc nón phù thủy và các câu thần chú bị làm mờ thành các nét đứt mờ nhạt, trong khi toàn bộ chồng sách khoa học toán học vẫn rực sáng nguyên vẹn.
+- **Khung 3 (Phát hiện Tàn dư Bằng Đèn UV)**: Khi chuyên gia dùng đèn tia cực tím (tượng trưng cho các kỹ thuật kiểm thử đối kháng sâu) soi vào não robot, họ vẫn phát hiện thấy những tia sáng ma thuật còn lưu lại ở các tầng nơ-ron sâu bên dưới. Điều này chứng minh rằng việc mô hình ngừng nói về Harry Potter ở bề mặt không bảo đảm rằng mọi vết tích trong trọng số đã hoàn toàn biến mất.
+
+Dù vậy, công trình đã chứng minh tính khả thi đột phá: chỉ với một GPU A100 chạy trong khoảng 60 phút, mô hình đã giảm hơn 90% khả năng trả lời đúng các câu đố về Harry Potter.
+
+<LessonNote tone="info">
+  Can thiệp unlearning thực chất có thể thực hiện với chi phí rẻ hơn hàng nghìn lần so với tái huấn luyện toàn phần nếu ta định vị chính xác được độ lệch logit của miền tri thức mục tiêu.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Từ logit contrast đến nhãn thay thế
+
+Làm thế nào để hai tác giả có thể khoanh vùng chính xác những từ ngữ nào trong một câu văn thuộc về thế giới phù thủy để tiến hành loại bỏ? Ý tưởng đột phá của nhóm nghiên cứu nằm ở cơ chế So sánh Phân kỳ Logit (Logit Contrast) kết hợp với Nhãn Thay thế Tổng quát (Generic Substitute Labels).
+
+<ConceptFlow
+  ariaLabel="Ba bước của giải thuật can thiệp Who is Harry Potter"
+  items={[
+    {
+      title: "1. Mô hình Tăng cường",
+      detail: "Fine-tune nhẹ mô hình cơ sở \\(\\mathcal{M}_0\\) trên bộ truyện để tạo ra \\(\\mathcal{M}_{\\text{reinf}}\\) cực kỳ nhạy cảm với các thuật ngữ phù thủy.",
+      tone: "blue",
+      visual: "neural-network"
+    },
+    {
+      title: "2. Logit Contrast Tương phản",
+      detail: "So sánh hiệu vector logit \\(\\Delta \\mathbf{z} = \\mathbf{z}_{\\text{reinf}} - \\mathbf{z}_0\\) để trích xuất chính xác các token đặc trưng của miền cần quên.",
+      formula: "\\Delta \\mathbf{z} = \\mathbf{z}_{\\text{reinf}}(x) - \\mathbf{z}_0(x)",
+      tone: "amber",
+      visual: "evaluation"
+    },
+    {
+      title: "3. Viết đè Nhãn Thay thế",
+      detail: "Dùng mô hình lớn viết lại các câu chuyện phù thủy thành văn bản trung tính và fine-tune mô hình mục tiêu theo nhãn mới.",
+      tone: "teal",
+      visual: "two-term-loss"
+    }
+  ]}
+/>
+
+Cơ chế phân kỳ logit bóc tách bài toán thành các thành phần định lượng rõ ràng:
+- Khi đưa cùng một đoạn văn bản đầu vào <InlineMath formula="x" /> cho cả hai mô hình, những token nào có độ lệch <InlineMath formula="\Delta z_i \gg 0" /> chính là các điểm neo tri thức độc quyền của thế giới phù thủy (ví dụ: "Dumbledore", "Quidditch", "Gryffindor").
+- Ngược lại, các từ ngữ cú pháp và ngữ pháp thông thường ("is", "went", "because") có <InlineMath formula="\Delta z_i \approx 0" />, giúp bảo vệ cấu trúc câu không bị phá hủy.
+- Bản viết lại trung tính (ví dụ: biến "Harry rút cây đũa phép" thành "Cậu bé cầm lấy công cụ bằng gỗ") đóng vai trò như một lực kéo định hướng phân phối xác suất sang các khái niệm bách khoa phổ quát mà không gây sụp đổ ngôn ngữ.
+
+<LessonNote tone="warning">
+  Phương pháp WHP không hề truy tìm hay triệt tiêu một cụm nơ-ron cụ thể nào, mà nó chỉ uốn nắn dòng chảy xác suất giải mã ở các bước sinh token nhạy cảm bằng cách phạt nặng các logit đặc thù.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bài học và giới hạn
+
+Để chứng minh rằng ca phẫu thuật không làm biến mô hình thành một kẻ ngớ ngẩn, Eldan & Russinovich đã kiểm tra mô hình sau unlearn trên hàng loạt bài đánh giá năng lực suy luận tiêu chuẩn của ngành AI: Winogrande, HellaSwag, ARC, BoolQ và PIQA. Kết quả thực nghiệm cho thấy điểm số trên các tác vụ này hầu như không thay đổi, bảo toàn hơn 99% năng lực thông minh tổng quát của LLaMA-7B.
+
+Tuy nhiên, khi cộng đồng nghiên cứu an toàn AI tiến hành thẩm định độc lập sau đó, các giới hạn cố hữu của phương pháp tiếp cận bề mặt đã nhanh chóng lộ diện:
+
+<ConceptHierarchy
+  ariaLabel="Ba giới hạn kỹ thuật bộc lộ từ case study Who is Harry Potter"
+  root={{
+    title: "Ba Giới Hạn Cố Hữu của Tiếp Cận WHP",
+    detail: "Những bài học xương máu cho các chuyên gia an toàn và kiểm toán AI."
+  }}
+  nodes={[
+    {
+      title: "1. Lỗ hổng Truy vấn Gián tiếp",
+      detail: "Mô hình chặn được câu hỏi trực diện nhưng bị đánh sập bởi câu hỏi suy diễn vòng vo.",
+      tone: "amber",
+      children: [
+        {
+          title: "Paraphrase Leakage",
+          detail: "Khi mô tả đặc điểm nhân vật mà không gọi tên trực tiếp, mô hình vẫn tuôn ra đáp án chính xác."
+        },
+        {
+          title: "Liên kết Tiềm ẩn Chưa Xóa",
+          detail: "Các đồ thị tri thức ngầm bên dưới tầng embedding vẫn duy trì liên kết ngữ nghĩa."
+        }
+      ]
+    },
+    {
+      title: "2. Hiểm họa Học lại Siêu tốc",
+      detail: "Tri thức chỉ bị ức chế tạm thời chứ chưa hề biến mất khỏi không gian tham số.",
+      tone: "violet",
+      children: [
+        {
+          title: "Relearning Acceleration",
+          detail: "Chỉ cần fine-tune lại trên 1% dữ liệu trong vài phút, toàn bộ ký ức phục hồi trên 95%."
+        },
+        {
+          title: "Trạng thái Ngủ đông Ký ức",
+          detail: "Các trọng số chỉ xoay nhẹ hướng chiếu, sẵn sàng quay trở lại cực tiểu cũ với vài bước gradient."
+        }
+      ]
+    },
+    {
+      title: "3. Tổn thương Kèm theo (Collateral)",
+      detail: "Làm suy giảm năng lực sáng tạo văn học kỳ ảo hoặc nhầm lẫn tri thức lân cận.",
+      tone: "blue",
+      children: [
+        {
+          title: "Concept Bleed",
+          detail: "Xóa thuật ngữ phép thuật vô tình làm mờ luôn các tác phẩm văn học kỳ ảo Anh quốc thời kỳ đương đại."
+        },
+        {
+          title: "Suy giảm Năng lực Sáng tác",
+          detail: "Mô hình trở nên ngập ngừng hoặc từ chối sinh các đoạn hội thoại có yếu tố phép thuật giả tưởng."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="danger">
+  Nếu một phương pháp unlearning có thể bị đánh bại dễ dàng bởi các truy vấn gián tiếp và hiện tượng học lại siêu tốc, liệu các phương pháp học máy truyền thống trước kỷ nguyên Transformer có cách giải quyết nào triệt để hơn không?
+</LessonNote>
+
+Chúng ta sẽ cùng giải mã câu hỏi này trong Chương 2: Khám phá di sản của các kiến trúc unlearning kinh điển (SISA, K-Means lượng tử hóa) và lý do vì sao chúng sụp đổ hoàn toàn trước cấu trúc nơ-ron Transformer.
+
+</MdxPage>

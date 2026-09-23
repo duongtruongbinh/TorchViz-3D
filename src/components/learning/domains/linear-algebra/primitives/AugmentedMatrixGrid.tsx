@@ -66,6 +66,7 @@ export function AugmentedMatrixGrid({
   return (
     <div
       className="inline-flex flex-col items-center gap-1.5 select-none"
+      role="img"
       aria-label={ariaLabel}
     >
       {rightBlockName && (

@@ -178,7 +178,9 @@ test('Learning Home stays outside Workspace and full-catalog dependency graphs',
   assert.doesNotMatch(learningMdxRegistry, /^import[^\n]+content\/learning\/index/m);
   assert.match(learningMdxRegistry, /loadLessonModule\(selectedModule\.filePath\)/);
   assert.match(learningMdxRegistry, /import\(['"]\.\/domains\/cv\/mdxComponents['"]\)/);
-  assert.match(learningMdxRegistry, /domainId !== ['"]continual-learning-llm['"]/);
+  assert.match(learningMdxRegistry, /learningReferenceRuntimeLoaders\[domainId\]/);
+  assert.match(learningMdxRegistry, /['"]continual-learning-llm['"]:\s*async/);
+  assert.match(learningMdxRegistry, /['"]llm-unlearning['"]:\s*async/);
   assert.doesNotMatch(
     learningMdxComponents,
     /import\.meta\.glob\([^)]*assets\/learning/,

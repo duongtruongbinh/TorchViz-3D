@@ -21,6 +21,7 @@
     "verify": "npm run typecheck && npm test && npm run build",
     "sync:titles": "node scripts/syncMdxTitles.ts",
     "audit:cl-citation-evidence": "node scripts/auditContinualLearningCitationEvidence.mjs",
+    "audit:llm-unlearning-citation-evidence": "node scripts/auditLlmUnlearningCitationEvidence.mjs",
     "sync:catalog-stats": "node scripts/generateCatalogStats.ts",
     "check:catalog-stats": "node scripts/generateCatalogStats.ts --check",
     "sync:r2": "node scripts/syncR2Assets.ts",

@@ -48,13 +48,11 @@ export default function DomainCoursePage({
         <div className="relative">
           <div className="grid gap-7 px-6 pb-10 pt-8 sm:px-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-14 lg:pb-14">
             <div>
-              <div
-                role="heading"
-                aria-level={1}
+              <h1
                 className="text-[1.65rem] font-black leading-tight text-[#F2F6FA]/82 sm:text-[2rem] lg:text-[2.25rem]"
               >
                 {copy.title}
-              </div>
+              </h1>
               <p className="mt-4 w-full text-base leading-7 text-[#F2F6FA]/82 sm:text-lg">
                 {copy.subtitle}
               </p>

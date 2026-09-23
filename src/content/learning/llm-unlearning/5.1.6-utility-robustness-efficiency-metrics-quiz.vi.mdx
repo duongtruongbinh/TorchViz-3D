@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'utility-robustness-efficiency-metrics-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['utility-metrics', 'robustness-metrics', 'efficiency-metrics'], keywords: ['Quiz', 'Utility', 'Robustness'],
+  conceptIds: ['utility-metrics', 'robustness-metrics', 'efficiency-metrics'], pageCount: 3,
+};
+
+<MdxQuiz id="utility-robustness-efficiency-metrics-quiz" questions={[
+  { id: 'utility-metrics', title: 'Utility', prompt: 'Utility kiểm tra điều gì?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ forget score.' }, { id: 'c', label: 'Màu output.' }, { id: 'd', label: 'Tên optimizer.' }, { id: 'a', label: 'Năng lực và tri thức cần giữ còn hoạt động.', isCorrect: true },
+  ], success: 'Đúng. Utility bảo vệ giá trị còn lại.', error: 'Hãy nghĩ đến retain và general tasks.' },
+  { id: 'robustness-metrics', title: 'Robustness', prompt: 'Phép thử nào thuộc robustness?', mode: 'single', options: [
+    { id: 'a', label: 'Paraphrase, jailbreak hoặc relearning attack.', isCorrect: true }, { id: 'b', label: 'Đếm heading.' }, { id: 'c', label: 'Đổi font.' }, { id: 'd', label: 'Sắp file.' },
+  ], success: 'Đúng. Robustness kiểm tra dưới biến đổi và tấn công.', error: 'Nó không chỉ đo prompt trực diện.' },
+  { id: 'efficiency-metrics', title: 'Efficiency', prompt: 'Nên báo cáo gì cho efficiency?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ accuracy.' }, { id: 'a', label: 'Thời gian, compute, memory và tham số cập nhật.', isCorrect: true }, { id: 'c', label: 'Chỉ số câu hỏi.' }, { id: 'd', label: 'Chỉ tên model.' },
+  ], success: 'Đúng. Efficiency là chi phí vận hành có thể đo.', error: 'Hãy xét tài nguyên và thời gian.' },
+]} />

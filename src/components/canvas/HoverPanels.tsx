@@ -87,7 +87,6 @@ export const NodeHoverPanel: React.FC<{
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onPointerDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-start justify-between gap-3">
         <span className="text-[12px] font-bold text-[#7db2e8] uppercase leading-tight break-words">{insight.title}</span>

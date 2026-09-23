@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "llm-unlearning-overview-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-forget-retain", "quiz-gold", "quiz-utility", "quiz-course-boundary"],
+  keywords: ["Machine Unlearning", "Quiz", "Core terms"], conceptIds: ['quiz-forget-retain', 'quiz-gold', 'quiz-utility', 'quiz-course-boundary'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="llm-unlearning-overview-quiz" questions={[
+  {
+    id: 'quiz-forget-retain', title: 'Forget và retain', prompt: 'Cặp định nghĩa nào đúng?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Forget set là dữ liệu cần giảm ảnh hưởng; retain set là dữ liệu và năng lực cần giữ.', isCorrect: true },
+      { id: 'b', label: 'Hai tập luôn giống nhau.' },
+      { id: 'c', label: 'Retain set chỉ dùng để tăng tốc GPU.' },
+      { id: 'd', label: 'Forget set là toàn bộ pretraining corpus.' },
+    ], success: 'Đúng. Hai tập tạo hai lực đối nghịch của bài toán.', error: 'Hãy nhớ: forget là mục tiêu loại bỏ ảnh hưởng, retain là phần phải bảo toàn.',
+  },
+  {
+    id: 'quiz-gold', title: 'Gold retrained', prompt: 'Gold retrained đóng vai trò gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Một prompt từ chối cố định.' },
+      { id: 'b', label: 'Mốc hành vi từ mô hình được huấn luyện mà chưa thấy forget set.', isCorrect: true },
+      { id: 'c', label: 'Bằng chứng tuyệt đối về từng tham số.' },
+      { id: 'd', label: 'Tên khác của mô hình gốc.' },
+    ], success: 'Đúng. Gold retrained là mốc so sánh mạnh nhưng không toàn năng.', error: 'Nó khác mô hình gốc vì chưa từng thấy forget set.',
+  },
+  {
+    id: 'quiz-utility', title: 'Utility', prompt: 'Utility nên được hiểu như thế nào?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mức mô hình từ chối mọi câu hỏi.' },
+      { id: 'b', label: 'Số tham số bị đổi.' },
+      { id: 'c', label: 'Chất lượng hữu ích còn lại trên dữ liệu và tác vụ cần giữ.', isCorrect: true },
+      { id: 'd', label: 'Tốc độ tải checkpoint.' },
+    ], success: 'Đúng. Utility bảo vệ giá trị sử dụng sau unlearning.', error: 'Utility là chất lượng còn lại, không phải cường độ xóa.',
+  },
+  {
+    id: 'quiz-course-boundary', title: 'Ranh giới chương', prompt: 'Chương nào chịu trách nhiệm so sánh hành vi đo lường thực tế của các baseline?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chương 1.' },
+      { id: 'b', label: 'Chương 3.' },
+      { id: 'c', label: 'Chương 4.' },
+      { id: 'd', label: 'Chương 5.', isCorrect: true },
+    ], success: 'Đúng. Chương 4 giải thích cơ chế; Chương 5 đo và so sánh.', error: 'Tách cơ chế thuật toán khỏi kết quả benchmark.',
+  },
+]} />

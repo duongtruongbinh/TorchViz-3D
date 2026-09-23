@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'definition-effects-and-scaling-challenges-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['definition-ambiguity', 'data-language-effects', 'scaling-pressure'], keywords: ['Quiz', 'Challenges'],
+  conceptIds: ['definition-ambiguity', 'data-language-effects', 'scaling-pressure'], pageCount: 3,
+};
+
+<MdxQuiz id="definition-effects-and-scaling-challenges-quiz" questions={[
+  { id: 'definition-ambiguity', title: 'Định nghĩa', prompt: 'Vì sao phải ghi rõ “đã quên” nghĩa là gì?', mode: 'single', options: [
+    { id: 'b', label: 'Mọi metric giống nhau.' }, { id: 'c', label: 'Không cần threat model.' }, { id: 'a', label: 'Các tiêu chuẩn hành vi, privacy và parameter không tương đương.', isCorrect: true }, { id: 'd', label: 'Chỉ để đặt tiêu đề.' },
+  ], success: 'Đúng. Claim phụ thuộc tiêu chuẩn thành công.', error: 'Hãy phân biệt các lớp bằng chứng.' },
+  { id: 'data-language-effects', title: 'Dữ liệu', prompt: 'Kết quả trên fact hư cấu tiếng Anh có tự động áp dụng cho mọi ngôn ngữ không?', mode: 'single', options: [
+    { id: 'b', label: 'Có, luôn luôn.' }, { id: 'c', label: 'Chỉ nếu đổi font.' }, { id: 'd', label: 'Không liên quan dữ liệu.' }, { id: 'a', label: 'Không; tần suất, paraphrase và ngôn ngữ làm đổi độ khó.', isCorrect: true },
+  ], success: 'Đúng. Khả năng chuyển giao phải được kiểm tra.', error: 'Dữ liệu và ngôn ngữ là biến thực nghiệm.' },
+  { id: 'scaling-pressure', title: 'Quy mô', prompt: 'Đâu là áp lực khi triển khai ở quy mô lớn?', mode: 'single', options: [
+    { id: 'a', label: 'Yêu cầu tuần tự tích lũy side effect và chi phí audit.', isCorrect: true }, { id: 'b', label: 'Model lớn không có weights.' }, { id: 'c', label: 'Quantization không đổi gì.' }, { id: 'd', label: 'Chỉ có một yêu cầu.' },
+  ], success: 'Đúng. Dòng yêu cầu là bài toán vòng đời.', error: 'Hãy nghĩ vượt ra ngoài một lần xóa.' },
+]} />

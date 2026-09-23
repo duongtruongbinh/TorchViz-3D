@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "forget-quality-utility-tradeoff",
+  locale: "vi",
+  title: "Rào cản Pareto: Chất lượng Quên vs Độ Hữu dụng Mô hình",
+  headings: [
+    "Một nút chỉnh, hai mục tiêu",
+    "Đọc đường biên Pareto",
+    "Chọn checkpoint có trách nhiệm"
+  ],
+  keywords: ["Pareto frontier", "Forget quality", "Utility", "Checkpoint"],
+  conceptIds: ['quiz-pareto-goals', 'quiz-dominate', 'quiz-checkpoint-policy', 'quiz-pareto-limit'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Một nút chỉnh, hai mục tiêu
+
+Trong lý thuyết kinh tế học và giải tích tối ưu hóa đa mục tiêu (Multi-Objective Optimization), định luật *"Không có bữa trưa nào miễn phí"* (No Free Lunch) luôn là chân lý tối thượng: Bạn không bao giờ có thể đồng thời tối đa hóa hai đại lượng đối nghịch mà không phải đánh đổi bất kỳ điều gì.
+
+Trong thế giới của Machine Unlearning, người kỹ sư AI luôn bị giằng xé giữa hai mục tiêu sống còn trên mặt phẳng tọa độ:
+- **Trục Hoành (Trục X - Forget Quality)**: Mức độ quên tri thức mục tiêu. Càng tiến về bên phải, phân phối của mô hình càng tiệm cận mô hình sạch lý tưởng Gold Retrained.
+- **Trục Tung (Trục Y - Model Utility)**: Năng lực hữu ích tổng quát. Càng tiến lên phía trên, mô hình càng giữ vững trí thông minh, độ mượt mà ngôn ngữ và khả năng giải toán logic.
+
+Khi bạn vặn "chiếc nút điều khiển" của thuật toán — ví dụ tăng số bước lặp, tăng tốc độ học hoặc hạ thấp lực giữ của tập Retain — bạn sẽ đẩy mô hình tiến rất xa về phía bên phải của trục X (quên rất sạch). Nhưng cái giá kỹ thuật phải trả ngay lập tức là điểm Utility trên trục Y sẽ rơi tự do! Ngược lại, nếu bạn quá lo sợ mô hình bị hỏng mà ghìm chặt lực giữ, mô hình sẽ ngự trị ở đỉnh cao của trục Y nhưng hoàn toàn dậm chân tại chỗ ở vạch số 0 của trục X (không chịu quên).
+
+<LessonImage
+  assetPath="llm-unlearning/05-forget-quality-utility-pareto.webp"
+  alt="Đường biên đánh đổi giữa forget quality và utility"
+  caption="Đường biên Pareto minh họa sự đánh đổi kỹ thuật không thể tránh khỏi: di chuyển quá xa về một trục sẽ trực tiếp làm suy thoái trục đối diện."
+/>
+
+Bức tranh trên mô tả không gian tối ưu hóa hai chiều:
+- **Vùng Đích Thiên Đường (Ideal Utopia)**: Nằm ở góc phần tư phía trên bên phải (nơi vừa có Forget Quality = 100%, vừa có Utility = 100%). Đây là tọa độ độc tôn của mô hình tái huấn luyện sạch từ đầu Gold Retrained.
+- **Đường Biên Đánh Đổi (Pareto Frontier)**: Đường cong vòng cung đại diện cho giới hạn tối đa mà các giải thuật unlearning hiện đại có thể vươn tới. Mọi thuật toán thực tế chỉ có thể tạo ra các checkpoint nằm trên hoặc phía dưới đường cong ranh giới này.
+
+<LessonNote tone="info">
+  Đường biên Pareto không phải là một lỗi của thuật toán, mà là ranh giới vật lý của việc nén tri thức trong không gian tham số hữu hạn.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đọc đường biên Pareto
+
+Để phân tích và so sánh các thuật toán unlearning một cách khoa học, các nhà nghiên cứu dữ liệu áp dụng khái niệm Sự Thống Trị Pareto (Pareto Dominance):
+
+Một cấu hình thuật toán <InlineMath formula="A" /> được định nghĩa là **thống trị Pareto** cấu hình <InlineMath formula="B" /> (ký hiệu: <InlineMath formula="A \succ B" />) khi và chỉ khi thỏa mãn đồng thời hai điều kiện:
+
+<BlockMath formula="\text{Utility}(A) \ge \text{Utility}(B) \quad \text{và} \quad \text{Forget}(A) \ge \text{Forget}(B)" />
+
+đồng thời <InlineMath formula="A" /> thực sự vượt trội hơn <InlineMath formula="B" /> ở ít nhất một mục tiêu. Tập hợp tất cả các cấu hình không bị bất kỳ cấu hình nào khác thống trị sẽ vẽ nên **Đường biên Pareto (Pareto Frontier)**.
+
+<ConceptHierarchy
+  ariaLabel="Hai chế độ vận hành thực chiến trên đường biên đánh đổi Pareto"
+  root={{
+    title: "Hai Chiến Lược Vận Hành Trên Biên Giới Pareto",
+    detail: "Lựa chọn điểm cân bằng kỹ thuật tùy thuộc vào bài toán kinh doanh và pháp lý."
+  }}
+  nodes={[
+    {
+      title: "1. Ưu Tiên Tuân Thủ Pháp Lý Khắt Khe",
+      detail: "Áp dụng cho các vụ kiện bản quyền hoặc yêu cầu gỡ bỏ bắt buộc của tòa án.",
+      tone: "amber",
+      children: [
+        {
+          title: "Vị Trí Trên Đồ Thị",
+          detail: "Lệch về góc dưới bên phải; tối đa hóa Forget Quality để triệt tiêu mọi dấu vết vi phạm."
+        },
+        {
+          title: "Sự Đánh Đổi Chấp Nhận",
+          detail: "Sẵn sàng hy sinh từ 5% đến 15% năng lực ngôn ngữ để đổi lấy sự an toàn pháp lý tuyệt đối."
+        }
+      ]
+    },
+    {
+      title: "2. Ưu Tiên Trải Nghiệm Người Dùng (Sản Xuất)",
+      detail: "Áp dụng cho các trợ lý ảo đàm thoại thương mại phục vụ hàng triệu người dùng.",
+      tone: "teal",
+      children: [
+        {
+          title: "Vị Trí Trên Đồ Thị",
+          detail: "Lệch về góc trên bên trái; bảo đảm ngưỡng sàn Utility tối thiểu 95% không bị phá vỡ."
+        },
+        {
+          title: "Sự Đánh Đổi Chấp Nhận",
+          detail: "Chấp nhận mức quên xấp xỉ vừa đủ để giữ cho mô hình luôn thông minh, mượt mà và nhạy bén."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Không tồn tại một thuật toán nào là 'tốt nhất tuyệt đối' cho mọi trường hợp. Mọi tuyên bố unlearning hoàn hảo mà không chỉ rõ vị trí trên đường biên Pareto đều là ngộ nhận hoặc thiếu cơ sở thực nghiệm.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn checkpoint có trách nhiệm
+
+Từ lý thuyết đường biên Pareto, một kỹ sư AI chuyên nghiệp cần xây dựng một quy trình 4 bước có trách nhiệm (Responsible Checkpoint Selection) trước khi quyết định đưa một mô hình sau unlearn vào môi trường sản xuất:
+
+<ConceptFlow
+  ariaLabel="Quy trình 4 bước lựa chọn checkpoint có trách nhiệm trên biên giới Pareto"
+  items={[
+    {
+      title: "1. Khóa Ngưỡng Sàn Utility",
+      detail: "Xác lập giới hạn không thể nhân nhượng: ví dụ Perplexity trên World Facts không tăng quá 5%, điểm MMLU không giảm quá 2%.",
+      formula: "\\text{Utility}(\\theta) \\ge \\tau_{\\text{min}}",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Lọc Điểm Pareto Tối Ưu",
+      detail: "Trong các checkpoint thỏa mãn ngưỡng sàn Utility, chọn điểm có p-value của kiểm định KS trên Truth Ratio cao nhất.",
+      formula: "\\max p\\text{-value} \\implies \\text{Forget Quality}",
+      tone: "teal",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Thẩm Định Độ Bền Đối Kháng",
+      detail: "Thực hiện stress testing: tấn công jailbreak, paraphrase và đo tốc độ học lại (Relearning Probe) để phát hiện kẻ giả vờ quên.",
+      tone: "amber",
+      visual: "evaluation"
+    },
+    {
+      title: "4. Báo Cáo Dải Biến Thiên",
+      detail: "Báo cáo giá trị trung bình kèm khoảng tin cậy qua ít nhất 3 hạt giống ngẫu nhiên (seeds) độc lập để tránh kết quả may rủi.",
+      tone: "violet",
+      visual: "two-term-loss"
+    }
+  ]}
+/>
+
+Làm chủ ranh giới Pareto giúp các nhà phát triển thoát khỏi cái nhìn ngây thơ về một giải pháp hoàn hảo không tì vết, đồng thời trang bị tư duy kỹ thuật thực chiến để cân bằng hài hòa giữa trách nhiệm pháp lý và trải nghiệm người dùng.
+
+<LessonNote tone="danger">
+  Vì sao việc unlearning lại khó khăn đến vậy dưới góc nhìn của cấu trúc nơ-ron sâu? Tại sao các tri thức dường như không thể tách rời mà lại đan bện chặt chẽ vào nhau trong các không gian con của ma trận trọng số?
+</LessonNote>
+
+Chào mừng bạn bước sang Chương 6: Khám phá Vùng Kiến thức Đan xen (Entangled Knowledge) và Chân trời Quản trị Vòng đời LLM trong Tương lai!
+
+</MdxPage>

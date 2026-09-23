@@ -135,9 +135,8 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
           </div>
         </div>
 
-        <div
+        <fieldset
           className={cx('relative mt-6 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
-          role="group"
           aria-label={extra.hierarchy ? text(extra.hierarchy.ariaLabel, language) : text(extra.imageAlt, language)}
         >
           <button
@@ -216,7 +215,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
               </div>
             </div>
           )}
-        </div>
+        </fieldset>
       </section>
     </div>
   );
@@ -300,6 +299,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
             <div className={cx('flex flex-wrap items-center justify-center gap-2 text-base font-semibold leading-8 md:text-lg', themeClasses.titleText)}>
               <span>{text(extra.prompt, language)}</span>
               <span
+                role="status"
                 aria-label={!selectedOption ? text(extra.blankLabel, language) : undefined}
                 className={cx(
                   'inline-flex min-h-10 min-w-[8rem] items-center justify-center rounded-lg border px-3 text-sm transition-colors',
@@ -327,7 +327,8 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-1.5" aria-label={text(extra.blankLabel, language)}>
+          <fieldset className="m-0 flex flex-wrap justify-center gap-1.5 border-0 p-0">
+            <legend className="sr-only">{text(extra.blankLabel, language)}</legend>
             {extra.options.map((option, index) => {
               const isSelected = selectedIndex === index;
               const isCorrect = Boolean(option.isCorrect);
@@ -349,7 +350,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                 </button>
               );
             })}
-          </div>
+          </fieldset>
         </div>
       )}
 
@@ -380,7 +381,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                   </span>
                 ))
               ) : (
-                <span aria-label={text(labels.emptySentence, language)} className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-semibold', isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
+                <span role="status" aria-label={text(labels.emptySentence, language)} className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-semibold', isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
                   {isInteractionOnly ? '_____' : text(labels.emptySentence, language)}
                 </span>
               )}
@@ -559,8 +560,8 @@ function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, 
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      onFocus={() => onActivate(item.label.en)}
-      onMouseEnter={() => onActivate(item.label.en)}
+      onFocusCapture={() => onActivate(item.label.en)}
+      onPointerEnter={() => onActivate(item.label.en)}
       className={cx(
         'learning-lab-focus-panel grid h-full min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[box-shadow,filter,opacity,transform] duration-200',
         palette.card,
@@ -894,8 +895,8 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                       <div
                         key={text(item.title, language)}
                         data-active={isActive ? 'true' : undefined}
-                        onFocus={() => setActiveOutlineItemKey(itemKey)}
-                        onMouseEnter={() => setActiveOutlineItemKey(itemKey)}
+                        onFocusCapture={() => setActiveOutlineItemKey(itemKey)}
+                        onPointerEnter={() => setActiveOutlineItemKey(itemKey)}
                         className={cx(
                           'learning-lab-focus-panel group grid gap-3 px-3 py-2.5 transition-[box-shadow,filter,opacity,transform] duration-200 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:items-start',
                           themeClasses.radius.button,
@@ -1573,8 +1574,8 @@ function ConceptHighlightRow({
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      onFocus={onActivate}
-      onMouseEnter={onActivate}
+      onFocusCapture={onActivate}
+      onPointerEnter={onActivate}
       className={cx(
         'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-start',
         themeClasses.radius.button,
@@ -1626,8 +1627,8 @@ function LlmScaleFactorCard({
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      onFocus={onActivate}
-      onMouseEnter={onActivate}
+      onFocusCapture={onActivate}
+      onPointerEnter={onActivate}
       className={cx(
         'learning-lab-focus-panel grid h-full min-h-[18rem] grid-rows-[7rem_minmax(0,1fr)] overflow-hidden rounded-lg border text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[background-color,box-shadow,filter,opacity,transform] duration-200',
         palette.card,

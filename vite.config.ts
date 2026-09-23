@@ -11,13 +11,15 @@ import { learningMdxRuntimePlugin, learningMdxSearchPlugin } from './scripts/lea
 import { learningHomeCatalogPlugin } from './scripts/learningHomeCatalog.ts';
 import { learningCatalog } from './src/content/learning/index.ts';
 import { continualLearningLessonReferenceCoverage } from './src/content/learning/continual-learning-llm/papers.ts';
+import { llmUnlearningLessonReferenceCoverage } from './src/content/learning/llm-unlearning/papers.ts';
 
 const require = createRequire(import.meta.url);
 const configDir = path.dirname(fileURLToPath(import.meta.url));
 const learningContentRoot = path.join(configDir, 'src/content/learning');
-const referenceLessonKeys = new Set(continualLearningLessonReferenceCoverage.map(({ lessonId }) => (
-  `continual-learning-llm/${lessonId}`
-)));
+const referenceLessonKeys = new Set([
+  ...continualLearningLessonReferenceCoverage.map(({ lessonId }) => `continual-learning-llm/${lessonId}`),
+  ...llmUnlearningLessonReferenceCoverage.map(({ lessonId }) => `llm-unlearning/${lessonId}`),
+]);
 const pyodideRoot = path.dirname(require.resolve('pyodide/pyodide.js'));
 const monacoVsRoot = path.dirname(require.resolve('monaco-editor'));
 const interFontSource = require.resolve('@fontsource/inter/files/inter-vietnamese-600-normal.woff');

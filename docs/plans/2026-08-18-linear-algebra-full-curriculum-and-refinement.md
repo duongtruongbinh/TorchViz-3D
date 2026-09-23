@@ -3,7 +3,7 @@ title: "Linear Algebra Curriculum — 7-Chapter Strang Foundations, Mafs Migrati
 status: completed
 created: 2026-08-18
 updated: 2026-08-18
-author: Antigravity
+author: dtbinh
 task: "Consolidate and complete the full 7-chapter Linear Algebra Learning Lab curriculum (58 lessons), migrate Cartesian visuals to Mafs 0.21.0, audit math invariants, rebalance quizzes, and standardize visual primitives"
 supersedes:
   - docs/plans/2026-07-14-linear-algebra-phase-1.md

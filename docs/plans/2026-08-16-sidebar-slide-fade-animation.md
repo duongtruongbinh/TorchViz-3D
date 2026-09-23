@@ -3,7 +3,7 @@ title: Sidebar slide and fade animation
 status: done
 created: 2026-08-16T20:38:33+07:00
 updated: 2026-08-16T21:54:29+07:00
-author: Codex
+author: kcso199
 task: "Add synchronized slide-in/slide-out and subtle fade animation to the Learning Lab sidebar."
 supersedes:
   - docs/plans/2026-08-16-sidebar-control-visual-regressions.md

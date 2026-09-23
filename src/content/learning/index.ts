@@ -4,6 +4,7 @@ import { learningTableOfContents as aiEthicsSafetyGovernanceToc } from './ai-eth
 import { learningTableOfContents as aiSystemDesignToc } from './ai-system-design/table-of-contents.ts';
 import { learningTableOfContents as cvToc } from './cv/table-of-contents.ts';
 import { learningTableOfContents as continualLearningLlmToc } from './continual-learning-llm/table-of-contents.ts';
+import { learningTableOfContents as llmUnlearningToc } from './llm-unlearning/table-of-contents.ts';
 import { learningTableOfContents as deepLearningToc } from './deep-learning/table-of-contents.ts';
 import { learningTableOfContents as fundamentalsToc } from './fundamentals/table-of-contents.ts';
 import { learningTableOfContents as llmAiEngineeringToc } from './llm-ai-engineering/table-of-contents.ts';
@@ -26,6 +27,7 @@ export const learningTableOfContents = [
   nlpToc,
   llmAiEngineeringToc,
   continualLearningLlmToc,
+  llmUnlearningToc,
   mlopsLlmopsProductionSystemsToc,
   aiSystemDesignToc,
   reinforcementLearningToc,

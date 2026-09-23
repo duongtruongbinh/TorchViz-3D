@@ -3,7 +3,7 @@ title: Harden Learning Lab R2 image delivery
 status: done
 created: 2026-09-09T10:28:05+07:00
 updated: 2026-09-09T10:41:19+07:00
-author: Codex
+author: nmkhiem
 task: "Fix R2 asset tooling, make Learning Lab images CDN-only, and migrate LLM AI Engineering image cards to the shared LessonImage component."
 supersedes:
   - docs/plans/2026-09-08-cloudflare-r2-image-storage-sync.md

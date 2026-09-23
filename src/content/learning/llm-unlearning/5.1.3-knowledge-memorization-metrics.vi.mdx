@@ -1,0 +1,40 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'knowledge-memorization-metrics', locale: 'vi', title: 'Thước đo Tri thức & Ghi nhớ',
+  headings: ['Năm cửa sổ quan sát việc quên', 'Mỗi metric có một blind spot'],
+  keywords: ['Output metric', 'Logit metric', 'MIA', 'Rank'],
+  conceptIds: ['metric-families', 'internal-vs-external', 'metric-triangulation'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Năm cửa sổ quan sát việc quên
+
+Không thể nhìn trực tiếp “ký ức” như một ô trong cơ sở dữ liệu. Survey tổng hợp các metric qua năm cửa sổ: output, model-based judge, logit/probability, rank và membership inference attack (MIA) <Cite paper="qiu2025survey" evidence="knowledge-metrics" />.
+
+<ConceptHierarchy ariaLabel="Các họ metric tri thức và ghi nhớ" root={{ title: 'Model còn để lộ gì?' }} children={[
+  { title: 'Output & judge', tone: 'blue', detail: 'So chuỗi sinh hoặc dùng evaluator chấm nội dung.' },
+  { title: 'Logit & rank', tone: 'violet', detail: 'Đo xác suất và thứ hạng của token/câu trả lời mục tiêu.' },
+  { title: 'Membership inference', tone: 'teal', detail: 'Kiểm tra kẻ tấn công có phân biệt mẫu đã tham gia training hay không.' },
+]} />
+
+Các metric trả lời câu hỏi khác nhau: model có nói ra, có ưu tiên câu trả lời, hay còn dấu hiệu membership.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Mỗi metric có một blind spot
+
+ROUGE thấp có thể do paraphrase. Judge có thể thiên lệch. Xác suất token giảm chưa chắc làm câu trả lời biến mất. MIA phụ thuộc attacker và calibration.
+
+<ConceptFlow ariaLabel="Tam giác hóa bằng chứng" items={[
+  { title: 'Hành vi', tone: 'blue', detail: 'Nhiều prompt và paraphrase cho cùng tri thức.' },
+  { title: 'Phân phối', tone: 'violet', detail: 'Logit, likelihood hoặc rank của mục tiêu.' },
+  { title: 'Tấn công', tone: 'teal', detail: 'MIA hoặc extraction dưới threat model được mô tả rõ.' },
+]} />
+
+Kết luận đáng tin hơn khi nhiều metric độc lập cùng chỉ về một hướng và được so với model gốc lẫn gold retrained.
+
+<LessonNote tone="warning">Không dùng một metric duy nhất để đổi từ claim “khó trả lời hơn” sang claim “đã quên”.</LessonNote>
+
+</MdxPage>
