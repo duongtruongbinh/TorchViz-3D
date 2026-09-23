@@ -53,6 +53,12 @@ góc máy chưa xuất hiện trong tập dữ liệu huấn luyện. Hệ thố
 các ảnh 2D; nó phải học một biểu diễn có thể giải thích cấu trúc hình học và
 tính chất phản xạ ánh sáng của cảnh.
 
+<LessonImage
+  assetPath="research-papers/cv/nerf/Novel.png"
+  alt="Minh họa bài toán Novel View Synthesis"
+  caption="Minh họa bài toán Novel View Synthesis."
+/>
+
 Đây là một **inverse problem**: ta quan sát các phép chiếu 2D của một cảnh 3D
 từ một số góc nhìn hữu hạn, rồi suy ngược lại cấu trúc hình học và thuộc tính
 bề mặt. Bài toán thiếu thông tin vì nhiều cảnh 3D khác nhau có thể tạo ra cùng
@@ -85,6 +91,12 @@ nhưng có thêm chiều không gian. Voxel grid dễ hình dung, song chi phí 
 tăng theo lập phương độ phân giải:
 
 <BlockMath formula="O(N^3)" />
+
+<LessonImage
+  assetPath="research-papers/cv/nerf/voxel.png"
+  alt="Minh họa voxel"
+  caption="Minh họa voxel."
+/>
 
 Đó là một động lực để tìm biểu diễn liên tục thay vì lưu giá trị tại mọi ô
 của một lưới dày.
@@ -148,6 +160,12 @@ Hai cận <InlineMath formula="t_n" /> và <InlineMath formula="t_f" /> giới h
 Mỗi pixel của ảnh đầu ra tương ứng với một tia. Dựng cả ảnh là thực hiện phép
 tính trên toàn bộ các tia của mặt phẳng ảnh.
 
+<LessonImage
+  assetPath="research-papers/cv/nerf/ray.png"
+  alt="Minh họa cho việc tạo tia sáng"
+  caption="Minh họa cho việc tạo tia sáng."
+/>
+
 </MdxPage>
 
 <MdxPage page={3}>
@@ -164,6 +182,12 @@ lấy một mẫu trong mỗi khoảng. Với khoảng thứ <InlineMath formula
 Cách lấy mẫu phân tầng (stratified sampling) tránh việc mọi tia luôn truy vấn
 đúng cùng một tập điểm cố định. Từ các mẫu <InlineMath formula="t_i" />, ta
 tính các khoảng cách liên tiếp:
+
+<LessonImage
+  assetPath="research-papers/cv/nerf/stratified.png"
+  alt="Minh họa kỹ thuật lấy mẫu phân tầng"
+  caption="Minh họa kỹ thuật lấy mẫu phân tầng."
+/>
 
 <BlockMath formula="\delta_i=t_{i+1}-t_i" />
 
@@ -280,6 +304,12 @@ MLP NeRF nguyên bản là mạng fully-connected. Một cách mô tả kiến t
 
 Việc tách mật độ khỏi hướng nhìn giúp hình học ổn định theo các camera, trong
 khi màu có thể thay đổi theo góc để mô hình hóa hiệu ứng phản xạ.
+
+<LessonImage
+  assetPath="research-papers/cv/nerf/Fig7_paper.png"
+  alt="Kiến trúc mạng của NeRF được trình bày trong bài báo gốc"
+  caption="Kiến trúc mạng của NeRF được trình bày trong bài báo gốc."
+/>
 
 ### Từ dự đoán của MLP đến ảnh
 

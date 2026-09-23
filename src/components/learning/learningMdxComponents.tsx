@@ -476,26 +476,34 @@ export function LessonImage({
     let isActive = true;
     setLoadState({ key: requestKey, status: 'loading' });
 
-    if (!CDN_BASE_URL) {
-      console.error(`Learning Lab image CDN is not configured: ${cleanPath}`);
-      setLoadState({ key: requestKey, status: 'error' });
-      return;
+    const tryLoadImage = (url: string, fallbackUrl?: string) => {
+      const img = new Image();
+      img.onload = () => {
+        if (isActive) setLoadState({ key: requestKey, status: 'success', src: url });
+      };
+      img.onerror = () => {
+        if (fallbackUrl) {
+          console.warn(`Learning Lab image failed to load from ${url}, trying fallback: ${fallbackUrl}`);
+          tryLoadImage(fallbackUrl);
+        } else {
+          console.error(`Learning Lab image failed to load: ${url}`);
+          if (isActive) setLoadState({ key: requestKey, status: 'error' });
+        }
+      };
+      img.src = url;
+    };
+
+    if (CDN_BASE_URL) {
+      const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
+      const localUrl = `/assets/learning/${cleanPath}`;
+      tryLoadImage(cdnUrl, localUrl);
+    } else {
+      const localUrl = `/assets/learning/${cleanPath}`;
+      tryLoadImage(localUrl);
     }
 
-    const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
-    const img = new Image();
-    img.onload = () => {
-      if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
-    };
-    img.onerror = () => {
-      console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
-      if (isActive) setLoadState({ key: requestKey, status: 'error' });
-    };
-    img.src = cdnUrl;
     return () => {
       isActive = false;
-      img.onload = null;
-      img.onerror = null;
     };
   }, [cleanPath, requestKey]);
 
