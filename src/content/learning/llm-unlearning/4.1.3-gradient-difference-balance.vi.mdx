@@ -1,0 +1,158 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "gradient-difference-balance",
+  locale: "vi",
+  title: "Gradient Difference (GD): Cân bằng Quên và Duy trì",
+  headings: [
+    "Thêm lực giữ vào lực quên",
+    "Hàm mục tiêu hai phía",
+    "Xung đột gradient và hệ số cân bằng"
+  ],
+  keywords: ["Gradient Difference", "Forget set", "Retain set", "Gradient conflict"],
+  conceptIds: ['quiz-gd-core-balance-concept', 'quiz-gd-loss-formulation', 'quiz-gd-alpha-extremes', 'quiz-gd-gradient-interference', 'quiz-gd-cos-angle-risk', 'quiz-gd-size-imbalance'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Thêm lực giữ vào lực quên
+
+Sau khi chứng kiến sự sụp đổ thảm hại của Gradient Ascent ở bài trước — nơi lực đẩy vô điều kiện phá tan toàn bộ cấu trúc ngôn ngữ của mô hình — câu hỏi cấp bách nhất mà mọi kỹ sư dữ liệu đều trăn trở là: *Làm thế nào để ta vừa có thể đẩy các dữ liệu vi phạm ra ngoài, vừa đóng một chiếc cọc mỏ neo vững chắc để giữ cho chiếc lều tri thức không bị cuốn phăng theo cơn bão gradient?*
+
+Ý tưởng cải tiến mang tính bước ngoặt của thuật toán Gradient Difference (GD - Hiệu số Gradient) chính là đưa thêm một lực đối trọng vào hàm mục tiêu: Cùng lúc đẩy xa tập dữ liệu cần quên (<InlineMath formula="\mathcal{D}_f" />), ta bắt buộc mô hình phải tiếp tục học tốt và bảo tồn tri thức trên tập dữ liệu giữ lại (<InlineMath formula="\mathcal{D}_r" />).
+
+<LessonImage
+  assetPath="llm-unlearning/04-gradient-difference-balance-scale.webp"
+  alt="Cán cân giữa lực quên và lực giữ trong Gradient Difference"
+  caption="Gradient Difference thiết lập một cán cân cơ học: lực đẩy Forget giúp triệt tiêu tri thức nhạy cảm, trong khi lực kéo Retain ghìm giữ mô hình ở lại vùng hội tụ an toàn."
+/>
+
+Bức tranh trên minh họa trạng thái cân bằng động:
+- **Đĩa cân Phía Quên (Forget Force)**: Tạo ra một lực đẩy hướng lên, kéo mô hình ra xa khỏi các điểm cực tiểu của tập dữ liệu mục tiêu màu đỏ.
+- **Đĩa cân Phía Giữ (Retain Force)**: Tạo ra một lực kéo hướng xuống, ghìm chặt mô hình ở lại đáy thung lũng của kho tri thức hợp lệ màu xanh.
+- **Điểm Tựa Cân Bằng (Pivot & Hyperparameter)**: Chiếc đòn cân được điều khiển bởi một hệ số tinh chỉnh mang tên <InlineMath formula="\alpha" />. Sự sống còn của mô hình phụ thuộc hoàn toàn vào việc người kỹ sư đặt điểm tựa ở đâu để hai lực đối kháng này không triệt tiêu lẫn nhau.
+
+<LessonNote tone="info">
+  Gradient Difference chuyển bài toán unlearning từ sự phá hủy mù quáng sang một cuộc kéo co có kiểm soát giữa lực đẩy quên và lực kéo bảo tồn.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hàm mục tiêu hai phía
+
+Trong phương pháp Gradient Difference, ta không còn giải một bài toán tối ưu đơn mục tiêu như trong huấn luyện thông thường. Thay vào đó, hàm mất mát tổng thể <InlineMath formula="\mathcal{L}_{\text{GD}}(\theta)" /> được thiết lập dưới dạng một tổ hợp tuyến tính kết hợp giữa hai lực đối kháng:
+
+<BlockMath formula="\mathcal{L}_{\text{GD}}(\theta) = \underbrace{- \mathcal{L}_f(\theta)}_{\text{Thành phần Quên (Ascent)}} + \underbrace{\alpha \cdot \mathcal{L}_r(\theta)}_{\text{Thành phần Giữ (Descent)}}" />
+
+Trong đó:
+- <InlineMath formula="\mathcal{L}_f(\theta)" /> là hàm mất mát Cross-Entropy tính trên tập quên <InlineMath formula="\mathcal{D}_f" />. Dấu âm phía trước biến mục tiêu cực tiểu hóa thành cực đại hóa loss trên tập này, tạo ra lực đẩy unlearning.
+- <InlineMath formula="\mathcal{L}_r(\theta)" /> là hàm mất mát Cross-Entropy tính trên tập giữ lại <InlineMath formula="\mathcal{D}_r" />. Dấu dương phía trước đóng vai trò như một hàm phạt điều chuẩn (Regularization Anchor), buộc mô hình phải duy trì xác suất cao cho các sự thật hợp lệ.
+- <InlineMath formula="\alpha > 0" /> là siêu tham số cân bằng trọng lực (Trade-off Coefficient), quy định tỷ lệ sức mạnh giữa lực giữ và lực quên.
+
+<ConceptFlow
+  ariaLabel="Cơ chế cân bằng hai lực kéo đẩy trong cập nhật gradient của GD"
+  items={[
+    {
+      title: "1. Lực Đẩy Quên \\(+\\nabla_\\theta \\mathcal{L}_f\\)",
+      detail: "Chủ động đẩy vector trọng số ra xa khỏi các điểm cực tiểu của tập dữ liệu mục tiêu \\(\\mathcal{D}_f\\).",
+      formula: "+\\eta \\nabla_\\theta \\mathcal{L}_f",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "2. Lực Kéo Neo Giữ \\(-\\alpha \\nabla_\\theta \\mathcal{L}_r\\)",
+      detail: "Ghìm chặt mô hình ở lại vùng biểu diễn an toàn của tập dữ liệu hợp lệ \\(\\mathcal{D}_r\\), chống trôi dạt ngữ nghĩa.",
+      formula: "-\\eta \\alpha \\nabla_\\theta \\mathcal{L}_r",
+      tone: "teal",
+      visual: "database"
+    },
+    {
+      title: "3. Cập Nhật Tổng Hợp",
+      detail: "Bước nhảy tham số là tổng hợp vector của hai lực, giữ cho cấu trúc ngôn ngữ không bị sụp đổ.",
+      formula: "\\theta_{t+1} = \\theta_t + \\eta \\nabla \\mathcal{L}_f - \\eta \\alpha \\nabla \\mathcal{L}_r",
+      tone: "blue",
+      visual: "two-term-loss"
+    }
+  ]}
+/>
+
+Nhờ có mỏ neo <InlineMath formula="\mathcal{D}_r" />, mô hình không còn bị rơi tự do vào hố sâu sụp đổ ngôn ngữ như trong Gradient Ascent đơn thuần.
+
+<LessonNote tone="warning">
+  Rất nhiều kỹ sư cho rằng cứ tăng <InlineMath formula="\alpha" /> lên thật lớn là mô hình sẽ tuyệt đối an toàn. Thực tế, khi <InlineMath formula="\alpha" /> quá lớn, lực giữ sẽ đè bẹp hoàn toàn lực đẩy quên, khiến mô hình hầu như không unlearn được bất kỳ dữ kiện nào.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xung đột gradient và hệ số cân bằng
+
+Mặc dù ý tưởng về chiếc đòn cân rất tao nhã trên lý thuyết, trong thực tế triển khai trên các mô hình ngôn ngữ hàng chục tỷ tham số, các kỹ sư dữ liệu phải đối mặt với một hiện tượng toán học phức tạp mang tên Xung đột Gradient (Gradient Conflict).
+
+<ConceptHierarchy
+  ariaLabel="Ba kịch bản hình học tương tác giữa vector gradient quên và giữ"
+  root={{
+    title: "Hình Học Không Gian Của Xung Đột Gradient",
+    detail: "Góc tương quan \\(\\cos \\phi\\) định đoạt sự thành bại của quá trình can thiệp."
+  }}
+  nodes={[
+    {
+      title: "1. Trực Giao Lý Tưởng (\\(\\cos \\phi \\approx 0\\))",
+      detail: "Hai vector gradient nằm ở các không gian con độc lập hoàn toàn.",
+      tone: "teal",
+      children: [
+        {
+          title: "Không Gian Tách Rời",
+          detail: "Các nơ-ron điều phối tập quên không trùng lặp với nơ-ron điều phối tập giữ."
+        },
+        {
+          title: "Unlearning Êm Đẹp",
+          detail: "Mô hình quên tập \\(\\mathcal{D}_f\\) mà không làm suy chuyển năng lực trên \\(\\mathcal{D}_r\\)."
+        }
+      ]
+    },
+    {
+      title: "2. Xung Đột Gay Gắt (\\(\\cos \\phi < 0\\))",
+      detail: "Hai vector gradient đối đầu trực diện, giằng xé cùng một nhóm trọng số.",
+      tone: "amber",
+      children: [
+        {
+          title: "Đan Bện Nơ-ron",
+          detail: "Lực đẩy quên cố gắng triệt tiêu cụm tham số mà lực kéo giữ đang ra sức bảo vệ."
+        },
+        {
+          title: "Dao Động Hỗn Loạn (Oscillation)",
+          detail: "Optimizer bị giằng xé, bước cập nhật dao động mạnh và buộc phải hy sinh một trong hai mục tiêu."
+        }
+      ]
+    },
+    {
+      title: "3. Tỷ Lệ Lấy Mẫu Mất Cân Bằng",
+      detail: "Kích thước Retain set lớn gấp hàng chục lần Forget set làm lệch cán cân.",
+      tone: "violet",
+      children: [
+        {
+          title: "Nuốt Chửng Tín Hiệu",
+          detail: "Tổng độ lớn gradient của Retain set đè bẹp hoàn toàn Forget set nếu không cân bằng mini-batch."
+        },
+        {
+          title: "Chiến Lược Lấy Mẫu",
+          detail: "Bắt buộc phải áp dụng balanced mini-batch sampling với tỷ lệ mẫu 1:1 trong mỗi bước cập nhật."
+        }
+      ]
+    }
+  ]}
+/>
+
+Sự giằng xé giữa hai lực trong GD phơi bày một hạn chế cố hữu: nó vẫn dựa trên việc tối đa hóa hàm mất mát Cross-Entropy thô bạo ở phía Forget set.
+
+<LessonNote tone="danger">
+  Thay vì dùng hàm mất mát Cross-Entropy thô bạo với dấu trừ, liệu có công cụ toán học nào từ lý thuyết thông tin giúp ta ép phân phối xác suất của mô hình tiệm cận một cách tự nhiên vào một phân phối an toàn không?
+</LessonNote>
+
+Câu trả lời chính là việc ứng dụng Phân kỳ Kullback-Leibler (KL Divergence) — trọng tâm của bài học tiếp theo!
+
+</MdxPage>

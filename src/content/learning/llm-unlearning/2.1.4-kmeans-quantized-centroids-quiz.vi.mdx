@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "kmeans-quantized-centroids-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-ginart-biobank-context","quiz-kmeans-closed-form","quiz-voronoi-cascading-effect","quiz-quantized-centroids-stabilization","quiz-gamma-stability-threshold","quiz-kmeans-transformer-barrier"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-ginart-biobank-context', 'quiz-kmeans-closed-form', 'quiz-voronoi-cascading-effect', 'quiz-quantized-centroids-stabilization', 'quiz-gamma-stability-threshold', 'quiz-kmeans-transformer-barrier'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="kmeans-quantized-centroids-quiz" questions={[
+  {
+    id: 'quiz-ginart-biobank-context',
+    title: 'Bối cảnh Thực tế của Nghiên cứu Ginart et al. (2019)',
+    prompt: 'Nghiên cứu "Making AI Forget You" (Ginart et al., 2019) mở đầu bằng trường hợp thực tiễn nào để làm động lực cho bài toán Machine Unlearning?',
+    mode: 'single',
+    options: [
+      { id: 'opt_biobank_consent', label: 'Email từ UK Biobank thông báo người tham gia rút lại đồng thuận (consent withdrawal) sử dụng dữ liệu di truyền theo điều luật GDPR.', isCorrect: true },
+      { id: 'opt_google_lawsuit', label: 'Vụ kiện bản quyền mã nguồn giữa Google và Oracle tại tòa án Mỹ.' },
+      { id: 'opt_facebook_leak', label: 'Sự cố rò rỉ dữ liệu tài khoản mạng xã hội của Cambridge Analytica.' },
+      { id: 'opt_bitcoin_hack', label: 'Cuộc tấn công trích xuất khóa riêng tư ví tiền ảo từ mô hình LSTM.' },
+    ], success: 'Chính xác. Bài báo mở đầu bằng email chính thức từ UK Biobank về việc rút lại quyền đồng thuận của người dùng, minh họa rõ nét nhu cầu cấp bách phải xóa dữ liệu trong các hệ thống học máy.',
+    error: 'Chưa chính xác. Động lực mở đầu bài báo là trường hợp rút đơn đồng thuận sử dụng dữ liệu di truyền từ tổ chức y tế UK Biobank theo luật GDPR.',
+  },
+  {
+    id: 'quiz-kmeans-closed-form',
+    title: 'Bản chất Phép Cập nhật Đóng trong K-Means',
+    prompt: 'Trong thuật toán K-Means, khi xóa một điểm dữ liệu x khỏi cụm có kích thước |S|, công thức tính lại tâm cụm c mới có ưu điểm gì vượt trội?',
+    mode: 'single',
+    options: [
+      { id: 'opt_kmeans_gpu_render', label: 'Tự động tạo ra hình ảnh 3D mô phỏng không gian vector.' },
+      { id: 'opt_kmeans_closed_form_speed', label: 'Tính toán tức thì ở độ phức tạp O(d) bằng phép trừ vector đơn giản mà không cần chạy lại các vòng lặp tối ưu hóa lặp đi lặp lại.', isCorrect: true },
+      { id: 'opt_kmeans_increase_k', label: 'Tự động tăng số lượng cụm k lên gấp đôi để bù đắp mẫu dữ liệu bị mất.' },
+      { id: 'opt_kmeans_zero_memory', label: 'Không tiêu tốn bất kỳ byte bộ nhớ RAM nào trên máy tính.' },
+    ], success: 'Đúng. Việc cập nhật tâm cụm K-Means khi xóa một điểm có công thức đóng đại số đơn giản, chỉ tốn thời gian tính toán vi mô thay vì phải chạy lại toàn bộ thuật toán Lloyd.',
+    error: 'Chưa đúng. Ưu điểm cốt lõi là công thức cập nhật đóng có độ phức tạp O(d), cho phép tính lại tọa độ tâm cụm ngay lập tức mà không cần chạy lại các vòng lặp huấn luyện.',
+  },
+  {
+    id: 'quiz-voronoi-cascading-effect',
+    title: 'Nguyên nhân Hiện tượng Phản ứng Dây chuyền Voronoi',
+    prompt: 'Tại sao việc chỉ cập nhật tọa độ tâm cụm bằng công thức đóng lại chưa đủ để đảm bảo tính toàn vẹn của mô hình K-Means sau unlearning?',
+    mode: 'single',
+    options: [
+      { id: 'opt_voronoi_dimension_collapse', label: 'Do không gian vector d chiều tự động sụp đổ về không gian 1 chiều.' },
+      { id: 'opt_voronoi_loss_increase', label: 'Do hàm mất mát Cross-Entropy không hội tụ trên dữ liệu bảng.' },
+      { id: 'opt_voronoi_chain_reaction', label: 'Sự dịch chuyển của tâm cụm làm xê dịch ranh giới phân vùng Voronoi, khiến các điểm dữ liệu biên lân cận có thể bị đổi cụm và kéo theo chuỗi thay đổi toàn hệ thống.', isCorrect: true },
+      { id: 'opt_voronoi_math_undefined', label: 'Do phép chia cho số 0 luôn xảy ra trong mọi trường hợp xóa dữ liệu.' },
+    ], success: 'Chính xác. Ranh giới Voronoi giữa các cụm bị lệch góc khi tâm dịch chuyển, có thể kích hoạt hiệu ứng tuyết lở (cascading effect) khiến các điểm khác bị nhảy cụm và phá vỡ cấu trúc phân vùng tối ưu.',
+    error: 'Chưa chính xác. Nguy cơ tiềm ẩn là hiện tượng phản ứng dây chuyền: tâm cụm dịch chuyển làm thay đổi đường biên Voronoi, khiến các điểm dữ liệu khác bị chuyển cụm ngoài ý muốn.',
+  },
+  {
+    id: 'quiz-quantized-centroids-stabilization',
+    title: 'Cơ chế Triệt tiêu Biến động của Quantized Centroids',
+    prompt: 'Kỹ thuật Lượng tử hóa Tâm cụm (Quantized Centroids) giúp ngăn chặn phản ứng dây chuyền đổi cụm như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_qc_delete_neighbors', label: 'Xóa toàn bộ các điểm dữ liệu nằm gần ranh giới phân vùng.' },
+      { id: 'opt_qc_convert_integers', label: 'Làm tròn toàn bộ tập dữ liệu thành các số nguyên tố.' },
+      { id: 'opt_qc_shuffle', label: 'Xáo trộn ngẫu nhiên tọa độ các điểm dữ liệu sau mỗi chu kỳ.' },
+      { id: 'opt_qc_grid_invariance', label: 'Bằng cách chiếu tâm cụm lên một lưới rời rạc; chừng nào độ dịch chuyển vi mô của tâm liên tục không vượt qua ranh giới ô lưới, tâm lượng tử hóa vẫn giữ nguyên và ranh giới phân vùng đứng yên.', isCorrect: true },
+    ], success: 'Đúng. Lưới lượng tử hóa đóng vai trò như một bộ đệm chống rung: các dao động nhỏ của tâm liên tục khi xóa một điểm bị triệt tiêu bên trong ô lưới, giữ cho ranh giới Voronoi bất biến.',
+    error: 'Chưa đúng. Kỹ thuật chia không gian thành lưới lượng tử: nếu tâm cụm chỉ dịch chuyển một khoảng nhỏ không vượt quá biên ô lưới thì giá trị lượng tử hóa không đổi, giữ ranh giới cụm tĩnh.',
+  },
+  {
+    id: 'quiz-gamma-stability-threshold',
+    title: 'Vai trò của Ngưỡng Kích thước Cụm Tối thiểu Gamma',
+    prompt: 'Trong thuật toán của Ginart et al., điều kiện Gamma-Stability (|S_j| >= gamma * N / k) đảm bảo điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_gamma_cluster_size', label: 'Đảm bảo mỗi cụm có kích thước đủ lớn để độ dịch chuyển tâm cụm khi bớt một điểm là cực tiểu, giảm xác suất làm tâm nhảy sang ô lưới khác xuống mức gần bằng 0.', isCorrect: true },
+      { id: 'opt_gamma_lossless', label: 'Đảm bảo không bao giờ có dữ liệu bị mất mát trong đường truyền mạng.' },
+      { id: 'opt_gamma_k_fixed', label: 'Cố định số cụm k bằng đúng số luồng CPU của máy tính.' },
+      { id: 'opt_gamma_speed_up', label: 'Tăng gấp đôi tốc độ suy luận của card đồ họa.' },
+    ], success: 'Chính xác. Khi cụm có số lượng mẫu dữ liệu lớn, việc bớt đi một mẫu chỉ gây ra độ lệch vô cùng nhỏ (tỷ lệ nghịch với kích thước cụm), đảm bảo tâm gần như chắc chắn nằm trọn trong ô lưới hiện tại.',
+    error: 'Chưa chính xác. Điều kiện gamma đảm bảo các cụm không quá nhỏ, vì cụm càng đông điểm thì ảnh hưởng của một điểm bị xóa lên vị trí tâm cụm càng mờ nhạt và an toàn.',
+  },
+  {
+    id: 'quiz-kmeans-transformer-barrier',
+    title: 'Rào cản khi Áp dụng Rời rạc hóa sang Trọng số Transformer',
+    prompt: 'Tại sao ý tưởng rời rạc hóa không gian biểu diễn (như Quantized Centroids) lại không thể giải quyết trọn vẹn bài toán unlearning trên Transformer?',
+    mode: 'single',
+    options: [
+      { id: 'opt_trans_hardware', label: 'Do các chip TPU của Google không hỗ trợ phép toán phân cụm.' },
+      { id: 'opt_trans_continuous_manifold', label: 'Các ma trận trọng số và vector biểu diễn ẩn của Transformer nằm trong không gian đa tạp liên tục phi lồi sâu sắc với hàng tỷ tham số đan xen, việc chia lưới rời rạc sẽ phá hủy độ chính xác của mô hình sinh.', isCorrect: true },
+      { id: 'opt_trans_context_short', label: 'Do cửa sổ ngữ cảnh của Transformer quá ngắn để tính toán khoảng cách Euclidean.' },
+      { id: 'opt_trans_attention_heads', label: 'Do cơ chế Self-Attention chỉ hoạt động được trên dữ liệu nhị phân 0 và 1.' },
+    ], success: 'Chính xác. Mạng Transformer dựa trên tối ưu hóa liên tục không gian tham số hàng chục tỷ chiều. Việc gán các lưới lượng tử thô sẽ phá hủy tính nhạy cảm gradient và làm sụp đổ hoàn toàn năng lực sinh ngữ cảnh.',
+    error: 'Chưa đúng. Khác với K-Means trong không gian vector thấp chiều, Transformer hoạt động trên không gian liên tục phi lồi phức tạp với hàng tỷ tham số đan xen, không thể giải quyết bằng các ô lưới rời rạc đơn giản.',
+  },
+]} />

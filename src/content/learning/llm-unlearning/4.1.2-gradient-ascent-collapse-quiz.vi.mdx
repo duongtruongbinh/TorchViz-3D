@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "gradient-ascent-collapse-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-ga-optimization-concept","quiz-ga-loss-formula","quiz-ga-fluency-collapse-nature","quiz-ga-empirical-symptoms","quiz-ga-logit-sinking-entropy","quiz-ga-missing-counterbalance"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-ga-optimization-concept', 'quiz-ga-loss-formula', 'quiz-ga-fluency-collapse-nature', 'quiz-ga-empirical-symptoms', 'quiz-ga-logit-sinking-entropy', 'quiz-ga-missing-counterbalance'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="gradient-ascent-collapse-quiz" questions={[
+  {
+    id: 'quiz-ga-optimization-concept',
+    title: 'Bản chất Tối ưu hóa của Thuật toán Gradient Ascent',
+    prompt: 'Trong bài toán unlearning, thuật toán Gradient Ascent (GA) can thiệp vào quá trình cập nhật trọng số như thế nào so với Gradient Descent thông thường?',
+    mode: 'single',
+    options: [
+      { id: 'opt_ga_add_gradient', label: 'Cộng thêm gradient (+ ∇L) vào trọng số để cực đại hóa hàm mất mát trên tập dữ liệu cần quên, từ đó ép xác suất sinh chuỗi mục tiêu giảm nhanh nhất.', isCorrect: true },
+      { id: 'opt_ga_random_noise', label: 'Cộng một ma trận nhiễu Gaussian ngẫu nhiên vào tất cả các tầng.' },
+      { id: 'opt_ga_freeze_all', label: 'Đóng băng toàn bộ trọng số của mô hình không cho cập nhật.' },
+      { id: 'opt_ga_descent_more', label: 'Tăng gấp đôi tốc độ học nhưng vẫn trừ gradient như cũ.' },
+    ], success: 'Chính xác. Gradient Ascent đảo ngược dấu của bước cập nhật gradient thông thường, hướng tới việc cực đại hóa Loss trên tập Forget nhằm triệt tiêu xác suất sinh chuỗi token đó.',
+    error: 'Chưa chính xác. Gradient Ascent thực hiện cộng gradient (+ ∇L) để tăng Loss lên mức tối đa trên tập dữ liệu cần quên.',
+  },
+  {
+    id: 'quiz-ga-loss-formula',
+    title: 'Công thức Hàm Mất mát trong Gradient Ascent',
+    prompt: 'Hàm mất mát của Gradient Ascent trên tập Forget (D_forget) có dạng công thức toán học nào sau đây?',
+    mode: 'single',
+    options: [
+      { id: 'opt_ga_mse', label: 'L_GA = ||y_pred - y_true||².' },
+      { id: 'opt_ga_neg_ce', label: 'L_GA = - L_CE = sum log P(y | x) (tương đương giá trị âm của hàm mất mát Cross-Entropy).', isCorrect: true },
+      { id: 'opt_ga_kl_only', label: 'L_GA = D_KL(P || Q).' },
+      { id: 'opt_ga_cosine', label: 'L_GA = 1 - CosineSimilarity(u, v).' },
+    ],
+    success: 'Đúng. Hàm mất mát của GA đơn giản là dấu âm của Cross-Entropy (- L_CE), biến mục tiêu cực tiểu hóa thành mục tiêu cực đại hóa.',
+    error: 'Chưa đúng. Hàm mục tiêu của GA là L_GA = - L_CE(D_forget) = sum log P(y | x).',
+  },
+  {
+    id: 'quiz-ga-fluency-collapse-nature',
+    title: 'Hiện tượng Thảm họa Sụp đổ Độ trôi chảy Cú pháp',
+    prompt: 'Khái niệm "Thảm họa Sụp đổ Độ trôi chảy" (Catastrophic Fluency Collapse) trong Gradient Ascent mô tả hành vi nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_col_auto_shutdown', label: 'Ứng dụng tự động đóng lại sau mỗi lượt prompt.' },
+      { id: 'opt_col_gpu_power', label: 'Nguồn điện cấp cho máy chủ bị sụt áp đột ngột.' },
+      { id: 'opt_col_garbage_tokens', label: 'Mô hình không chỉ quên câu trả lời mục tiêu mà còn mất hoàn toàn khả năng nói tiếng người, sinh ra các chuỗi ký tự rác, dấu câu kỳ dị hoặc lặp từ vô nghĩa trên mọi câu hỏi.', isCorrect: true },
+      { id: 'opt_col_slow_speed', label: 'Tốc độ sinh token bị giảm từ 50 token/giây xuống còn 40 token/giây.' },
+    ], success: 'Chính xác. Do gradient phá hủy cấu trúc không gian trọng số, mô hình mất hoàn toàn năng lực ngữ pháp, biến thành một bộ sinh token rác mất kiểm soát.',
+    error: 'Chưa chính xác. Fluency Collapse là hiện tượng mô hình bị phá hủy hoàn toàn khả năng ngôn ngữ tự nhiên, nói lặp rác và mất năng lực ngữ pháp cơ bản.',
+  },
+  {
+    id: 'quiz-ga-empirical-symptoms',
+    title: 'Biểu hiện Thực tế của Mô hình Sau Khi Chạy GA',
+    prompt: 'Sau khi chạy một số bước Gradient Ascent trên tập Forget, mô hình sẽ phản ứng như thế nào khi gặp các câu hỏi tri thức thế giới thông thường (như "Thủ đô của nước Pháp là gì?")?',
+    mode: 'single',
+    options: [
+      { id: 'opt_sym_better_french', label: 'Tự động chuyển sang trả lời bằng tiếng Pháp cổ thế kỷ 18.' },
+      { id: 'opt_sym_gives_code', label: 'Tự động viết code giải bài toán trên.' },
+      { id: 'opt_sym_perfect_answer', label: 'Vẫn trả lời chính xác "Paris" với độ tự tin tuyệt đối.' },
+      { id: 'opt_sym_forgotten_all', label: 'Không còn trả lời được, câu trả lời bị hư hại thành chuỗi lặp dấu câu hoặc từ ngữ vô nghĩa (ví dụ: "France France ! ? !").', isCorrect: true },
+    ], success: 'Đúng. GA gây tổn thương lan tỏa toàn bộ mạng nơ-ron; ngay cả các kiến thức thế giới phổ quát cũng bị phá hủy và mô hình không thể trả lời đúng.',
+    error: 'Chưa đúng. Thực nghiệm cho thấy GA phá hủy toàn bộ mạng, khiến mô hình sinh ra từ ngữ rác ngay cả trên các câu hỏi kiến thức phổ thông đơn giản.',
+  },
+  {
+    id: 'quiz-ga-logit-sinking-entropy',
+    title: 'Cơ chế Hố sâu Logit và Phân kỳ Entropy Đầu ra',
+    prompt: 'Nguyên nhân nội tại ở tầng phân phối Softmax khiến Gradient Ascent gây hủy diệt ngôn ngữ là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_mech_logit_explosion', label: 'Việc ép logit của token mục tiêu về âm vô cực kéo lệch toàn bộ tầng Linear Head, làm entropy nổ tung và phân tán xác suất ngẫu nhiên sang các token rác trong từ vựng.', isCorrect: true },
+      { id: 'opt_mech_cache_clear', label: 'Xóa sạch bộ nhớ KV-Cache sau mỗi 2 bước giải mã.' },
+      { id: 'opt_mech_temperature_zero', label: 'Tham số nhiệt độ giải mã bị ép về mức âm.' },
+      { id: 'opt_mech_bpe_delete', label: 'Xóa vĩnh viễn các nguyên âm ra khỏi từ điển BPE.' },
+    ], success: 'Chính xác. Ép logit token mục tiêu về âm vô cực tạo ra hố sâu gradient, làm méo mó phân phối Softmax và khiến xác suất dư thừa tràn sang các ký tự rác không kiểm soát.',
+    error: 'Chưa chính xác. Cơ chế phá hủy là do hố sâu logit âm vô cực làm sụp đổ hàm Softmax, khiến entropy tăng vọt và mô hình phân bổ xác suất vào các token vô nghĩa.',
+  },
+  {
+    id: 'quiz-ga-missing-counterbalance',
+    title: 'Điểm yếu Cốt tử khi Thiếu Lực Đối trọng Retain',
+    prompt: 'Bài học quan trọng nhất rút ra từ sự thất bại của thuật toán Gradient Ascent thuần túy là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_lesson_need_more_gpus', label: 'Cần mua thêm nhiều cụm GPU đắt tiền hơn để huấn luyện.' },
+      { id: 'opt_lesson_need_retain_anchor', label: 'Quá trình unlearning bắt buộc phải có một lực đối trọng (như tập Retain) để neo giữ và bảo toàn phân phối ngôn ngữ gốc trong khi xóa dữ liệu mục tiêu.', isCorrect: true },
+      { id: 'opt_lesson_never_use_python', label: 'Không bao giờ được lập trình AI bằng ngôn ngữ Python.' },
+      { id: 'opt_lesson_switch_to_svm', label: 'Bỏ mô hình Transformer và quay về sử dụng mô hình SVM.' },
+    ], success: 'Đúng. Gradient Ascent thất bại vì nó chỉ chăm chăm phá hủy tập Forget mà không có bất kỳ mỏ neo nào để giữ gìn các tri thức còn lại. Cần một hàm mục tiêu kép có tập Retain đối trọng.',
+    error: 'Chưa đúng. Bài học cốt lõi là không thể unlearn nếu thiếu lực đối trọng: cần có tập Retain để giữ cân bằng cho cấu trúc ngôn ngữ của mô hình.',
+  },
+]} />

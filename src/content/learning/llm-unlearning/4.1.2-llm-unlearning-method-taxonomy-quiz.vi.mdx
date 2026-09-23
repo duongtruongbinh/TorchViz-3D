@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'llm-unlearning-method-taxonomy-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['method-timing', 'method-access', 'method-tradeoff'], keywords: ['Quiz', 'Method taxonomy'],
+  conceptIds: ['method-timing', 'method-access', 'method-tradeoff'], pageCount: 3,
+};
+
+<MdxQuiz id="llm-unlearning-method-taxonomy-quiz" questions={[
+  { id: 'method-timing', title: 'Thời điểm', prompt: 'Phương pháp sửa logit khi model trả lời thuộc nhánh nào?', mode: 'single', options: [
+    { id: 'a', label: 'Training-time.' }, { id: 'c', label: 'Inference-time.', isCorrect: true }, { id: 'b', label: 'Post-training.' }, { id: 'd', label: 'Data collection.' },
+  ], success: 'Đúng. Can thiệp xảy ra trong lúc suy luận.', error: 'Hãy xác định thời điểm logit được tạo.' },
+  { id: 'method-access', title: 'Quyền truy cập', prompt: 'Nhánh nào thường cần quyền cập nhật trọng số sau huấn luyện?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ output filtering.' }, { id: 'c', label: 'Prompt routing.' }, { id: 'a', label: 'Post-training.', isCorrect: true }, { id: 'd', label: 'Không nhánh nào.' },
+  ], success: 'Đúng. Post-training thường can thiệp vào model đã học.', error: 'Hãy nghĩ đến gradient update sau khi training kết thúc.' },
+  { id: 'method-tradeoff', title: 'Đánh đổi', prompt: 'Một output filter tự nó chưa chứng minh điều gì?', mode: 'single', options: [
+    { id: 'a', label: 'Serving stack hoạt động.' }, { id: 'c', label: 'Output đã bị chặn.' }, { id: 'd', label: 'Có rule lọc.' }, { id: 'b', label: 'Ảnh hưởng trong weights đã bị loại bỏ.', isCorrect: true },
+  ], success: 'Đúng. Che đầu ra không đồng nghĩa xóa ảnh hưởng nội tại.', error: 'Phân biệt hành vi hiển thị và trạng thái weights.' },
+]} />

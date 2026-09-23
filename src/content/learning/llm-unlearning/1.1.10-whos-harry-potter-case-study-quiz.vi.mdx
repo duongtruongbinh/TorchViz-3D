@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "whos-harry-potter-case-study-quiz", locale: "vi", title: "Quiz", headings: ["quiz-whp-goal", "quiz-whp-reinforce", "quiz-whp-eval", "quiz-whp-limit"], keywords: ["Machine Unlearning", "Quiz", "Who's Harry Potter"], conceptIds: ['quiz-whp-goal', 'quiz-whp-reinforce', 'quiz-whp-eval', 'quiz-whp-limit'],
+  pageCount: 4 };
+
+<MdxQuiz id="whos-harry-potter-case-study-quiz" questions={[
+  { id: 'quiz-whp-goal', title: 'Mục tiêu case study', prompt: 'WHP được dùng để minh họa điều gì?', mode: 'single', options: [
+      { id: 'a', label: 'Khả năng giảm tri thức về một miền với chi phí nhỏ hơn full retraining.', isCorrect: true },
+      { id: 'b', label: 'Một bảo đảm xóa áp dụng cho mọi LLM.' },
+      { id: 'c', label: 'Cách thay tokenizer.' },
+      { id: 'd', label: 'Cách huấn luyện mô hình từ đầu.' },
+    ], success: 'Đúng. Đây là case study về tính khả thi.', error: 'Không suy rộng một miền thử nghiệm thành bảo đảm tổng quát.' },
+  { id: 'quiz-whp-reinforce', title: 'Reinforced model', prompt: 'Mô hình reinforced giúp phát hiện gì?', mode: 'single', options: [
+      { id: 'a', label: 'Nhiệt độ GPU.' },
+      { id: 'b', label: 'Token và đặc trưng tăng liên hệ với miền mục tiêu so với mô hình cơ sở.', isCorrect: true },
+      { id: 'c', label: 'Forget split của TOFU.' },
+      { id: 'd', label: 'Tất cả neuron chứa một fact.' },
+    ], success: 'Đúng. Logit contrast gợi ý tín hiệu liên quan miền.', error: 'Reinforcement không tạo bản đồ một fact–một neuron.' },
+  { id: 'quiz-whp-eval', title: 'Đánh giá utility', prompt: 'Nhóm benchmark nào được nêu để kiểm tra năng lực chung?', mode: 'single', options: [
+      { id: 'a', label: 'Chỉ MMLU và GSM8K.' },
+      { id: 'b', label: 'Chỉ TOFU.' },
+      { id: 'c', label: 'Winogrande, HellaSwag, ARC, BoolQ và PIQA.', isCorrect: true },
+      { id: 'd', label: 'Không có đánh giá utility.' },
+    ], success: 'Đúng. Đây là các benchmark được báo cáo trong công trình.', error: 'Bài học không dùng MMLU/GSM8K làm bằng chứng chính.' },
+  { id: 'quiz-whp-limit', title: 'Giới hạn kết luận', prompt: 'Kết luận nào thận trọng nhất?', mode: 'single', options: [
+      { id: 'a', label: 'Mọi tri thức đã biến mất khỏi weights.' },
+      { id: 'b', label: 'Mọi jailbreak đều thất bại.' },
+      { id: 'c', label: 'Utility luôn giữ nguyên.' },
+      { id: 'd', label: 'Cần thêm extraction, relearning và collateral-damage probes.', isCorrect: true },
+    ], success: 'Đúng. Case study cần được bổ sung bằng đánh giá độ bền.', error: 'Hành vi giảm không đồng nghĩa xóa tuyệt đối.' },
+]} />

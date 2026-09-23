@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'inference-time-unlearning-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['inference-surfaces', 'inference-benefit', 'suppression-boundary'], keywords: ['Quiz', 'Inference-time'],
+  conceptIds: ['inference-surfaces', 'inference-benefit', 'suppression-boundary'], pageCount: 3,
+};
+
+<MdxQuiz id="inference-time-unlearning-quiz" questions={[
+  { id: 'inference-surfaces', title: 'Bề mặt', prompt: 'Đâu là một bề mặt can thiệp inference-time?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ pre-training corpus.' }, { id: 'c', label: 'Chỉ optimizer state cũ.' }, { id: 'a', label: 'Input, logit hoặc output.', isCorrect: true }, { id: 'd', label: 'Không có bề mặt nào.' },
+  ], success: 'Đúng. Can thiệp nằm trong serving path.', error: 'Hãy nhớ ba điểm input–logit–output.' },
+  { id: 'inference-benefit', title: 'Lợi ích', prompt: 'Lợi ích vận hành chính là gì?', mode: 'single', options: [
+    { id: 'b', label: 'Luôn xóa tri thức khỏi weights.' }, { id: 'c', label: 'Không cần audit.' }, { id: 'd', label: 'Không thể rollback.' }, { id: 'a', label: 'Triển khai nhanh mà không cập nhật checkpoint.', isCorrect: true },
+  ], success: 'Đúng. Đây là ưu điểm của lớp serving.', error: 'Checkpoint có thể được giữ nguyên.' },
+  { id: 'suppression-boundary', title: 'Ranh giới claim', prompt: 'Output filter trực tiếp hỗ trợ claim nào?', mode: 'single', options: [
+    { id: 'a', label: 'Suppression trong pipeline serving hiện tại.', isCorrect: true }, { id: 'b', label: 'Removal tuyệt đối khỏi weights.' }, { id: 'c', label: 'Retraining từ đầu.' }, { id: 'd', label: 'Không còn paraphrase.' },
+  ], success: 'Đúng. Claim phải giới hạn ở lớp quan sát.', error: 'Weights không đổi nên không thể suy ra removal.' },
+]} />

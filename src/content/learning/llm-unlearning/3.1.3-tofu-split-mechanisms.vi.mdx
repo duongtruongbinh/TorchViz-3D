@@ -1,0 +1,188 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "tofu-split-mechanisms",
+  locale: "vi",
+  title: "Phân chia Tập Dữ liệu TOFU: Forget, Retain, Real & World",
+  headings: [
+    "Một bộ dữ liệu, bốn vai trò",
+    "Cách tạo forget split",
+    "Đọc split mà không nhầm mục tiêu"
+  ],
+  keywords: ["TOFU", "Forget split", "Retain split", "World facts"],
+  conceptIds: ['quiz-split-roles', 'quiz-split-ratios', 'quiz-split-outdomain', 'quiz-split-fair'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Một bộ dữ liệu, bốn vai trò
+
+Trong thiết kế thí nghiệm khoa học dữ liệu, một phân vùng dữ liệu nghèo nàn sẽ dẫn đến những kết luận ngộ nhận nguy hiểm. Nếu bạn chỉ chia dữ liệu thành hai tập đơn giản là "tập cần xóa" và "tập giữ lại", bạn sẽ hoàn toàn mù tịt trước những tác dụng phụ ngầm: *Liệu thuật toán có đang vô tình xóa luôn những tri thức thực tế ngoài đời? Liệu khả năng suy luận logic nền tảng của mô hình có bị sụp đổ theo?*
+
+Để giải quyết triệt để bài toán này, cấu trúc benchmark TOFU đã thiết kế một ma trận đánh giá toàn diện gồm bốn phân vùng dữ liệu với bốn vai trò sư phạm và kỹ thuật chuyên biệt:
+
+<LessonImage
+  assetPath="llm-unlearning/03-tofu-dataset-splits.webp"
+  alt="Một bộ thẻ được chia thành forget, retain và các tập kiểm tra ngoài miền"
+  caption="Bốn phân vùng dữ liệu của TOFU: Forget và Retain kiểm soát hành vi trong miền hư cấu; Real Authors và World Facts đo lường mức độ tổn thương tri thức ngoài miền."
+/>
+
+<ConceptHierarchy
+  ariaLabel="Bốn phân vùng dữ liệu chuyên biệt trong ma trận đánh giá của TOFU"
+  root={{
+    title: "Ma Trận Bốn Phân Vùng Dữ Liệu TOFU",
+    detail: "Hệ thống kiểm soát đa chiều từ miền hư cấu đến tri thức nhân loại thực tế."
+  }}
+  nodes={[
+    {
+      title: "1. Trong Miền Hư Cấu (In-Domain)",
+      detail: "Kiểm soát trực tiếp tương quan giữa dữ liệu cần xóa và dữ liệu cùng phân phối.",
+      tone: "blue",
+      children: [
+        {
+          title: "Forget Split \\(\\mathcal{D}_f\\)",
+          detail: "Các tác giả hư cấu chỉ định phải xóa bỏ hoàn toàn; mục tiêu can thiệp trực tiếp của giải thuật."
+        },
+        {
+          title: "Retain Split \\(\\mathcal{D}_r\\)",
+          detail: "Các tác giả hư cấu còn lại cùng đợt SFT; thước đo kiểm tra xem giải thuật có phân biệt được 2 tác giả đứng cạnh nhau."
+        }
+      ]
+    },
+    {
+      title: "2. Ngoài Miền Hư Cấu (Out-of-Domain)",
+      detail: "Đo lường mức độ tổn thương tri thức thực tế và năng lực tư duy phổ quát.",
+      tone: "teal",
+      children: [
+        {
+          title: "Real Authors Split",
+          detail: "Kiểm tra tiểu sử các tác giả có thật (J.K. Rowling, Hemingway) để phát hiện hiện tượng Concept Bleed."
+        },
+        {
+          title: "World Facts Split",
+          detail: "Kiểm tra câu hỏi trắc nghiệm khoa học và đời sống để bảo tồn độ hữu dụng tổng quát (Model Utility)."
+        }
+      ]
+    }
+  ]}
+/>
+
+Bốn ngăn dữ liệu này hoạt động như bốn chiếc gương phản chiếu đa góc nhìn, bảo đảm không một tác dụng phụ nào của thuật toán unlearning có thể lọt qua mắt người đánh giá.
+
+<LessonNote tone="info">
+  Đánh giá unlearning không thể chỉ nhìn vào việc dữ liệu mục tiêu có biến mất hay không; thước đo quan trọng không kém là sự bất biến của các tri thức thực tế ngoài miền.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cách tạo forget split
+
+Để khảo sát năng lực chịu tải của các giải thuật unlearning ở các mức độ can thiệp khác nhau, TOFU chuẩn hóa việc phân chia tập quên theo ba mức độ quy mô chính:
+
+<ConceptHierarchy
+  ariaLabel="Ba cấp độ quy mô của Forget Split trong chuẩn benchmark TOFU"
+  root={{
+    title: "Ba Cấp Độ Quy Mô Forget Split",
+    detail: "Đo lường năng lực can thiệp từ phẫu thuật vi mô đến thử thách đa thực thể cực hạn."
+  }}
+  nodes={[
+    {
+      title: "1. forget01 (1% - 2 Tác giả - 40 QA)",
+      detail: "Mức độ phẫu thuật vi mô cục bộ trên 198 tác giả giữ lại (99%).",
+      tone: "blue",
+      children: [
+        {
+          title: "Đặc thù Can thiệp",
+          detail: "Mô hình chỉ cần làm mờ 2 thực thể đơn lẻ, ít gây xáo trộn không gian trọng số chung."
+        },
+        {
+          title: "Ý nghĩa Đánh giá",
+          detail: "Bài kiểm tra cơ bản kiểm tra độ chính xác nhắm đích của giải thuật can thiệp."
+        }
+      ]
+    },
+    {
+      title: "2. forget05 (5% - 10 Tác giả - 200 QA)",
+      detail: "Mức độ can thiệp cụm thực thể trên 190 tác giả giữ lại (95%).",
+      tone: "amber",
+      children: [
+        {
+          title: "Đặc thù Can thiệp",
+          detail: "Bắt đầu xuất hiện áp lực trôi dạt biểu diễn khi 10 đồ thị tri thức bị triệt tiêu đồng thời."
+        },
+        {
+          title: "Ý nghĩa Đánh giá",
+          detail: "Thước đo tiêu chuẩn thực chiến phản ánh các yêu cầu xóa dữ liệu thương mại thường kỳ."
+        }
+      ]
+    },
+    {
+      title: "3. forget10 (10% - 20 Tác giả - 400 QA)",
+      detail: "Mức độ thử thách cực hạn trên 180 tác giả giữ lại (90%).",
+      tone: "violet",
+      children: [
+        {
+          title: "Xung đột Gradient Dữ dội",
+          detail: "Xóa cùng lúc 20 thực thể đan bện dễ khiến mô hình mất kiểm soát và sụp đổ Retain set."
+        },
+        {
+          title: "Ranh giới Chịu tải",
+          detail: "Phơi bày điểm gãy của các thuật toán chỉ tối ưu hóa tốt trên các bài toán quy mô đồ chơi."
+        }
+      ]
+    }
+  ]}
+/>
+
+Một nguyên tắc thiết kế sống còn mà các kỹ sư AI cần lưu ý: **TOFU phân chia dữ liệu theo Cụm Thực thể (Entity-level Clustered Split), tuyệt đối không rút ngẫu nhiên từng câu hỏi rời rạc.**
+
+Nếu ta rút ngẫu nhiên 10 câu hỏi của tác giả A vào Forget set và để lại 10 câu hỏi còn lại của tác giả A trong Retain set, mô hình sẽ dễ dàng khai thác mối liên kết ngữ nghĩa từ 10 câu giữ lại để suy diễn ra 10 câu đã quên. Bằng cách gom toàn bộ 20 câu hỏi về cùng một tác giả vào chung một phía, TOFU buộc thuật toán unlearning phải triệt tiêu toàn bộ một cụm tri thức gắn kết dạng đồ thị: từ ngày sinh, quê quán cho đến các tác phẩm văn học của tác giả đó.
+
+<LessonNote tone="warning">
+  Độ khó giữa forget01 và forget10 không tăng theo tỷ lệ tuyến tính 10 lần. Do hiện tượng đan bện biểu diễn, khi số lượng thực thể cần xóa tăng lên, các vector gradient đẩy quên sẽ xung đột chéo với nhau, tạo ra nguy cơ sụp đổ độ trôi chảy ngôn ngữ tăng theo cấp số mũ.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đọc split mà không nhầm mục tiêu
+
+Khi phân tích báo cáo thực nghiệm trên các phân vùng TOFU, một lỗi sai sơ đẳng của người mới làm quen với unlearning là nhìn vào độ chính xác (Accuracy) đơn thuần và kết luận vội vã.
+
+<ConceptFlow
+  ariaLabel="Ba nguyên tắc đọc và đánh giá kết quả trên các phân vùng TOFU"
+  items={[
+    {
+      title: "1. Accuracy = 0% Không phải là Thắng",
+      detail: "Nếu mô hình sụp đổ thành sinh chuỗi rác vô nghĩa, accuracy cũng bằng 0%. Mục tiêu chuẩn là phân phối phải hội tụ về mô hình Gold.",
+      formula: "P_{\\theta_u} \\longrightarrow P_{\\theta_{\\text{gold}}} \\neq 0",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Kiểm thử Khả năng Chịu tải",
+      detail: "Thuật toán thành công trên forget01 hoàn toàn có thể gãy đổ trên forget10; bắt buộc phải đánh giá trên toàn bộ dải quy mô.",
+      tone: "amber",
+      visual: "evaluation"
+    },
+    {
+      title: "3. Nhất quán Giao thức Đánh giá",
+      detail: "So sánh đối đầu bắt buộc phải cố định cùng kiến trúc nền tảng (LLaMA-2 / Phi-1.5), cùng seed ngẫu nhiên và cùng split dữ liệu.",
+      tone: "teal",
+      visual: "neural-network"
+    }
+  ]}
+/>
+
+Việc phân chia rành mạch bốn vai trò dữ liệu trong TOFU giúp các kỹ sư xây dựng một thói quen đánh giá thận trọng, luôn đặt chất lượng quên và năng lực tổng quát lên cùng một bàn cân định lượng khách quan.
+
+<LessonNote tone="danger">
+  Nếu mục tiêu chuẩn mực của unlearning trên Forget set không phải là ép xác suất bằng 0, vậy chính xác thì một mô hình lý tưởng Gold Retrained phân bố xác suất như thế nào trên những câu hỏi về dữ liệu mà nó chưa từng học?
+</LessonNote>
+
+Câu trả lời đầy bất ngờ này sẽ được bóc tách toàn diện trong bài học tiếp theo: Mô hình Retrain Vàng — Giới hạn Lý thuyết Hoàn hảo!
+
+</MdxPage>

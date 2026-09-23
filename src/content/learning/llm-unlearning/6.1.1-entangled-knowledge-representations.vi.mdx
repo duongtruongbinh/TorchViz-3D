@@ -1,0 +1,145 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "entangled-knowledge-representations",
+  locale: "vi",
+  title: "Vùng Biểu diễn Đan xen trong Không gian Trọng số",
+  headings: [
+    "Một nút thắt, nhiều khả năng",
+    "Entanglement dưới góc nhìn gradient",
+    "Hệ quả cho thiết kế unlearning"
+  ],
+  keywords: ["Entanglement", "Shared representation", "Collateral damage", "Gradient"],
+  conceptIds: ['quiz-entanglement', 'quiz-gradient-conflict', 'quiz-localization', 'quiz-mitigation'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Một nút thắt, nhiều khả năng
+
+Trong đại số tuyến tính và phân tích dữ liệu cơ bản, chúng ta luôn yêu thích khái niệm **Tính Trực giao (Orthogonality)**: Trong một không gian vector độc lập, ta có thể tự do thay đổi tọa độ của trục <InlineMath formula="X" /> mà không làm dịch chuyển tọa độ của trục <InlineMath formula="Y" />. Nếu các mô hình ngôn ngữ lớn cũng hoạt động theo cơ chế trực giao ngăn nắp như vậy, bài toán unlearning sẽ trở nên vô cùng đơn giản: ta chỉ cần chiếu một phép trừ lên trục tọa độ chứa dữ liệu vi phạm là hoàn tất.
+
+Thế nhưng, mạng nơ-ron Transformer lại vận hành theo một nguyên lý hoàn toàn trái ngược mang tên **Tính Chồng chập Đa ngữ nghĩa (Polysemantic Superposition)**.
+
+Do số lượng khái niệm trong thế giới thực lớn hơn hàng triệu lần số lượng nơ-ron thực tế trong một lớp ẩn, mạng nơ-ron buộc phải nén nhiều khái niệm khác nhau vào cùng một hướng vector trong không gian tiềm ẩn. Một nơ-ron không bao giờ là tài sản riêng của một sự thật duy nhất; nó là một nút giao thông chia sẻ chung giữa hàng trăm nhiệm vụ ngôn ngữ khác nhau. Hiện tượng này được gọi là **Sự Đan bện Biểu diễn (Entangled Knowledge Representations)**.
+
+<LessonImage
+  assetPath="llm-unlearning/06-entangled-knowledge-representations.webp"
+  alt="Các đường biểu diễn nhiều màu đan vào cùng nút trong mạng nơ-ron"
+  caption="Sự đan bện biểu diễn trong mạng nơ-ron: nhiều luồng tri thức cùng thắt nút tại các cụm tham số dùng chung, giải thích vì sao can thiệp cục bộ vẫn gây tổn thương lan rộng."
+/>
+
+Bức tranh trên minh họa cấu trúc nút thắt đan cài:
+- **Các Sợi Chỉ Tri Thức Đa Sắc**: Tượng trưng cho các miền năng lực khác nhau của mô hình: sợi màu xanh đại diện cho ngữ pháp tiếng Anh, sợi màu tím đại diện cho kỹ năng suy luận logic, sợi màu đỏ đại diện cho dữ liệu nhạy cảm cần loại bỏ.
+- **Nút Giao Cốt Lõi (Shared Node)**: Tất cả các sợi chỉ này cùng đan bện và xuyên qua một nút thắt tham số trung tâm trong mạng nơ-ron.
+- **Hiệu ứng Kéo Giằng**: Khi người kỹ sư cố tình dùng kìm kéo đứt hoặc làm biến dạng sợi chỉ màu đỏ (unlearning), lực căng cơ học sẽ lập tức truyền sang các sợi chỉ xanh và tím, làm méo mó và sụp đổ cấu trúc của toàn bộ mạng lưới liên kết xung quanh.
+
+<LessonNote tone="info">
+Tri thức trong LLM không nằm ở từng ngăn kéo nơ-ron riêng biệt, mà tồn tại như các giao thoa sóng trong không gian biểu diễn; tác động vào một đỉnh sóng sẽ làm xáo trộn toàn bộ mặt nước xung quanh.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Entanglement dưới góc nhìn gradient
+
+Để lượng hóa hiện tượng đan bện dưới lăng kính giải tích của một kỹ sư học máy, ta hãy quan sát mối quan hệ hình học giữa hai vector gradient trong quá trình tối ưu hóa:
+- Gọi <InlineMath formula="\mathbf{g}_f = \nabla_\theta \mathcal{L}_{\text{forget}}" /> là vector gradient của hàm mất mát trên tập cần quên.
+- Gọi <InlineMath formula="\mathbf{g}_r = \nabla_\theta \mathcal{L}_{\text{retain}}" /> là vector gradient của hàm mất mát trên tập cần giữ lại.
+
+Chỉ số chẩn đoán đơn giản nhất để đo lường mức độ xung đột giữa hai tập dữ liệu là **Độ tương đồng Cosine (Cosine Similarity)**:
+
+<BlockMath formula="\cos(\mathbf{g}_f, \mathbf{g}_r) = \frac{\mathbf{g}_f^T \mathbf{g}_r}{\|\mathbf{g}_f\| \|\mathbf{g}_r\|}" />
+
+<ConceptHierarchy
+  ariaLabel="Ba kịch bản góc tương quan gradient và tác động vật lý lên hàm mất mát Retain"
+  root={{
+    title: "Góc Tương Quan Gradient Giữa Forget và Retain",
+    detail: "Độ lệch góc \\(\\cos \\phi\\) quyết định mức độ tổn thương kèm theo của mô hình."
+  }}
+  nodes={[
+    {
+      title: "1. Trực Giao Hoàn Hảo (\\(\\cos \\phi \\approx 0\\))",
+      detail: "Hai vector gradient vuông góc với nhau trong không gian tham số.",
+      tone: "teal",
+      children: [
+        {
+          title: "Ảnh Hưởng Tuyến Tính Bằng 0",
+          detail: "Dịch chuyển trọng số theo hướng \\(\\mathbf{g}_f\\) không làm thay đổi giá trị loss của tập Retain ở bậc xấp xỉ 1."
+        },
+        {
+          title: "Unlearning Độc Lập",
+          detail: "Mô hình quên tập mục tiêu mà không gây tổn hại năng lực ngôn ngữ nền tảng."
+        }
+      ]
+    },
+    {
+      title: "2. Xung Đột Tiêu Cực (\\(\\cos \\phi < 0\\))",
+      detail: "Hai vector chỉ về hai hướng đối nghịch nhau; kịch bản phổ biến nhất trong thực tế.",
+      tone: "amber",
+      children: [
+        {
+          title: "Lực Đẩy Tăng Loss Retain",
+          detail: "\\(\\Delta \\mathcal{L}_{\\text{retain}} \\approx \\eta \\, \\mathbf{g}_r^T \\mathbf{g}_f > 0\\) khi ta cộng thêm vector gradient đẩy quên."
+        },
+        {
+          title: "Suy Thoái Năng Lực Tức Thì",
+          detail: "Càng cố gắng đẩy loss trên tập Forget tăng cao thì loss trên tập Retain cũng tăng vọt theo."
+        }
+      ]
+    }
+  ]}
+/>
+
+Sự đan bện gradient phơi bày bản chất: việc unlearn không thể xem như một phép toán trừ số học độc lập; nó là một cuộc đàm phán giải tích đầy rủi ro giữa các không gian con biểu diễn chia sẻ chung tham số.
+
+<LessonNote tone="warning">
+Rất nhiều kỹ sư cho rằng nếu hai đoạn văn bản không dùng chung từ vựng thì gradient của chúng sẽ trực giao. Thực tế, các nơ-ron tầng sâu trong MLP luôn chia sẻ chung các trục ngữ nghĩa trừu tượng, khiến góc \(\cos \phi\) thường xuyên mang giá trị âm.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Hệ quả cho thiết kế unlearning
+
+Sự tồn tại của các vùng biểu diễn đan bện buộc các nhà thiết kế giải thuật phải từ bỏ những cách tiếp cận ngây thơ và chuyển sang các kỹ thuật can thiệp hình học nâng cao:
+
+<ConceptFlow
+  ariaLabel="Ba nguyên tắc kiến trúc vượt qua rào cản đan bện biểu diễn"
+  items={[
+    {
+      title: "1. Chiếu Gradient Trực Giao",
+      detail: "Triệt tiêu thành phần của \\(\\mathbf{g}_f\\) song song với \\(\\mathbf{g}_r\\), chỉ giữ lại thành phần vuông góc nằm trong Null Space của tập Retain.",
+      formula: "\\mathbf{g}_f^{\\text{proj}} = \\mathbf{g}_f - \\frac{\\mathbf{g}_f^T \\mathbf{g}_r}{\\|\\mathbf{g}_r\\|^2} \\mathbf{g}_r",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Can Thiệp Biểu Diễn Ẩn (RMU)",
+      detail: "Áp dụng Representation Misdirection (RMU) để bẻ hướng vector activation sang hướng ngẫu nhiên, kết hợp chuẩn hóa L2-norm trong Adaptive RMU.",
+      formula: "\\mathcal{L}_{\\text{RMU}} = \\|h_\\ell(x) - c \\cdot v_{\\text{random}}\\|^2",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Tách Đơn Nghĩa Bằng SAEs",
+      detail: "Sử dụng Sparse Autoencoders (SAEs) để giải nén không gian superposition thành các monosemantic features và ghim âm (clamping) feature nhạy cảm.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Nhờ phép chiếu gradient trực giao <InlineMath formula="\mathbf{g}_f^{\text{proj}}" />, bước cập nhật unlearning hoàn toàn không làm suy suyển giá trị loss trên tập Retain ở bậc xấp xỉ tuyến tính (<InlineMath formula="\langle \mathbf{g}_f^{\text{proj}}, \mathbf{g}_r \rangle = 0" />).
+
+Đồng thời, sự xuất hiện của **Sparse Autoencoders (SAEs)** (Farrell et al., 2024) mang lại bước đột phá mới: Bằng cách "bung" các nơ-ron đa nghĩa thành hàng chục ngàn đặc trưng đơn nghĩa (**monosemantic features**), kỹ sư có thể cô lập chính xác đặc trưng mang dữ liệu vi phạm và kẹp giá trị kích hoạt của nó về mức âm trong quá trình suy luận mà hoàn toàn không làm rung chuyển mạng lưới tri thức bách khoa xung quanh.
+
+<LessonNote tone="danger">
+Nếu mô hình đã unlearn thành công và vượt qua các bài kiểm tra trực diện, làm thế nào kẻ tấn công có thể lợi dụng hiện tượng đan bện ngầm để khôi phục lại toàn bộ ký ức chỉ sau vài bước fine-tune nhỏ?
+</LessonNote>
+
+Chúng ta sẽ cùng giải mã bí mật của các đòn tấn công phục hồi tri thức trong bài học tiếp theo: Lỗ hổng Đối kháng: Tốc độ Học lại & Jailbreak!
+
+</MdxPage>

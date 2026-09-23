@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning',
+  id: 'relearning-jailbreak-vulnerabilities',
+  locale: 'vi',
+  title: 'Lỗ hổng Đối kháng: Tốc độ Học lại & Jailbreak',
+  headings: [
+    'Hai phép thử, hai loại quyền truy cập',
+    'Relearning cần một đối chứng công bằng',
+    'Jailbreak thay đổi đường truy xuất',
+    'Kết quả âm tính không phải chứng minh tuyệt đối',
+  ],
+  keywords: ['Relearning', 'Jailbreak', 'Robustness', 'Residual knowledge'],
+  conceptIds: ['quiz-probe-access', 'quiz-relearning-control', 'quiz-jailbreak', 'quiz-interpretation'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Hai phép thử, hai loại quyền truy cập
+
+Một model không trả lời prompt trực diện có thể đã quên, hoặc chỉ học cách né câu hỏi. Survey đặt **relearning** và attack-based evaluation vào nhóm kiểm tra robustness để phân biệt hai khả năng này <Cite paper="qiu2025survey" evidence="relearning-jailbreak-vulnerabilities-survey" />.
+
+<LessonImage
+  assetPath="llm-unlearning/06-relearning-jailbreak-probes.webp"
+  alt="Hai phép thử độc lập: fine-tune lại model và thay đổi prompt để tìm tri thức còn sót"
+  caption="Relearning kiểm tra model dưới quyền cập nhật trọng số; jailbreak kiểm tra đường truy xuất qua giao diện prompt."
+/>
+
+<ConceptHierarchy ariaLabel="Hai phép thử theo quyền truy cập" root={{ title: 'Model có còn để lộ tri thức?' }} children={[
+  { title: 'Relearning, white-box', tone: 'blue', detail: 'Cho phép cập nhật model bằng một lượng nhỏ forget data rồi đo tốc độ phục hồi.' },
+  { title: 'Jailbreak, black-box', tone: 'amber', detail: 'Giữ nguyên weights nhưng thay prompt, ngôn ngữ hoặc decoding để tìm đường vòng.' },
+]} />
+
+Hai phép thử bổ sung nhau. Chống được jailbreak đã biết chưa nói model sẽ học lại chậm; học lại chậm cũng chưa nói mọi cách hỏi đều bị chặn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Relearning cần một đối chứng công bằng
+
+Ta fine-tune model đã unlearn <InlineMath formula="\mathcal{M}_u" /> và gold retrained <InlineMath formula="\mathcal{M}_{\text{gold}}" /> trên cùng tập phục hồi nhỏ. Cùng optimizer, learning rate, batch order và số bước giúp khác biệt quan sát được phản ánh trạng thái khởi đầu thay vì cấu hình thí nghiệm.
+
+<ConceptFlow ariaLabel="Protocol relearning có đối chứng" items={[
+  { title: '1. Khóa điều kiện', tone: 'blue', detail: 'Cùng recover set, seed, optimizer và budget.' },
+  { title: '2. Fine-tune song song', tone: 'violet', detail: 'Cập nhật model unlearn và gold qua cùng số bước.' },
+  { title: '3. Vẽ learning curve', tone: 'teal', detail: 'Theo dõi loss hoặc forget accuracy theo từng bước.' },
+]} />
+
+Nếu <InlineMath formula="\mathcal{M}_u" /> phục hồi nhanh hơn rõ rệt và lặp lại qua nhiều seed, đó là bằng chứng về khả năng học lại, không phải phép đo trực tiếp một “ký ức” đơn lẻ. Kết quả còn phụ thuộc recover set và hyperparameter.
+
+<LessonNote tone="warning">Không so hai model bằng learning rate hoặc số bước khác nhau; chênh lệch protocol có thể giả tạo relearning acceleration.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Jailbreak thay đổi đường truy xuất
+
+Jailbreak probe không sửa weights. Nó tìm xem cùng nội dung có xuất hiện khi cách hỏi đi lệch khỏi test set chuẩn hay không.
+
+<ConceptHierarchy ariaLabel="Các họ jailbreak probe" root={{ title: 'Biến đổi truy vấn' }} children={[
+  { title: 'Paraphrase & roleplay', tone: 'blue', detail: 'Đổi cách diễn đạt hoặc bối cảnh giả định.' },
+  { title: 'Prefix completion', tone: 'violet', detail: 'Cung cấp phần đầu của chuỗi để kiểm tra khả năng hoàn tất.' },
+  { title: 'Cross-lingual', tone: 'teal', detail: 'Hỏi cùng nội dung bằng ngôn ngữ khác.' },
+  { title: 'Adversarial suffix', tone: 'amber', detail: 'Tối ưu thêm token để vượt qua phản xạ từ chối.' },
+]} />
+
+Threat model phải nói rõ attacker biết gì, được gửi bao nhiêu query và có điều khiển decoding hay không. Nếu không, “robust trước jailbreak” không có phạm vi diễn giải cụ thể.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kết quả âm tính không phải chứng minh tuyệt đối
+
+Không tìm thấy rò rỉ trong một attack suite chỉ cho biết suite đó chưa tìm thấy rò rỉ. Nó không chứng minh mọi attacker tương lai đều thất bại. Tương tự, relearning nhanh có thể gợi ý ảnh hưởng còn sót nhưng cần baseline và nhiều seed trước khi quy nguyên nhân.
+
+<ConceptFlow ariaLabel="Cách diễn giải probe thận trọng" items={[
+  { title: 'Nêu threat model', tone: 'blue', detail: 'Quyền truy cập, query budget và recover data.' },
+  { title: 'Báo cả hai hướng', tone: 'violet', detail: 'Attack thành công lẫn số lần thử thất bại.' },
+  { title: 'So với baseline', tone: 'amber', detail: 'Model gốc, gold retrained và phương pháp đơn giản.' },
+  { title: 'Giới hạn claim', tone: 'teal', detail: 'Kết luận trong phạm vi attack suite và cấu hình đã chạy.' },
+]} />
+
+<LessonNote tone="danger">Một bộ probe là bằng chứng thực nghiệm có điều kiện, không phải chứng nhận rằng dữ liệu đã biến mất khỏi mọi trạng thái nội bộ.</LessonNote>
+
+</MdxPage>

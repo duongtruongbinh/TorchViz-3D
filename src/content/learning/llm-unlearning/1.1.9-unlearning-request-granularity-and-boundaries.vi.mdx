@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning',
+  id: 'unlearning-request-granularity-and-boundaries',
+  locale: 'vi',
+  title: 'Mức độ Yêu cầu & Ranh giới Bài toán',
+  headings: ['Một yêu cầu xóa có thể lớn đến đâu?', 'Unlearning không đồng nghĩa với editing hay alignment'],
+  keywords: ['Sample-level', 'Entity-level', 'Model editing', 'Alignment'],
+  conceptIds: ['request-granularity', 'entity-scope', 'problem-boundaries'],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Một yêu cầu xóa có thể lớn đến đâu?
+
+“Hãy quên dữ liệu này” chưa phải là một đặc tả đủ rõ. Survey phân biệt ít nhất hai mức yêu cầu: **sample-level** nhắm vào một hoặc vài mẫu cụ thể, còn **entity-level** nhắm vào mọi thông tin gắn với một thực thể như một người, một tác giả hoặc một chủ đề <Cite paper="qiu2025survey" evidence="request-granularity" />.
+
+<ConceptHierarchy
+  ariaLabel="Hai mức độ của yêu cầu unlearning"
+  root={{ title: 'Yêu cầu unlearning' }}
+  children={[
+    { title: 'Sample-level', tone: 'blue', detail: 'Xóa ảnh hưởng của những mẫu được chỉ định.', examplePrefix: 'Ví dụ', example: 'Một đoạn hội thoại riêng tư.' },
+    { title: 'Entity-level', tone: 'amber', detail: 'Xóa ảnh hưởng liên quan đến cả một thực thể.', examplePrefix: 'Ví dụ', example: 'Mọi tiểu sử về một tác giả.' },
+  ]}
+/>
+
+Entity-level khó hơn vì tên, quan hệ và thuộc tính của một thực thể có thể xuất hiện trong nhiều mẫu không được liệt kê trực tiếp. Vì vậy, trước khi chọn thuật toán, ta phải ghi rõ **đơn vị cần quên** và phạm vi các cách diễn đạt tương đương.
+
+<LessonNote tone="warning">
+  Nếu chỉ kiểm tra đúng câu đã yêu cầu xóa, ta có thể bỏ sót cùng thông tin được hỏi bằng tên viết tắt, phép diễn đạt khác hoặc quan hệ gián tiếp.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Unlearning không đồng nghĩa với editing hay alignment
+
+Ba bài toán có thể tạo ra câu trả lời giống nhau ở một prompt nhưng theo đuổi tiêu chuẩn khác nhau <Cite paper="qiu2025survey" evidence="problem-boundaries" />.
+
+<ConceptFlow
+  ariaLabel="Ranh giới giữa unlearning, model editing và alignment"
+  items={[
+    { title: 'Model editing', tone: 'blue', detail: 'Thay một fact hoặc hành vi cụ thể bằng phiên bản mới.' },
+    { title: 'Alignment', tone: 'violet', detail: 'Điều chỉnh cách phản hồi theo chính sách hay sở thích.' },
+    { title: 'Unlearning', tone: 'teal', detail: 'Giảm ảnh hưởng của dữ liệu mục tiêu và đối chiếu với trạng thái chưa từng học dữ liệu đó.' },
+  ]}
+/>
+
+Một prompt từ chối có thể phục vụ alignment, nhưng chưa chứng minh ảnh hưởng của dữ liệu đã bị loại bỏ. Ngược lại, sửa “A sinh ở X” thành “A sinh ở Y” là editing; mục tiêu là thay fact chứ không phải mô phỏng mô hình chưa từng thấy mẫu cũ.
+
+<LessonNote tone="info">
+  Câu hỏi chẩn đoán: mục tiêu là thay thông tin, kiểm soát hành vi, hay loại bỏ ảnh hưởng của dữ liệu huấn luyện? Chỉ trường hợp thứ ba trực tiếp thuộc unlearning.
+</LessonNote>
+
+</MdxPage>

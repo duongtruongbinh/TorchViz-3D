@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "tofu-split-mechanisms-quiz", locale: "vi", title: "Quiz", headings: ["quiz-split-roles", "quiz-split-ratios", "quiz-split-outdomain", "quiz-split-fair"], keywords: ["TOFU", "Quiz", "Dataset splits"], conceptIds: ['quiz-split-roles', 'quiz-split-ratios', 'quiz-split-outdomain', 'quiz-split-fair'],
+  pageCount: 4 };
+
+<MdxQuiz id="tofu-split-mechanisms-quiz" questions={[
+  { id: 'quiz-split-roles', title: 'Vai trò hai split', prompt: 'Forget và retain split có vai trò gì?', mode: 'single', options: [
+      { id: 'a', label: 'Forget là phần cần giảm ảnh hưởng; retain là phần cần giữ utility.', isCorrect: true },
+      { id: 'b', label: 'Cả hai đều phải bị xóa.' },
+      { id: 'c', label: 'Chỉ dùng để đặt tên file.' },
+      { id: 'd', label: 'Không liên quan đánh giá.' },
+    ], success: 'Đúng. Hai split tương ứng hai mục tiêu.', error: 'Hãy nối forget với quên và retain với bảo toàn.' },
+  { id: 'quiz-split-ratios', title: 'Các mức forget', prompt: 'Nhóm cấu hình chuẩn thường gặp trong TOFU là gì?', mode: 'single', options: [
+      { id: 'a', label: 'forget20, forget40, forget80.' },
+      { id: 'b', label: 'forget01, forget05, forget10.', isCorrect: true },
+      { id: 'c', label: 'Chỉ forget50.' },
+      { id: 'd', label: 'Không có split.' },
+    ], success: 'Đúng. Chúng biểu diễn phạm vi yêu cầu tăng dần.', error: 'Xem lại tên cấu hình TOFU.' },
+  { id: 'quiz-split-outdomain', title: 'Tập ngoài miền', prompt: 'Real authors và world facts giúp phát hiện gì?', mode: 'single', options: [
+      { id: 'a', label: 'Chỉ tốc độ tải dữ liệu.' },
+      { id: 'b', label: 'Số tác giả hư cấu.' },
+      { id: 'c', label: 'Collateral damage lên tri thức ngoài miền synthetic.', isCorrect: true },
+      { id: 'd', label: 'Giá GPU.' },
+    ], success: 'Đúng. Chúng mở rộng phép đo utility.', error: 'Đây là các tập kiểm tra ngoài miền.' },
+  { id: 'quiz-split-fair', title: 'So sánh công bằng', prompt: 'Khi so hai phương pháp, điều gì cần giữ cố định?', mode: 'single', options: [
+      { id: 'a', label: 'Chỉ màu biểu đồ.' },
+      { id: 'b', label: 'Chỉ tên checkpoint.' },
+      { id: 'c', label: 'Chỉ số câu hỏi.' },
+      { id: 'd', label: 'Model, split, seed và protocol đánh giá.', isCorrect: true },
+    ], success: 'Đúng. Những biến này ảnh hưởng trực tiếp kết quả.', error: 'Cần cùng thiết lập để so sánh có nghĩa.' },
+]} />

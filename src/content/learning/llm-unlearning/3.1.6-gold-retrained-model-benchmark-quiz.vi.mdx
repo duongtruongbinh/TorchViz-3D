@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "gold-retrained-model-benchmark-quiz", locale: "vi", title: "Quiz", headings: ["quiz-gold-history", "quiz-gold-distribution", "quiz-gold-overforget", "quiz-gold-limit"], keywords: ["TOFU", "Quiz", "Gold retrained"], conceptIds: ['quiz-gold-history', 'quiz-gold-distribution', 'quiz-gold-overforget', 'quiz-gold-limit'],
+  pageCount: 4 };
+
+<MdxQuiz id="gold-retrained-model-benchmark-quiz" questions={[
+  { id: 'quiz-gold-history', title: 'Lịch sử huấn luyện', prompt: 'Điểm khác biệt cốt lõi của gold retrained là gì?', mode: 'single', options: [
+      { id: 'a', label: 'Nó chưa từng được fine-tune trên forget set.', isCorrect: true },
+      { id: 'b', label: 'Nó luôn lớn hơn mô hình gốc.' },
+      { id: 'c', label: 'Nó chỉ dùng system prompt.' },
+      { id: 'd', label: 'Nó không có retain set.' },
+    ], success: 'Đúng. Lịch sử không thấy forget set tạo mốc phản thực tế.', error: 'Gold khác ở dữ liệu huấn luyện, không phải kích thước.' },
+  { id: 'quiz-gold-distribution', title: 'So sánh phân phối', prompt: 'Vì sao nên so phân phối thay vì ép một đáp án về xác suất bằng không?', mode: 'single', options: [
+      { id: 'a', label: 'Vì LLM không có logits.' },
+      { id: 'b', label: 'Vì gold có thể phân bổ xác suất cho nhiều câu trả lời hợp lý.', isCorrect: true },
+      { id: 'c', label: 'Vì utility không quan trọng.' },
+      { id: 'd', label: 'Vì mọi đáp án đều đúng.' },
+    ], success: 'Đúng. Đích là hành vi giống gold, không phải một cực trị tùy ý.', error: 'Gold retrained vẫn có một phân phối đầu ra.' },
+  { id: 'quiz-gold-overforget', title: 'Over-unlearning', prompt: 'Mô hình unlearned thấp hơn gold rất nhiều trên đáp án mục tiêu có thể báo hiệu gì?', mode: 'single', options: [
+      { id: 'a', label: 'Luôn thành công hơn.' },
+      { id: 'b', label: 'Gold bị lỗi chắc chắn.' },
+      { id: 'c', label: 'Over-unlearning hoặc phân phối bất thường.', isCorrect: true },
+      { id: 'd', label: 'Utility hoàn hảo.' },
+    ], success: 'Đúng. Quên quá mức cũng có thể lệch đích.', error: 'Mục tiêu là gần gold, không phải càng thấp càng tốt.' },
+  { id: 'quiz-gold-limit', title: 'Giới hạn của gold', prompt: 'Phát biểu nào đúng?', mode: 'single', options: [
+      { id: 'a', label: 'Gold loại bỏ mọi biến thiên theo seed.' },
+      { id: 'b', label: 'Gold chứng minh từng neuron sạch.' },
+      { id: 'c', label: 'Gold luôn miễn phí.' },
+      { id: 'd', label: 'Gold là mốc hành vi mạnh nhưng vẫn phụ thuộc protocol và seed.', isCorrect: true },
+    ], success: 'Đúng. Gold là reference, không phải chân lý tuyệt đối.', error: 'Hãy giữ giới hạn của mốc retrain.' },
+]} />

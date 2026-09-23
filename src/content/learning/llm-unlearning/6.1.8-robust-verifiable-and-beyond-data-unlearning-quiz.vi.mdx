@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'robust-verifiable-and-beyond-data-unlearning-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['robust-unlearning', 'verifiable-unlearning', 'beyond-data'], keywords: ['Quiz', 'Verification'],
+  conceptIds: ['robust-unlearning', 'verifiable-unlearning', 'beyond-data'], pageCount: 3,
+};
+
+<MdxQuiz id="robust-verifiable-and-beyond-data-unlearning-quiz" questions={[
+  { id: 'robust-unlearning', title: 'Robustness', prompt: 'Robust unlearning đòi hỏi gì?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ một prompt đúng.' }, { id: 'a', label: 'Kết quả còn đứng vững dưới attack và biến đổi.', isCorrect: true }, { id: 'c', label: 'Bỏ threat model.' }, { id: 'd', label: 'Không đo utility.' },
+  ], success: 'Đúng. Robustness mở rộng ngoài test cố định.', error: 'Hãy nghĩ đến paraphrase, jailbreak và relearning.' },
+  { id: 'verifiable-unlearning', title: 'Kiểm chứng', prompt: 'Điều gì phân biệt verification/certification với điểm trung bình?', mode: 'single', options: [
+    { id: 'b', label: 'Có nhiều màu hơn.' }, { id: 'c', label: 'Không cần điều kiện.' }, { id: 'a', label: 'Claim, giả định và test hoặc bound được phát biểu rõ.', isCorrect: true }, { id: 'd', label: 'Chỉ dùng output filter.' },
+  ], success: 'Đúng. Bảo đảm phải gắn với điều kiện cụ thể.', error: 'Không thể suy ra guarantee chỉ từ nhiều benchmark.' },
+  { id: 'beyond-data', title: 'Vượt ngoài dữ liệu', prompt: 'Đâu là mục tiêu beyond-data?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ một dòng CSV.' }, { id: 'c', label: 'Tên checkpoint.' }, { id: 'd', label: 'Số epoch.' }, { id: 'a', label: 'Một kỹ năng hoặc nguồn ảnh hưởng phân tán.', isCorrect: true },
+  ], success: 'Đúng. Đơn vị quên có thể là khái niệm hay ảnh hưởng.', error: 'Nó không còn trùng với danh sách mẫu cụ thể.' },
+]} />

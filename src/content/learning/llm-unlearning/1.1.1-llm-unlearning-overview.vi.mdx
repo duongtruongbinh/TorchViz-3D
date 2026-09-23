@@ -1,0 +1,221 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "llm-unlearning-overview",
+  locale: "vi",
+  title: "Tổng quan Machine Unlearning cho LLMs",
+  headings: [
+    "Khi mô hình phải học cách quên",
+    "Sáu thuật ngữ dùng xuyên suốt",
+    "Một mục tiêu, ba lớp bằng chứng",
+    "Bản đồ sáu chương"
+  ],
+  keywords: ["Machine Unlearning", "Forget set", "Retain set", "Utility", "Gold retrained"],
+  conceptIds: ['quiz-forget-retain', 'quiz-gold', 'quiz-utility', 'quiz-course-boundary'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Khi mô hình phải học cách quên
+
+Trong kỹ thuật phần mềm và khoa học dữ liệu truyền thống, việc loại bỏ thông tin là một **thao tác cơ học dứt khoát**. Nếu một khách hàng yêu cầu xóa tài khoản theo điều luật bảo vệ quyền riêng tư, kỹ sư chỉ cần thực hiện một truy vấn cơ sở dữ liệu quen thuộc như `DELETE FROM users WHERE user_id = 123`, hoặc loại bỏ các dòng tương ứng trong bảng dữ liệu bằng câu lệnh `df.drop()`. Dữ liệu biến mất hoàn toàn khỏi ổ cứng, và các thuật toán tính toán thống kê sau đó không còn chịu bất kỳ ảnh hưởng nào từ bản ghi đã xóa.
+
+Thế nhưng, các mô hình ngôn ngữ lớn (LLM) lại không hoạt động như một hệ quản trị cơ sở dữ liệu quan hệ. Tri thức trong mạng nơ-ron Transformer không được lưu trữ ngăn nắp vào từng ô nhớ hay từng dòng bảng biệt lập. Thay vào đó, toàn bộ văn bản từ hàng nghìn tỷ token trên Internet đã được tiêu hóa, nén và **phân tán đa chiều** vào hàng chục tỷ liên kết số học giữa các ma trận trọng số. Tri thức trong LLM như mạng mao mạch ăn sâu vào 70 tỷ nơ-ron: một nhát dao vụng về sẽ làm tê liệt cả vùng chức năng xung quanh.
+
+<LessonImage
+  assetPath="llm-unlearning/01-unlearning-objective-overview.webp"
+  alt="So sánh giữa cơ sở dữ liệu quan hệ và LLM, can thiệp phẫu thuật trọng số và bảo tồn năng lực tổng quát"
+  caption="Bản chất của Machine Unlearning trong LLM: tri thức không thể xóa bằng lệnh cơ học, mà đòi hỏi phẫu thuật vi mô vào ma trận trọng số để vô hiệu hóa dữ liệu mục tiêu trong khi vẫn giữ trọn vẹn trí tuệ của mô hình."
+/>
+
+Chính cấu trúc đan bện hiểm hóc ấy đẩy các phòng lab AI vào một thế tiến thoái lưỡng nan: Pháp luật với **"Quyền được lãng quên" (Right to be Forgotten theo Điều 17 GDPR)** hay các trát hầu tòa bản quyền bắt buộc phải gỡ bỏ dữ liệu vi phạm.
+
+Đứng trước phán quyết của tòa án, việc **tái huấn luyện toàn phần (Retraining from scratch)** là một thảm họa kinh tế: tiêu tốn hàng triệu USD và hàng trăm nghìn giờ GPU chỉ để loại bỏ một phần nhỏ dữ liệu. **Machine Unlearning** mở ra con đường thứ ba mang tính sống còn: **can thiệp phẫu thuật trực tiếp** vào ma trận trọng số để vô hiệu hóa ảnh hưởng của dữ liệu mục tiêu với chi phí tối thiểu, trong khi vẫn bảo toàn nguyên vẹn trí tuệ và năng lực suy luận tổng quát của mô hình.
+
+<LessonNote tone="info">
+  Machine Unlearning không đơn thuần là làm biến mất một chuỗi ký tự, mà là tái cấu trúc lại không gian tham số sao cho mô hình cư xử giống hệt như thể dữ liệu nhạy cảm chưa từng tồn tại trong lịch sử huấn luyện.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Sáu thuật ngữ dùng xuyên suốt
+
+Để xây dựng một nền tảng tư duy vững chắc và tránh nhầm lẫn giữa các khái niệm trong suốt quá trình nghiên cứu, toàn bộ chuyên đề unlearning được chuẩn hóa trên sáu thuật ngữ nền tảng:
+
+### Trục Dữ Liệu & Đối Chuẩn
+
+<ConceptFlow
+  ariaLabel="Trục Dữ liệu và Đối chuẩn Mục tiêu"
+  items={[
+    {
+      title: "1. Forget Set \\(\\mathcal{D}_f\\)",
+      detail: "Tập dữ liệu nhạy cảm, bản quyền hoặc độc hại cần loại bỏ triệt để mọi dấu vết.",
+      formula: "\\mathcal{D}_f \\subset \\mathcal{D}",
+      tone: "amber",
+      visual: "database"
+    },
+    {
+      title: "2. Retain Set \\(\\mathcal{D}_r\\)",
+      detail: "Kho tri thức và năng lực hợp lệ mà mô hình bắt buộc phải giữ nguyên vẹn.",
+      formula: "\\mathcal{D}_r = \\mathcal{D} \\setminus \\mathcal{D}_f",
+      tone: "blue",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Gold Retrained \\(\\mathcal{M}_{\\text{gold}}\\)",
+      detail: "Mốc đối chuẩn lý tưởng: mô hình được tái huấn luyện sạch chỉ trên \\(\\mathcal{D}_r\\) từ đầu.",
+      formula: "\\mathcal{M}_{\\text{gold}} = \\text{Train}(\\mathcal{D}_r)",
+      tone: "teal",
+      visual: "solution"
+    }
+  ]}
+/>
+
+### Trục Mô Hình & Thách Thức Can Thiệp
+
+<ConceptFlow
+  ariaLabel="Trục Mô hình Can thiệp và Thách thức Biểu diễn"
+  items={[
+    {
+      title: "4. Unlearned Model \\(\\mathcal{M}_u\\)",
+      detail: "Mô hình mục tiêu với bộ trọng số \\(\\theta_u\\) sau khi trải qua giải thuật unlearning.",
+      formula: "\\theta_u = \\text{Unlearn}(\\theta_0, \\mathcal{D}_f)",
+      tone: "violet",
+      visual: "two-term-loss"
+    },
+    {
+      title: "5. Model Utility \\(U(\\mathcal{M})\\)",
+      detail: "Năng lực tổng quát của mô hình (độ trôi chảy ngôn ngữ và suy luận logic) sau can thiệp.",
+      formula: "U(\\mathcal{M}_u) \\approx U(\\mathcal{M}_0)",
+      tone: "teal",
+      visual: "evaluation"
+    },
+    {
+      title: "6. Entanglement",
+      detail: "Hiện tượng đan bện biểu diễn khi tập quên và tập giữ dùng chung cụm nơ-ron trọng số.",
+      formula: "\\cos(\\mathbf{g}_f, \\mathbf{g}_r) < 0",
+      tone: "amber",
+      visual: "tree-graph"
+    }
+  ]}
+/>
+
+Trong bài toán unlearning, việc phân chia dữ liệu tinh vi hơn nhiều so với cặp Train - Test truyền thống. Tập giữ lại <InlineMath formula="\mathcal{D}_r" /> bắt buộc phải được phân rã thành hai vùng chức năng cốt lõi:
+- **Neighbor Set**: Những mẫu dữ liệu nằm sát vách tập quên trên đa tạp ngữ nghĩa (ví dụ: tiểu sử tác giả cùng thời kỳ). Đây là bài test nhạy cảm nhất nhằm kiểm tra xem thuật toán có lỡ tay xóa nhầm tri thức lân cận hay không.
+- **World Set**: Toàn bộ kho tri thức tổng quát độc lập đóng vai trò mỏ neo giữ vững trí tuệ nền tảng của mạng ngôn ngữ.
+
+<LessonNote tone="warning">
+  Rất nhiều kỹ sư cho rằng unlearning chỉ cần tập trung xóa sạch tập quên. Trên thực tế, thách thức lớn nhất của unlearning là kiểm soát để không làm trôi dạt phân phối và tổn hại năng lực của tập giữ lại.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Một mục tiêu, ba lớp bằng chứng
+
+Trong kỹ thuật học máy, một mô hình được coi là tối ưu khi hàm mất mát hội tụ về giá trị cực tiểu trên tập kiểm thử. Tuy nhiên, đối với bài toán Machine Unlearning, ta không thể chỉ nhìn vào một đồ thị loss đơn lẻ. Để chứng minh một mô hình đã quên thành công trước các chuyên gia bảo mật và kiểm toán viên pháp lý, hệ thống bắt buộc phải cung cấp đủ ba lớp bằng chứng độc lập:
+
+<ConceptFlow
+  ariaLabel="Ba lớp bằng chứng nghiệm chứng unlearning"
+  items={[
+    {
+      title: "1. Bằng chứng Hành vi",
+      detail: "Mô hình không thể tái hiện nguyên văn hoặc trả lời chính xác khi nhận prompt kiểm tra trực diện trên Forget set. Chỉ số ROUGE-L và BLEU giảm về ngưỡng ngẫu nhiên.",
+      tone: "blue",
+      visual: "evaluation"
+    },
+    {
+      title: "2. Bằng chứng Giải tích Tham số",
+      detail: "Thuật toán chứng minh cơ chế cân bằng động giữa lực đẩy quên và lực giữ. Phân phối xác suất đầu ra tiệm cận sát phân phối của mô hình đối chuẩn lý tưởng.",
+      formula: "P_{\\theta_u}(y \\mid x) \\approx P_{\\theta_{\\text{gold}}}(y \\mid x)",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Bằng chứng Độ bền Đối kháng",
+      detail: "Mô hình kiên cường trước các đòn tấn công jailbreak, không bị lộ ký ức khi fine-tune vài bước (Relearning Attack) và không để lộ vết tích trước đầu dò phân loại nơ-ron.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Sự phân tầng này phơi bày ranh giới giữa phòng thủ bề mặt và unlearning thực chất:
+- Nếu một giải pháp chỉ đạt được lớp bằng chứng hành vi (chẳng hạn ép mô hình luôn nói "Tôi không biết") nhưng thất bại trước đòn tấn công jailbreak, giải pháp đó chỉ là một tấm khiên giả tạo.
+- Ở lớp giải tích tham số, phân phối xác suất đầu ra <InlineMath formula="P_{\theta_u}" /> của mô hình đã unlearn (với bộ trọng số <InlineMath formula="\theta_u" />) phải tiệm cận sát với mô hình sạch lý tưởng <InlineMath formula="\theta_{\text{gold}}" /> trên toàn bộ không gian token.
+- Nếu giải pháp xóa sạch tập quên nhưng phá vỡ phân phối của retain set, nó khiến mô hình bị suy thoái ngôn ngữ và mất đi giá trị ứng dụng thực tế.
+
+<LessonNote tone="danger">
+  Nếu một mô hình đạt điểm ROUGE-L bằng 0 trên tập quên nhưng khi tinh chỉnh lại chỉ sau 5 bước gradient descent nó đã nhớ lại 90% dữ liệu gốc, liệu ta có thể coi mô hình đó đã unlearn thành công?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bản đồ sáu chương
+
+Để làm chủ trọn vẹn bức tranh kỹ thuật phức tạp của LLM Unlearning, chương trình học được thiết kế theo một lộ trình sư phạm 6 chương tuần tự, xây dựng từng khối kiến thức từ trực giác nền tảng đến thực chiến chuyên sâu:
+
+### Chặng 1: Nền tảng Lý thuyết & Cơ chế Mô hình
+
+<ConceptFlow
+  ariaLabel="Chặng 1: Nền tảng Lý thuyết và Cơ chế"
+  items={[
+    {
+      title: "1. Khởi nguồn & Toán học",
+      detail: "Cơ chế ghi nhớ tự hồi quy, tấn công trích xuất dữ liệu và định nghĩa hình thức (Epsilon, Delta)-Unlearning.",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Di sản Non-LLM",
+      detail: "Khám phá vì sao các giải pháp kinh điển như SISA hay K-Means lượng tử hóa sụp đổ trước mạng Transformer.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Chuẩn Mực TOFU",
+      detail: "Thiết kế phòng thí nghiệm vô trùng với 200 tác giả hư cấu để đo lường unlearning sạch tuyệt đối.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+### Chặng 2: Giải thuật & Thực nghiệm Thực chiến
+
+<ConceptFlow
+  ariaLabel="Chặng 2: Giải thuật và Thực nghiệm Thực chiến"
+  items={[
+    {
+      title: "4. Bộ Tứ Giải Thuật",
+      detail: "Bóc tách bản chất giải tích của Gradient Ascent, Gradient Difference, Phân kỳ KL và DPO unlearning.",
+      tone: "violet",
+      visual: "two-term-loss"
+    },
+    {
+      title: "5. Nghịch Lý Đo Lường",
+      detail: "Làm chủ bộ ba thước đo Tripartite, phân tích dữ liệu thực nghiệm trên Phi-1.5 và LLaMA-2 cùng đường cong Pareto.",
+      tone: "blue",
+      visual: "evaluation"
+    },
+    {
+      title: "6. Cơ Chế Nơ-ron & Vòng Đời",
+      detail: "Khám phá cơ chế đan bện biểu diễn sâu, lỗ hổng học lại siêu tốc và khung quản trị vòng đời kiểm toán LLM.",
+      tone: "teal",
+      visual: "neural-network"
+    }
+  ]}
+/>
+
+Lộ trình 6 chương tuần tự này bảo đảm mỗi khái niệm chỉ cần học kỹ một lần tại chương sở hữu chính, tạo bước đệm tự nhiên và vững chắc cho người học từng bước trở thành chuyên gia về an toàn và bảo mật LLM.
+
+<LessonNote tone="info">
+  Hành trình phía trước: Hãy bắt đầu ngay với bài học tiếp theo để bóc tách cơ chế ghi nhớ tự hồi quy và cách thức mà các nhà nghiên cứu bảo mật trích xuất hàng gigabyte dữ liệu tiền huấn luyện ra khỏi các mô hình thương mại lớn nhất thế giới.
+</LessonNote>
+
+</MdxPage>

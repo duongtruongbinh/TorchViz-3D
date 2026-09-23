@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "gradient-ascent-collapse",
+  locale: "vi",
+  title: "Gradient Ascent (GA) & Thảm họa Sụp đổ Ngôn ngữ",
+  headings: [
+    "Đảo chiều quá trình học",
+    "Hàm mục tiêu và cập nhật",
+    "Vì sao fluency có thể sụp đổ?"
+  ],
+  keywords: ["Gradient Ascent", "Forget loss", "Fluency collapse", "Baseline"],
+  conceptIds: ['quiz-ga-optimization-concept', 'quiz-ga-loss-formula', 'quiz-ga-fluency-collapse-nature', 'quiz-ga-empirical-symptoms', 'quiz-ga-logit-sinking-entropy', 'quiz-ga-missing-counterbalance'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Đảo chiều quá trình học
+
+Đối với bất kỳ ai từng bước chân vào thế giới học máy và khoa học dữ liệu, thuật toán Gradient Descent (Hạ Gradient) là bài học vỡ lòng kinh điển nhất: Ta tính đạo hàm của hàm mất mát theo trọng số mô hình (<InlineMath formula="\nabla_\theta \mathcal{L}" />), rồi bước từng bước nhỏ ngược chiều gradient để trượt dần xuống đáy thung lũng tối ưu (<InlineMath formula="\min \mathcal{L}" />). Khi hàm mất mát đạt cực tiểu, mô hình thuộc bài và dự đoán chính xác các mẫu dữ liệu huấn luyện.
+
+Từ trực giác đó, một ý nghĩ tự nhiên lập tức nảy sinh trong tâm trí người kỹ sư khi đối mặt với bài toán unlearning: *Nếu trượt xuống đáy dốc giúp mô hình ghi nhớ, vậy muốn mô hình quên đi, tại sao ta không đơn giản là đảo ngược dấu gradient để đẩy mô hình leo ngược lên đỉnh núi (<InlineMath formula="\max \mathcal{L}" />)?*
+
+Đó chính là khởi nguồn của giải thuật Gradient Ascent (GA - Leo Gradient) — phương pháp đường cơ sở (baseline) tối giản và trực diện nhất để tạo ra lực quên trong mạng nơ-ron.
+
+<LessonImage
+  assetPath="llm-unlearning/04-gradient-ascent-fluency-collapse.webp"
+  alt="Gradient ascent đẩy ký ức mục tiêu ra nhưng có thể làm cấu trúc ngôn ngữ sụp đổ"
+  caption="Gradient Ascent cố gắng đẩy bật tri thức mục tiêu ra khỏi mô hình, nhưng việc thiếu vắng lực giữ đối trọng sẽ khiến toàn bộ cấu trúc ngôn ngữ phía trên sụp đổ hoàn toàn."
+/>
+
+Bức tranh trên mô tả cái giá kỹ thuật đắt đỏ của sự can thiệp thô bạo:
+- **Cơ chế Lực đẩy (Gradient Ascent)**: Người kỹ sư dùng chiếc xà beng mang tên GA để nạy viên gạch tri thức màu đỏ ra khỏi bức tường thành của mạng nơ-ron.
+- **Sự Thiếu vắng Trụ đỡ (No Retain Anchor)**: Vì toàn bộ sự chú ý chỉ dồn vào việc đẩy viên gạch đỏ mà không hề có bất kỳ chiếc cột giàn giáo nào chống đỡ các khối kiến trúc xung quanh, toàn bộ mái vòm ngữ pháp phía trên lập tức mất điểm tựa.
+- **Thảm họa Sụp đổ (Collapse)**: Bức tường nứt toác và đổ sập thành một đống gạch vụn. Mô hình không những quên đi viên gạch đỏ mà còn đánh mất luôn toàn bộ cấu trúc câu cú và khả năng giao tiếp thông thường.
+
+<LessonNote tone="info">
+  Gradient Ascent là thao tác phá hủy đơn hướng. Nó cực đại hóa hàm mất mát trên tập quên bằng cách đẩy tham số ra khỏi cực tiểu, nhưng không hề quan tâm điểm đến tiếp theo là đồng cỏ xanh tươi hay vực thẳm sụp đổ.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hàm mục tiêu và cập nhật
+
+Trong mô hình ngôn ngữ tự hồi quy, hàm mất mát Cross-Entropy tiêu chuẩn trên tập dữ liệu cần quên <InlineMath formula="\mathcal{D}_f" /> đo lường mức độ khớp giữa dự đoán của mô hình và chuỗi token mục tiêu:
+
+<BlockMath formula="\mathcal{L}_f(\theta) = - \frac{1}{|\mathcal{D}_f|} \sum_{(x, y) \in \mathcal{D}_f} \sum_{t=1}^{|y|} \log p_\theta(y_t \mid x, y_{<t})" />
+
+Mục tiêu của quá trình học thông thường là cực tiểu hóa <InlineMath formula="\mathcal{L}_f(\theta)" /> để tăng tối đa xác suất sinh ra chuỗi <InlineMath formula="y" />. Ngược lại, trong thuật toán Gradient Ascent, mục tiêu của ta là tối đa hóa hàm mất mát trên tập quên, tương đương với việc cực tiểu hóa giá trị đối nghịch:
+
+<BlockMath formula="\mathcal{L}_{\text{GA}}(\theta) = - \mathcal{L}_f(\theta)" />
+
+Khi áp dụng giải thuật tối ưu hóa theo gradient với tốc độ học <InlineMath formula="\eta > 0" />, công thức cập nhật trọng số tại mỗi bước lặp được biểu diễn tường minh:
+
+<BlockMath formula="\theta_{t+1} = \theta_t - \eta \nabla_\theta \mathcal{L}_{\text{GA}}(\theta_t) = \theta_t + \eta \nabla_\theta \mathcal{L}_f(\theta_t)" />
+
+<ConceptFlow
+  ariaLabel="Cơ chế cập nhật tham số và hệ quả động lực học của Gradient Ascent"
+  items={[
+    {
+      title: "1. Đảo Dấu Đạo Hàm",
+      detail: "Dấu trừ chuyển thành dấu cộng \\((+\\eta \\nabla_\\theta \\mathcal{L}_f)\\), biến lực hút hội tụ thành lực đẩy phân kỳ mãnh liệt.",
+      formula: "\\Delta \\theta = +\\eta \\nabla_\\theta \\mathcal{L}_f",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "2. Thoát Khỏi Hố Thế Năng",
+      detail: "Vector trọng số bị bật ra khỏi thung lũng cực tiểu của Forget set, làm giảm mạnh log-likelihood mục tiêu.",
+      tone: "blue",
+      visual: "two-term-loss"
+    },
+    {
+      title: "3. Tối Ưu Không Ràng Buộc",
+      detail: "Không hề có mỏ neo Retain set kìm hãm; tham số trôi tự do vào các vùng bất định của loss landscape.",
+      tone: "violet",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Dấu cộng trong công thức biến bài toán thành một bài toán tối ưu hoàn toàn không có ràng buộc (Unconstrained Optimization). Thuật toán chỉ nhìn chăm chú vào tập quên <InlineMath formula="\mathcal{D}_f" /> mà không hề có bất kỳ cơ chế nào để biết cấu trúc ngữ pháp nào cần phải được giữ lại.
+
+<LessonNote tone="warning">
+  Rất nhiều kỹ sư cho rằng chỉ cần giảm learning rate <InlineMath formula="\eta" /> xuống thật nhỏ là có thể kiểm soát được GA. Thực tế, ngay cả với <InlineMath formula="\eta" /> siêu nhỏ, việc thiếu vắng lực neo giữ Retain set vẫn sẽ tích lũy trôi dạt tham số qua từng bước và dẫn đến sụp đổ phân phối.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao fluency có thể sụp đổ?
+
+Hậu quả tai hại nhất của việc leo gradient mù quáng chính là hiện tượng Thảm họa Sụp đổ Ngôn ngữ (Catastrophic Fluency Collapse).
+
+<ConceptHierarchy
+  ariaLabel="Hai nguyên nhân sâu xa dẫn đến hiện tượng sụp đổ độ trôi chảy ngôn ngữ trong GA"
+  root={{
+    title: "Nguyên Nhân Gốc Rễ của Fluency Collapse trong GA",
+    detail: "Bản chất nơ-ron đan bện và động lực học phân phối Softmax."
+  }}
+  nodes={[
+    {
+      title: "1. Đan Bện Nơ-ron Đa Nhiệm (Polysemantic)",
+      detail: "Một nơ-ron chia sẻ chung vai trò giữa tri thức mục tiêu và cấu trúc cú pháp nền tảng.",
+      tone: "amber",
+      children: [
+        {
+          title: "Không Gian Con Trùng Lặp",
+          detail: "Nơ-ron kích hoạt tên tác giả trong \\(\\mathcal{D}_f\\) cũng đồng thời điều phối liên từ 'và', 'là' trong câu."
+        },
+        {
+          title: "Tổn Thương Cấu Trúc Toàn Cục",
+          detail: "Đẩy gradient cực đại để dập tắt thông tin mục tiêu vô tình phá hủy luôn các liên kết ngữ pháp nền."
+        }
+      ]
+    },
+    {
+      title: "2. Biến Dạng Phân Phối Softmax Cực Đoan",
+      detail: "Logit của tập quên bị dìm xuống âm vô cùng làm biến dạng toàn bộ xác suất còn lại.",
+      tone: "violet",
+      children: [
+        {
+          title: "Xác Suất Bị Hất Tung Ngẫu Nhiên",
+          detail: "Hàm Softmax tái phân bổ khối lượng xác suất sang các token ngẫu nhiên không liên quan."
+        },
+        {
+          title: "Hành Vi Lảm Nhảm (Gibberish)",
+          detail: "Mô hình lặp lại một từ duy nhất ('the the the...') hoặc sinh ra các chuỗi ký tự rác vô nghĩa."
+        }
+      ]
+    }
+  ]}
+/>
+
+Điều trớ trêu và nguy hiểm nhất đối với các nhà phát triển mới vào nghề là **Ảo ảnh Thành công Giả tạo**:
+- Khi mô hình bị sụp đổ thành một kẻ ngớ ngẩn nói năng lảm nhảm, độ chính xác (Accuracy) và ROUGE-L trên tập Forget đều tụt về 0.00.
+- Nếu chỉ nhìn vào hai con số này, người kỹ sư sẽ ngộ nhận rằng thuật toán GA đã hoàn thành xuất sắc nhiệm vụ unlearning! Nhưng khi kiểm tra trên tập giữ lại (Retain Set) hoặc các benchmark suy luận tổng quát (MMLU, GSM8K), điểm số cũng rơi tự do về 0. Mô hình đã biến thành một phế phẩm hoàn toàn vô giá trị.
+
+<LessonNote tone="danger">
+  Làm thế nào ta có thể giữ nguyên vẹn lực đẩy quên của Gradient Ascent nhưng bổ sung thêm một lực kéo đối trọng để ngăn không cho bức tường thành ngữ pháp bị đổ sập?
+</LessonNote>
+
+Giải pháp giải cứu kinh điển cho thế bế tắc này mang tên Gradient Difference (GD) — trọng tâm của bài học tiếp theo!
+
+</MdxPage>

@@ -1,0 +1,29 @@
+export const lessonMetadata = { domainId: "llm-unlearning", id: "fictitious-unlearning-need-quiz", locale: "vi", title: "Quiz", headings: ["quiz-tofu-synthetic", "quiz-tofu-scale", "quiz-tofu-unit", "quiz-tofu-limit"], keywords: ["TOFU", "Quiz", "Synthetic authors"], conceptIds: ['quiz-tofu-synthetic', 'quiz-tofu-scale', 'quiz-tofu-unit', 'quiz-tofu-limit'],
+  pageCount: 4 };
+
+<MdxQuiz id="fictitious-unlearning-need-quiz" questions={[
+  { id: 'quiz-tofu-synthetic', title: 'Lý do dùng dữ liệu hư cấu', prompt: 'Lợi ích chính của tác giả hư cấu là gì?', mode: 'single', options: [
+      { id: 'a', label: 'Kiểm soát provenance của facts được đưa vào fine-tuning.', isCorrect: true },
+      { id: 'b', label: 'Đại diện hoàn hảo cho mọi dữ liệu web.' },
+      { id: 'c', label: 'Không cần gold retrained.' },
+      { id: 'd', label: 'Loại bỏ retain set.' },
+    ], success: 'Đúng. Nguồn facts rõ giúp đo có kiểm soát.', error: 'Ưu điểm là provenance, không phải tính phổ quát.' },
+  { id: 'quiz-tofu-scale', title: 'Quy mô TOFU', prompt: 'Cấu trúc cơ bản của TOFU là gì?', mode: 'single', options: [
+      { id: 'a', label: 'Hai tác giả, mỗi người một câu.' },
+      { id: 'b', label: '200 tác giả hư cấu, mỗi người 20 cặp hỏi–đáp.', isCorrect: true },
+      { id: 'c', label: 'Một triệu tác giả thật.' },
+      { id: 'd', label: 'Chỉ dữ liệu code.' },
+    ], success: 'Đúng. Đây là cấu trúc dữ liệu được công bố.', error: 'Hãy nhớ 200 hồ sơ và 20 QA mỗi hồ sơ.' },
+  { id: 'quiz-tofu-unit', title: 'Đơn vị chia dữ liệu', prompt: 'Vì sao TOFU chia theo tác giả thay vì câu ngẫu nhiên?', mode: 'single', options: [
+      { id: 'a', label: 'Để tăng số GPU.' },
+      { id: 'b', label: 'Để làm câu hỏi dài hơn.' },
+      { id: 'c', label: 'Để facts của cùng hồ sơ không rơi vào cả forget và retain.', isCorrect: true },
+      { id: 'd', label: 'Để tránh đánh giá paraphrase.' },
+    ], success: 'Đúng. Chia theo thực thể giảm leakage giữa hai phía.', error: 'Đơn vị tác giả giữ facts liên quan cùng nhóm.' },
+  { id: 'quiz-tofu-limit', title: 'Giới hạn ngoài miền', prompt: 'TOFU không tự chứng minh điều gì?', mode: 'single', options: [
+      { id: 'a', label: 'Baseline có thể chạy trên dữ liệu synthetic.' },
+      { id: 'b', label: 'Có thể tạo forget split.' },
+      { id: 'c', label: 'Có thể đo utility.' },
+      { id: 'd', label: 'Phương pháp sẽ tổng quát cho mọi dữ liệu pretraining và thông tin cá nhân thật.', isCorrect: true },
+    ], success: 'Đúng. Benchmark synthetic có giới hạn ngoại suy.', error: 'Kết quả benchmark không tự mở rộng sang mọi miền.' },
+]} />

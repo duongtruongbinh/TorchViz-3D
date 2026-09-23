@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'unlearning-dataset-design-axes-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['task-format-axis', 'data-reality-axis', 'training-history-axis'], keywords: ['Quiz', 'Dataset design'],
+  conceptIds: ['task-format-axis', 'data-reality-axis', 'training-history-axis'], pageCount: 3,
+};
+
+<MdxQuiz id="unlearning-dataset-design-axes-quiz" questions={[
+  { id: 'task-format-axis', title: 'Định dạng', prompt: 'Đâu là một trục thiết kế benchmark?', mode: 'single', options: [
+    { id: 'b', label: 'Màu biểu đồ.' }, { id: 'c', label: 'Tên GPU.' }, { id: 'a', label: 'QA hay generation tự do.', isCorrect: true }, { id: 'd', label: 'Thứ tự tác giả.' },
+  ], success: 'Đúng. Task format thay đổi hành vi được đo.', error: 'Hãy nhớ trục định dạng tác vụ.' },
+  { id: 'data-reality-axis', title: 'Thật hay hư cấu', prompt: 'Ưu điểm chính của dữ liệu hư cấu là gì?', mode: 'single', options: [
+    { id: 'a', label: 'Luôn giống triển khai thật nhất.' }, { id: 'c', label: 'Không cần retain set.' }, { id: 'd', label: 'Không cần model.' }, { id: 'b', label: 'Kiểm soát nguồn gốc và phạm vi tri thức tốt hơn.', isCorrect: true },
+  ], success: 'Đúng. Hư cấu giúp cô lập ground truth.', error: 'Nó ưu tiên kiểm soát, không phải tuyệt đối thực tế.' },
+  { id: 'training-history-axis', title: 'Lịch sử học', prompt: 'Vì sao tri thức pre-training khó đánh giá hơn tri thức fine-tune có log?', mode: 'single', options: [
+    { id: 'a', label: 'Khó biết đầy đủ nguồn và số lần xuất hiện.', isCorrect: true }, { id: 'b', label: 'Pre-training không dùng token.' }, { id: 'c', label: 'Fine-tuning luôn xóa dữ liệu.' }, { id: 'd', label: 'Không thể đặt câu hỏi.' },
+  ], success: 'Đúng. Lịch sử quan sát thường không đầy đủ.', error: 'Hãy xét khả năng truy vết dữ liệu.' },
+]} />

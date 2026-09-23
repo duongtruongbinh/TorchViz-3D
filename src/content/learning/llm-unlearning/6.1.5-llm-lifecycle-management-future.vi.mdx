@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning',
+  id: 'llm-lifecycle-management-future',
+  locale: 'vi',
+  title: 'Unlearning trong Vòng đời LLM: Chân trời Tương lai',
+  headings: [
+    'Unlearning là một quy trình',
+    'Bắt đầu từ phạm vi và dữ liệu',
+    'Lưu dấu vết có thể kiểm toán',
+    'Modularity giúp giảm chi phí, không tạo bảo đảm',
+    'Kiểm tra lại sau mỗi biến đổi triển khai',
+    'Continual unlearning cần nhớ các lần đã quên',
+  ],
+  keywords: ['LLM lifecycle', 'Audit', 'Continual unlearning', 'Model governance'],
+  conceptIds: ['quiz-lifecycle', 'quiz-audit', 'quiz-modularity', 'quiz-continual'],
+  pageCount: 6,
+};
+
+<MdxPage page={0}>
+
+## Unlearning là một quy trình
+
+Một optimizer chỉ tạo ra checkpoint mới. Một quy trình unlearning còn phải xác định yêu cầu, truy vết dữ liệu, chọn can thiệp, kiểm định, phê duyệt phát hành và giám sát sau triển khai. Survey nhấn mạnh rằng các khó khăn thực tế trải dài từ định nghĩa đến vận hành ở quy mô lớn <Cite paper="qiu2025survey" evidence="llm-lifecycle-management-future-survey" />.
+
+<LessonImage
+  assetPath="llm-unlearning/06-llm-lifecycle-management.webp"
+  alt="Bốn trạm kiểm soát của quy trình unlearning gồm khoanh vùng, can thiệp, đánh giá và giám sát"
+  caption="Unlearning cấp sản xuất là chuỗi kiểm soát: xác định phạm vi, can thiệp, đánh giá đa trục và giám sát sau phát hành."
+/>
+
+<ConceptFlow ariaLabel="Bốn trạm của vòng đời unlearning" items={[
+  { title: '1. Scope', tone: 'blue', detail: 'Xác thực yêu cầu và xác định forget/retain boundary.' },
+  { title: '2. Intervene', tone: 'violet', detail: 'Chọn phương pháp phù hợp với quyền truy cập và SLA.' },
+  { title: '3. Evaluate', tone: 'amber', detail: 'Đo forget quality, utility, robustness và efficiency.' },
+  { title: '4. Monitor', tone: 'teal', detail: 'Theo dõi rò rỉ, drift và các yêu cầu tiếp theo.' },
+]} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bắt đầu từ phạm vi và dữ liệu
+
+Trước khi chạy thuật toán, đội vận hành phải ghi rõ đơn vị cần quên: mẫu, thực thể, nguồn dữ liệu hay năng lực. Forget set cần có provenance và phiên bản; retain set cần chứa cả tri thức lân cận lẫn năng lực tổng quát.
+
+<ConceptHierarchy ariaLabel="Ba phần của hồ sơ phạm vi" root={{ title: 'Scope record' }} children={[
+  { title: 'Request', tone: 'blue', detail: 'Căn cứ, chủ thể, thời hạn và tiêu chuẩn thành công.' },
+  { title: 'Forget boundary', tone: 'amber', detail: 'Mẫu trực tiếp, paraphrase và quan hệ thuộc phạm vi.' },
+  { title: 'Retain boundary', tone: 'teal', detail: 'Neighbor knowledge và world capability phải bảo toàn.' },
+]} />
+
+Nếu boundary mơ hồ, kết quả không thể được giải thích: model trả lời ít hơn có thể là quên đúng, xóa quá mức hoặc chỉ từ chối rộng.
+
+<LessonNote tone="warning">Hãy đóng băng phiên bản dữ liệu đánh giá trước khi can thiệp; nếu test set thay đổi giữa hai checkpoint, so sánh mất ý nghĩa.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Lưu dấu vết có thể kiểm toán
+
+Audit trail phải nối được yêu cầu ban đầu với checkpoint cuối cùng. Một người kiểm toán độc lập cần tái dựng được model nào đã được sửa, bằng cấu hình nào, so với baseline nào và vì sao checkpoint được phát hành.
+
+<ConceptHierarchy ariaLabel="Bốn tầng dấu vết kiểm toán" root={{ title: 'Audit trail' }} children={[
+  { title: 'Data', tone: 'blue', detail: 'ID, hash, phiên bản và cách chia forget/retain.' },
+  { title: 'Execution', tone: 'violet', detail: 'Checkpoint gốc, code version, seed và hyperparameter.' },
+  { title: 'Evidence', tone: 'amber', detail: 'Metric, attack protocol, baseline và confidence interval.' },
+  { title: 'Decision', tone: 'teal', detail: 'Ngưỡng pass/fail, người phê duyệt và rollback target.' },
+]} />
+
+Một ảnh chụp model nói “Tôi không biết” không phải audit evidence. Nó không ghi lại threat model, retain utility hay khả năng tái lập.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Modularity giúp giảm chi phí, không tạo bảo đảm
+
+Adapter, expert hoặc external memory có thể tạo biên vận hành rõ: một module được vô hiệu hóa hoặc thay thế mà không cần sửa toàn backbone. Đây là lý do **unlearning-by-design** hấp dẫn.
+
+<ConceptFlow ariaLabel="Từ modularity đến kiểm chứng" items={[
+  { title: 'Cô lập cập nhật', tone: 'blue', detail: 'Đưa tri thức mới vào module có provenance.' },
+  { title: 'Tháo hoặc sửa module', tone: 'violet', detail: 'Giảm số tham số và thời gian can thiệp.' },
+  { title: 'Kiểm tra backbone', tone: 'teal', detail: 'Xác nhận tri thức không còn đường biểu diễn khác.' },
+]} />
+
+Giới hạn là tri thức có thể đã tồn tại trong backbone hoặc lan qua nhiều expert. Vì vậy, tháo một adapter có thể giảm chi phí nhưng không bảo đảm từng fact nằm gọn trong adapter đó.
+
+<LessonNote tone="info">Modularity là một thuộc tính kiến trúc hỗ trợ unlearning; bằng chứng quên vẫn phải đến từ evaluation.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiểm tra lại sau mỗi biến đổi triển khai
+
+Checkpoint được đánh giá ở FP16 có thể tiếp tục bị quantize, merge adapter, prune hoặc convert sang runtime khác. Survey ghi nhận quantization có thể làm tri thức đã bị ức chế xuất hiện trở lại. Vì vậy, artefact cuối cùng phục vụ người dùng mới là đối tượng cần ký duyệt.
+
+<ConceptFlow ariaLabel="Cổng phát hành sau unlearning" items={[
+  { title: 'Checkpoint đã unlearn', tone: 'blue', detail: 'Đạt scorecard trong môi trường nghiên cứu.' },
+  { title: 'Biến đổi deployment', tone: 'violet', detail: 'Quantize, merge, prune hoặc compile.' },
+  { title: 'Re-evaluate', tone: 'amber', detail: 'Chạy lại forget, utility và robustness suite.' },
+  { title: 'Canary & rollback', tone: 'teal', detail: 'Phát hành giới hạn và giữ checkpoint quay lui.' },
+]} />
+
+<LessonNote tone="danger">Không chuyển nguyên kết luận từ checkpoint nghiên cứu sang artefact đã quantize nếu chưa đánh giá lại.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Continual unlearning cần nhớ các lần đã quên
+
+Trong sản phẩm, yêu cầu xóa đến tuần tự. Sau lần thứ <InlineMath formula="t" />, checkpoint mới phải đáp ứng yêu cầu hiện tại, không phục hồi các yêu cầu cũ và không tích lũy utility loss quá ngưỡng.
+
+<BlockMath formula="\theta_{t+1}=\operatorname{Unlearn}(\theta_t,\mathcal{D}_f^{(t+1)})" />
+
+<ConceptHierarchy ariaLabel="Ba kiểm tra sau mỗi yêu cầu tuần tự" root={{ title: 'Sau yêu cầu t + 1' }} children={[
+  { title: 'Current request', tone: 'blue', detail: 'Dữ liệu vừa yêu cầu đã giảm ảnh hưởng.' },
+  { title: 'Historical requests', tone: 'amber', detail: 'Các tri thức đã quên trước đó không xuất hiện trở lại.' },
+  { title: 'Cumulative utility', tone: 'teal', detail: 'Năng lực retain không suy giảm qua nhiều vòng.' },
+]} />
+
+Audit log vì thế là trạng thái của cả chuỗi, không chỉ báo cáo của lần chạy gần nhất. Đây là điểm nối giữa unlearning algorithm và model lifecycle management.
+
+</MdxPage>

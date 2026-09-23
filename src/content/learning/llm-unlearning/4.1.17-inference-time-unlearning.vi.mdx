@@ -1,0 +1,37 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'inference-time-unlearning', locale: 'vi', title: 'Unlearning tại Thời điểm Suy luận',
+  headings: ['Can thiệp mà không cập nhật weights', 'Phân biệt suppression với removal'],
+  keywords: ['Input filtering', 'Logit intervention', 'Output filtering'],
+  conceptIds: ['inference-surfaces', 'inference-benefit', 'suppression-boundary'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Can thiệp mà không cập nhật weights
+
+Inference-time methods giữ checkpoint và thay đường đi của yêu cầu khi serving. Survey nhóm chúng theo bề mặt can thiệp: input, hidden representation/logit và output <Cite paper="qiu2025survey" evidence="inference-time-methods" />.
+
+<ConceptFlow ariaLabel="Ba bề mặt inference-time" items={[
+  { title: 'Input', tone: 'blue', detail: 'Nhận diện, viết lại hoặc chặn prompt liên quan.' },
+  { title: 'Representation / logit', tone: 'violet', detail: 'Điều chỉnh hướng activation hoặc xác suất token trước decoding.' },
+  { title: 'Output', tone: 'teal', detail: 'Phát hiện và lọc nội dung sau khi model sinh.' },
+]} />
+
+Ưu điểm là phản hồi yêu cầu xóa nhanh, dễ rollback và không cần huấn luyện lại model lớn. Đây có thể là lớp giảm thiểu rủi ro hữu ích trong hệ thống thực tế.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân biệt suppression với removal
+
+Vì weights không đổi, tri thức có thể vẫn được truy xuất bằng paraphrase, jailbreak, API khác hoặc bằng cách bỏ lớp lọc. Do đó inference-time intervention thường hỗ trợ claim **suppression khi serving**, không mặc nhiên hỗ trợ claim **removal khỏi model**.
+
+<ConceptHierarchy ariaLabel="Hai claim không tương đương" root={{ title: 'Quan sát thấy model không trả lời' }} children={[
+  { title: 'Serving suppression', tone: 'teal', detail: 'Pipeline hiện tại chặn đầu vào hoặc đầu ra.' },
+  { title: 'Weight-level removal', tone: 'amber', detail: 'Ảnh hưởng trong checkpoint đã bị loại bỏ; cần bằng chứng khác.' },
+]} />
+
+<LessonNote tone="danger">Khi báo cáo, hãy gọi đúng lớp bảo đảm. “Không xuất hiện ở giao diện” không đồng nghĩa “không còn trong model”.</LessonNote>
+
+</MdxPage>

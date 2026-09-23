@@ -1,0 +1,158 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "formal-unlearning-formulation",
+  locale: "vi",
+  title: "Định nghĩa Hình thức: (Epsilon, Delta)-Unlearning",
+  headings: [
+    "Ẩn dụ hai công thức nấu ăn",
+    "Mục tiêu gần gold retrained",
+    "Bảo đảm và giới hạn thực tế"
+  ],
+  keywords: ["Machine Unlearning", "Gold retrained", "Approximate unlearning", "Epsilon delta"],
+  conceptIds: ['quiz-formal-gold', 'quiz-formal-epsilon', 'quiz-formal-delta', 'quiz-formal-proxy'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Ẩn dụ hai công thức nấu ăn
+
+Để hiểu một cách trực quan bản chất toán học của Machine Unlearning mà không bị choáng ngợp bởi các ký hiệu giải tích xác suất phức tạp, hãy cùng bước vào một gian bếp ẩm thực với hai người đầu bếp tài hoa.
+
+Giả sử nhà hàng nhận được yêu cầu phục vụ một thực khách bị dị ứng nghiêm trọng với đậu phộng:
+- **Người đầu bếp thứ nhất (Huấn luyện lại Tinh khiết)**: Bắt đầu lại từ con số 0. Người này rửa sạch nồi niêu, chọn lọc nguyên liệu tươi mới và nấu một nồi súp hải sản hảo hạng mà hoàn toàn không để một giọt dầu đậu phộng nào xuất hiện trong gian bếp.
+- **Người đầu bếp thứ hai (Can thiệp Unlearning)**: Trước đó đã lỡ nấu một nồi súp lớn có nêm một muỗng canh bơ đậu phộng. Thay vì đổ bỏ toàn bộ nồi súp trị giá hàng triệu đồng, người đầu bếp này sử dụng các kỹ thuật sinh hóa tiên tiến — chưng cất, lọc phân tử và trung hòa hương vị — nhằm loại bỏ triệt để các protein gây dị ứng mà vẫn cố gắng giữ nguyên vẹn độ sánh mịn và vị ngọt tự nhiên của các loại hải sản khác.
+
+Làm thế nào để một thanh tra an toàn thực phẩm độc lập có thể cấp chứng nhận rằng nồi súp của người đầu bếp thứ hai đã an toàn tuyệt đối?
+
+<LessonImage
+  assetPath="llm-unlearning/01-differential-privacy-epsilon-delta.webp"
+  alt="Hai quy trình huấn luyện với và không có một mẫu dữ liệu tạo phân phối đầu ra gần nhau"
+  caption="Mục tiêu toán học chính quy là làm cho phân phối xác suất đầu ra của thuật toán unlearning tiệm cận lồng khít vào phân phối của mô hình tái huấn luyện chưa từng nhìn thấy dữ liệu mục tiêu."
+/>
+
+Bức tranh trên minh họa chính xác phương pháp nghiệm chứng thống kê:
+- **Hai quy trình song song**: Luồng phía trên là quy trình huấn luyện mô hình có tiếp xúc với mẫu dữ liệu mục tiêu màu đỏ rồi trải qua thuật toán unlearning; luồng phía dưới là quy trình huấn luyện sạch ngay từ đầu hoàn toàn không có dữ liệu màu đỏ.
+- **Hai đường cong phân phối xác suất**: Ở đầu ra, mỗi quy trình sinh ra một hàm mật độ xác suất mô tả hành vi của mô hình trước các câu hỏi kiểm tra.
+- **Sự lồng khít hoàn hảo**: Ở khung bên phải, hai đường cong phân phối gần như trùng khít lên nhau. Thanh tra thực phẩm (hay kiểm toán viên AI) khi nếm thử bất kỳ muỗng súp nào (hay đưa vào bất kỳ prompt nào) đều không thể dùng các công cụ thống kê để phân biệt được đâu là sản phẩm của việc nấu sạch từ đầu và đâu là sản phẩm của quá trình unlearning kỳ công.
+
+Đó chính là nguyên lý nền tảng của Sự không thể phân biệt (Indistinguishability) trong Machine Unlearning.
+
+<LessonNote tone="info">
+  Unlearning không đo lường bằng việc mô hình nói gì, mà đo lường bằng việc liệu một chuyên gia quan sát bên ngoài có thể phân biệt được mô hình đã unlearn với một mô hình chưa từng thấy dữ liệu mục tiêu hay không.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Mục tiêu gần gold retrained
+
+Từ trực giác ẩm thực nói trên, các nhà khoa học máy tính đã kế thừa khuôn khổ lý thuyết của Quyền riêng tư Sai phân (Differential Privacy) do Cynthia Dwork khởi xướng để xây dựng định nghĩa hình thức cho Machine Unlearning.
+
+Hãy thiết lập các ký hiệu toán học tiêu chuẩn:
+- Gọi <InlineMath formula="\mathcal{A}" /> là thuật toán học máy ngẫu nhiên (Randomized Learning Algorithm). Khi huấn luyện trên tập dữ liệu đầy đủ <InlineMath formula="\mathcal{D}" />, nó tạo ra mô hình ban đầu <InlineMath formula="\mathcal{M} = \mathcal{A}(\mathcal{D})" />.
+- Gọi <InlineMath formula="\mathcal{D}_f \subset \mathcal{D}" /> là tập dữ liệu mục tiêu cần xóa bỏ (Forget Set).
+- Gọi <InlineMath formula="\mathcal{D}_r = \mathcal{D} \setminus \mathcal{D}_f" /> là tập dữ liệu hợp lệ cần giữ lại (Retain Set).
+- Gọi <InlineMath formula="\mathcal{U}" /> là thuật toán unlearning. Thuật toán này nhận đầu vào là mô hình hiện tại <InlineMath formula="\mathcal{A}(\mathcal{D})" /> cùng tập dữ liệu cần quên <InlineMath formula="\mathcal{D}_f" />, tạo ra mô hình đã hiệu chỉnh:
+<BlockMath formula="\mathcal{M}_u = \mathcal{U}\big(\mathcal{A}(\mathcal{D}), \, \mathcal{D}_f\big)" />
+- Mốc đối chuẩn lý tưởng tối cao là mô hình tái huấn luyện từ đầu trên tập sạch (Gold Retrained Model):
+<BlockMath formula="\mathcal{M}_{\text{gold}} = \mathcal{A}(\mathcal{D} \setminus \mathcal{D}_f)" />
+
+Một thuật toán unlearning được chứng nhận đạt chuẩn **<InlineMath formula="(\epsilon, \delta)" />-Unlearning xấp xỉ** nếu với mọi tập con kết quả đo lường được <InlineMath formula="\mathcal{S} \subseteq \text{Range}(\mathcal{A})" />, bất đẳng thức xác suất sau luôn được thỏa mãn:
+
+<BlockMath formula="\Pr\Big[\mathcal{U}\big(\mathcal{A}(\mathcal{D}), \mathcal{D}_f\big) \in \mathcal{S}\Big] \le e^\epsilon \cdot \Pr\Big[\mathcal{A}(\mathcal{D} \setminus \mathcal{D}_f) \in \mathcal{S}\Big] + \delta" />
+
+đồng thời thỏa mãn điều kiện đối xứng ngược lại:
+
+<BlockMath formula="\Pr\Big[\mathcal{A}(\mathcal{D} \setminus \mathcal{D}_f) \in \mathcal{S}\Big] \le e^\epsilon \cdot \Pr\Big[\mathcal{U}\big(\mathcal{A}(\mathcal{D}), \mathcal{D}_f\big) \in \mathcal{S}\Big] + \delta" />
+
+<ConceptHierarchy
+  ariaLabel="Phân loại hai cấp độ bảo đảm toán học trong Machine Unlearning"
+  root={{
+    title: "Cấp Độ Bảo Đảm Toán Học (Epsilon, Delta)",
+    detail: "Ranh giới giữa chuẩn mực lý thuyết tuyệt đối và tính khả thi trong kỹ thuật tính toán."
+  }}
+  nodes={[
+    {
+      title: "1. Exact Unlearning \\(\\epsilon = 0, \\delta = 0\\)",
+      detail: "Sự tương đồng tuyệt đối 100% giữa phân phối unlearn và mô hình Gold retrained.",
+      tone: "blue",
+      children: [
+        {
+          title: "Hoàn hảo Lý thuyết",
+          detail: "Xác suất sinh ra mọi chuỗi token là trùng khít hoàn toàn giữa hai mô hình."
+        },
+        {
+          title: "Giới hạn Khả thi",
+          detail: "Chỉ thực hiện được trên các mô hình tuyến tính hoặc phân mảnh dữ liệu độc lập (như SISA)."
+        }
+      ]
+    },
+    {
+      title: "2. Approximate Unlearning \\(\\epsilon > 0, \\delta > 0\\)",
+      detail: "Cho phép một độ lệch biên độ nhân nhỏ và một xác suất dung sai thất bại cực nhỏ.",
+      tone: "amber",
+      children: [
+        {
+          title: "Hệ số Lệch Nhân Epsilon",
+          detail: "Khống chế tỷ lệ sai khác xác suất trong phạm vi \\(e^\\epsilon \\approx 1 + \\epsilon\\)."
+        },
+        {
+          title: "Dung sai Cộng thêm Delta",
+          detail: "Đại lượng cực nhỏ đại diện cho xác suất ngoại lệ không thể kiểm soát."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Đạt được <InlineMath formula="\epsilon = 0" /> trên một tập prompt kiểm thử hữu hạn không chứng minh được mô hình đạt Exact Unlearning, bởi vì bất đẳng thức toán học đòi hỏi điều kiện phải thỏa mãn trên toàn bộ không gian biến cố kết quả có thể đo lường được.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bảo đảm và giới hạn thực tế
+
+Định nghĩa <InlineMath formula="(\epsilon, \delta)" />-Unlearning cung cấp một nền tảng toán học tao nhã và chặt chẽ. Tuy nhiên, khi chuyển từ bảng phấn lý thuyết sang các mô hình ngôn ngữ thực tế với hàng trăm tỷ tham số, cộng đồng kỹ thuật phải chuyển dịch từ chứng minh giải tích sang kiểm định thực nghiệm:
+
+<ConceptFlow
+  ariaLabel="Tiến trình chuyển dịch từ chứng minh lý thuyết sang kiểm định thực nghiệm"
+  items={[
+    {
+      title: "1. Định nghĩa Lý thuyết",
+      detail: "Bất đẳng thức xác suất (Epsilon, Delta) đặt ra tiêu chuẩn vàng nhưng đòi hỏi tích phân toàn bộ không gian chuỗi vô hạn.",
+      formula: "\\Pr[\\mathcal{M}_u \\in \\mathcal{S}] \\le e^\\epsilon \\Pr[\\mathcal{M}_{\\text{gold}} \\in \\mathcal{S}] + \\delta",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Nghịch lý Mô hình Gold",
+      detail: "Không thể huấn luyện mô hình Gold 70B chỉ để đo khoảng cách phân kỳ vì chi phí hàng triệu USD.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Bộ Thước đo Proxy Thực nghiệm",
+      detail: "Thay thế bằng kiểm định phân phối Kolmogorov-Smirnov trên Truth Ratio, suy giảm xác suất và độ bền jailbreak.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Để không rơi vào các bẫy tư duy sai lầm, người học cần khắc cốt ghi tâm ba nguyên tắc phản biện thực chiến:
+- Điểm số cao trên một benchmark unlearning không đồng nghĩa với việc mô hình sẽ an toàn tuyệt đối trước mọi câu hỏi sáng tạo của người dùng ngoài đời.
+- Việc mô hình từ chối sinh ra chuỗi văn bản nhạy cảm không chứng minh rằng các vector đặc trưng trong tầng ẩn đã sạch bóng dấu vết.
+- Các bảo đảm xác suất chỉ thực sự có ý nghĩa khi thuật toán can thiệp và các nguồn tạo số ngẫu nhiên (hạt giống seed, nhiễu gradient) được định nghĩa một cách minh bạch và kiểm soát chặt chẽ.
+
+<LessonNote tone="danger">
+  Nếu ta không thể huấn luyện mô hình Gold Retrained trong thực tế do rào cản chi phí, làm thế nào các nhà nghiên cứu có thể xây dựng một môi trường phòng thí nghiệm sạch để đo đạc chính xác chất lượng của các giải thuật unlearning?
+</LessonNote>
+
+Lời giải cho nghịch lý này sẽ được hé lộ trong Chương 3 với thiết kế benchmark TOFU danh tiếng. Nhưng trước đó, hãy cùng đến với một case study lịch sử đã mở màn cho toàn bộ kỷ nguyên unlearning trên LLM: Case study "Who's Harry Potter?".
+
+</MdxPage>

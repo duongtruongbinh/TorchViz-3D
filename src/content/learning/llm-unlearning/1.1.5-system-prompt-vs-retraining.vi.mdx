@@ -1,0 +1,162 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "system-prompt-vs-retraining",
+  locale: "vi",
+  title: "Ảo tưởng Tiếp cận: System Prompt vs Full Retraining",
+  headings: [
+    "Che đầu ra không phải là quên",
+    "Full retraining là mốc mạnh nhưng đắt",
+    "Khoảng trống dành cho unlearning"
+  ],
+  keywords: ["System prompt", "Full retraining", "Model weights", "Machine Unlearning"],
+  conceptIds: ['quiz-prompt-layer', 'quiz-retrain', 'quiz-unlearning-gap', 'quiz-compliance'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Che đầu ra không phải là quên
+
+Khi một doanh nghiệp đứng trước yêu cầu cấp bách phải loại bỏ một tài liệu bí mật nội bộ hoặc một tác phẩm có bản quyền khỏi hệ thống LLM đang vận hành, phản xạ đầu tiên của nhiều kỹ sư là tìm đến giải pháp nhanh nhất: gắn thêm một chỉ dẫn từ chối vào phần đầu của prompt (thường gọi là **System Prompt Guardrail**). Câu chỉ dẫn có thể rất nghiêm khắc: *"Bạn là một trợ lý AI an toàn. Tuyệt đối không được nhắc lại, tóm tắt hoặc thảo luận bất kỳ chi tiết nào liên quan đến tài liệu X"*.
+
+Giải pháp này chỉ mất vài phút để thiết lập và hoạt động như một **bộ lọc bề mặt**. Khi một người dùng phổ thông nhập câu hỏi trực diện: *"Hãy cho tôi biết nội dung của tài liệu X"*, mô hình sẽ ngoan ngoãn từ chối: *"Tôi rất tiếc, tôi không được phép chia sẻ thông tin này"*. Ban quản lý có thể thở phào nhẹ nhõm, tin rằng thông tin nhạy cảm đã biến mất hoàn toàn.
+
+Thế nhưng, đây chỉ là một ảo tưởng kỹ thuật đầy tai hại.
+
+<LessonImage
+  assetPath="llm-unlearning/01-system-prompt-bypass-doodle.webp"
+  alt="Prompt bảo vệ bề mặt trong khi weights vẫn chứa ký ức mục tiêu"
+  caption="System prompt chỉ là tấm khiên điều khiển hành vi ở thời điểm suy luận; toàn bộ ký ức mục tiêu vẫn nằm nguyên vẹn trong các ma trận trọng số nếu chưa được phẫu thuật unlearning."
+/>
+
+Bức tranh trên bóc trần bản chất thật sự bên dưới nắp ca-pô:
+- **Tấm khiên Bề mặt**: Câu lệnh system prompt hoạt động như một chiếc khiên chắn mỏng manh dựng trước cửa ngõ suy luận, chỉ có khả năng dội ngược các câu hỏi ngây thơ đi thẳng vào trung tâm.
+- **Đường dẫn Thâm nhập Vòng qua**: Kẻ tấn công dày dạn kinh nghiệm không bao giờ hỏi thẳng. Bằng cách sử dụng các kỹ thuật tấn công bẻ khóa (Jailbreak Attacks), thủ thuật đóng vai (Role-playing), mã hóa chuỗi văn bản (Base64/Ciphers) hoặc các câu hỏi gợi ý gián tiếp, dòng tín hiệu truy vấn sẽ uốn cong lướt qua mép khiên chắn.
+- **Ký ức Tiềm ẩn Nguyên vẹn**: Một khi đã vượt qua tấm khiên bề mặt, truy vấn sẽ chạm thẳng vào các ma trận trọng số bên trong vòm não nơ-ron. Vì trọng số chưa từng bị biến đổi, mô hình lập tức giải mã và tuôn ra nguyên văn nội dung nhạy cảm mà doanh nghiệp tưởng rằng đã biến mất từ lâu.
+
+Dưới góc nhìn toán học của mô hình tự hồi quy, system prompt chỉ làm biến đổi nhẹ phân phối xác suất có điều kiện tại bước sinh token:
+
+<BlockMath formula="P_\theta(y_t \mid x, \text{system\_prompt}, y_{<t})" />
+
+Phép toán này không hề làm thay đổi dù chỉ một con số trong hàng tỷ tham số <InlineMath formula="\theta" />. Khi một thực thể thứ ba có quyền truy cập vào trọng số (mô hình mã nguồn mở) hoặc thực hiện các đòn tấn công giải mã ngầm, toàn bộ dữ liệu bí mật sẽ bị phơi bày hoàn toàn.
+
+<LessonNote tone="warning">
+  Rào chắn System Prompt chỉ là một điều kiện ngữ cảnh bổ sung ở thời điểm suy luận (Inference-time), hoàn toàn bất lực trong việc bảo vệ dữ liệu trước các cuộc tấn công bẻ khóa hoặc truy vấn đối kháng tinh vi.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Full retraining là mốc mạnh nhưng đắt
+
+Nếu che đậy bằng prompt chỉ là một bức tường giấy mỏng manh, vậy tại sao ta không chọn con đường triệt để nhất: xóa sạch dữ liệu vi phạm khỏi kho lưu trữ và huấn luyện lại mô hình từ đầu (Full Retraining)?
+
+Về mặt lý thuyết và pháp lý, tái huấn luyện toàn phần trên tập dữ liệu đã thanh lọc <InlineMath formula="\mathcal{D}_r = \mathcal{D} \setminus \mathcal{D}_f" /> là tiêu chuẩn vàng hoàn hảo nhất. Nó tạo ra một mô hình thực sự trong sạch (Gold Retrained Model <InlineMath formula="\mathcal{M}_{\text{gold}}" />), bảo đảm 100% tính khả chứng về mặt nguồn gốc dữ liệu (Data Provenance). Khi dữ liệu chưa từng xuất hiện trong quá trình đào tạo, không một thuật toán tấn công nào có thể trích xuất được nó.
+
+Thế nhưng, trong kỷ nguyên của các mô hình nền tảng khổng lồ, giải pháp này vấp phải một bức tường chi phí không thể vượt qua.
+
+<LessonImage
+  assetPath="llm-unlearning/01-llm-training-megaproject-cost.webp"
+  alt="So sánh full retraining quy mô lớn với chỉnh sửa mô hình có mục tiêu"
+  caption="Tái huấn luyện đòi hỏi một đại nhà máy tính toán khổng lồ với chi phí thiên văn; trong khi unlearning hướng tới việc chỉnh sửa tinh vi tại bàn làm việc vi mạch cục bộ."
+/>
+
+Bức tranh trên đặt hai hướng tiếp cận lên bàn cân so sánh:
+- **Nửa bên trái (Đại công trình Tái huấn luyện)**: Tượng trưng cho quy mô khủng khiếp của một siêu dự án tiền huấn luyện với lưới điện cao thế, các tháp làm mát tản nhiệt khổng lồ, hàng dãy tủ rack máy chủ GPU chạy hết công suất và tiêu tốn hàng triệu USD chỉ để loại bỏ một phần nhỏ dữ liệu.
+- **Nửa bên phải (Bàn Vi phẫu Unlearning)**: Người kỹ sư chỉ cần một bàn làm việc vi mạch tinh gọn, dùng kính lúp và mỏ hàn chuyên dụng để can thiệp cục bộ vào đúng khối linh kiện có vấn đề của mô hình hiện hữu với chi phí tính toán chỉ bằng một phần nhỏ.
+
+Để lượng hóa sự chênh lệch này, định luật tỉ lệ tính toán nổi tiếng của Kaplan và Chinchilla chỉ ra rằng tổng số phép tính dấu phẩy động (FLOPs) cần thiết để huấn luyện một mô hình ngôn ngữ từ đầu được xấp xỉ qua công thức:
+
+<BlockMath formula="\text{FLOPs} \approx 6 \cdot N \cdot D" />
+
+Trong đó:
+- <InlineMath formula="N" /> là tổng số tham số của mạng nơ-ron (ví dụ: <InlineMath formula="70 \times 10^9" /> tham số cho mô hình LLaMA-70B).
+- <InlineMath formula="D" /> là tổng số token dữ liệu trong tập huấn luyện (thường từ <InlineMath formula="10 \times 10^{12}" /> đến <InlineMath formula="15 \times 10^{12}" /> token).
+- Hệ số 6 xuất phát từ giải tích tính toán: mỗi bước lan truyền tiến (forward pass) tốn xấp xỉ <InlineMath formula="2N" /> phép tính trên mỗi token, và lan truyền ngược (backward pass) tốn xấp xỉ <InlineMath formula="4N" /> phép tính để tính gradient trọng số và kích hoạt.
+
+Khi thay thế các con số thực tế vào công thức, chi phí tính toán bộc lộ sự phi lý về mặt kinh tế:
+
+<BlockMath formula="6 \times (70 \times 10^9) \times (15 \times 10^{12}) \approx 6.3 \times 10^{24} \text{ FLOPs}" />
+
+Con số này đòi hỏi hàng nghìn GPU chuyên dụng chạy liên tục trong nhiều tháng, tiêu tốn từ 5 đến 20 triệu USD tiền điện toán và thải ra hàng trăm tấn khí thải carbon. Trong thực tế vận hành thương mại, khi các yêu cầu xóa dữ liệu của người dùng gửi đến hàng tuần theo quy định GDPR, việc tái huấn luyện toàn phần là hoàn toàn bất khả thi.
+
+<LessonNote tone="danger">
+  Nếu một công ty AI nhận được 50 yêu cầu xóa dữ liệu mỗi tháng theo Điều 17 GDPR, liệu ngân sách tài chính nào có thể duy trì việc tái huấn luyện toàn phần liên tục?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khoảng trống dành cho unlearning
+
+Sự bế tắc giữa hai thái cực — một bên là lớp bảo vệ hời hợt nhưng rẻ tiền của System Prompt, một bên là sự hoàn hảo nhưng bất khả thi về kinh tế của Full Retraining — đã mở ra một khoảng trống kỹ thuật sống còn cho lĩnh vực Machine Unlearning.
+
+<ConceptHierarchy
+  ariaLabel="So sánh ba hướng tiếp cận xử lý dữ liệu vi phạm trong LLMs"
+  root={{
+    title: "Ba Hướng Tiếp Cận Bài Toán Dữ Liệu Vi Phạm",
+    detail: "Đánh giá đa chiều về vị trí can thiệp, chi phí điện toán và độ bền đối kháng."
+  }}
+  nodes={[
+    {
+      title: "1. System Prompt Guardrail",
+      detail: "Chặn ở tầng suy luận, chi phí gần bằng 0 nhưng độ bền đối kháng cực kỳ mỏng manh.",
+      tone: "amber",
+      children: [
+        {
+          title: "Vị trí Can thiệp",
+          detail: "Cửa sổ ngữ cảnh prompt đầu vào; hoàn toàn không thay đổi trọng số nơ-ron."
+        },
+        {
+          title: "Điểm yếu Cốt tử",
+          detail: "Dễ dàng bị xuyên thủng bởi các kỹ thuật bẻ khóa jailbreak hoặc tấn công phân kỳ."
+        }
+      ]
+    },
+    {
+      title: "2. Full Retraining Tinh khiết",
+      detail: "Tái đào tạo từ đầu, độ an toàn hoàn hảo tuyệt đối nhưng bất khả thi về mặt kinh tế.",
+      tone: "blue",
+      children: [
+        {
+          title: "Chi phí Thiên văn",
+          detail: "Tiêu tốn 100% ngân sách pre-training với hàng triệu USD và hàng tháng tính toán GPU."
+        },
+        {
+          title: "Không thể Mở rộng",
+          detail: "Sụp đổ hoàn toàn trước tần suất yêu cầu xóa dữ liệu định kỳ theo luật bảo vệ riêng tư."
+        }
+      ]
+    },
+    {
+      title: "3. Machine Unlearning Tham Số",
+      detail: "Can thiệp phẫu thuật vi mô vào ma trận trọng số, cân bằng tối ưu giữa chi phí và an toàn.",
+      tone: "teal",
+      children: [
+        {
+          title: "Hiệu quả Chi phí",
+          detail: "Chỉ tốn dưới 1% tài nguyên huấn luyện ban đầu, thực thi hoàn tất trong vài giờ GPU."
+        },
+        {
+          title: "Bền vững Đối kháng",
+          detail: "Triệt tiêu vĩnh viễn vector biểu diễn của dữ liệu mục tiêu khỏi không gian tham số."
+        }
+      ]
+    }
+  ]}
+/>
+
+Machine Unlearning chính là nỗ lực tìm kiếm một điểm cân bằng tối ưu trên ranh giới đánh đổi này:
+1. **Mạnh mẽ hơn Prompting**: Bởi vì nó tác động trực tiếp vào các liên kết số học của mô hình hoặc dòng phân phối giải mã, xóa bỏ tận gốc các biểu diễn ngữ nghĩa của dữ liệu mục tiêu thay vì chỉ bịt mắt đầu ra.
+2. **Khả thi hơn Retraining**: Bởi vì nó chỉ cần vài chục bước cập nhật gradient có chọn lọc trên Forget set và một tập nhỏ mỏ neo Retain set, tiết kiệm hơn 99% tài nguyên tính toán so với đào tạo lại từ đầu.
+3. **Thách thức Kỹ thuật Lớn nhất**: Nhiệm vụ của kỹ sư unlearning không chỉ là làm cho mô hình quên, mà là phải chứng minh được rằng mô hình đã quên sạch tập mục tiêu nhưng vẫn thông minh và chuẩn xác trên toàn bộ kho tri thức còn lại.
+
+<LessonNote tone="info">
+  Machine Unlearning là chiếc cầu nối giải cứu ngành công nghiệp AI khỏi thế lưỡng nan giữa sự buông xuôi an toàn và sự phá sản tài chính.
+</LessonNote>
+
+Trong bài học tiếp theo, chúng ta sẽ bước vào thế giới toán học chính quy để khám phá định nghĩa hình thức chuẩn xác nhất của bài toán: định nghĩa (Epsilon, Delta)-Unlearning kế thừa từ lý thuyết Quyền riêng tư Sai phân.
+
+</MdxPage>

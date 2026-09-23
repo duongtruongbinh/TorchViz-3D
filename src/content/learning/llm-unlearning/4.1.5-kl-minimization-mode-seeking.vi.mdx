@@ -1,0 +1,143 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "kl-minimization-mode-seeking",
+  locale: "vi",
+  title: "KL Minimization, Động lực Mode-Seeking & Reward Hacking",
+  headings: [
+    "Vì sao cần một mỏ neo phân phối?",
+    "Forward KL và reverse KL",
+    "Đánh đổi khi dùng KL"
+  ],
+  keywords: ["Machine Unlearning", "KL Divergence", "Mode-seeking", "Retain set"],
+  conceptIds: ['quiz-kl-anchor', 'quiz-kl-direction', 'quiz-mode-seeking', 'quiz-kl-tradeoff'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Vì sao cần một mỏ neo phân phối?
+
+Trong bài học trước về Gradient Difference (GD), chúng ta đã dùng hàm mất mát Cross-Entropy tiêu chuẩn trên tập Retain làm lực kéo đối trọng: <InlineMath formula="\mathcal{L}_r(\theta) = - \log p_\theta(y^* \mid x)" />.
+
+Tuy nhiên, dưới góc nhìn của lý thuyết thông tin và xác suất học máy, Cross-Entropy có một điểm mù rất lớn: **Nó chỉ quan tâm đến duy nhất một token nhãn đúng <InlineMath formula="y^*" /> (nhãn cứng one-hot)**. Nó hoàn toàn bất lực trong việc kiểm soát cách mô hình phân bổ khối lượng xác suất cho hàng chục nghìn token còn lại trong từ điển.
+
+Hãy hình dung một ví dụ cụ thể: Khi nhận câu hỏi *"Thủ đô của nước Pháp là gì?"*, mô hình ban đầu phân bổ xác suất một cách tự nhiên: *"Paris"* (92%), *"Lyon"* (4%), *"Marseille"* (2%), và từ vô nghĩa *"chuối"* (0.00001%). Nếu bạn chỉ dùng Cross-Entropy để ép mô hình duy trì xác suất cao cho *"Paris"*, mô hình có thể gán *"Paris"* (90%) nhưng 10% xác suất còn lại lại bị dồn đột biến vào các từ ngữ rác rưởi hoặc ký tự lạ. Kết quả là dù câu trả lời chính vẫn đúng, sự phong phú ngữ nghĩa và độ mượt mà của mô hình đã bị tổn thương nghiêm trọng.
+
+Để bảo toàn nguyên vẹn năng lực tư duy, ta cần một chiếc mỏ neo mạnh mẽ hơn: **Ép toàn bộ phân phối xác suất trên toàn bộ từ điển của mô hình đang unlearn phải bám sát phân phối của mô hình gốc ban đầu trên tập Retain**. Công cụ toán học chuẩn tắc nhất cho nhiệm vụ này chính là Phân kỳ Kullback-Leibler (KL Divergence).
+
+<LessonImage
+  assetPath="llm-unlearning/04-kl-mode-covering-vs-mode-seeking.webp"
+  alt="Hai cảnh quan xác suất minh họa mode-covering và mode-seeking"
+  caption="Phân kỳ KL thiết lập một mỏ neo phân phối: hướng đặt thứ tự giữa hai phân phối sẽ quyết định hành vi tối ưu hóa là bao phủ đa đỉnh (Mode-Covering) hay co cụm tìm đỉnh an toàn (Mode-Seeking)."
+/>
+
+Bức tranh trên minh họa hai cảnh quan xác suất đa đỉnh (Multimodal Probability Landscapes):
+- **Khung Bên trái (Mode-Covering / Bao phủ Đa đỉnh)**: Đường cong phân phối xác suất màu xanh trải rộng ra để ôm trọn tất cả các đỉnh núi mà mô hình tham chiếu coi là hợp lý, tránh việc bỏ sót bất kỳ phương án khả dĩ nào.
+- **Khung Bên phải (Mode-Seeking / Tìm Đỉnh Đơn lẻ)**: Đường cong phân phối co cụm chặt chẽ lại, chọn một đỉnh núi cao và an toàn nhất để dồn toàn bộ năng lượng xác suất vào đó, chủ động triệt tiêu các thung lũng và đuôi phân phối rủi ro.
+
+<LessonNote tone="info">
+  Phân kỳ KL không so sánh nhãn cứng rời rạc, mà so sánh toàn bộ hình dạng hình học của đám mây xác suất trên không gian từ vựng, bảo đảm cấu trúc tri thức ngầm không bị biến dạng.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Forward KL và reverse KL
+
+Độ đo phân kỳ Kullback-Leibler giữa hai phân phối xác suất rời rạc <InlineMath formula="P" /> và <InlineMath formula="Q" /> trên không gian từ vựng <InlineMath formula="\mathcal{V}" /> được định nghĩa:
+
+<BlockMath formula="D_{\text{KL}}(P \parallel Q) = \sum_{v \in \mathcal{V}} P(v) \log \frac{P(v)}{Q(v)}" />
+
+Vì hàm logarit có tính chất bất đối xứng, <InlineMath formula="D_{\text{KL}}(P \parallel Q) \neq D_{\text{KL}}(Q \parallel P)" />. Thứ tự đặt hai phân phối sẽ tạo ra hai hành vi tối ưu hóa hoàn toàn khác biệt:
+
+<ConceptHierarchy
+  ariaLabel="So sánh bản chất toán học giữa Forward KL và Reverse KL trong unlearning"
+  root={{
+    title: "Bản Chất Bất Đối Xứng Của Phân Kỳ KL",
+    detail: "Thứ tự phân phối quyết định động lực học bao phủ hay co cụm xác suất."
+  }}
+  nodes={[
+    {
+      title: "1. Forward KL \\(D_{\\text{KL}}(P_0 \\parallel P_\\theta)\\) - Mode-Covering",
+      detail: "Mô hình tham chiếu \\(P_0\\) làm chuẩn, phạt cực nặng tại các điểm \\(P_\\theta(v) = 0\\).",
+      tone: "blue",
+      children: [
+        {
+          title: "Cơ chế Zero-Avoiding",
+          detail: "Nếu \\(P_0(v) > 0\\) mà \\(P_\\theta(v) \\to 0\\) thì loss bùng nổ vô cực; ép mô hình không được bỏ sót đỉnh nào."
+        },
+        {
+          title: "Ứng dụng Trên Retain Set",
+          detail: "Mỏ neo hoàn hảo nhất để bảo vệ tập giữ lại, ngăn ngừa triệt để sự suy thoái năng lực ngôn ngữ."
+        }
+      ]
+    },
+    {
+      title: "2. Reverse KL \\(D_{\\text{KL}}(P_\\theta \\parallel P_0)\\) - Mode-Seeking",
+      detail: "Mô hình unlearn \\(P_\\theta\\) làm chuẩn, triệt tiêu xác suất tại các vùng \\(P_0(v)\\) nhỏ.",
+      tone: "amber",
+      children: [
+        {
+          title: "Cơ chế Zero-Forcing",
+          detail: "Nếu \\(P_0(v) \\to 0\\), mô hình bắt buộc phải gán \\(P_\\theta(v) = 0\\) để tránh bị phạt; chủ động né tránh vùng cấm."
+        },
+        {
+          title: "Co Cụm Đỉnh Đơn Lẻ",
+          detail: "Mô hình dồn toàn bộ khối lượng xác suất vào một đỉnh an toàn duy nhất thay vì dàn trải."
+        }
+      ]
+    }
+  ]}
+/>
+
+Trong kỹ thuật Machine Unlearning, Forward KL được ứng dụng phổ biến nhất trên tập Retain nhằm duy trì năng lực tổng quát, trong khi các biến thể Reverse KL thường được thử nghiệm khi muốn ép mô hình tập trung vào một câu trả lời thay thế vô hại.
+
+<LessonNote tone="warning">
+  Rất nhiều kỹ sư nhầm lẫn vai trò của hai hướng KL. Dùng Reverse KL trên Retain set có thể khiến mô hình bị suy thoái tính đa dạng, chỉ biết lặp lại một mẫu câu duy nhất thay vì giao tiếp tự nhiên.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đánh đổi khi dùng KL
+
+Khi đưa mỏ neo phân phối KL vào phương trình tối ưu unlearning tổng thể:
+
+<BlockMath formula="\mathcal{L}_{\text{total}}(\theta) = \mathcal{L}_{\text{forget}}(\theta) + \lambda \cdot D_{\text{KL}}\big(P_0(\cdot \mid x) \, \parallel \, P_\theta(\cdot \mid x)\big)" />
+
+<ConceptFlow
+  ariaLabel="Ba sự đánh đổi kỹ thuật khi áp dụng mỏ neo phân phối KL"
+  items={[
+    {
+      title: "1. Gánh Nặng VRAM Gấp Đôi",
+      detail: "Bắt buộc nạp đồng thời hai mô hình: mô hình gốc \\(\\mathcal{M}_0\\) (đóng băng tham chiếu) và mô hình mục tiêu \\(\\mathcal{M}_\\theta\\) (cập nhật gradient).",
+      formula: "\\text{VRAM} \\approx 2 \\times \\text{ModelSize}",
+      tone: "amber",
+      visual: "database"
+    },
+    {
+      title: "2. Độ Nhạy Của Siêu Tham Số Lambda",
+      detail: "\\(\\lambda\\) quá nhỏ dẫn đến trôi dạt phân phối; \\(\\lambda\\) quá lớn khiến mô hình bị khóa cứng và không chịu quên.",
+      tone: "blue",
+      visual: "two-term-loss"
+    },
+    {
+      title: "3. Nguy Cơ Reward Hacking",
+      detail: "Mô hình tìm lối tắt tối ưu bằng cách trả lời một câu từ chối khuôn mẫu duy nhất để cực tiểu hóa độ lệch trên vùng an toàn.",
+      tone: "violet",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Tóm lại, KL Minimization đại diện cho một bước chuyển mình từ việc tối ưu điểm dữ liệu đơn lẻ (point-wise Cross-Entropy) sang tối ưu hình dạng phân phối xác suất (distributional optimization).
+
+<LessonNote tone="danger">
+  Liệu ta có thể loại bỏ hoàn toàn việc phải định nghĩa câu trả lời thay thế nhân tạo và tối ưu trực tiếp trên cặp sở thích câu trả lời đúng - sai hay không?
+</LessonNote>
+
+Ý tưởng đột phá đó sẽ được hiện thực hóa qua thuật toán DPO Unlearning trong bài học tiếp theo!
+
+</MdxPage>

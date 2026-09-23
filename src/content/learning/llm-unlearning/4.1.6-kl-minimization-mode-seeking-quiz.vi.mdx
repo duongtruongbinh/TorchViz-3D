@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "kl-minimization-mode-seeking-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-kl-anchor", "quiz-kl-direction", "quiz-mode-seeking", "quiz-kl-tradeoff"],
+  keywords: ["Machine Unlearning", "Quiz", "KL Divergence"],
+  conceptIds: ['quiz-kl-anchor', 'quiz-kl-direction', 'quiz-mode-seeking', 'quiz-kl-tradeoff'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="kl-minimization-mode-seeking-quiz" questions={[
+  {
+    id: 'quiz-kl-anchor', title: 'Vai trò của KL',
+    prompt: 'KL Minimization được thêm vào baseline unlearning chủ yếu để làm gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Neo phân phối của mô hình mới gần mô hình gốc trên retain set.', isCorrect: true },
+      { id: 'b', label: 'Chứng minh mọi tham số chứa forget set đã bị xóa.' },
+      { id: 'c', label: 'Thay toàn bộ tokenizer bằng một tokenizer mới.' },
+      { id: 'd', label: 'Loại bỏ nhu cầu đánh giá utility.' },
+    ], success: 'Đúng. KL là mỏ neo phân phối trên retain set.', error: 'Hãy phân biệt cơ chế bảo toàn với bằng chứng xóa dữ liệu.',
+  },
+  {
+    id: 'quiz-kl-direction', title: 'Hướng của forward KL',
+    prompt: 'Với mô hình gốc làm tham chiếu, biểu thức nào mô tả forward KL thường dùng để giữ retain set?', mode: 'single',
+    options: [
+      { id: 'a', label: 'D_KL(P_theta || P_0) trên forget set.' },
+      { id: 'b', label: 'D_KL(P_0 || P_theta) trên retain set.', isCorrect: true },
+      { id: 'c', label: 'Khoảng cách Euclid giữa hai tokenizer.' },
+      { id: 'd', label: 'Chỉ loss của forget set, không có tham chiếu.' },
+    ], success: 'Đúng. Forward KL đặt phân phối gốc ở vế đầu.', error: 'Xem lại thứ tự hai phân phối và tập dữ liệu được neo.',
+  },
+  {
+    id: 'quiz-mode-seeking', title: 'Mode-seeking',
+    prompt: 'Mode-seeking mô tả hành vi nào?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Phủ đều mọi vùng xác suất của phân phối tham chiếu.' },
+      { id: 'b', label: 'Tăng kích thước vocabulary.' },
+      { id: 'c', label: 'Tập trung vào một mode thuận lợi và có thể bỏ qua các mode phụ.', isCorrect: true },
+      { id: 'd', label: 'Bảo đảm tri thức bị xóa khỏi mọi tầng.' },
+    ], success: 'Đúng. Đây là xu hướng tập trung xác suất.', error: 'Mode-seeking nói về hình học phân phối, không phải chứng nhận xóa.',
+  },
+  {
+    id: 'quiz-kl-tradeoff', title: 'Đánh đổi của hệ số KL',
+    prompt: 'Điều gì dễ xảy ra khi hệ số neo KL quá lớn?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mô hình chắc chắn sụp độ trôi chảy.' },
+      { id: 'b', label: 'Chi phí suy luận trở về bằng không.' },
+      { id: 'c', label: 'Gold retrained không còn cần thiết.' },
+      { id: 'd', label: 'Mô hình bám quá sát bản gốc và quên không đủ.', isCorrect: true },
+    ], success: 'Đúng. Neo quá mạnh có thể chặn lực quên.', error: 'Hãy nghĩ về sự cân bằng giữa lực quên và lực giữ.',
+  },
+]} />

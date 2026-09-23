@@ -1,0 +1,236 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "kmeans-quantized-centroids",
+  locale: "vi",
+  title: "K-Means & Quantized Centroids trong Machine Unlearning",
+  headings: [
+    "Bài toán Rút lại Dữ liệu & Nghiên cứu Đột phá của Ginart et al. (2019)",
+    "Cơ chế Unlearning Đóng trong Thuật toán K-Means Cổ điển",
+    "Hiện tượng Phản ứng Dây chuyền tại Biên Phân vùng Voronoi",
+    "Giải pháp Lượng tử hóa Tâm cụm (Quantized Centroids) & Cận Lý thuyết"
+  ],
+  keywords: ["Machine Unlearning", "LLM", "Lý thuyết", "K-Means", "Quantized Centroids", "Voronoi"],
+  conceptIds: ['quiz-ginart-biobank-context', 'quiz-kmeans-closed-form', 'quiz-voronoi-cascading-effect', 'quiz-quantized-centroids-stabilization', 'quiz-gamma-stability-threshold', 'quiz-kmeans-transformer-barrier'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Bài toán Rút lại Dữ liệu & Nghiên cứu Đột phá của Ginart et al. (2019)
+
+Năm 2019, bài báo mang tính biểu tượng của Antonio Ginart, Melody Guan, Gregory Valiant và James Zou (NeurIPS 2019) mang tên *"Making AI Forget You: Data Deletion in Machine Learning"* đã mở màn cho những nghiên cứu toán học đầu tiên về unlearning.
+
+Nghiên cứu xuất phát từ một tình huống pháp lý và y sinh học thực tế: một thông báo từ ngân hàng dữ liệu di truyền UK Biobank về việc một người tham gia nghiên cứu quyết định rút lại đồng thuận sử dụng dữ liệu cá nhân (Consent Withdrawal). Tình huống này đặt ra một mệnh lệnh kỹ thuật cấp bách: toàn bộ các cụm thống kê và mô hình phân nhóm bệnh lý phải loại bỏ triệt để ảnh hưởng của mẫu gen đó để đáp ứng đạo luật bảo vệ quyền riêng tư GDPR.
+
+Để giải quyết bài toán này trên thuật toán phân cụm K-Means truyền thống mà không phải gánh chịu phản ứng dây chuyền làm dịch chuyển hàng loạt tâm cụm, nhóm tác giả đề xuất kỹ thuật **Lượng tử hóa Trọng tâm Cụm (Quantized Centroids)**:
+
+<LessonImage
+  assetPath="llm-unlearning/02-kmeans-quantized-centroids.webp"
+  alt="Các cụm điểm với centroid được lượng tử hóa trên lưới"
+  caption="Lượng tử hóa centroid hạn chế phản ứng dây chuyền: chia không gian thành lưới rời rạc giúp tâm cụm đứng yên khi các điểm dữ liệu biên bị gỡ bỏ."
+/>
+
+<ConceptFlow
+  ariaLabel="Quy trình kích hoạt yêu cầu xóa dữ liệu thực tế trong nghiên cứu gen"
+  items={[
+    {
+      title: "1. Rút lại Đồng thuận",
+      detail: "Người dùng gửi thông báo yêu cầu gỡ bỏ dữ liệu cá nhân theo các điều khoản bảo vệ quyền riêng tư.",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Áp lực Tái Huấn luyện",
+      detail: "Nếu thuật toán phân cụm phải chạy lại từ đầu trên hàng triệu hồ sơ di truyền, chi phí điện toán sẽ bùng nổ.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Nhu cầu Unlearning Đóng",
+      detail: "Đòi hỏi một giải thuật đại số cập nhật trực tiếp tọa độ tâm cụm mà vẫn bảo đảm tính khả chứng phân phối.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Ginart et al. đã chọn thuật toán phân cụm kinh điển K-Means làm bệ phóng để thiết lập những định lý toán học đầu tiên về chi phí tính toán, độ ổn định và các cận bảo mật của bài toán Machine Unlearning.
+
+<LessonNote tone="info">
+  Trong các bài toán học không giám sát, unlearning không chỉ là xóa một điểm dữ liệu mà là bảo đảm toàn bộ cấu trúc phân vùng không gian sau can thiệp không bị biến dạng sai lệch so với mô hình sạch.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cơ chế Unlearning Đóng trong Thuật toán K-Means Cổ điển
+
+Trong bài toán phân cụm K-Means truyền thống, giả sử ta có tập dữ liệu gồm <InlineMath formula="N" /> vector đặc trưng trong không gian <InlineMath formula="d" /> chiều: <InlineMath formula="\mathcal{D} = \{x_1, x_2, \dots, x_N\} \subset \mathbb{R}^d" />.
+
+Thuật toán phân hoạch dữ liệu thành <InlineMath formula="k" /> cụm phân tách <InlineMath formula="S_1, S_2, \dots, S_k" /> với các vector trọng tâm (centroid) tương ứng:
+
+<BlockMath formula="c_j = \frac{1}{|S_j|} \sum_{x \in S_j} x, \quad \text{với } |S_j| \text{ là số lượng điểm dữ liệu trong cụm } j" />
+
+Khi nhận được yêu cầu xóa một mẫu dữ liệu <InlineMath formula="x^*" /> thuộc cụm thứ <InlineMath formula="j" />, thay vì phải chạy lại toàn bộ thuật toán lặp Lloyd tốn kém, tọa độ tâm cụm mới <InlineMath formula="c_j'" /> có thể tính toán tức thì bằng một biểu thức đóng (Closed-Form Formula):
+
+<BlockMath formula="c_j' = \frac{|S_j| \cdot c_j - x^*}{|S_j| - 1}" />
+
+<ConceptHierarchy
+  ariaLabel="So sánh độ phức tạp tính toán giữa huấn luyện lại K-Means và cập nhật đóng"
+  root={{
+    title: "Độ Phức Tạp Cập Nhật Tâm Cụm K-Means",
+    detail: "Sự cách biệt khổng lồ giữa vòng lặp lặp lại và phép toán đại số đóng."
+  }}
+  nodes={[
+    {
+      title: "1. Tái Huấn Luyện Lloyd Lặp lại",
+      detail: "Phải tính toán khoảng cách từ mọi điểm đến mọi tâm qua nhiều vòng lặp hội tụ.",
+      tone: "amber",
+      children: [
+        {
+          title: "Độ phức tạp O(I * N * k * d)",
+          detail: "Phụ thuộc vào số vòng lặp I, kích thước tập dữ liệu N, số cụm k và số chiều d."
+        },
+        {
+          title: "Thời gian Thực thi",
+          detail: "Có thể mất từ vài phút đến vài giờ khi N lên tới hàng chục triệu điểm dữ liệu."
+        }
+      ]
+    },
+    {
+      title: "2. Cập Nhật Đóng (Closed-Form)",
+      detail: "Chỉ thực hiện đúng một phép trừ vector và chia cho vô hướng trên cụm chứa mẫu.",
+      tone: "teal",
+      children: [
+        {
+          title: "Độ phức tạp O(d)",
+          detail: "Chỉ phụ thuộc tuyến tính vào số chiều d của vector, hoàn toàn độc lập với N và k."
+        },
+        {
+          title: "Thời gian Thực thi",
+          detail: "Hoàn tất tức thì trong thời gian dưới 1 micro-giây."
+        }
+      ]
+    }
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Công thức cập nhật đóng cho ra tọa độ tâm mới chính xác tuyệt đối theo định nghĩa trung bình mẫu, nhưng nó hoàn toàn không tính đến việc các điểm dữ liệu lân cận có thể bị đổi cụm khi tâm cụm dịch chuyển.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Hiện tượng Phản ứng Dây chuyền tại Biên Phân vùng Voronoi
+
+Vấn đề cốt tử của unlearning trên K-Means nằm ở chỗ: K-Means không chỉ là một tập hợp các tâm cụm độc lập, mà còn định hình một cấu trúc hình học phân vùng không gian mang tên sơ đồ Voronoi (Voronoi Diagram).
+
+Một điểm dữ liệu bất kỳ thuộc về cụm <InlineMath formula="S_j" /> khi và chỉ khi khoảng cách Euclidean từ nó tới <InlineMath formula="c_j" /> là ngắn nhất:
+
+<BlockMath formula="x \in S_j \iff \|x - c_j\|_2 \le \|x - c_m\|_2 \quad (\forall m \neq j)" />
+
+Khi xóa <InlineMath formula="x^*" />, tâm <InlineMath formula="c_j" /> dịch chuyển dù chỉ một khoảng vi mô thành <InlineMath formula="c_j'" />, dẫn đến một chuỗi phản ứng dây chuyền suy thoái (Cascading Collapse):
+
+<ConceptFlow
+  ariaLabel="Diễn biến phản ứng dây chuyền làm sụp đổ phân vùng Voronoi"
+  items={[
+    {
+      title: "1. Xóa Mẫu \\(x^*\\)",
+      detail: "Tâm cụm \\(c_j\\) dịch chuyển sang tọa độ mới \\(c_j'\\) theo công thức đóng làm lệch đường trung trực.",
+      formula: "c_j \\to c_j'",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Lệch Biên Voronoi",
+      detail: "Các điểm dữ liệu nằm sát ranh giới giữa cụm \\(j\\) và cụm \\(m\\) đột ngột thấy tâm \\(c_m\\) gần hơn \\(c_j'\\).",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Point Flipping Dây chuyền",
+      detail: "Điểm đổi cụm làm thay đổi tâm của cụm nhận nó, kéo theo hàng loạt điểm khác bị cuốn vào vòng xoáy đổi cụm.",
+      tone: "violet",
+      visual: "two-term-loss"
+    },
+    {
+      title: "4. Sụp đổ Phân hoạch",
+      detail: "Cấu trúc cụm phân kỳ hoàn toàn so với mô hình huấn luyện lại từ đầu, phá vỡ tính hợp lệ của unlearning.",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Hiện tượng phản ứng dây chuyền này chứng minh rằng việc áp dụng công thức đóng ngây thơ chỉ là một giải pháp chắp vá cục bộ, không thể đem lại bảo đảm unlearning nếu thiếu đi cơ chế khóa ổn định ranh giới.
+
+<LessonNote tone="danger">
+  Làm thế nào ta có thể giữ cho ranh giới Voronoi đứng yên tuyệt đối trước các dịch chuyển vi mô của tâm cụm khi một điểm dữ liệu bị xóa bỏ?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Giải pháp Lượng tử hóa Tâm cụm (Quantized Centroids) & Cận Lý thuyết
+
+Để khống chế hiện tượng phản ứng dây chuyền và thiết lập chứng minh toán học chặt chẽ, Ginart et al. đã đề xuất một giải pháp đột phá: Lượng tử hóa Tâm cụm (Quantized Centroids) thông qua cơ chế rời rạc hóa lưới (Grid Discretization).
+
+Thay vì lưu trữ tọa độ tâm cụm dưới dạng vector số thực liên tục <InlineMath formula="c_j \in \mathbb{R}^d" />, thuật toán chiếu tâm cụm lên một lưới không gian siêu lập phương với bước lưới cố định <InlineMath formula="b > 0" />:
+
+<BlockMath formula="\tilde{c}_j = \text{Quantize}(c_j, b) = b \cdot \left\lfloor \frac{c_j}{b} + \frac{1}{2} \right\rfloor" />
+
+Độ dịch chuyển Euclidean tối đa của tâm liên tục khi xóa một điểm <InlineMath formula="x^*" /> được chặn trên bởi:
+
+<BlockMath formula="\Delta c_j = \|c_j - c_j'\|_2 \le \frac{\|c_j - x^*\|_2}{|S_j| - 1}" />
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế bảo vệ ổn định phân vùng của giải pháp lượng tử hóa tâm cụm"
+  root={{
+    title: "Cơ Chế Ổn Định Bằng Lưới Lượng Tử",
+    detail: "Rời rạc hóa không gian để triệt tiêu dịch chuyển vi mô của ranh giới Voronoi."
+  }}
+  nodes={[
+    {
+      title: "1. Vùng An toàn Trong Lưới",
+      detail: "Độ lệch nhỏ không làm tâm nhảy sang ô lưới lân cận, giữ nguyên ranh giới Voronoi.",
+      tone: "teal",
+      children: [
+        {
+          title: "Centroid Tĩnh",
+          detail: "Khi \\(\\Delta c_j\\) nằm trong phạm vi ô lưới, \\(\\tilde{c}_j\\) hoàn toàn bất biến."
+        },
+        {
+          title: "Triệt tiêu Point Flipping",
+          detail: "Không có bất kỳ điểm dữ liệu lân cận nào bị đổi nhãn cụm, chấm dứt phản ứng dây chuyền."
+        }
+      ]
+    },
+    {
+      title: "2. Điều kiện Cụm Đủ Lớn (\\(\\gamma\\)-Stability)",
+      detail: "Ràng buộc kích thước tối thiểu để bảo đảm độ lệch tâm luôn nhỏ hơn bước lưới b.",
+      tone: "blue",
+      children: [
+        {
+          title: "Cụm Cân bằng",
+          detail: "\\(|S_j| \\ge \\gamma \\cdot (N / k)\\), bảo đảm mẫu số đủ lớn để triệt tiêu ảnh hưởng của một điểm."
+        },
+        {
+          title: "Tái Huấn luyện Cục bộ",
+          detail: "Chỉ khi cụm rơi xuống dưới ngưỡng an toàn, thuật toán mới kích hoạt chạy lại Lloyd cục bộ."
+        }
+      ]
+    }
+  ]}
+/>
+
+Kỹ thuật Quantized Centroids của Ginart et al. là một ví dụ mẫu mực về việc rời rạc hóa không gian biểu diễn để đạt được cận bảo đảm unlearning toán học. Tuy nhiên, không gian trọng số của mạng Transformer là liên tục, dày đặc và phi tuyến tính sâu sắc, khiến ý tưởng chia lưới lượng tử không thể sao chép trực tiếp sang LLM.
+
+<LessonNote tone="info">
+  Tổng kết bài học: Thành công của SISA và K-Means trên các mô hình truyền thống đã phơi bày một chân lý quan trọng: unlearning trên LLM khó khăn hơn gấp bội bởi bản chất biểu diễn nơ-ron đan bện trong Transformer. Hãy cùng bóc tách bức tường kỹ thuật này trong bài học kế tiếp.
+</LessonNote>
+
+</MdxPage>

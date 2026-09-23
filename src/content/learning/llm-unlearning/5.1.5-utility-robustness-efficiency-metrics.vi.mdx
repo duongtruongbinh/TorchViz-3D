@@ -1,0 +1,37 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'utility-robustness-efficiency-metrics', locale: 'vi', title: 'Thước đo Hữu dụng, Bền vững & Hiệu quả',
+  headings: ['Quên tốt chưa đủ', 'Một scorecard bốn trục'],
+  keywords: ['Utility', 'Robustness', 'Efficiency'],
+  conceptIds: ['utility-metrics', 'robustness-metrics', 'efficiency-metrics'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Quên tốt chưa đủ
+
+Một model từ chối mọi câu hỏi có thể đạt điểm forget cao nhưng vô dụng. Survey vì thế tách ba nhóm bổ sung: **utility** trên retain/general tasks, **robustness** trước paraphrase và attack, cùng **efficiency** về thời gian, compute và bộ nhớ <Cite paper="qiu2025survey" evidence="utility-robustness-efficiency" />.
+
+<ConceptHierarchy ariaLabel="Ba điều kiện ngoài forget score" root={{ title: 'Unlearning có dùng được không?' }} children={[
+  { title: 'Utility', tone: 'blue', detail: 'Model còn làm tốt nhiệm vụ và tri thức cần giữ.' },
+  { title: 'Robustness', tone: 'violet', detail: 'Kết quả quên còn đứng vững trước paraphrase, jailbreak và relearning.' },
+  { title: 'Efficiency', tone: 'teal', detail: 'Chi phí thấp hơn phương án retrain và phù hợp SLA vận hành.' },
+]} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Một scorecard bốn trục
+
+<ConceptFlow ariaLabel="Scorecard đánh giá unlearning" items={[
+  { title: 'Forget quality', tone: 'amber', detail: 'Giảm bằng chứng về dữ liệu mục tiêu.' },
+  { title: 'Utility', tone: 'blue', detail: 'Bảo toàn retain và năng lực tổng quát.' },
+  { title: 'Robustness', tone: 'violet', detail: 'Không lộ lại dưới threat model.' },
+  { title: 'Efficiency', tone: 'teal', detail: 'Thời gian, FLOPs, memory và số tham số cập nhật.' },
+]} />
+
+Không nên che trade-off bằng một trung bình duy nhất. Báo cáo từng trục và đường Pareto giúp người đọc thấy phương pháp đang đổi utility hoặc chi phí lấy mức quên nào.
+
+<LessonNote tone="info">Efficiency phải so với baseline phù hợp, thường gồm không làm gì, fine-tune đơn giản và retrain khi khả dụng.</LessonNote>
+
+</MdxPage>

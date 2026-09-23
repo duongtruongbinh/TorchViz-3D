@@ -1,0 +1,166 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "tripartite-evaluation-metrics",
+  locale: "vi",
+  title: "Bộ ba Đo lường: Probability, ROUGE & Truth Ratio",
+  headings: [
+    "Vì sao một điểm số là chưa đủ?",
+    "Forget quality và gold retrained",
+    "Utility và kiểm tra bổ sung"
+  ],
+  keywords: ["Forget quality", "Gold retrained", "Utility", "Truth ratio"],
+  conceptIds: ['quiz-metric-collapse', 'quiz-pvalue', 'quiz-utility', 'quiz-report'],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Vì sao một điểm số là chưa đủ?
+
+Trong phân tích dữ liệu và học máy kinh điển, mọi kỹ sư đều nằm lòng một chân lý: **Không bao giờ được phép tin vào một chỉ số đơn lẻ**. Nếu bạn đánh giá một mô hình phát hiện gian lận ngân hàng trên tập dữ liệu mất cân bằng nghiêm trọng mà chỉ nhìn vào Accuracy, con số 99% có thể chỉ là một trò hề khi mô hình luôn phán đoán mọi giao dịch là an toàn.
+
+Trong địa hạt Machine Unlearning, cạm bẫy đánh giá này thậm chí còn tinh vi và nguy hiểm hơn gấp bội.
+
+Hãy tưởng tượng một kỹ sư AI bước vào phòng họp và tự tin tuyên bố: *"Mô hình sau unlearn của em đã đạt kết quả tuyệt đối: Độ chính xác trên tập Forget rơi về 0% và độ trùng khớp chuỗi ký tự ROUGE-L cũng bằng 0.00!"*. Thoạt nghe, ban giám đốc có thể nghĩ rằng thuật toán đã tạo nên một kỳ tích. Nhưng khi trực tiếp gõ vào prompt kiểm tra, người ta phát hiện ra mô hình đã bị phá hủy hoàn toàn não bộ: hỏi bất kỳ câu gì nó cũng chỉ sinh ra các ký tự rác vô nghĩa hoặc lặp lại một từ duy nhất. Một mô hình bị tổn thương não nghiêm trọng thì hiển nhiên không thể trả lời đúng bất kỳ câu hỏi nào về tập dữ liệu cần quên!
+
+Đó là lý do vì sao việc đo lường unlearning không thể dựa vào một điểm số cục bộ. Theo khảo cứu toàn diện của Qiu et al. (2025) trên hơn 180 công trình, quy trình đánh giá unlearning bắt buộc phải được thẩm định qua một **Kiềng Ba Chân Đo Lường (Tripartite Evaluation Framework)** vững chắc: Quên mục tiêu, So khớp phân phối với Gold Retrained, và Bảo tồn năng lực tổng quát.
+
+<LessonImage
+  assetPath="llm-unlearning/05-tripartite-evaluation-metrics.webp"
+  alt="Ba phép kiểm tra gồm quên mục tiêu, so khớp phân phối và giữ năng lực"
+  caption="Kiềng ba chân đo lường unlearning: Quên mục tiêu (Target Dememorization), So khớp phân phối với Gold Retrained, và Bảo toàn năng lực tổng quát (Utility Preservation)."
+/>
+
+Bức tranh trên minh họa ba câu hỏi khảo nghiệm không thể tách rời:
+- **Target Dememorization (Quên Mục Tiêu)**: Tín hiệu xác suất và mức độ ghi nhớ của dữ liệu nhạy cảm có thực sự bị triệt tiêu hay không?
+- **Distributional Alignment (Chuẩn Hóa Phân Phối)**: Hành vi của mô hình sau can thiệp có thực sự tự nhiên và tiệm cận với mô hình đối chuẩn Gold Retrained hay không?
+- **Utility Preservation (Bảo Tồn Năng Lực)**: Toàn bộ kho tri thức hợp lệ và năng lực suy luận ngôn ngữ có được bảo vệ nguyên vẹn hay không?
+
+<LessonNote tone="info">
+Đánh giá unlearning là một bài toán tối ưu hóa đa mục tiêu; một thuật toán chỉ thực sự thành công khi nó đồng thời thỏa mãn cả ba chân trụ: quên sạch tập Forget, khớp phân phối Gold, và bảo toàn năng lực Retain.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Forget quality và gold retrained
+
+Thước đo quan trọng nhất để đánh giá mức độ quên của một mô hình mang tên **Forget Quality (Chất Lượng Quên)**. Trong khung đánh giá TOFU, Forget Quality không đo bằng tỷ lệ câu hỏi bị sai, mà đo lường mức độ tương đồng về mặt phân phối xác suất giữa mô hình unlearned (<InlineMath formula="\mathcal{M}_u" />) và mô hình đối chuẩn lý tưởng Gold Retrained (<InlineMath formula="\mathcal{M}_{\text{gold}}" />).
+
+Để loại bỏ sự trồi sụt của xác suất tuyệt đối do độ dài câu văn và độ hiếm của từ vựng, TOFU sử dụng chỉ số **Tỷ số Chân lý (Truth Ratio)** trên từng câu hỏi truy vấn <InlineMath formula="x" />:
+
+<BlockMath formula="\text{Truth Ratio}(x) = \frac{\exp\left(\frac{1}{|y_{\text{true}}|}\sum_{t=1}^{|y_{\text{true}}|} \log p_\theta(y_{\text{true}, t} \mid x, y_{\text{true}, <t})\right)}{\exp\left(\frac{1}{|y_{\text{false}}|}\sum_{t=1}^{|y_{\text{false}}|} \log p_\theta(y_{\text{false}, t} \mid x, y_{\text{false}, <t})\right)}" />
+
+Trực giác của Truth Ratio rất rõ ràng:
+- Tử số là xác suất mô hình dự đoán câu trả lời đúng <InlineMath formula="y_{\text{true}}" />.
+- Mẫu số là xác suất mô hình dự đoán các phương án sai hợp lý <InlineMath formula="y_{\text{false}}" />.
+- Nếu mô hình vẫn còn nhớ như in: Tử số áp đảo mẫu số, Truth Ratio đạt giá trị cực lớn (hàng chục đến hàng trăm lần).
+- Nếu mô hình đã quên tự nhiên như Gold: Cả đáp án đúng lẫn đáp án sai đều lạ lẫm như nhau đối với mô hình, khiến tỷ số Truth Ratio rơi về quanh mức cân bằng tự nhiên (<InlineMath formula="\approx 1" />).
+
+<ConceptFlow
+  ariaLabel="Quy trình kiểm định Kolmogorov-Smirnov đo lường Forget Quality"
+  items={[
+    {
+      title: "1. Tính Truth Ratio",
+      detail: "Tính tỷ số xác suất giữa đáp án đúng và các phương án nhiễu trên toàn bộ các câu hỏi trong Forget set.",
+      formula: "\\text{TruthRatio}(x) = \\frac{P(y_{\\text{true}} \\mid x)}{P(y_{\\text{false}} \\mid x)}",
+      tone: "blue",
+      visual: "database"
+    },
+    {
+      title: "2. Dựng Phân Phối Tích Lũy CDF",
+      detail: "Xây dựng hàm phân phối tích lũy \\(F_{\\text{unlearn}}(z)\\) và so sánh với hàm \\(F_{\\text{gold}}(z)\\) của mô hình đối chuẩn.",
+      tone: "amber",
+      visual: "neural-network"
+    },
+    {
+      title: "3. Kiểm Định KS & P-Value",
+      detail: "Tìm độ lệch lớn nhất \\(D_{\\text{KS}}\\); giá trị p-value > 0.05 khẳng định hai phân phối không thể phân biệt về mặt thống kê.",
+      formula: "D_{\\text{KS}} = \\sup_z |F_{\\text{unlearn}}(z) - F_{\\text{gold}}(z)|",
+      tone: "teal",
+      visual: "evaluation"
+    }
+  ]}
+/>
+
+Bên cạnh Truth Ratio, khảo cứu của Qiu et al. (2025) nhấn mạnh hai họ chỉ số đo lường bộ nhớ quan trọng:
+1. **Chỉ số Dựa trên Thứ hạng (Rank-based Metrics)**: Xác suất có phương sai cực đoan giữa các token phổ biến và từ hiếm. Bằng cách xếp hạng các token theo xác suất giảm dần và sử dụng thứ hạng làm điểm số (như chỉ số **Exposure** của Carlini hoặc **Mean Reciprocal Rank - MRR**), phân phối điểm sẽ đồng đều hơn và phản ánh chân thực hơn mức độ trồi sụt của tri thức ẩn.
+2. **Kiểm tra Suy luận Thành viên (MIA) Không cần Shadow Models**: Thay vì phải huấn luyện hàng chục mô hình bóng tốn kém, các kỹ thuật hiện đại như **Min-K% Prob** (Shi et al., 2024) và **Min-K%++** (Zhang et al., 2025) chỉ cần tính trung bình log-likelihood của k% token có xác suất thấp nhất để phát hiện xem một văn bản có từng nằm trong tập huấn luyện hay không.
+
+<LessonNote tone="warning">
+Giá trị p-value trong kiểm định KS tuyệt đối không phải là 'phần trăm dữ liệu đã được xóa'. P-value đại diện cho xác suất bác bỏ giả thuyết hai phân phối là giống nhau; p-value càng cao (tiệm cận 1.0) chứng minh mô hình unlearn càng giống mô hình Gold.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Utility và kiểm tra bổ sung
+
+Một thuật toán đạt Forget Quality cao vút nhưng biến mô hình thành một kẻ nói ngọng thì hoàn toàn vô giá trị trong thực tế. Trụ cột đối trọng thứ hai bắt buộc phải thẩm định chính là **Model Utility (Năng Lực Hữu Ích)**.
+
+<ConceptHierarchy
+  ariaLabel="Khung kiểm toán kỹ thuật toàn diện trong báo cáo đánh giá unlearning"
+  root={{
+    title: "Khung Kiểm Toán Kỹ Thuật Toàn Diện Cấp Sản Xuất",
+    detail: "Báo cáo thực chiến cân bằng đa mục tiêu giữa mức độ quên, năng lực giữ lại và khả năng kháng cự đối kháng."
+  }}
+  nodes={[
+    {
+      title: "1. Forget Quality (Chất Lượng Quên)",
+      detail: "Độ lệch phân phối Truth Ratio so với mô hình Gold và kiểm tra tàn dư xác suất.",
+      tone: "blue",
+      children: [
+        {
+          title: "Khoảng cách KS & P-Value",
+          detail: "\\(D_{\\text{KS}}\\) càng nhỏ và p-value > 0.05 khẳng định hành vi tiệm cận mô hình chưa từng thấy dữ liệu."
+        },
+        {
+          title: "Min-K% Prob & Extraction Strength",
+          detail: "Đo lường rủi ro trích xuất tiền tố và kiểm thử suy luận thành viên không cần shadow model."
+        }
+      ]
+    },
+    {
+      title: "2. Model Utility (Năng Lực Tổng Quát)",
+      detail: "Khả năng duy trì tri thức hợp lệ và năng lực lập luận tự nhiên trên các miền độc lập.",
+      tone: "teal",
+      children: [
+        {
+          title: "Retain Set & Neighbor Set",
+          detail: "Đo lường ROUGE-L và Accuracy trên các thực thể lân cận để kiểm soát hiện tượng xóa lậm (Over-unlearning)."
+        },
+        {
+          title: "World Facts & Standard Benchmarks",
+          detail: "Độ trôi chảy ngôn ngữ qua Perplexity và điểm số suy luận trên các bài thi chuẩn MMLU, GSM8K, ARC."
+        }
+      ]
+    },
+    {
+      title: "3. Độ Bền Đối Kháng & An Toàn Thực Chiến",
+      detail: "Khả năng chống chịu trước các cuộc tấn công bẻ khóa và chi phí tài nguyên phần cứng.",
+      tone: "amber",
+      children: [
+        {
+          title: "Robustness (Jailbreak & Relearning)",
+          detail: "Khảo nghiệm tính bền vững qua GCG, AutoPrompt và đo lường gia tốc học lại Few-step Fine-tuning."
+        },
+        {
+          title: "Các Tiêu Chuẩn Thực Chiến (WMDP, MUSE)",
+          detail: "Mở rộng kiểm định unlearning sang các rủi ro an ninh sinh học, mã độc an ninh mạng và bản quyền báo chí."
+        }
+      ]
+    }
+  ]}
+/>
+
+Đặc biệt, trong các ứng dụng thực tế về an toàn quốc gia và đạo đức AI, unlearning không chỉ áp dụng cho tên tác giả hư cấu (như TOFU), mà còn được kiểm chuẩn trên các bộ dữ liệu thách thức cao như **WMDP (Weapons of Mass Destruction Proxy - Li et al., 2024)** nhằm xóa bỏ hoàn toàn tri thức chế tạo vũ khí sinh học, hóa học và mã độc mạng mà không làm suy giảm năng lực lập trình và tư duy khoa học nền tảng.
+
+Khung đo lường ba chân trụ này sẽ là chiếc chìa khóa vạn năng để chúng ta giải mã các bảng số liệu thực nghiệm đối đầu giữa Phi-1.5 và LLaMA-2 ở bài học tiếp theo.
+
+<LessonNote tone="danger">
+Khi đưa các thuật toán GA, GradDiff, KL và DPO lên sàn đấu thực nghiệm trên hai kiến trúc mô hình khác biệt (Phi-1.5 nhỏ gọn vs LLaMA-2 quy mô lớn), phương pháp nào sẽ giành chiến thắng và phương pháp nào sẽ phơi bày điểm gãy?
+</LessonNote>
+
+</MdxPage>

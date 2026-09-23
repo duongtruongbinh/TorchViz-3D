@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'sft-objective-families-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['sft-objective-levels', 'distribution-target', 'activation-target'], keywords: ['Quiz', 'SFT objectives'],
+  conceptIds: ['sft-objective-levels', 'distribution-target', 'activation-target'], pageCount: 3,
+};
+
+<MdxQuiz id="sft-objective-families-quiz" questions={[
+  { id: 'sft-objective-levels', title: 'Ba mức', prompt: 'Đâu là ba mức mục tiêu được nêu trong bài?', mode: 'single', options: [
+    { id: 'b', label: 'CPU, GPU, TPU.' }, { id: 'a', label: 'Text, distribution, activation.', isCorrect: true }, { id: 'c', label: 'Train, dev, test.' }, { id: 'd', label: 'Input, label, epoch.' },
+  ], success: 'Đúng. Đây là ba nơi đặt tín hiệu tối ưu.', error: 'Hãy xem sơ đồ phân cấp.' },
+  { id: 'distribution-target', title: 'Phân phối', prompt: 'Distribution-level objective thường đối chiếu điều gì?', mode: 'single', options: [
+    { id: 'b', label: 'Màu giao diện.' }, { id: 'c', label: 'Số file.' }, { id: 'a', label: 'Phân phối token với teacher hoặc reference.', isCorrect: true }, { id: 'd', label: 'Tên tác giả.' },
+  ], success: 'Đúng. Target là phân phối xác suất.', error: 'Nó không chỉ kiểm tra một chuỗi text.' },
+  { id: 'activation-target', title: 'Activation', prompt: 'Rủi ro chính của activation-level là gì?', mode: 'single', options: [
+    { id: 'b', label: 'Không thể có hidden state.' }, { id: 'c', label: 'Luôn không đổi utility.' }, { id: 'd', label: 'Không cần evaluation.' }, { id: 'a', label: 'Khó cô lập biểu diễn chỉ thuộc tri thức cần quên.', isCorrect: true },
+  ], success: 'Đúng. Biểu diễn thường đan xen.', error: 'Hãy nhớ khó khăn khi định vị biểu diễn.' },
+]} />

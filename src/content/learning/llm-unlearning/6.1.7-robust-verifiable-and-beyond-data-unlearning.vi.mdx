@@ -1,0 +1,38 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'robust-verifiable-and-beyond-data-unlearning', locale: 'vi', title: 'Unlearning Bền vững, Kiểm chứng được & Vượt ngoài Dữ liệu',
+  headings: ['Từ điểm số sang bảo đảm', 'Unlearning có thể nhắm đến nhiều hơn dữ liệu'],
+  keywords: ['Certified unlearning', 'Robustness', 'Concept unlearning'],
+  conceptIds: ['robust-unlearning', 'verifiable-unlearning', 'beyond-data'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Từ điểm số sang bảo đảm
+
+Robust unlearning yêu cầu hiệu quả còn tồn tại dưới paraphrase, jailbreak, extraction và relearning. Verifiable hoặc certified unlearning đi xa hơn: muốn có phép kiểm hoặc bảo đảm được phát biểu rõ, thay vì chỉ một bộ điểm trung bình <Cite paper="qiu2025survey" evidence="robust-verifiable-frontiers" />.
+
+<ConceptFlow ariaLabel="Ba nấc bằng chứng" items={[
+  { title: 'Benchmark score', tone: 'blue', detail: 'Đạt kết quả trên tập prompt cố định.' },
+  { title: 'Adversarial robustness', tone: 'violet', detail: 'Đứng vững trước threat model và biến đổi đầu vào.' },
+  { title: 'Verification / certification', tone: 'teal', detail: 'Có test hoặc bound gắn với claim được định nghĩa chính xác.' },
+]} />
+
+Nấc cao hơn không tự xuất hiện từ nhiều benchmark hơn; nó cần threat model, giả định và điều kiện thất bại minh bạch.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Unlearning có thể nhắm đến nhiều hơn dữ liệu
+
+Survey mở rộng hướng tương lai từ xóa mẫu sang quên **khái niệm, hành vi, kỹ năng hoặc ảnh hưởng của một nguồn**. Đây là “beyond-data unlearning”: đơn vị cần loại bỏ không còn trùng với một danh sách dòng dữ liệu <Cite paper="qiu2025survey" evidence="beyond-data" />.
+
+<ConceptHierarchy ariaLabel="Các mục tiêu vượt ngoài mẫu dữ liệu" root={{ title: 'Đơn vị cần quên' }} children={[
+  { title: 'Mẫu hoặc thực thể', tone: 'blue', detail: 'Có thể liệt kê dữ liệu hay đối tượng tương đối rõ.' },
+  { title: 'Khái niệm hoặc kỹ năng', tone: 'violet', detail: 'Phân tán qua nhiều ví dụ và dùng chung với năng lực khác.' },
+  { title: 'Nguồn ảnh hưởng', tone: 'teal', detail: 'Muốn loại bỏ tác động của dataset, contributor hoặc pipeline cụ thể.' },
+]} />
+
+<LessonNote tone="warning">Phạm vi mục tiêu càng trừu tượng, retain boundary càng phải được viết rõ để tránh xóa quá mức.</LessonNote>
+
+</MdxPage>

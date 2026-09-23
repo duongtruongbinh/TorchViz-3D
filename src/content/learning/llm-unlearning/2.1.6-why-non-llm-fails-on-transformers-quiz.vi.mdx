@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "why-non-llm-fails-on-transformers-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-trans-output-space-diff","quiz-trans-superposition-polysemanticity","quiz-trans-attention-cross-dependencies","quiz-trans-scaling-law-breakdown","quiz-trans-voting-gridlock","quiz-trans-in-place-surgery-paradigm"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-trans-output-space-diff', 'quiz-trans-superposition-polysemanticity', 'quiz-trans-attention-cross-dependencies', 'quiz-trans-scaling-law-breakdown', 'quiz-trans-voting-gridlock', 'quiz-trans-in-place-surgery-paradigm'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="why-non-llm-fails-on-transformers-quiz" questions={[
+  {
+    id: 'quiz-trans-output-space-diff',
+    title: 'Sự Khác biệt Căn bản về Không gian Đầu ra',
+    prompt: 'Điểm khác biệt căn bản nhất về không gian đầu ra giữa các bài toán phân loại Non-LLM truyền thống và LLM là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_out_image_pixels', label: 'Mô hình truyền thống luôn xuất ra ảnh pixel còn LLM xuất ra âm thanh.' },
+      { id: 'opt_out_binary_only', label: 'Các mô hình Non-LLM chỉ dự đoán nhãn nhị phân 0 hoặc 1.' },
+      { id: 'opt_out_discrete_vs_generative', label: 'Mô hình truyền thống dự đoán nhãn rời rạc cố định trong không gian đóng, trong khi LLM sinh chuỗi văn bản tự do đa bước từ từ vựng hàng chục nghìn token.', isCorrect: true },
+      { id: 'opt_out_floating_point', label: 'Mô hình Non-LLM chỉ sử dụng số nguyên còn LLM dùng số thực.' },
+    ], success: 'Chính xác. Khác với bài toán phân loại chỉ có vài nhãn cố định, sinh ngôn ngữ là quá trình tự hồi quy mở với không gian tổ hợp chuỗi khổng lồ, khiến các giả định phân vùng truyền thống mất tác dụng.',
+    error: 'Chưa chính xác. Khác biệt lớn nhất là không gian đầu ra: bài toán phân loại có tập nhãn hữu hạn cố định, còn LLM sinh chuỗi token tự do liên tiếp từ từ điển hàng vạn từ.',
+  },
+  {
+    id: 'quiz-trans-superposition-polysemanticity',
+    title: 'Bản chất Hiện tượng Chồng chập Tri thức Superposition',
+    prompt: 'Khái niệm Superposition (chồng chập tri thức) trong các tầng nơ-ron Transformer mô tả điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_sup_gpu_parallel', label: 'Khả năng tính toán song song trên nhiều GPU cùng thời điểm.' },
+      { id: 'opt_sup_duplicate_layers', label: 'Sự trùng lặp hoàn toàn giữa tầng Transformer thứ nhất và tầng cuối cùng.' },
+      { id: 'opt_sup_cpu_cache', label: 'Việc nạp hai file checkpoint cùng một lúc vào bộ nhớ đệm CPU.' },
+      { id: 'opt_sup_dense_entanglement', label: 'Các khái niệm và dữ kiện khác nhau được biểu diễn đan xen trên cùng một tập hợp nơ-ron thông qua các tổ hợp vector kích hoạt, thay vì mỗi nơ-ron chỉ đại diện cho một dữ kiện độc lập.', isCorrect: true },
+    ], success: 'Đúng. Tri thức trong LLM được lưu trữ dưới dạng phân tán đan xen (superposition/polysemanticity). Không có trọng số nào thuộc riêng về một dữ kiện cụ thể, khiến việc xóa một tri thức dễ làm tổn thương các tri thức khác.',
+    error: 'Chưa đúng. Superposition biểu thị việc mạng nơ-ron nén và biểu diễn nhiều khái niệm khác nhau trên cùng một cấu trúc trọng số, dẫn đến hiện tượng ràng buộc tri thức đan xen.',
+  },
+  {
+    id: 'quiz-trans-attention-cross-dependencies',
+    title: 'Ràng buộc Ngữ cảnh Đa Token qua Cơ chế Self-Attention',
+    prompt: 'Cơ chế Self-Attention tạo ra khó khăn gì cho bài toán Machine Unlearning so với các mô hình nơ-ron truyền thẳng FFN đơn giản?',
+    mode: 'single',
+    options: [
+      { id: 'opt_att_all_to_all_context', label: 'Self-Attention tính toán trọng số tương tác giữa mọi cặp token trong ngữ cảnh; khi xóa một khái niệm, sự thay đổi lan tỏa và làm xáo trộn liên kết chú ý của toàn bộ chuỗi văn bản.', isCorrect: true },
+      { id: 'opt_att_invertible_matrix', label: 'Ma trận Attention luôn là ma trận khả nghịch có định thức bằng 1.' },
+      { id: 'opt_att_single_direction', label: 'Self-Attention chỉ cho phép thông tin đi một chiều từ phải sang trái.' },
+      { id: 'opt_att_hardware_freeze', label: 'Làm đóng băng toàn bộ vi xử lý khi gặp dấu chấm câu.' },
+    ], success: 'Chính xác. Vì Attention kết nối toàn bộ token trong câu, việc can thiệp vào một khái niệm sẽ làm lệch hướng ma trận Softmax(QK^T/sqrt(d)) trên toàn bộ chuỗi ngữ cảnh, gây biến đổi hành vi của các từ vựng bình thường xung quanh.',
+    error: 'Chưa chính xác. Cơ chế Self-Attention liên kết toàn bộ các token với nhau trong không gian ngữ cảnh, do đó tác động lên một mẫu dữ liệu sẽ lan truyền ra toàn bộ chuỗi token liên quan.',
+  },
+  {
+    id: 'quiz-trans-scaling-law-breakdown',
+    title: 'Hệ quả Phá vỡ Quy luật Mở rộng Scaling Laws khi Phân mảnh',
+    prompt: 'Tại sao việc chia nhỏ ngữ liệu tiền huấn luyện khổng lồ thành nhiều mảnh nhỏ độc lập (Sharding như SISA) lại làm suy giảm trí thông minh của LLM?',
+    mode: 'single',
+    options: [
+      { id: 'opt_shard_tokenizer_limit', label: 'Mỗi shard chỉ chứa được tối đa 100 từ vựng tiếng Anh.' },
+      { id: 'opt_shard_scaling_law_drop', label: 'Năng lực lập luận nâng cao và các năng lực nổi trội (Emergent Abilities) đòi hỏi mô hình phải học trên một kho tri thức toàn cục tích lũy; việc phân mảnh làm mất đi bức tranh tri thức tổng quát.', isCorrect: true },
+      { id: 'opt_shard_file_system', label: 'Do hệ điều hành Linux không cho phép chia một file văn bản thành nhiều mảnh.' },
+      { id: 'opt_shard_loss_zero', label: 'Làm độ mất mát Loss giảm về 0 quá nhanh khiến mô hình bị dừng sớm.' },
+    ], success: 'Đúng. Theo quy luật Compute Scaling Laws, khả năng khái quát hóa và lập luận phức tạp của LLM phụ thuộc vào quy mô dữ liệu toàn cục. Chia nhỏ tập dữ liệu sẽ biến LLM thành các mô hình rời rạc suy dinh dưỡng tri thức.',
+    error: 'Chưa đúng. Sức mạnh vượt trội của LLM đến từ việc hấp thụ kho ngữ liệu khổng lồ liên tục. Nếu chia nhỏ thành các shard, mỗi mô hình shard sẽ không đạt đủ ngưỡng kích thước để kích hoạt các năng lực suy luận cao cấp.',
+  },
+  {
+    id: 'quiz-trans-voting-gridlock',
+    title: 'Sự Bế tắc của Phép Bỏ phiếu Đa số Cấp độ Token',
+    prompt: 'Hiện tượng Token-level Voting Gridlock xảy ra khi nào nếu ta cố gắng kết hợp đầu ra của nhiều mô hình LLM shard độc lập?',
+    mode: 'single',
+    options: [
+      { id: 'opt_vote_infinite_loop', label: 'Hàm bỏ phiếu rơi vào vòng lặp vô hạn và không bao giờ kết thúc.' },
+      { id: 'opt_vote_network_disconnect', label: 'Khi cáp mạng giữa các máy chủ bị đứt đột ngột.' },
+      { id: 'opt_vote_incoherent_patchwork', label: 'Mỗi shard model diễn đạt cùng một ý bằng các cấu trúc câu và từ vựng khác nhau; việc bỏ phiếu chọn từng token riêng lẻ tạo ra câu văn chắp vá, ngữ pháp sai lệch và mất hoàn toàn tính mạch lạc.', isCorrect: true },
+      { id: 'opt_vote_identical_tokens', label: 'Tất cả các shard model luôn đồng thuận 100% về mọi token được sinh ra.' },
+    ], success: 'Chính xác. Vì ngôn ngữ tự nhiên có vô số cách biểu đạt tương đương, mỗi shard sẽ chọn một lối diễn đạt riêng. Bỏ phiếu rời rạc từng từ sẽ làm câu văn gãy vụn và mất hết logic ngữ nghĩa.',
+    error: 'Chưa chính xác. Khác với phân loại nhãn, các mô hình ngôn ngữ sẽ sinh ra các lối hành văn khác nhau. Bỏ phiếu từng từ làm câu văn bị chắp vá, câu cú què cụt và mất tính mạch lạc.',
+  },
+  {
+    id: 'quiz-trans-in-place-surgery-paradigm',
+    title: 'Mô thức Phẫu thuật Gradient Tại chỗ với Mục tiêu Kép',
+    prompt: 'Mô thức hiện đại của Machine Unlearning cho Large Language Models được định hình bởi nguyên tắc cốt lõi nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_para_blacklist_filter', label: 'Chỉ cài đặt một danh sách từ khóa đen (Blacklist) ở lớp lọc đầu ra của ứng dụng chat.' },
+      { id: 'opt_para_hardware_reboot', label: 'Khởi động lại toàn bộ máy chủ cụm GPU sau mỗi 10 phút suy luận.' },
+      { id: 'opt_para_quad_retrain', label: 'Huấn luyện lại 4 lần liên tiếp từ đầu để kiểm tra độ ổn định.' },
+      { id: 'opt_para_in_place_dual_objective', label: 'Phẫu thuật can thiệp trực tiếp vào trọng số của một mô hình duy nhất tại chỗ, sử dụng hàm tối ưu kép: triệt tiêu xác suất trên tập cần quên và neo giữ phân phối ổn định trên tập giữ lại.', isCorrect: true },
+    ], success: 'Chính xác. Thay vì nhân bản hệ thống cồng kềnh, unlearning hiện đại cho LLM là cuộc phẫu thuật gradient trực tiếp trên một mô hình duy nhất, cân bằng giữa việc xóa dữ liệu mục tiêu và bảo toàn năng lực chung.',
+    error: 'Chưa đúng. Mô thức hiện đại là phẫu thuật gradient tại chỗ trên một mô hình duy nhất, kết hợp tối ưu hóa hai mục tiêu: xóa tri thức mục tiêu đồng thời bảo tồn tri thức chung.',
+  },
+]} />

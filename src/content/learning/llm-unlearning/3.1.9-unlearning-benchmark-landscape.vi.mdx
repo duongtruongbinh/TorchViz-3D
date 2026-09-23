@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'unlearning-benchmark-landscape', locale: 'vi',
+  title: 'Toàn cảnh Benchmark LLM Unlearning',
+  headings: ['Không benchmark nào bao phủ mọi rủi ro', 'Chọn bộ benchmark theo câu hỏi'],
+  keywords: ['TOFU', 'WMDP', 'MUSE', 'Copyright'],
+  conceptIds: ['benchmark-families', 'benchmark-coverage', 'benchmark-selection'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Không benchmark nào bao phủ mọi rủi ro
+
+TOFU là một phòng thí nghiệm kiểm soát tốt, nhưng lĩnh vực còn có benchmark nhắm đến dữ liệu riêng tư, nội dung có bản quyền, tri thức nguy hiểm và tri thức đã có trong pre-training. Survey cho thấy benchmark khác nhau ở đối tượng cần quên, cách model học dữ liệu và loại đầu ra được đo <Cite paper="qiu2025survey" evidence="benchmark-landscape" />.
+
+<ConceptHierarchy
+  ariaLabel="Các họ benchmark unlearning"
+  root={{ title: 'Câu hỏi cần đánh giá' }}
+  children={[
+    { title: 'Kiểm soát cơ chế', tone: 'teal', detail: 'Tiểu sử hoặc fact hư cấu với forget/retain split rõ.' },
+    { title: 'Quyền riêng tư & bản quyền', tone: 'blue', detail: 'Kiểm tra tái hiện nội dung hoặc thông tin nhạy cảm.' },
+    { title: 'Safety knowledge', tone: 'amber', detail: 'Đo khả năng loại bỏ tri thức nguy hiểm mà giữ năng lực lành tính.' },
+  ]}
+/>
+
+Kết quả tốt trên một họ không bảo đảm chuyển sang họ khác: từ chối câu hỏi nguy hiểm, chẳng hạn, không chứng minh mô hình đã quên một đoạn văn có bản quyền.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chọn bộ benchmark theo câu hỏi
+
+Thay vì hỏi “benchmark nào tốt nhất?”, hãy ghép từng rủi ro với bằng chứng cần có.
+
+<ConceptFlow
+  ariaLabel="Ba bước chọn benchmark"
+  items={[
+    { title: '1. Xác định claim', tone: 'blue', detail: 'Muốn chứng minh quên mẫu, thực thể, bản quyền hay tri thức nguy hiểm?' },
+    { title: '2. Kiểm tra lịch sử học', tone: 'violet', detail: 'Dữ liệu được fine-tune có kiểm soát hay có thể đến từ pre-training?' },
+    { title: '3. Ghép phép đo', tone: 'teal', detail: 'Đo forget quality cùng utility, robustness và chi phí.' },
+  ]}
+/>
+
+Một báo cáo thuyết phục thường cần nhiều lát cắt: benchmark kiểm soát để hiểu cơ chế, benchmark gần thực tế để kiểm tra khả năng chuyển giao, và attack evaluation để tránh kết luận từ hành vi bề mặt.
+
+<LessonNote tone="warning">
+  Không nên gộp điểm từ các benchmark có giả định khác nhau thành một con số “unlearning tổng quát” nếu chưa giải thích trọng số và phạm vi claim.
+</LessonNote>
+
+</MdxPage>

@@ -47,6 +47,8 @@ type LearningReferenceRuntime = {
   citationLinkOnlyExceptions: readonly LearningCitationLinkOnlyException[];
 };
 
+type LearningReferenceRuntimeLoader = (lessonId: string) => Promise<LearningReferenceRuntime>;
+
 export type LoadedLearningMdxLesson = LearningReferenceRuntime & {
   domainId: LearningDomainId;
   lessonId: string;
@@ -82,6 +84,35 @@ const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<
   'evolutionary-algorithms': () => import('./domains/evolutionary-algorithms/mdxComponents').then(({ eaMdxComponents }) => eaMdxComponents),
   'ai-projects': () => import('./domains/ai-projects/mdxComponents').then(({ aiProjectsMdxComponents }) => aiProjectsMdxComponents),
   'research-papers': () => import('./domains/research-papers/mdxComponents').then(({ researchPapersMdxComponents }) => researchPapersMdxComponents),
+};
+
+const learningReferenceRuntimeLoaders: Partial<Record<LearningDomainId, LearningReferenceRuntimeLoader>> = {
+  'continual-learning-llm': async (lessonId) => {
+    const [papers, evidence] = await Promise.all([
+      import('../../content/learning/continual-learning-llm/papers.ts'),
+      import('../../content/learning/continual-learning-llm/citationEvidence.ts'),
+    ]);
+    return {
+      referenceCoverage: papers.continualLearningLessonReferenceCoverageById.get(lessonId),
+      referencePapers: papers.getContinualLearningLessonPapers(lessonId),
+      featuredReferenceIds: papers.getContinualLearningLessonFeaturedReferenceIds(lessonId),
+      citationEvidence: evidence.getContinualLearningLessonCitationEvidence(lessonId),
+      citationLinkOnlyExceptions: evidence.getContinualLearningLessonCitationLinkOnlyExceptions(lessonId),
+    };
+  },
+  'llm-unlearning': async (lessonId) => {
+    const [papers, evidence] = await Promise.all([
+      import('../../content/learning/llm-unlearning/papers.ts'),
+      import('../../content/learning/llm-unlearning/citationEvidence.ts'),
+    ]);
+    return {
+      referenceCoverage: papers.llmUnlearningLessonReferenceCoverageById.get(lessonId),
+      referencePapers: papers.getLlmUnlearningLessonPapers(lessonId),
+      featuredReferenceIds: papers.getLlmUnlearningLessonFeaturedReferenceIds(lessonId),
+      citationEvidence: evidence.getLlmUnlearningLessonCitationEvidence(lessonId),
+      citationLinkOnlyExceptions: evidence.getLlmUnlearningLessonCitationLinkOnlyExceptions(lessonId),
+    };
+  },
 };
 
 function loadLearningReferenceComponents(): Promise<Record<string, LearningMdxComponent>> {
@@ -202,21 +233,8 @@ async function loadLearningReferenceRuntime(
   domainId: LearningDomainId,
   lessonId: string,
 ): Promise<LearningReferenceRuntime> {
-  if (domainId !== 'continual-learning-llm') {
-    return emptyLearningReferenceRuntime();
-  }
-
-  const [papers, evidence] = await Promise.all([
-    import('../../content/learning/continual-learning-llm/papers.ts'),
-    import('../../content/learning/continual-learning-llm/citationEvidence.ts'),
-  ]);
-  return {
-    referenceCoverage: papers.continualLearningLessonReferenceCoverageById.get(lessonId),
-    referencePapers: papers.getContinualLearningLessonPapers(lessonId),
-    featuredReferenceIds: papers.getContinualLearningLessonFeaturedReferenceIds(lessonId),
-    citationEvidence: evidence.getContinualLearningLessonCitationEvidence(lessonId),
-    citationLinkOnlyExceptions: evidence.getContinualLearningLessonCitationLinkOnlyExceptions(lessonId),
-  };
+  const loader = learningReferenceRuntimeLoaders[domainId];
+  return loader ? loader(lessonId) : emptyLearningReferenceRuntime();
 }
 
 function assertSelectedLearningMdxModule(

@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning", id: "relearning-jailbreak-vulnerabilities-quiz", locale: "vi", title: "Quiz",
+  headings: ["quiz-probe-access", "quiz-relearning-control", "quiz-jailbreak", "quiz-interpretation"],
+  keywords: ["Machine Unlearning", "Quiz", "Relearning", "Jailbreak"], conceptIds: ['quiz-probe-access', 'quiz-relearning-control', 'quiz-jailbreak', 'quiz-interpretation'],
+  pageCount: 4,
+};
+
+<MdxQuiz id="relearning-jailbreak-vulnerabilities-quiz" questions={[
+  {
+    id: 'quiz-probe-access', title: 'Quyền truy cập', prompt: 'Khác biệt chính giữa relearning và jailbreak là gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Relearning thường cập nhật trọng số; jailbreak chủ yếu thay đổi prompt.', isCorrect: true },
+      { id: 'b', label: 'Cả hai luôn cần sửa tokenizer.' },
+      { id: 'c', label: 'Jailbreak luôn cần white-box.' },
+      { id: 'd', label: 'Relearning không dùng dữ liệu.' },
+    ], success: 'Đúng. Hai probe giả định quyền truy cập khác nhau.', error: 'Hãy phân biệt fine-tune với truy vấn prompt.',
+  },
+  {
+    id: 'quiz-relearning-control', title: 'Đối chứng relearning', prompt: 'Mốc nào quan trọng nhất khi đo tốc độ relearning?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Một mô hình ngẫu nhiên khác tokenizer.' },
+      { id: 'b', label: 'Gold retrained dưới cùng dữ liệu và lịch fine-tune.', isCorrect: true },
+      { id: 'c', label: 'Chỉ mô hình gốc.' },
+      { id: 'd', label: 'Không cần mốc đối chứng.' },
+    ], success: 'Đúng. Gold retrained cho đường cơ sở về việc học lại từ trạng thái không thấy dữ liệu.', error: 'So sánh phải giữ cùng protocol.',
+  },
+  {
+    id: 'quiz-jailbreak', title: 'Thiết kế jailbreak', prompt: 'Bộ thử jailbreak tốt nên bao gồm gì?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Chỉ lặp nguyên prompt huấn luyện.' },
+      { id: 'b', label: 'Chỉ một câu từ chối.' },
+      { id: 'c', label: 'Paraphrase, thay đổi ngữ cảnh, truy vấn thích nghi và prompt đối chứng.', isCorrect: true },
+      { id: 'd', label: 'Chỉ đo tốc độ sinh token.' },
+    ], success: 'Đúng. Bộ probe cần đa dạng và có đối chứng.', error: 'Một prompt đơn không đo được độ bền.',
+  },
+  {
+    id: 'quiz-interpretation', title: 'Diễn giải probe', prompt: 'Nếu một jailbreak thành công, kết luận nào hợp lý?', mode: 'single',
+    options: [
+      { id: 'a', label: 'Mọi dữ liệu pretraining đều còn nguyên.' },
+      { id: 'b', label: 'Mô hình vi phạm pháp luật trong mọi quốc gia.' },
+      { id: 'c', label: 'Forget quality bằng không.' },
+      { id: 'd', label: 'Đánh giá hiện tại chưa chứng minh khả năng chống trích xuất dưới probe đó.', isCorrect: true },
+    ], success: 'Đúng. Kết luận phải bám phạm vi phép thử.', error: 'Không suy rộng từ một probe sang tuyên bố tuyệt đối.',
+  },
+]} />

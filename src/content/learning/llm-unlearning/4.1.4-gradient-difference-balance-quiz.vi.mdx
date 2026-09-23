@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "gradient-difference-balance-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-gd-core-balance-concept","quiz-gd-loss-formulation","quiz-gd-alpha-extremes","quiz-gd-gradient-interference","quiz-gd-cos-angle-risk","quiz-gd-size-imbalance"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-gd-core-balance-concept', 'quiz-gd-loss-formulation', 'quiz-gd-alpha-extremes', 'quiz-gd-gradient-interference', 'quiz-gd-cos-angle-risk', 'quiz-gd-size-imbalance'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="gradient-difference-balance-quiz" questions={[
+  {
+    id: 'quiz-gd-core-balance-concept',
+    title: 'Bản chất Cán cân Đối trọng trong Gradient Difference',
+    prompt: 'Ý tưởng cải tiến mang tính quyết định của Gradient Difference (GD) so với Gradient Ascent thuần túy là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_gd_quantize_int8', label: 'Lượng tử hóa trọng số từ float16 sang int8 để giảm rung lắc.' },
+      { id: 'opt_gd_double_gpus', label: 'Tăng gấp đôi số lượng chip GPU tham gia vào quá trình tính toán.' },
+      { id: 'opt_gd_add_retain_loss', label: 'Bổ sung hàm mất mát Cross-Entropy trên tập Retain làm lực đối trọng để kéo giữ và bảo tồn các tri thức bình thường trong khi tăng gradient trên tập Forget.', isCorrect: true },
+      { id: 'opt_gd_drop_weights', label: 'Ngẫu nhiên bỏ rơi 50% số nơ-ron bằng kỹ thuật Dropout.' },
+    ], success: 'Chính xác. GD bổ sung thành phần tối ưu trên tập Retain đóng vai trò như một mỏ neo, ngăn không cho mô hình bị trôi dạt vào hố sâu sụp đổ ngôn ngữ.',
+    error: 'Chưa chính xác. Điểm cải tiến cốt lõi là việc đưa tập Retain vào hàm mục tiêu để làm lực đối trọng giữ lại tri thức trong khi quên tập Forget.',
+  },
+  {
+    id: 'quiz-gd-loss-formulation',
+    title: 'Cấu trúc Hàm Mục tiêu Tuyến tính của Thuật toán GD',
+    prompt: 'Hàm mất mát của Gradient Difference được cấu thành từ tổ hợp nào sau đây?',
+    mode: 'single',
+    options: [
+      { id: 'opt_gd_form_both_minus', label: 'L_GD = - L_CE(D_forget) - alpha * L_CE(D_retain).' },
+      { id: 'opt_gd_form_both_plus', label: 'L_GD = L_CE(D_forget) + alpha * L_CE(D_retain).' },
+      { id: 'opt_gd_form_division', label: 'L_GD = L_CE(D_forget) / L_CE(D_retain).' },
+      { id: 'opt_gd_form_correct', label: 'L_GD = - L_CE(D_forget) + alpha * L_CE(D_retain).', isCorrect: true },
+    ], success: 'Đúng. Hàm mất mát là sự kết hợp giữa việc tối đa hóa loss trên tập Forget (- L_CE) và tối thiểu hóa loss trên tập Retain (+ alpha * L_CE).',
+    error: 'Chưa đúng. Công thức chuẩn của GD là L_GD = - L_CE(D_forget) + alpha * L_CE(D_retain).',
+  },
+  {
+    id: 'quiz-gd-alpha-extremes',
+    title: 'Hệ quả khi Thiết lập Siêu tham số Alpha Sai lệch',
+    prompt: 'Điều gì sẽ xảy ra trong thực tế nếu người lập trình thiết lập hệ số Alpha quá lớn (ví dụ Alpha >> 10)?',
+    mode: 'single',
+    options: [
+      { id: 'opt_alpha_too_large_no_unlearn', label: 'Lực kéo của tập Retain quá áp đảo sẽ đè bẹp gradient của tập Forget, khiến mô hình hầu như không quên được dữ kiện nào.', isCorrect: true },
+      { id: 'opt_alpha_too_large_collapse', label: 'Mô hình lập tức bị sụp đổ độ trôi chảy ngôn ngữ.' },
+      { id: 'opt_alpha_too_large_syntax_error', label: 'Trình biên dịch Python báo lỗi cú pháp không chạy được.' },
+      { id: 'opt_alpha_too_large_zero_loss', label: 'Độ mất mát tự động trở về mức 0 tuyệt đối.' },
+    ], success: 'Chính xác. Nếu Alpha quá lớn, gradient giữ lại của tập Retain sẽ lấn át hoàn toàn gradient xóa của tập Forget, làm giảm hiệu quả unlearning về mức vô nghĩa.',
+    error: 'Chưa chính xác. Khi Alpha quá lớn, mô hình ưu tiên bảo toàn tập Retain và phớt lờ mục tiêu xóa tập Forget, khiến dữ liệu cần xóa vẫn tồn tại.',
+  },
+  {
+    id: 'quiz-gd-gradient-interference',
+    title: 'Cơ chế Xung đột Gradient (Gradient Interference)',
+    prompt: 'Hiện tượng Xung đột Gradient (Gradient Interference) xuất hiện trong GD khi nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt_inter_cpu_single_thread', label: 'Khi máy tính chỉ có một nhân CPU duy nhất.' },
+      { id: 'opt_inter_opposing_vectors', label: 'Khi vector gradient của tập Forget và vector gradient của tập Retain có tích vô hướng âm (ngược hướng nhau), giằng co triệt tiêu lẫn nhau và làm quỹ đạo tối ưu bị rung lắc.', isCorrect: true },
+      { id: 'opt_inter_wifi_drop', label: 'Khi sóng Wi-Fi của phòng máy chủ bị chập chờn.' },
+      { id: 'opt_inter_gpu_out_of_memory', label: 'Khi bộ nhớ VRAM của GPU bị tràn do batch size quá lớn.' },
+    ], success: 'Đúng. Khi hai vector gradient chỉ theo hai hướng đối nghịch (góc tù, tích vô hướng âm), quá trình cập nhật bị giằng co dữ dội, khiến mô hình khó tìm được điểm cực tiểu hài hòa.',
+    error: 'Chưa đúng. Xung đột gradient xảy ra khi hai vector gradient ngược hướng nhau (tích vô hướng âm), gây triệt tiêu động lực và dao động quỹ đạo tham số.',
+  },
+  {
+    id: 'quiz-gd-cos-angle-risk',
+    title: 'Tác động của Góc Tương quan Vector Gradient',
+    prompt: 'Tại sao kịch bản cos(phi) > 0 (hai vector gradient cùng hướng) lại là một rủi ro ngầm đối với quá trình unlearning trong GD?',
+    mode: 'single',
+    options: [
+      { id: 'opt_cos_pos_infinite_memory', label: 'Vì làm dung lượng file checkpoint tăng lên gấp đôi.' },
+      { id: 'opt_cos_pos_slow_tokenizer', label: 'Vì làm chậm tốc độ tách từ BPE.' },
+      { id: 'opt_cos_pos_relearn_risk', label: 'Vì khi đó việc cố gắng giảm loss trên tập Retain vô tình kéo giảm luôn loss trên tập Forget, khiến mô hình học củng cố thêm dữ liệu cần quên.', isCorrect: true },
+      { id: 'opt_cos_pos_overheat', label: 'Vì làm tăng nhiệt độ hoạt động của các bóng bán dẫn trên chip.' },
+    ], success: 'Chính xác. Nếu hai tập chia sẻ cùng một hướng gradient tích cực, bước descent trên Retain sẽ vô tình kéo giảm loss trên Forget, chống lại mục tiêu unlearn.',
+    error: 'Chưa chính xác. Rủi ro là việc tối ưu hóa tập Retain sẽ đồng thời tối ưu hóa ngược lại cho tập Forget, khiến tri thức mục tiêu bị củng cố thêm thay vì bị xóa.',
+  },
+  {
+    id: 'quiz-gd-size-imbalance',
+    title: 'Thách thức Mất cân bằng Kích thước Dữ liệu Retain vs Forget',
+    prompt: 'Trong bài toán unlearning TOFU (ví dụ Forget 10% và Retain 90%), sự chênh lệch quy mô dữ liệu tạo ra thách thức gì cho GD?',
+    mode: 'single',
+    options: [
+      { id: 'opt_imb_disk_crash', label: 'Làm hỏng các sector của ổ cứng lưu trữ.' },
+      { id: 'opt_imb_loss_nan', label: 'Khiến giá trị hàm mất mát biến thành NaN ngay từ epoch đầu tiên.' },
+      { id: 'opt_imb_token_limit', label: 'Giới hạn độ dài câu hỏi xuống dưới 5 từ.' },
+      { id: 'opt_imb_gradient_dominance', label: 'Tập Retain có số lượng mẫu gấp 9 lần tập Forget, khiến tổng gradient tích lũy của Retain dễ dàng lấn át hoàn toàn tín hiệu unlearning nếu không được chuẩn hóa cẩn thận.', isCorrect: true },
+    ], success: 'Đúng. Quy mô áp đảo của tập Retain tạo ra độ lớn gradient vượt trội so với tập Forget nhỏ bé, đòi hỏi các kỹ thuật điều tiết trọng số hoặc cân bằng batch tinh vi.',
+    error: 'Chưa đúng. Sự chênh lệch số lượng mẫu (90% vs 10%) khiến gradient của tập Retain áp đảo hoàn toàn tín hiệu gradient của tập Forget nếu không có cơ chế cân đối.',
+  },
+]} />

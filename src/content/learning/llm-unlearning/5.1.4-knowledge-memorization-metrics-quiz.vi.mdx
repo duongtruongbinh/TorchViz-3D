@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'knowledge-memorization-metrics-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['metric-families', 'internal-vs-external', 'metric-triangulation'], keywords: ['Quiz', 'Metrics'],
+  conceptIds: ['metric-families', 'internal-vs-external', 'metric-triangulation'], pageCount: 3,
+};
+
+<MdxQuiz id="knowledge-memorization-metrics-quiz" questions={[
+  { id: 'metric-families', title: 'Họ metric', prompt: 'Metric nào quan sát dấu hiệu một mẫu từng nằm trong training?', mode: 'single', options: [
+    { id: 'a', label: 'Membership inference attack.', isCorrect: true }, { id: 'b', label: 'Latency.' }, { id: 'c', label: 'GPU memory.' }, { id: 'd', label: 'Font size.' },
+  ], success: 'Đúng. MIA kiểm tra membership signal.', error: 'Hãy nhớ nhóm attack-based metric.' },
+  { id: 'internal-vs-external', title: 'Cửa sổ', prompt: 'Logit/rank khác output metric ở đâu?', mode: 'single', options: [
+    { id: 'b', label: 'Nó chỉ đếm file.' }, { id: 'a', label: 'Nó quan sát ưu tiên xác suất trước hoặc ngoài chuỗi sinh cuối.', isCorrect: true }, { id: 'c', label: 'Nó không dùng model.' }, { id: 'd', label: 'Nó luôn là MIA.' },
+  ], success: 'Đúng. Hai cửa sổ nhìn vào mức khác nhau.', error: 'Output cuối và phân phối token không đồng nhất.' },
+  { id: 'metric-triangulation', title: 'Tam giác hóa', prompt: 'Cách nào tạo bằng chứng mạnh hơn?', mode: 'single', options: [
+    { id: 'b', label: 'Chỉ một ROUGE score.' }, { id: 'c', label: 'Chỉ một prompt.' }, { id: 'a', label: 'Kết hợp hành vi, phân phối và attack với baseline.', isCorrect: true }, { id: 'd', label: 'Bỏ gold model.' },
+  ], success: 'Đúng. Nhiều cửa sổ giảm blind spot.', error: 'Một metric đơn lẻ có thể bị đánh lừa.' },
+]} />

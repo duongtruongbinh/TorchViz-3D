@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Dna,
   FolderKanban,
+  Eraser,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -29,6 +30,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   nlp: MessageSquareText,
   'llm-ai-engineering': Cpu,
   'continual-learning-llm': RefreshCw,
+  'llm-unlearning': Eraser,
   'mlops-llmops-production-systems': ServerCog,
   'ai-system-design': Network,
   'ai-ethics-safety-governance': ShieldCheck,
@@ -92,6 +94,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#F0F4FF]/40',
     icon: 'bg-[#EFF4FF] text-[#3B5480]',
     accent: 'bg-[#5B78A8]',
+  },
+  'llm-unlearning': {
+    visual: 'bg-[#C8C2DE]',
+    glow: 'bg-[#F6F2FF]/42',
+    icon: 'bg-[#F7F3FF] text-[#55437E]',
+    accent: 'bg-[#7660A6]',
   },
   'mlops-llmops-production-systems': {
     visual: 'bg-[#A7C8CF]',

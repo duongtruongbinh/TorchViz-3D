@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'modular-and-composite-unlearning-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['modular-unlearning', 'composite-method', 'composition-audit'], keywords: ['Quiz', 'Modular'],
+  conceptIds: ['modular-unlearning', 'composite-method', 'composition-audit'], pageCount: 3,
+};
+
+<MdxQuiz id="modular-and-composite-unlearning-quiz" questions={[
+  { id: 'modular-unlearning', title: 'Module', prompt: 'Lợi ích chính của modularity là gì?', mode: 'single', options: [
+    { id: 'b', label: 'Xóa mọi backbone.' }, { id: 'c', label: 'Bỏ evaluation.' }, { id: 'd', label: 'Tăng mọi tham số.' }, { id: 'a', label: 'Cô lập cập nhật để module có thể thay hoặc tháo.', isCorrect: true },
+  ], success: 'Đúng. Modularity tạo biên can thiệp rõ hơn.', error: 'Hãy nhớ module chuyên biệt.' },
+  { id: 'composite-method', title: 'Kết hợp', prompt: 'Đâu là ví dụ composite method?', mode: 'single', options: [
+    { id: 'a', label: 'Localization + objective cập nhật + guard serving.', isCorrect: true }, { id: 'b', label: 'Chỉ đổi tên model.' }, { id: 'c', label: 'Chỉ một prompt.' }, { id: 'd', label: 'Không có retain check.' },
+  ], success: 'Đúng. Nhiều cơ chế được ghép theo chuỗi.', error: 'Composite nghĩa là phối hợp nhiều lớp.' },
+  { id: 'composition-audit', title: 'Audit', prompt: 'Vì sao cần đo từng lớp?', mode: 'single', options: [
+    { id: 'b', label: 'Để bỏ toàn hệ thống.' }, { id: 'a', label: 'Để biết cơ chế nào tạo ra hành vi quan sát được.', isCorrect: true }, { id: 'c', label: 'Vì guard luôn sửa weights.' }, { id: 'd', label: 'Vì module không có output.' },
+  ], success: 'Đúng. Audit cần khả năng quy kết.', error: 'Attack thất bại có thể do guard, không phải weights.' },
+]} />

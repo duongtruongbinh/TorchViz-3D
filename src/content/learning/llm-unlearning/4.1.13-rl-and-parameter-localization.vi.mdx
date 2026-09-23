@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'rl-and-parameter-localization', locale: 'vi', title: 'Reinforcement Learning & Định vị Tham số',
+  headings: ['RL tối ưu tín hiệu hành vi', 'Localization thu hẹp nơi can thiệp'],
+  keywords: ['Reinforcement Learning', 'Parameter localization'],
+  conceptIds: ['rl-signal', 'parameter-localization', 'localization-risk'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## RL tối ưu tín hiệu hành vi
+
+Một nhánh hậu huấn luyện xem unlearning như bài toán tối ưu reward: thưởng phản hồi đáp ứng chính sách quên và phạt phản hồi làm lộ tri thức mục tiêu. Cách này có thể kết hợp feedback hoặc evaluator linh hoạt hơn nhãn text cố định <Cite paper="qiu2025survey" evidence="rl-localization" />.
+
+<ConceptFlow ariaLabel="Vòng lặp RL cho unlearning" items={[
+  { title: 'Sinh phản hồi', tone: 'blue', detail: 'Model trả lời prompt forget và retain.' },
+  { title: 'Chấm reward', tone: 'violet', detail: 'Evaluator cân bằng quên, hữu dụng và chất lượng.' },
+  { title: 'Cập nhật policy', tone: 'teal', detail: 'Tối ưu hành vi theo reward tổng hợp.' },
+]} />
+
+Giới hạn quen thuộc là reward hacking: model có thể học cách từ chối rộng hoặc đánh lừa evaluator mà chưa loại bỏ ảnh hưởng mong muốn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Localization thu hẹp nơi can thiệp
+
+Parameter localization tìm layer, neuron hoặc tập tham số có liên quan mạnh đến forget data rồi chỉ cập nhật vùng đó. Mục tiêu là giảm chi phí và hạn chế tổn hại retain utility.
+
+<ConceptHierarchy ariaLabel="Lợi ích và rủi ro của định vị tham số" root={{ title: 'Can thiệp cục bộ' }} children={[
+  { title: 'Lợi ích', tone: 'teal', detail: 'Ít tham số được cập nhật, có thể nhanh và ít side effect hơn.' },
+  { title: 'Rủi ro', tone: 'amber', detail: 'Tri thức phân tán; saliency cao không chứng minh vùng đó sở hữu riêng tri thức.' },
+]} />
+
+Localization là một chiến lược **chọn nơi sửa**, không tự xác định **sửa theo objective nào**. Nó thường được ghép với GA, KL, preference hoặc objective khác.
+
+<LessonNote tone="info">Định vị sai có thể bỏ sót đường biểu diễn thay thế hoặc làm hỏng tri thức dùng chung.</LessonNote>
+
+</MdxPage>

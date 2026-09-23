@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'unlearning-dataset-design-axes', locale: 'vi',
+  title: 'Các Trục Thiết kế Dữ liệu cho LLM Unlearning',
+  headings: ['Ba trục làm thay đổi độ khó', 'Đọc benchmark bằng giả định dữ liệu'],
+  keywords: ['Task format', 'Fictitious data', 'Fine-tuning'],
+  conceptIds: ['task-format-axis', 'data-reality-axis', 'training-history-axis'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Ba trục làm thay đổi độ khó
+
+Hai benchmark cùng gọi là “unlearning” vẫn có thể đo hai bài toán rất khác. Survey nhóm thiết kế dữ liệu theo ba trục: **định dạng tác vụ**, dữ liệu **thật hay hư cấu**, và tri thức mục tiêu có được **fine-tune có kiểm soát** hay đã nằm trong pre-training <Cite paper="qiu2025survey" evidence="dataset-design-axes" />.
+
+<ConceptHierarchy
+  ariaLabel="Ba trục thiết kế dữ liệu unlearning"
+  root={{ title: 'Thiết kế benchmark' }}
+  children={[
+    { title: 'Task format', tone: 'blue', detail: 'QA, completion, classification hoặc generation tự do.' },
+    { title: 'Real vs fictitious', tone: 'violet', detail: 'Dữ liệu thật tăng tính thực tế; dữ liệu hư cấu tăng khả năng kiểm soát.' },
+    { title: 'With vs without fine-tuning', tone: 'teal', detail: 'Fine-tune tạo lịch sử học rõ; pre-training gần triển khai thật hơn nhưng khó truy vết.' },
+  ]}
+/>
+
+Không trục nào tự động “tốt nhất”. Mỗi lựa chọn quyết định ta biết chắc điều gì về nguồn gốc ký ức và ta có thể xây gold reference mạnh đến đâu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đọc benchmark bằng giả định dữ liệu
+
+Hãy tưởng tượng hai phép thử. A fine-tune mô hình trên tiểu sử hư cấu rồi yêu cầu quên 10% tác giả. B yêu cầu quên một nhân vật có thật đã xuất hiện không rõ số lần trong pre-training.
+
+<ConceptFlow
+  ariaLabel="Từ thiết kế kiểm soát đến thiết kế gần thực tế"
+  items={[
+    { title: 'Kiểm soát cao', tone: 'teal', detail: 'Biết chính xác mẫu nào được đưa vào model và có thể retrain sạch.' },
+    { title: 'Trung gian', tone: 'blue', detail: 'Dữ liệu thật nhưng được fine-tune theo pipeline có log.' },
+    { title: 'Gần thực tế', tone: 'amber', detail: 'Tri thức từ pre-training; nguồn và số lần xuất hiện có thể không biết.' },
+  ]}
+/>
+
+A cho phép quy kết nguyên nhân tốt hơn; B kiểm tra bối cảnh triển khai thật hơn. Khi đọc kết quả, cần hỏi: tri thức đến từ đâu, forget set đại diện đến mức nào, và gold retrained có thật sự khả dụng không.
+
+<LessonNote tone="info">
+  Điểm benchmark chỉ có ý nghĩa trong phạm vi giả định dữ liệu của benchmark đó.
+</LessonNote>
+
+</MdxPage>

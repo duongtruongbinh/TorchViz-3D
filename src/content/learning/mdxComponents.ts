@@ -133,6 +133,8 @@ export function getLearningDomainMdxComponentNames(domainId: string): readonly s
 
 export function getAllowedLearningMdxComponentNames(domainId: string): readonly string[] {
   const domainNames = getLearningDomainMdxComponentNames(domainId);
-  const referenceNames = domainId === 'continual-learning-llm' ? REFERENCE_AUTHORED_MDX_COMPONENT_NAMES : [];
+  const referenceNames = domainId === 'continual-learning-llm' || domainId === 'llm-unlearning'
+    ? REFERENCE_AUTHORED_MDX_COMPONENT_NAMES
+    : [];
   return [...SHARED_LEARNING_MDX_COMPONENT_NAMES, ...referenceNames, ...domainNames];
 }

@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: "llm-unlearning",
+  id: "memorization-extraction-attacks-quiz",
+  locale: "vi",
+  title: "Quiz",
+  headings: ["quiz-stochastic-parrots-thesis","quiz-positive-feedback-loop","quiz-repeat-attack-nasr","quiz-alignment-degradation","quiz-gen-vs-memorization","quiz-gdpr-art17-compliance"],
+  keywords: ["Machine Unlearning","LLM","Quiz"],
+  conceptIds: ['quiz-stochastic-parrots-thesis', 'quiz-positive-feedback-loop', 'quiz-repeat-attack-nasr', 'quiz-alignment-degradation', 'quiz-gen-vs-memorization', 'quiz-gdpr-art17-compliance'],
+  pageCount: 6,
+};
+
+<MdxQuiz id="memorization-extraction-attacks-quiz" questions={[
+  {
+    id: 'quiz-stochastic-parrots-thesis',
+    title: 'Luận điểm Cốt lõi của Stochastic Parrots',
+    prompt: 'Bài báo kinh điển "On the Dangers of Stochastic Parrots" (Bender et al., 2021) đưa ra cảnh báo học thuật nào về bản chất của các mô hình ngôn ngữ siêu lớn?',
+    mode: 'single',
+    options: [
+      { id: 'opt_sp_parrots', label: 'Mô hình ghép nối các chuỗi ký tự dựa trên phân phối thống kê mà không thực sự hiểu ngữ nghĩa, đồng thời vô tình hấp thụ và khuếch đại dữ liệu nhạy cảm lẫn thiên kiến.', isCorrect: true },
+      { id: 'opt_sp_gpu_memory', label: 'Bộ nhớ VRAM của phần cứng không bao giờ đủ để chứa các mô hình vượt quá 1 tỷ tham số.' },
+      { id: 'opt_sp_tokenizer_limits', label: 'Thuật toán Byte-Pair Encoding làm mất mát toàn bộ thông tin cú pháp của ngôn ngữ tự nhiên.' },
+      { id: 'opt_sp_math_failure', label: 'LLM hoàn toàn không thể học được các phép toán cộng trừ số nguyên đơn giản.' },
+    ], success: 'Chính xác. Khái niệm "Chú vẹt ngẫu nhiên" nhấn mạnh rằng LLM hoạt động dựa trên xác suất chuỗi token từ kho văn bản khổng lồ, khiến chúng nuốt chửng cả thông tin riêng tư và định kiến độc hại.',
+    error: 'Chưa chính xác. Luận điểm của bài báo chỉ ra mô hình chỉ ghép nối các dạng biểu đạt ngôn ngữ theo thống kê chứ không hiểu ý nghĩa, dẫn đến nguy cơ ghi nhớ và rò rỉ dữ liệu nhạy cảm.',
+  },
+  {
+    id: 'quiz-positive-feedback-loop',
+    title: 'Cơ chế Vòng lặp Phản hồi Dương trong Tự hồi quy',
+    prompt: 'Trong quá trình giải mã tự hồi quy (Autoregressive Decoding), điều gì thúc đẩy hiện tượng Positive Feedback Loop dẫn đến việc phát lại nguyên văn dữ liệu huấn luyện?',
+    mode: 'single',
+    options: [
+      { id: 'opt_attention_decay', label: 'Cơ chế Attention triệt tiêu hoàn toàn các vector biểu diễn của các token gần nhất.' },
+      { id: 'opt_feedback_prob_lock', label: 'Khi sinh ra một chuỗi con trùng với đoạn văn bản đã ghi nhớ, xác suất có điều kiện của các token tiếp theo tăng vọt, làm giảm entropy và khóa mô hình vào chuỗi nguyên văn.', isCorrect: true },
+      { id: 'opt_beam_search_prune', label: 'Thuật toán Beam Search loại bỏ toàn bộ các từ có tần suất xuất hiện thấp trong từ vựng.' },
+      { id: 'opt_temp_fluctuation', label: 'Nhiệt độ giải mã Softmax tự động nhân đôi sau mỗi 10 bước sinh.' },
+    ], success: 'Đúng. Khi các token đầu tiên của một đoạn văn bản ghi nhớ xuất hiện trong context, mô hình gán xác suất áp đảo cho token tiếp theo theo đúng mẫu đã học, làm entropy giảm mạnh và khóa chặt chuỗi sinh.',
+    error: 'Chưa đúng. Vòng lặp phản hồi dương xảy ra do xác suất có điều kiện P(w_t | w_<t) tăng vọt khi ngữ cảnh trùng khớp với tài liệu trong tập huấn luyện, khiến mô hình bị cuốn vào việc phát lại nguyên văn.',
+  },
+  {
+    id: 'quiz-repeat-attack-nasr',
+    title: 'Bản chất Cuộc tấn công Lặp từ của Nasr et al. (2023)',
+    prompt: 'Trong nghiên cứu của Nasr et al. (2023), vì sao lệnh nhắc yêu cầu mô hình lặp lại một từ như "poem" vô hạn lần lại có thể trích xuất được dữ liệu tiền huấn luyện thô?',
+    mode: 'single',
+    options: [
+      { id: 'opt_zero_gradients', label: 'Triệt tiêu toàn bộ gradient của các lớp LayerNorm trong mạng nơ-ron.' },
+      { id: 'opt_overflow_buffer', label: 'Gây tràn bộ đệm RAM của máy chủ suy luận khiến hệ điều hành để lộ file log hệ thống.' },
+      { id: 'opt_exhaust_alignment', label: 'Chuỗi lặp dài làm bão hòa cơ chế Attention, khiến mô hình cạn kiệt ý định hội thoại, trượt khỏi lớp căn chỉnh an toàn RLHF và kích hoạt việc phát lại dữ liệu pre-training.', isCorrect: true },
+      { id: 'opt_reverse_weights', label: 'Kích hoạt một backdoor bí mật được cài đặt sẵn trong bộ tokenizer BPE.' },
+    ], success: 'Chính xác. Chuỗi lặp bất thường là phân phối ngoại lai (Out-of-Distribution) đối với dữ liệu căn chỉnh RLHF, khiến lớp kiểm soát hội thoại bị mất phương hướng và mô hình chuyển sang trạng thái replay dữ liệu gốc.',
+    error: 'Chưa chính xác. Lệnh lặp từ khiến cơ chế hội thoại bình thường mất tác dụng, vượt qua lớp căn chỉnh an toàn RLHF và rơi vào chế độ xả dữ liệu văn bản pre-training gốc.',
+  },
+  {
+    id: 'quiz-alignment-degradation',
+    title: 'Hành vi Suy thoái Căn chỉnh Alignment',
+    prompt: 'Điểm yếu cốt tử của các kỹ thuật căn chỉnh an toàn (như RLHF hay DPO) khi đối mặt với các cuộc tấn công trích xuất dữ liệu là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt_speed_penalty', label: 'RLHF làm giảm tốc độ sinh token của mô hình xuống hơn 100 lần.' },
+      { id: 'opt_vocabulary_drop', label: 'DPO tự động xóa bỏ một nửa từ vựng trong tokenizer ban đầu.' },
+      { id: 'opt_context_reduction', label: 'Các phương pháp căn chỉnh làm giảm kích thước tối đa của ngữ cảnh xuống còn 128 token.' },
+      { id: 'opt_shallow_alignment', label: 'Căn chỉnh an toàn chỉ định hình lớp phân phối đầu ra bên ngoài mà không xóa bỏ các biểu diễn dữ liệu độc hại đã nằm sâu trong trọng số mô hình.', isCorrect: true },
+    ], success: 'Đúng. Căn chỉnh an toàn chỉ dạy mô hình từ chối trả lời trong các bối cảnh thông thường (an toàn bề mặt). Trọng số bên dưới vẫn lưu trữ tri thức gốc, do đó kẻ tấn công có thể dùng mẹo để lách qua lớp bảo vệ.',
+    error: 'Chưa chính xác. Điểm yếu là các kỹ thuật căn chỉnh không can thiệp sâu vào việc loại bỏ tri thức khỏi trọng số mà chỉ đóng vai trò như lớp bọc điều hướng phản hồi bề mặt.',
+  },
+  {
+    id: 'quiz-gen-vs-memorization',
+    title: 'Phân biệt Tổng quát hóa vs Ghi nhớ Nguyên văn',
+    prompt: 'Điều nào sau đây mô tả đúng nhất sự khác biệt giữa Tổng quát hóa (Generalization) và Ghi nhớ Nguyên văn (Verbatim Memorization)?',
+    mode: 'single',
+    options: [
+      { id: 'opt_gen_abstract_patterns', label: 'Tổng quát hóa nắm bắt các cấu trúc ngữ nghĩa và quy luật trừu tượng để áp dụng cho dữ liệu chưa từng thấy, còn ghi nhớ lưu trữ cục bộ chính xác từng token chuỗi cụ thể.', isCorrect: true },
+      { id: 'opt_mem_better_loss', label: 'Ghi nhớ nguyên văn luôn mang lại độ mất mát (Loss) cao hơn so với tổng quát hóa.' },
+      { id: 'opt_mem_uses_less_params', label: 'Ghi nhớ nguyên văn chỉ diễn ra ở các mô hình có ít hơn 100 triệu tham số.' },
+      { id: 'opt_gen_only_code', label: 'Tổng quát hóa chỉ xảy ra với code lập trình, còn ghi nhớ chỉ xảy ra với ngôn ngữ tự nhiên.' },
+    ], success: 'Chính xác. Tổng quát hóa giúp mô hình phản hồi thông minh trên câu hỏi mới bằng cách trừu tượng hóa tri thức, trong khi ghi nhớ nguyên văn chỉ là việc học vẹt chính xác từng ký tự của dữ liệu huấn luyện.',
+    error: 'Chưa đúng. Tổng quát hóa là việc học cấu trúc và quy luật nền tảng để suy luận trên dữ liệu mới, trong khi ghi nhớ nguyên văn là hiện tượng lưu trữ chính xác chuỗi token cụ thể.',
+  },
+  {
+    id: 'quiz-gdpr-art17-compliance',
+    title: 'Yêu cầu Pháp lý của Quyền được Quên (GDPR Art. 17)',
+    prompt: 'Tại sao việc một công ty AI tuyên bố "chúng tôi đã chặn tên của người dùng trong bộ lọc từ khóa" thường không đáp ứng đầy đủ yêu cầu của Quyền được Quên (Right to be Forgotten)?',
+    mode: 'single',
+    options: [
+      { id: 'opt_gdpr_requires_fines', label: 'Vì luật pháp quốc tế quy định bắt buộc phải nộp tiền phạt trước khi thực hiện xóa dữ liệu.' },
+      { id: 'opt_gdpr_source_retention', label: 'Vì thông tin cá nhân vẫn tồn tại bên trong trọng số mô hình và có thể bị suy luận gián tiếp qua ngữ cảnh khác hoặc trích xuất qua tấn công.', isCorrect: true },
+      { id: 'opt_gdpr_only_databases', label: 'Vì GDPR quy định chỉ áp dụng cho cơ sở dữ liệu SQL truyền thống chứ không áp dụng cho mạng nơ-ron.' },
+      { id: 'opt_gdpr_open_source', label: 'Vì luật pháp yêu cầu toàn bộ mô hình phải được mã nguồn mở trước khi xóa dữ liệu.' },
+    ], success: 'Chính xác. Chặn từ khóa ở tầng xuất kết quả không loại bỏ dữ liệu khỏi trọng số tham số. Kẻ xấu vẫn có thể truy vấn gián tiếp hoặc bẻ khóa để lấy thông tin nhạy cảm, vi phạm nguyên tắc bảo mật triệt để.',
+    error: 'Chưa chính xác. Việc lọc từ khóa chỉ mang tính bề mặt. Dữ liệu cá nhân vẫn nằm trong các ma trận trọng số và có thể bị trích xuất hoặc suy diễn gián tiếp qua các câu hỏi liên quan.',
+  },
+]} />

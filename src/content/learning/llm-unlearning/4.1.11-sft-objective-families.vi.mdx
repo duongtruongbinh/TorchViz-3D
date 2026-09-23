@@ -1,0 +1,38 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'sft-objective-families', locale: 'vi', title: 'Các Họ Mục tiêu SFT cho Unlearning',
+  headings: ['Ba nơi đặt mục tiêu unlearning', 'Một objective không giải quyết mọi lỗi'],
+  keywords: ['Text objective', 'Distribution objective', 'Activation objective'],
+  conceptIds: ['sft-objective-levels', 'distribution-target', 'activation-target'], pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Ba nơi đặt mục tiêu unlearning
+
+Post-training dựa trên supervised fine-tuning không chỉ có Gradient Ascent. Survey phân biệt mục tiêu tác động lên **text**, **phân phối đầu ra** và **activation nội bộ** <Cite paper="qiu2025survey" evidence="sft-objective-families" />.
+
+<ConceptHierarchy ariaLabel="Ba mức mục tiêu SFT" root={{ title: 'Tối ưu điều gì?' }} children={[
+  { title: 'Text-level', tone: 'blue', detail: 'Dạy response thay thế, từ chối hoặc câu trả lời không chứa nội dung cần quên.' },
+  { title: 'Distribution-level', tone: 'violet', detail: 'Đẩy phân phối token về một teacher hoặc reference distribution.' },
+  { title: 'Activation-level', tone: 'teal', detail: 'Thay đổi hidden representation liên quan đến forget data.' },
+]} />
+
+Ba mức có thể dùng riêng hoặc kết hợp. Khác biệt quan trọng là tín hiệu huấn luyện được đo ở đâu, không chỉ model nhìn thấy dữ liệu nào.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Một objective không giải quyết mọi lỗi
+
+Text-level dễ triển khai nhưng có thể học một mẫu từ chối cố định. Distribution-level cho mục tiêu mềm hơn, song chất lượng phụ thuộc reference distribution. Activation-level nhắm sâu vào biểu diễn nhưng khó xác định activation nào chỉ thuộc tri thức cần quên.
+
+<ConceptFlow ariaLabel="Chuỗi kiểm tra mục tiêu SFT" items={[
+  { title: 'Xác định failure mode', tone: 'blue', detail: 'Tái hiện nguyên văn, trả lời fact hay rò rỉ qua attack?' },
+  { title: 'Chọn target', tone: 'violet', detail: 'Text, distribution hoặc activation phù hợp với failure mode.' },
+  { title: 'Đo side effect', tone: 'teal', detail: 'Kiểm tra retain utility và các paraphrase lân cận.' },
+]} />
+
+<LessonNote tone="warning">Objective càng gần biểu diễn nội bộ càng không có nghĩa là bằng chứng càng mạnh; vẫn cần đánh giá đầu ra, robustness và utility.</LessonNote>
+
+</MdxPage>

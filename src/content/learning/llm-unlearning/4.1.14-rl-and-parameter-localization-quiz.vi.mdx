@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'llm-unlearning', id: 'rl-and-parameter-localization-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['rl-signal', 'parameter-localization', 'localization-risk'], keywords: ['Quiz', 'RL', 'Localization'],
+  conceptIds: ['rl-signal', 'parameter-localization', 'localization-risk'], pageCount: 3,
+};
+
+<MdxQuiz id="rl-and-parameter-localization-quiz" questions={[
+  { id: 'rl-signal', title: 'Tín hiệu RL', prompt: 'RL-based unlearning cập nhật model dựa trên gì?', mode: 'single', options: [
+    { id: 'a', label: 'Reward tổng hợp từ hành vi forget và retain.', isCorrect: true }, { id: 'b', label: 'Chỉ tên file.' }, { id: 'c', label: 'Màu token.' }, { id: 'd', label: 'Không có evaluator.' },
+  ], success: 'Đúng. Reward định hướng policy.', error: 'Hãy nhớ vòng lặp sinh–chấm–cập nhật.' },
+  { id: 'parameter-localization', title: 'Localization', prompt: 'Localization trả lời câu hỏi nào?', mode: 'single', options: [
+    { id: 'b', label: 'Quiz có bao nhiêu đáp án?' }, { id: 'a', label: 'Nên can thiệp vào vùng tham số nào?', isCorrect: true }, { id: 'c', label: 'Dùng ngôn ngữ nào?' }, { id: 'd', label: 'Benchmark tên gì?' },
+  ], success: 'Đúng. Nó chọn nơi sửa.', error: 'Localization không tự chọn objective.' },
+  { id: 'localization-risk', title: 'Rủi ro', prompt: 'Vì sao saliency cao chưa đủ?', mode: 'single', options: [
+    { id: 'b', label: 'Model không có layer.' }, { id: 'c', label: 'Saliency luôn bằng 0.' }, { id: 'a', label: 'Tri thức có thể phân tán và dùng chung nhiều vùng.', isCorrect: true }, { id: 'd', label: 'Không thể cập nhật tham số.' },
+  ], success: 'Đúng. Liên quan không đồng nghĩa sở hữu riêng.', error: 'Hãy nhớ biểu diễn đan xen.' },
+]} />
