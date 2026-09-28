@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'monitoring-and-observability',
+  locale: 'vi',
+  title: 'Monitoring and Observability',
+  headings: ['Monitoring là gì?', 'Monitoring ở những lớp nào?', 'Observability là gì?', 'Quan hệ giữa Monitoring và Observability'],
+  headingContract: 'exact',
+  keywords: ['monitoring', 'observability', 'alert', 'system signals'],
+}
+
+
+Một ứng dụng vẫn có thể tiếp tục phục vụ người dùng ngay cả khi chất lượng hoạt động bắt đầu giảm. Chẳng hạn, thời gian phản hồi có thể tăng dần trong khi phần lớn yêu cầu vẫn hoàn tất thành công, hoặc lỗi chỉ xuất hiện với một nhóm nhỏ người dùng. Nếu không có cơ chế theo dõi, những thay đổi này có thể kéo dài cho đến khi người dùng bắt đầu phàn nàn hoặc một chức năng bị ảnh hưởng rõ rệt.
+
+Vì vậy, khi hệ thống được đưa vào vận hành, kỹ sư cần theo dõi một số tín hiệu quan trọng theo thời gian để sớm nhận ra khi trạng thái hệ thống lệch khỏi mức bình thường.
+
+### Monitoring là gì?
+
+<LessonNote tone="info">
+  **Monitoring:** Là quá trình theo dõi liên tục những tín hiệu và điều kiện đã được xác định trước để đánh giá tình trạng của hệ thống.
+</LessonNote>
+
+Kỹ sư thường bắt đầu bằng những câu hỏi đã biết cần quan tâm, chẳng hạn:
+
+- Dịch vụ có đang hoạt động không?
+- Yêu cầu có đang phản hồi chậm hơn bình thường không?
+- Tỷ lệ yêu cầu thất bại có tăng không?
+- CPU, bộ nhớ hoặc ổ đĩa có đang được sử dụng quá nhiều không?
+
+Từ những câu hỏi này, nhóm kỹ sư lựa chọn dữ liệu cần theo dõi. Các giá trị có thể được hiển thị trên bảng theo dõi để quan sát sự thay đổi theo thời gian. Với những điều kiện cần được chú ý sớm, hệ thống có thể tự động tạo cảnh báo thay vì chờ kỹ sư liên tục kiểm tra bảng theo dõi.
+
+Cảnh báo thường dựa trên một ngưỡng do nhóm kỹ sư xác định. Ví dụ, nếu thời gian phản hồi của một dịch vụ thường duy trì dưới một mức nhất định nhưng sau đó vượt mức này liên tục trong vài phút, hệ thống có thể tạo cảnh báo để kỹ sư kiểm tra.
+
+Ngưỡng này không có một giá trị chung cho mọi hệ thống. Thời gian phản hồi được xem là bình thường hay bất thường phụ thuộc vào chức năng của dịch vụ, trạng thái hoạt động trước đó và yêu cầu mà nhóm kỹ sư đặt ra. Việc yêu cầu điều kiện kéo dài trong một khoảng thời gian cũng giúp tránh tạo cảnh báo chỉ vì những biến động rất ngắn.
+
+Monitoring cũng không nhất thiết phải đợi đến khi ứng dụng hoàn thiện mới được bổ sung. Những tín hiệu cơ bản có thể được xác định trong quá trình phát triển để khi hệ thống được đưa vào vận hành, nhóm kỹ sư đã có đủ thông tin cần thiết để theo dõi trạng thái của nó. Tuy nhiên, mức độ monitoring nên phù hợp với quy mô và nhu cầu thực tế. Một hệ thống nhỏ có thể bắt đầu từ một số tín hiệu quan trọng rồi mở rộng dần khi hệ thống trở nên phức tạp hơn.
+
+### Monitoring ở những lớp nào?
+
+Một yêu cầu có thể đi qua nhiều lớp trước khi được xử lý hoàn tất. Vì vậy, monitoring cũng có thể được thực hiện ở nhiều phạm vi:
+
+1. **Synthetic Monitoring:** mô phỏng định kỳ một hành động của người dùng để kiểm tra một chức năng hoặc luồng sử dụng có hoạt động hay không.
+2. **Application Monitoring:** theo dõi cách ứng dụng xử lý yêu cầu, chẳng hạn số lượng yêu cầu, tỷ lệ lỗi và thời gian phản hồi.
+3. **Network Monitoring:** theo dõi kết nối và lưu lượng giữa các thành phần.
+4. **Infrastructure Monitoring:** theo dõi các tài nguyên như CPU, bộ nhớ, đĩa lưu trữ và network.
+
+<LessonImage
+  assetPath="aiops/monitoring_across_system.webp"
+  alt="Monitoring theo dõi hệ thống từ hành vi người dùng đến ứng dụng, network và infrastructure."
+  maxWidth="52rem"
+/>
+
+Ngoài các lớp trên, kỹ sư cũng cần chú ý đến những thành phần mà hệ thống phụ thuộc vào để hoàn thành yêu cầu. Đó có thể là database, dịch vụ khác hoặc dịch vụ của bên thứ ba. Vì vậy, một dịch vụ vẫn có thể phản hồi chậm hoặc thất bại ngay cả khi tài nguyên của chính nó vẫn ở mức bình thường.
+
+### Observability là gì?
+
+Monitoring giúp kỹ sư nhận biết khi một tín hiệu đã được quan tâm từ trước bắt đầu thay đổi. Bảng theo dõi có thể cho thấy thời gian phản hồi đang tăng, hoặc cảnh báo có thể thông báo rằng tỷ lệ lỗi đã vượt mức được cấu hình.
+
+Tuy nhiên, phát hiện rằng hệ thống đang có vấn đề mới chỉ là điểm bắt đầu. Một thay đổi quan sát được có thể xuất phát từ nhiều khu vực khác nhau trong luồng xử lý. Lúc này, kỹ sư cần tiếp tục đặt những câu hỏi như:
+
+- Yêu cầu nào đang gặp vấn đề?
+- Sự kiện gì đã xảy ra tại thời điểm đó?
+- Thành phần nào bắt đầu xuất hiện dấu hiệu bất thường?
+- Vì sao vấn đề chỉ xảy ra với một số yêu cầu?
+
+Những câu hỏi trên không phải lúc nào cũng có thể xác định trước từ đầu. Trong quá trình điều tra, mỗi thông tin mới có thể dẫn đến một câu hỏi khác. Khả năng sử dụng dữ liệu của hệ thống để tiếp tục khám phá theo cách này chính là Observability.
+
+<LessonNote tone="info">
+  **Observability:** Là khả năng sử dụng dữ liệu mà hệ thống tạo ra để hiểu những gì đang xảy ra bên trong, đặc biệt khi nguyên nhân của vấn đề chưa được biết trước.
+</LessonNote>
+
+Điểm quan trọng là quá trình điều tra không nhất thiết chỉ dựa trên những câu hỏi đã được xác định từ đầu. Mỗi thông tin mới có thể dẫn đến một câu hỏi khác, giúp kỹ sư từng bước thu hẹp phạm vi cần kiểm tra.
+
+### Quan hệ giữa Monitoring và Observability
+
+Monitoring và Observability được sử dụng cùng nhau trong quá trình vận hành. Monitoring giúp phát hiện khi một tín hiệu quan trọng bắt đầu thay đổi và tạo điểm bắt đầu cho việc kiểm tra. Từ đó, observability giúp kỹ sư sử dụng dữ liệu liên quan để hiểu sâu hơn những gì đang xảy ra bên trong hệ thống.
+
+<LessonImage
+  assetPath="aiops/monitoring_observability.webp"
+  alt="Từ monitoring alert đến quá trình điều tra bằng observability."
+  maxWidth="52rem"
+/>
+
+Ví dụ, monitoring có thể cho thấy thời gian phản hồi của một dịch vụ đang tăng và tạo cảnh báo khi tình trạng này kéo dài đủ lâu. Từ thời điểm đó, kỹ sư có thể tiếp tục kiểm tra dữ liệu trong cùng khoảng thời gian, tìm những sự kiện liên quan và thu hẹp dần khu vực cần được điều tra.

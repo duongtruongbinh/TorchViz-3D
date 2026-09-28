@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'metrics-logs-and-traces',
+  locale: 'vi',
+  title: 'Metrics, Logs, and Traces',
+  headings: ['Metrics', 'Logs', 'Traces', 'Liên kết Metrics, Logs và Traces'],
+  headingContract: 'exact',
+  keywords: ['metrics', 'logs', 'traces', 'telemetry', 'correlation'],
+}
+
+
+Khi hệ thống xuất hiện dấu hiệu bất thường, kỹ sư thường cần nhiều loại dữ liệu theo dõi, tức những dữ liệu hệ thống ghi nhận trong quá trình hoạt động để hiểu chuyện gì đang xảy ra. Có loại cho biết hệ thống đang thay đổi như thế nào theo thời gian, có loại ghi lại những sự kiện đã xảy ra, và có loại cho thấy một yêu cầu đã đi qua những bước nào.
+
+Ba loại dữ liệu theo dõi thường được sử dụng cho những mục đích này là Metrics, Logs và Traces. Phần này giới thiệu vai trò của từng loại; các chương sau sẽ trình bày chi tiết hơn.
+
+### Metrics
+
+Khi muốn biết trạng thái của hệ thống đang thay đổi như thế nào theo thời gian, kỹ sư cần những giá trị có thể đo lường và so sánh.
+
+<LessonNote tone="info">
+  **Metrics:** Là các giá trị số được ghi nhận theo thời gian để phản ánh trạng thái hoặc hành vi của hệ thống.
+</LessonNote>
+
+Metrics có thể được dùng để theo dõi những thay đổi như thời gian phản hồi tăng, tỷ lệ lỗi cao hơn bình thường hoặc mức sử dụng tài nguyên tăng bất thường. Vì được ghi nhận liên tục theo thời gian, Metrics phù hợp để quan sát xu hướng và nhận biết khi một tín hiệu bắt đầu lệch khỏi trạng thái bình thường.
+
+### Logs
+
+Metrics có thể cho thấy một giá trị đang thay đổi, nhưng thường không cho biết cụ thể sự kiện nào đã xảy ra tại thời điểm đó. Khi cần xem lại những sự kiện mà hệ thống ghi nhận trong quá trình hoạt động, kỹ sư sử dụng Logs.
+
+<LessonNote tone="info">
+  **Logs:** Là các bản ghi mô tả những sự kiện xảy ra trong quá trình hệ thống hoạt động.
+</LessonNote>
+
+Một bản ghi có thể ghi lại thời điểm xảy ra sự kiện, thành phần tạo ra bản ghi, trạng thái xử lý hoặc thông tin về lỗi. Nhờ đó, kỹ sư có thể xem lại những gì đã xảy ra quanh thời điểm hệ thống bắt đầu có dấu hiệu bất thường.
+
+### Traces
+
+Logs cung cấp thông tin về từng sự kiện, nhưng một yêu cầu có thể đi qua nhiều bước hoặc nhiều thành phần trước khi hoàn tất. Khi cần theo dõi toàn bộ quá trình xử lý của một yêu cầu, kỹ sư sử dụng Traces.
+
+<LessonNote tone="info">
+  **Traces:** Mô tả hành trình của một yêu cầu qua các bước xử lý và các thành phần khác nhau trong hệ thống.
+</LessonNote>
+
+Mỗi bước xử lý trong dấu vết thường được biểu diễn bằng một span. Nhờ đó, kỹ sư có thể thấy yêu cầu đã đi qua đâu, mỗi bước mất bao lâu và khu vực nào cần được kiểm tra kỹ hơn khi có vấn đề.
+
+### Liên kết Metrics, Logs và Traces
+
+Ba loại dữ liệu theo dõi trên cung cấp những góc nhìn khác nhau nhưng thường được sử dụng cùng nhau trong quá trình điều tra. Metrics có thể cho thấy một tín hiệu bắt đầu thay đổi, Logs giúp xem những sự kiện xảy ra quanh thời điểm đó, còn Traces giúp theo dõi yêu cầu qua các bước xử lý liên quan.
+
+Việc đối chiếu các dữ liệu có chung ngữ cảnh để hỗ trợ điều tra được gọi là liên kết dữ liệu. Cách kết hợp Metrics, Logs và Traces sẽ được trình bày chi tiết hơn ở Chương 5.
+
+<LessonImage
+  assetPath="aiops/correlating_three_pillar.webp"
+  alt="Metrics, Logs và Traces cung cấp các góc nhìn bổ sung khi quan sát và điều tra hệ thống."
+  maxWidth="52rem"
+/>

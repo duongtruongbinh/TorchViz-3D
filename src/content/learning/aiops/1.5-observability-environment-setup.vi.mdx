@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'observability-environment-setup',
+  locale: 'vi',
+  title: 'Hands-on: Chuẩn bị môi trường',
+  headings: [],
+  headingContract: 'exact',
+  keywords: ['Docker Compose', 'Prometheus', 'Loki', 'OpenTelemetry', 'Jaeger', 'Grafana'],
+}
+
+
+Các bài hướng dẫn về Metrics, Logs và Traces dùng chung bộ công cụ Observability đã được chuẩn bị trong kho mã nguồn và triển khai bằng Docker Compose. Môi trường này chỉ cần thiết lập một lần trước khi tiếp tục với các phần thực hành phía sau. Trong các chương tiếp theo, bộ công cụ này sẽ được sử dụng để thu thập, truy vấn và trực quan hóa Metrics, Logs và Traces bằng từng nhóm công cụ tương ứng.
+
+<LessonImage
+  assetPath="aiops/observability_stack.webp"
+  alt="Kiến trúc bộ công cụ Observability trong bài hướng dẫn: Prometheus cho Metrics, Alloy và Loki cho Logs, OpenTelemetry và Jaeger cho Traces, còn Grafana dùng để trực quan hóa."
+  maxWidth="52rem"
+/>
+
+Bộ công cụ được tổ chức thành ba pipeline chính:
+
+- **Metrics:** điểm cuối cung cấp chỉ số / exporters → Prometheus → Grafana.
+- **Logs:** Alloy → Loki → Grafana.
+- **Traces:** OpenTelemetry → Jaeger → Grafana.
+
+Sao chép kho mã nguồn và chuyển vào thư mục dự án:
+
+```bash
+git clone https://github.com/T-Sunm/observability-to-aiops-lab
+cd observability-to-aiops-lab
+```
+
+Khởi chạy toàn bộ bộ công cụ:
+
+```bash
+docker compose up -d
+```
+
+Nếu các dịch vụ cần thiết đều ở trạng thái `Up` hoặc `running`, môi trường đã sẵn sàng và có thể được sử dụng cho các phần thực hành tiếp theo.

@@ -9,6 +9,7 @@ export type LearningDomainId =
   | 'continual-learning-llm'
   | 'llm-unlearning'
   | 'mlops-llmops-production-systems'
+  | 'aiops'
   | 'ai-system-design'
   | 'ai-ethics-safety-governance'
   | 'reinforcement-learning'
