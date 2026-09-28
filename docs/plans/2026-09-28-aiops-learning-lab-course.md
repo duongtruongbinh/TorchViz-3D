@@ -137,3 +137,4 @@ Genesis plan — no predecessor.
 - 2026-09-28 13:00 +07:00 — Added the optional shared `LessonImage.maxWidth` prop and limited the six Chapter 1 illustrations to `52rem`; existing lessons retain the full-width default.
 - 2026-09-28 13:15 +07:00 — Reused the shared `LessonNote` info box for the eight authored definitions in Chapter 1; retained the SLO target example as a normal blockquote.
 - 2026-09-28 14:00 +07:00 — Updated the catalog test expectations for the new AIOps domain and added the required matching heading to lesson 1.5 after CI reported five contract failures.
+- 2026-09-28 14:15 +07:00 — Regenerated the catalog statistics reference and synchronized the Learning Lab wiki headline counts after the catalog-stats CI check reported drift.
