@@ -38,10 +38,10 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
-  assert.equal(learningTableOfContents.length, 17);
-  assert.equal(learningCatalog.domains.length, 17);
-  assert.equal(learningCatalog.tracks.length, 110);
-  assert.equal(learningCatalog.lessons.length, 921);
+  assert.equal(learningTableOfContents.length, 18);
+  assert.equal(learningCatalog.domains.length, 18);
+  assert.equal(learningCatalog.tracks.length, 115);
+  assert.equal(learningCatalog.lessons.length, 944);
   assert.equal(learningCatalog.routeAliases?.length, 15);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -72,7 +72,7 @@ test('fully published and updating domains are prioritized without disturbing ca
   );
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     prioritizedDomains.map((item) => item.domain.id),
@@ -84,6 +84,7 @@ test('fully published and updating domains are prioritized without disturbing ca
       'llm-ai-engineering',
       'llm-unlearning',
       'mlops-llmops-production-systems',
+      'aiops',
       'evolutionary-algorithms',
       'ai-projects',
       'programming-foundation',
@@ -106,7 +107,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   const readiness = getLearningDomainReadiness(learningCatalog);
   const summaries = getLearningHomeDomainSummaries(learningCatalog);
 
-  assert.equal(summaries.length, 17);
+  assert.equal(summaries.length, 18);
   assert.deepEqual(
     summaries.map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState })),
     readiness,
@@ -117,7 +118,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'evolutionary-algorithms', 'ai-projects'],
+    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [
@@ -433,7 +434,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 448);
+  assert.equal(missingLessons.length, 466);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
@@ -443,6 +444,7 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'aiops').length, 5);
   const researchPapersPublished = publishedLessons.filter((lesson) => lesson.domainId === 'research-papers');
   assert.equal(researchPapersPublished.length, 33);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-unlearning').length, 66);
