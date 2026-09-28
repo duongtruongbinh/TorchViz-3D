@@ -41,7 +41,7 @@ Từ những nhu cầu thực tế đó, tài liệu được xây dựng để 
 | Observability | Khả năng hiểu trạng thái bên trong của hệ thống từ dữ liệu mà nó tạo ra |
 | Monitoring | Quá trình theo dõi những tín hiệu và điều kiện đã xác định trước |
 
-# 1. Fundamentals of Observability and System Signals
+# 1. Nền tảng về Observability và tín hiệu hệ thống
 
 ## 1.1. Monitoring and Observability
 
@@ -144,7 +144,7 @@ Việc đối chiếu các dữ liệu có chung ngữ cảnh để hỗ trợ �
 
 ![Metrics, Logs và Traces cung cấp các góc nhìn bổ sung khi quan sát và điều tra hệ thống.](images/correlating_three_pillar.png)
 
-## 1.3. Choosing What to Measure
+## 1.3. Lựa chọn nội dung cần đo lường
 
 Một hệ thống có thể tạo ra rất nhiều chỉ số, từ mức sử dụng CPU và bộ nhớ đến số lượng yêu cầu, tỷ lệ lỗi và thời gian phản hồi. Nếu theo dõi tất cả chỉ số với cùng mức độ ưu tiên, kỹ sư sẽ khó biết nên bắt đầu từ đâu khi hệ thống xuất hiện vấn đề.
 
@@ -152,7 +152,7 @@ Vì vậy, việc lựa chọn chỉ số nên bắt đầu từ đối tượng
 
 ![USE, Four Golden Signals và RED tập trung vào những phạm vi khác nhau và có thể được kết hợp trong quá trình điều tra.](images/USE_GOLDEN_RED_Method.png)
 
-### [USE Method](https://www.brendangregg.com/usemethod.html): Resource Condition
+### [USE Method](https://www.brendangregg.com/usemethod.html): Tình trạng tài nguyên
 
 Khi cần kiểm tra tình trạng của CPU, bộ nhớ, thiết bị lưu trữ hoặc network, USE Method tập trung vào ba nhóm tín hiệu:
 
@@ -193,7 +193,7 @@ Ba phương pháp này không tách rời nhau mà bổ sung cho nhau khi kỹ s
 
 Trong quá trình đó, Four Golden Signals, RED và USE được sử dụng như những góc nhìn khác nhau để thu hẹp dần khu vực cần kiểm tra. Phương pháp nào được dùng trước không cố định mà phụ thuộc vào dấu hiệu ban đầu và hướng mà quá trình điều tra đang dẫn tới.
 
-## 1.4. Service Reliability with SLI, SLO, and Error Budget
+## 1.4. Độ tin cậy của dịch vụ với SLI, SLO và Error Budget
 
 Các chỉ số cho biết hệ thống đang hoạt động như thế nào, nhưng một giá trị riêng lẻ chưa cho biết mức hoạt động đó có đáp ứng yêu cầu hay không. Để đánh giá rõ hơn, kỹ sư cần một phép đo phản ánh chất lượng thực tế, một mục tiêu để so sánh và một mức sai lệch được phép chấp nhận.
 
@@ -205,7 +205,7 @@ Ba khái niệm tương ứng là SLI, SLO và Error Budget. SLI phản ánh k�
 
 Các chỉ số ban đầu cung cấp dữ liệu như số yêu cầu thành công và tổng số yêu cầu. Từ những giá trị này, kỹ sư có thể xây dựng một chỉ số đại diện cho chất lượng mà người dùng thực sự nhận được.
 
-> **SLI (Service Level Indicator)** là phép đo phản ánh một khía cạnh cụ thể về chất lượng hoạt động của dịch vụ.
+> **SLI (Service Level Indicator – chỉ số mức dịch vụ)** là phép đo phản ánh một khía cạnh cụ thể về chất lượng hoạt động của dịch vụ.
 
 Ví dụ, nếu muốn đo tỷ lệ yêu cầu được xử lý thành công:
 
@@ -229,7 +229,7 @@ Kết quả này phản ánh tỷ lệ yêu cầu thành công thực tế của
 
 Biết SLI bằng 99,92% vẫn chưa đủ để kết luận dịch vụ đang hoạt động tốt hay chưa. Kỹ sư cần một mức mục tiêu để so sánh với kết quả thực tế đó.
 
-> **SLO (Service Level Objective)** là mục tiêu được đặt cho một SLI trong một khoảng thời gian xác định.
+> **SLO (Service Level Objective – mục tiêu mức dịch vụ)** là mục tiêu được đặt cho một SLI trong một khoảng thời gian xác định.
 
 Ví dụ:
 
@@ -237,7 +237,7 @@ Ví dụ:
 
 SLO này sử dụng tỷ lệ thành công của yêu cầu làm SLI và đặt mục tiêu 99,9% trong 30 ngày. Vì SLI thực tế là 99,92%, dịch vụ vẫn đang đáp ứng mục tiêu đã đặt.
 
-### Xác định Error Budget
+### Xác định Error Budget (ngân sách lỗi)
 
 SLO 99,9% không có nghĩa mọi yêu cầu đều phải thành công. Nó cho phép một phần nhỏ yêu cầu không đạt yêu cầu mà dịch vụ vẫn được xem là đáp ứng mục tiêu.
 
@@ -257,7 +257,7 @@ $$
 
 Nếu thực tế có 800 yêu cầu thất bại, dịch vụ đã sử dụng 80% Error Budget và còn lại mức tương đương 200 yêu cầu trước khi vượt SLO.
 
-## 1.5. Hands-on: Chuẩn bị môi trường
+## 1.5. Thực hành: Chuẩn bị môi trường
 
 Các bài hướng dẫn về Metrics, Logs và Traces dùng chung bộ công cụ Observability đã được chuẩn bị trong kho mã nguồn và triển khai bằng Docker Compose. Môi trường này chỉ cần thiết lập một lần trước khi tiếp tục với các phần thực hành phía sau. Trong các chương tiếp theo, bộ công cụ này sẽ được sử dụng để thu thập, truy vấn và trực quan hóa Metrics, Logs và Traces bằng từng nhóm công cụ tương ứng.
 
@@ -286,197 +286,178 @@ Nếu các dịch vụ cần thiết đều ở trạng thái `Up` hoặc `runni
 
 # 2. Metrics Collection and Analysis with Prometheus
 
+Một giá trị riêng lẻ chỉ mô tả service tại một thời điểm. Muốn phát hiện traffic, lỗi, latency hoặc mức sử dụng tài nguyên đang thay đổi, engineer cần thu thập và so sánh metrics theo thời gian.
+
 ## 2.1. Prometheus and the Metrics Pipeline
 
-Sau khi xác định được các metric cần theo dõi, bước tiếp theo là xây dựng một pipeline có thể thu thập, lưu trữ và truy vấn metrics theo thời gian. Prometheus là hệ thống monitoring chuyên cho dữ liệu time series, trong đó Prometheus Server định kỳ lấy metrics từ các target, lưu chúng vào TSDB và cung cấp dữ liệu cho truy vấn, dashboard và alerting.
+Prometheus thực hiện công việc đó qua một pipeline: lấy metrics từ các nguồn đã cấu hình, lưu các sample theo thời gian và cung cấp dữ liệu cho truy vấn.
+
+> **Prometheus** là hệ thống monitoring được thiết kế cho dữ liệu time series.
 
 ![Prometheus thu thập metrics từ các target, lưu dữ liệu dưới dạng time series và cung cấp chúng cho truy vấn, trực quan hóa và alerting.](images/prometheus_architecture.png)
 
-Prometheus Server là thành phần trung tâm của pipeline. Các application hoặc exporter đóng vai trò là nguồn metrics, còn TSDB (Time-Series Database) là nơi Prometheus lưu các metric sample theo thời gian. PromQL được sử dụng để truy vấn dữ liệu, trong khi Grafana có thể sử dụng Prometheus làm data source để trực quan hóa các kết quả này.
-
-Trong môi trường nhỏ, danh sách target có thể được cấu hình trực tiếp. Với các môi trường động, Service Discovery có thể hỗ trợ Prometheus tìm và cập nhật target tự động. Prometheus cũng có thể đánh giá alerting rules và chuyển các alert được kích hoạt đến Alertmanager; phần alerting sẽ được trình bày chi tiết ở chương sau.
+Trong pipeline này, Prometheus Server quyết định nguồn nào cần được thu thập và thời điểm thực hiện. Grafana và alerting rules sử dụng dữ liệu sau khi Prometheus đã lưu và xử lý.
 
 ### Pull-based Metrics Collection
 
-Prometheus chủ yếu sử dụng cơ chế pull-based collection, nghĩa là Prometheus chủ động kết nối đến các target để lấy metrics theo một chu kỳ xác định.
-
-Giả sử một checkout service đã cung cấp endpoint metrics tại:
+Giả sử một web service cung cấp trạng thái metrics tại:
 
 ```text
-http://checkout-service:8000/metrics
+http://web-service:8000/metrics
 ```
 
-Prometheus sẽ định kỳ gửi HTTP request đến endpoint này để thu thập các metric sample hiện tại. Mỗi lần Prometheus thực hiện quá trình thu thập từ một target được gọi là một *scrape*.
+Prometheus gửi HTTP request đến endpoint này theo chu kỳ và nhận về các giá trị hiện tại.
 
-Trong phần này, `/metrics` chỉ được xem là endpoint mà Prometheus sử dụng để lấy dữ liệu. Cách application hoặc exporter tạo ra nội dung tại endpoint này sẽ được trình bày ở mục Application Instrumentation.
+> Mỗi lần Prometheus lấy metrics từ một endpoint được gọi là một **scrape**. Endpoint được scrape được gọi là một **target**.
+
+Application hoặc exporter chịu trách nhiệm tạo nội dung tại `/metrics`. Phần 2.2 sẽ giải thích hai cách tạo dữ liệu này.
 
 ### Targets, `scrape_interval` và trạng thái scrape
 
-Để thu thập metrics, Prometheus trước hết cần biết những endpoint nào phải được theo dõi. Mỗi endpoint mà Prometheus định kỳ truy cập để lấy metrics được gọi là một target.
-
-Trong một cấu hình đơn giản, các target có thể được khai báo trực tiếp trong `prometheus.yml`. Ví dụ:
+Prometheus cần biết địa chỉ của từng target trước khi có thể thu thập dữ liệu. Trong môi trường lab, target có thể được khai báo trực tiếp:
 
 ```yaml
 scrape_configs:
-  - job_name: "checkout-service"
+  - job_name: "demo-app"
     static_configs:
       - targets:
-          - "checkout-service:8000"
+          - "demo-app:8000"
 ```
 
-Ở đây, `checkout-service:8000` là target mà Prometheus sẽ scrape. Trường `job_name` đặt tên cho nhóm target này, giúp các metrics được thu thập được nhận diện theo cùng một vai trò.
+`job_name` nhóm các target có cùng vai trò. Địa chỉ `demo-app:8000` nhận diện target cụ thể trong nhóm đó.
 
-Sau khi biết cần scrape target nào, Prometheus cần xác định tần suất thu thập dữ liệu. Khoảng thời gian giữa hai lần scrape được cấu hình bằng `scrape_interval`. Ví dụ:
+Sau khi có danh sách target, Prometheus cần biết bao lâu sẽ scrape một lần:
 
 ```yaml
 global:
   scrape_interval: 15s
 ```
 
-Với cấu hình trên, Prometheus sẽ cố gắng lấy metrics từ các target khoảng 15 giây một lần. Mỗi lần scrape tạo ra một tập metric sample mới với timestamp tương ứng. Khi quá trình này lặp lại, các sample được lưu theo thời gian và tạo thành dữ liệu time series.
+Trong lab này, Prometheus cố gắng lấy metrics khoảng 15 giây một lần. `15s` là lựa chọn cấu hình của môi trường thực hành, không phải chu kỳ chung cho mọi hệ thống. Interval ngắn ghi nhận biến động chi tiết hơn nhưng tạo nhiều sample và tăng chi phí xử lý. Interval dài giảm lượng dữ liệu nhưng có thể bỏ qua những biến động ngắn.
 
-Việc chọn `scrape_interval` là sự cân bằng giữa độ chi tiết và lượng dữ liệu cần xử lý. Khoảng thời gian ngắn giúp ghi nhận thay đổi nhanh hơn nhưng tạo ra nhiều sample hơn; khoảng thời gian dài làm giảm lượng dữ liệu nhưng có thể không phản ánh được những biến động ngắn.
-
-Khi một target được scrape, Prometheus thường bổ sung các label để xác định nguồn dữ liệu. Hai label thường gặp là `job`, đại diện cho nhóm target, và `instance`, đại diện cho target cụ thể. Với cấu hình trên, một metric có thể mang các label:
+Khi lưu sample, Prometheus thường bổ sung hai labels nhận diện nguồn:
 
 ```text
-job="checkout-service"
-instance="checkout-service:8000"
+job="demo-app"
+instance="demo-app:8000"
 ```
 
-Các label này giúp engineer phân biệt dữ liệu đến từ service hoặc instance nào khi truy vấn.
-
-Prometheus đồng thời tự tạo metric `up` cho mỗi target để phản ánh kết quả của lần scrape gần nhất. Ví dụ:
+Prometheus cũng tạo metric `up` để ghi lại kết quả của lần scrape gần nhất:
 
 ```text
 up{job="demo-app", instance="demo-app:8000"}
 ```
 
-Kết quả `1` cho biết Prometheus đã thu thập metrics từ target thành công, trong khi `0` cho biết lần scrape gần nhất thất bại. Nhờ đó, `up` cung cấp một cách đơn giản để kiểm tra liệu Prometheus còn có thể tiếp cận và thu thập dữ liệu từ target hay không.
-
-Tuy nhiên, metric này chỉ phản ánh scrape status, không phản ánh đầy đủ application health. Một checkout service vẫn có thể trả về endpoint metrics bình thường trong khi database hoặc một dependency phía sau đang gặp lỗi. Vì vậy, `up` thường được dùng như bước kiểm tra đầu tiên trước khi engineer xem xét thêm các tín hiệu như latency, error rate hoặc resource usage.
+Giá trị `1` nghĩa là lần scrape gần nhất thành công. Giá trị `0` nghĩa là Prometheus không lấy được metrics từ target. Tín hiệu này chỉ xác nhận đường thu thập metrics còn hoạt động. Service vẫn có thể trả `/metrics` trong khi database hoặc dependency của nó đang gặp sự cố.
 
 ![Trạng thái scrape của các target trong Prometheus.](images/practice/prometheus_up.png)
 
 ### Service Discovery
 
-Khai báo target thủ công phù hợp với lab hoặc hệ thống có ít thành phần. Trong môi trường động, instance có thể được tạo mới, thay đổi địa chỉ hoặc bị loại bỏ thường xuyên, khiến danh sách target khó được duy trì bằng cấu hình tĩnh.
+Khai báo tĩnh phù hợp với lab hoặc hệ thống có ít target ổn định. Trong môi trường động, instance có thể được tạo, thay địa chỉ hoặc bị loại bỏ thường xuyên. Danh sách viết tay khi đó dễ trở nên lỗi thời.
 
-Service Discovery cho phép Prometheus lấy danh sách target từ các nền tảng như Kubernetes, Consul hoặc cloud environment và cập nhật chúng khi hạ tầng thay đổi. Ở mức overview, có thể hiểu Service Discovery là lớp giúp Prometheus xác định cần scrape những target nào, còn quá trình scrape metrics vẫn được Prometheus thực hiện theo cơ chế pull.
+> **Service Discovery** giúp Prometheus lấy và cập nhật danh sách target từ Kubernetes, Consul hoặc nền tảng cloud.
+
+Service Discovery thay đổi cách Prometheus tìm target. Sau khi tìm thấy target, Prometheus vẫn thu thập metrics bằng cơ chế pull.
 
 ### Short-lived Jobs và Pushgateway
 
-Pull-based collection phù hợp với các service tồn tại đủ lâu để Prometheus có thể scrape theo chu kỳ. Tuy nhiên, một short-lived job có thể hoàn thành trước khi Prometheus thực hiện lần scrape tiếp theo.
+Cơ chế scrape theo chu kỳ giả định target tồn tại đủ lâu để Prometheus kịp truy cập. Một batch job chạy trong 5 giây có thể kết thúc trước lần scrape tiếp theo nếu lab đang dùng `scrape_interval: 15s`.
 
-Ví dụ, nếu một batch job chỉ chạy trong 5 giây trong khi `scrape_interval` là 15 giây, Prometheus có thể không kịp thu thập metrics trực tiếp từ job đó. Trong trường hợp này, job có thể gửi metrics đến Pushgateway trước khi kết thúc, sau đó Prometheus scrape Pushgateway như một target thông thường.
+Với một số batch job ngắn, job có thể gửi metrics đến Pushgateway trước khi kết thúc. Prometheus sau đó scrape Pushgateway như một target tồn tại lâu hơn.
 
-Pushgateway vì vậy chỉ đóng vai trò trung gian cho một số workload tồn tại trong thời gian ngắn. Cơ chế thu thập chính của Prometheus vẫn là pull-based collection.
+Pushgateway có phạm vi sử dụng hẹp cho các workload kiểu này. Team cần quản lý vòng đời metrics để dữ liệu của job đã kết thúc không tiếp tục xuất hiện như dữ liệu hiện tại.
 
 ## 2.2. Exposing Metrics: Application Instrumentation and Exporters
 
-Ở phần trước, Prometheus được xem như thành phần chủ động scrape metrics từ các target thông qua endpoint `/metrics`. Câu hỏi tiếp theo là: những metrics xuất hiện tại endpoint đó được tạo ra từ đâu?
+Đến đây Prometheus đã biết khi nào và ở đâu cần lấy metrics. Endpoint `/metrics` vẫn cần một thành phần tạo ra các giá trị mà Prometheus sẽ đọc.
 
-Trong thực tế, có hai cách phổ biến để cung cấp metrics cho Prometheus. Application có thể tự instrument để tạo metrics từ bên trong source code, hoặc sử dụng exporter để chuyển dữ liệu từ những hệ thống có sẵn sang định dạng mà Prometheus có thể thu thập.
+Có hai trường hợp chính. Khi team kiểm soát source code, application có thể tự ghi nhận các sự kiện mà nó hiểu. Khi dữ liệu nằm trong operating system, database hoặc phần mềm có sẵn, một exporter có thể chuyển dữ liệu đó sang dạng Prometheus đọc được.
 
 ![Application có thể tự instrument để expose metrics, trong khi exporter chuyển dữ liệu từ các hệ thống có sẵn sang định dạng mà Prometheus có thể thu thập.](images/application_exporter.png)
 
 ### Application Instrumentation
 
-Instrumentation là quá trình bổ sung code hoặc cấu hình để application tạo ra các telemetry cần thiết trong quá trình hoạt động. Với Prometheus, application thường sử dụng Prometheus client library để định nghĩa, cập nhật và expose metrics.
+Application là nơi hiểu rõ một request đã bắt đầu, hoàn tất hay thất bại. Nó cũng biết một tác vụ đang chờ, mất bao lâu hoặc kết thúc với kết quả nào. Muốn quan sát những tín hiệu này, code cần cập nhật metrics tại các điểm tương ứng trong quá trình xử lý.
 
-Cách này phù hợp với những tín hiệu mà chính application hiểu rõ nhất, chẳng hạn:
+> **Application instrumentation** là việc bổ sung code hoặc cấu hình để application tạo telemetry trong lúc chạy.
 
-- tổng số request đã xử lý.
-- số request đang được xử lý.
-- thời gian xử lý request.
-- số request thất bại.
-- business metrics như số order hoặc transaction.
+Với Prometheus, application thường dùng client library để định nghĩa metric, cập nhật metric khi sự kiện xảy ra và cung cấp giá trị qua endpoint `/metrics`.
 
-Ví dụ, khi một HTTP request được xử lý, application có thể tăng request counter và ghi nhận thời gian xử lý. Client library duy trì các giá trị này và expose chúng qua endpoint `/metrics` để Prometheus scrape.
-
-Application instrumentation vì vậy phù hợp khi team kiểm soát source code và cần theo dõi application-level hoặc business-level behavior, thay vì chỉ quan sát tài nguyên hạ tầng bên dưới.
+Ví dụ, khi xử lý một HTTP request, application có thể tăng tổng số request, ghi nhận status và đo duration. Những dữ liệu này phản ánh hành vi bên trong application mà operating system không tự biết được.
 
 ### Exporters
 
-Không phải hệ thống nào cũng có thể được instrument trực tiếp bằng Prometheus client library. Operating system, database, network device hoặc phần mềm có sẵn thường cung cấp dữ liệu thông qua system files, command, API hoặc giao thức riêng.
+Nhiều hệ thống đã có dữ liệu vận hành nhưng không cung cấp dữ liệu theo định dạng Prometheus. Operating system có CPU counters và memory statistics. Database hoặc network device có thể cung cấp dữ liệu qua API, system files hoặc giao thức riêng.
 
-Trong trường hợp này, một exporter đóng vai trò trung gian. Exporter đọc dữ liệu từ hệ thống gốc, chuyển các giá trị cần thiết thành Prometheus metrics và expose chúng qua endpoint để Prometheus scrape.
+> **Exporter** đọc dữ liệu từ một hệ thống có sẵn, chuyển các giá trị cần thiết thành Prometheus metrics và expose chúng cho Prometheus scrape.
 
-Một ví dụ phổ biến là Node Exporter, được sử dụng để cung cấp system-level metrics từ Linux và Unix. Node Exporter đọc dữ liệu do operating system cung cấp và chuyển chúng thành các metrics về CPU, memory, disk, filesystem và network.
+Node Exporter là một ví dụ. Nó đọc dữ liệu do Linux hoặc Unix cung cấp và tạo các metrics như:
 
-Một số metric thường gặp gồm:
+```text
+node_cpu_seconds_total
+node_memory_MemAvailable_bytes
+node_filesystem_avail_bytes
+```
 
-- `node_cpu_seconds_total`: tổng thời gian CPU đã sử dụng theo từng core và mode.
-- `node_memory_MemAvailable_bytes`: lượng memory còn khả dụng.
-- `node_disk_read_bytes_total`: tổng số byte đã được đọc từ disk.
-- `node_network_receive_bytes_total`: tổng số byte đã nhận qua network interface.
-- `node_filesystem_avail_bytes`: dung lượng filesystem còn khả dụng.
-
-Prefix `node_` giúp nhận biết metric được cung cấp bởi Node Exporter. Như vậy, application instrumentation phù hợp với application hoặc business metrics, còn exporter phù hợp khi cần lấy metrics từ những hệ thống mà team không muốn hoặc không thể sửa source code.
+Dù metrics đến từ application hay exporter, endpoint vẫn phải trả về một format mà Prometheus có thể parse.
 
 ### Prometheus Exposition Format
 
-Dù metrics được tạo trực tiếp bởi application hay thông qua exporter, endpoint mà Prometheus scrape cần cung cấp dữ liệu theo một format mà Prometheus có thể parse.
-
-Ví dụ:
+Một endpoint metrics có thể trả về:
 
 ```text
 # HELP http_requests_total Total number of HTTP requests.
 # TYPE http_requests_total counter
-http_requests_total{service="checkout",status="200"} 15230
+http_requests_total{service="demo-app",status="200"} 15230
 ```
 
-Trong đó:
+Hai dòng đầu cung cấp metadata:
 
-- `# HELP` mô tả ý nghĩa của metric;
-- `# TYPE` khai báo loại metric;
-- dòng cuối chứa metric sample thực tế.
+- `# HELP` mô tả metric.
+- `# TYPE` khai báo loại metric.
 
-Một metric sample thường có cấu trúc:
+Dòng cuối là sample mà Prometheus lưu:
 
 ```text
 metric_name{labels} value
 ```
 
-Trong đó, labels là các cặp key-value đóng vai trò metadata, giúp bổ sung context để biết metric đang mô tả service, status hoặc nhóm tài nguyên nào. Ví dụ:
-
-```text
-http_requests_total{service="checkout", status="200"} 15230
-```
-
-Ở đây, `http_requests_total` là tên metric, `service="checkout"` cho biết metric thuộc service checkout, `status="200"` cho biết các request có HTTP status 200, còn `15230` là giá trị hiện tại. Khi Prometheus scrape endpoint này, sample được lưu cùng timestamp để tạo dữ liệu theo thời gian.
+Trong ví dụ trên, metric có tên `http_requests_total`, hai labels mô tả service và HTTP status, còn `15230` là giá trị tại thời điểm scrape. Prometheus gắn thêm timestamp khi lưu sample.
 
 ![Endpoint `/metrics` cung cấp metadata và các metric sample theo Prometheus exposition format.](images/practice/prometheus_metrics_endpoint.pdf)
 
 ### Metric Naming Convention
 
-Tên metric nên mô tả rõ đại lượng đang được đo và sử dụng đơn vị nhất quán. Một số quy ước thường gặp:
+Tên metric nên cho biết đại lượng và đơn vị đang được đo. Một số suffix thường gặp gồm:
 
-- `_total`: thường dùng cho Counter. Ví dụ, `http_requests_total` biểu diễn tổng số HTTP request đã được xử lý.
-- `_seconds`: dùng cho các đại lượng thời gian tính theo giây. Ví dụ, `http_request_duration_seconds` biểu diễn thời gian xử lý HTTP request.
-- `_bytes`: dùng cho các đại lượng dung lượng tính theo byte. Ví dụ, `node_memory_MemAvailable_bytes` biểu diễn lượng memory còn khả dụng.
+- `_total` cho giá trị tích lũy kiểu Counter, chẳng hạn `http_requests_total`.
+- `_seconds` cho thời gian tính bằng giây.
+- `_bytes` cho dung lượng tính bằng byte.
 
-Việc đặt tên nhất quán giúp engineer nhận biết nhanh ý nghĩa và đơn vị của metric, đồng thời làm PromQL và dashboard dễ đọc hơn.
+Đây là naming conventions giúp người đọc nhận ra ý nghĩa của metric. Chúng không thay thế phần mô tả `HELP` hoặc tài liệu của metric.
 
 ## 2.3. Prometheus Time-Series Data Model
 
-Sau khi Prometheus scrape metrics từ các target, dữ liệu không chỉ được giữ dưới dạng giá trị hiện tại mà được lưu liên tục theo thời gian. Cách tổ chức này cho phép Prometheus theo dõi sự thay đổi của một metric, so sánh các thời điểm khác nhau và thực hiện các phép tính như rate, trend hoặc percentile ở bước truy vấn sau này.
+Mỗi lần scrape chỉ tạo ra một tập giá trị tại một thời điểm. Prometheus giữ lại các lần đo liên tiếp để engineer có thể quan sát thay đổi, tính tốc độ tăng và so sánh các khoảng thời gian.
 
 ### Metric Samples và Time Series
 
-Mỗi lần Prometheus scrape một target, nó thu được các metric sample. Mỗi sample ghi lại value của metric tại một timestamp cụ thể. Khi cùng một metric tiếp tục được scrape ở các thời điểm khác nhau, các sample này được lưu nối tiếp nhau và hình thành một time series.
+Giả sử Prometheus đọc cùng một metric ba lần:
+
+```text
+10:00:00  http_requests_total{status="200"}  120
+10:00:15  http_requests_total{status="200"}  126
+10:00:30  http_requests_total{status="200"}  135
+```
+
+Mỗi dòng là một sample gồm timestamp và value. Các sample có cùng metric name và cùng label set tạo thành một time series.
+
+> Một **time series** được nhận diện bởi metric name cùng toàn bộ labels đi kèm.
 
 ![Mỗi lần scrape tạo ra một sample gồm timestamp và value. Các sample được thu thập liên tục theo thời gian sẽ hình thành một time series.](images/metric_samle_timeseries.png)
 
-Việc lưu lại toàn bộ chuỗi sample thay vì chỉ giữ giá trị mới nhất cho phép Prometheus phân tích sự thay đổi của metric theo thời gian. Một time series được xác định bởi **metric name** cùng toàn bộ **label set** đi kèm.
-
-Ví dụ:
-
-```text
-http_requests_total{method="GET",status="200"}
-```
-
-Nếu một label thay đổi, Prometheus xem đó là một time series khác. Vì vậy:
+Thay đổi một label value sẽ tạo ra series khác:
 
 ```text
 http_requests_total{method="GET",status="200"}
@@ -484,88 +465,78 @@ http_requests_total{method="POST",status="200"}
 http_requests_total{method="POST",status="500"}
 ```
 
-là ba time series riêng dù đều sử dụng cùng metric name `http_requests_total`.
+Ba dòng trên thuộc ba time series, dù dùng cùng metric name.
 
 ### Labels
 
-Labels là các cặp `key=value` dùng để mô tả thêm các chiều của metric. Nhờ labels, một metric có thể được phân tích theo service, endpoint, status code, instance hoặc environment mà không cần tạo một metric name riêng cho từng trường hợp.
-
-Ví dụ:
+Một metric name cho biết đại lượng đang được đo. Labels cho phép chia đại lượng đó theo những chiều cần phân tích:
 
 ```text
 http_requests_total{
-  service="checkout",
-  endpoint="/payment",
+  service="demo-app",
+  endpoint="/checkout",
   status="500"
 }
 ```
 
-Trong metric trên, các labels giúp mô tả metric theo nhiều chiều khác nhau.
+Trong sample này, `service` xác định service, `endpoint` xác định nơi xử lý request và `status` phân biệt kết quả.
 
-- `service="checkout"`: request thuộc checkout service.
-- `endpoint="/payment"`: request được xử lý tại endpoint `/payment`.
-- `status="500"`: request kết thúc với server error.
-- `job="checkout-service"`: nhóm các target có cùng vai trò.
-- `instance="checkout-service:8000"`: xác định target cụ thể mà Prometheus đã scrape.
-
-Trong đó, `service`, `endpoint` và `status` thường đến từ application hoặc exporter, còn `job` và `instance` thường được Prometheus bổ sung khi scrape. Nhờ cách tổ chức này, cùng một service có thể chạy trên nhiều instance mà dữ liệu vẫn được phân biệt rõ ràng.
-
-Labels sau này cũng trở thành cơ sở để filter dữ liệu bằng PromQL.
+Application hoặc exporter thường tạo các labels mô tả dữ liệu. Prometheus có thể bổ sung `job` và `instance` để nhận diện nguồn scrape. PromQL dùng những labels này để lọc và tổng hợp series.
 
 ### Cardinality
 
-Việc thêm labels giúp metric trở nên linh hoạt hơn, nhưng mỗi tổ hợp label values khác nhau cũng tạo thêm một time series mới. Số lượng time series được tạo ra từ các tổ hợp này được gọi là cardinality.
+Labels giúp đặt nhiều góc nhìn lên cùng một metric, nhưng mỗi tổ hợp label values xuất hiện trong dữ liệu đều tạo thêm một time series.
 
-Ví dụ, nếu một metric được phân chia theo 20 endpoint, 5 status code, 10 instance và 3 environment thì số tổ hợp có thể đạt:
+> **Cardinality** là số lượng time series khác nhau được tạo bởi metric name và các tổ hợp label values.
+
+Nếu dữ liệu có 20 endpoint, 5 status code, 10 instance và 3 environment, số tổ hợp tối đa có thể đạt:
 
 $$
 20 \times 5 \times 10 \times 3 = 3{,}000
 \text{ time series}.
 $$
 
-Điều này cho thấy cardinality có thể tăng rất nhanh ngay cả khi mỗi label riêng lẻ chỉ có một số lượng giá trị vừa phải.
+Con số 3.000 là upper bound khi mọi giá trị có thể kết hợp với nhau. Số series thực tế phụ thuộc vào những tổ hợp thực sự xuất hiện.
 
-Rủi ro lớn hơn xuất hiện khi sử dụng những giá trị gần như luôn khác nhau làm label, chẳng hạn `user_id`, `request_id`, email hoặc timestamp. Nếu `request_id` được dùng làm label và mỗi request có một ID riêng, gần như mỗi request sẽ tạo thêm một time series mới. Khi số lượng series tăng quá lớn, Prometheus phải sử dụng nhiều memory và storage hơn, đồng thời query cũng trở nên tốn kém hơn.
-
-Vì vậy, labels nên tập trung vào những chiều dữ liệu có số lượng giá trị tương đối ổn định và thực sự hữu ích cho monitoring, chẳng hạn service, status, endpoint, environment hoặc instance.
+Các giá trị gần như luôn khác nhau, chẳng hạn `request_id`, email hoặc timestamp, có thể tạo một series mới cho gần như mỗi event. Số series lớn làm tăng memory, storage và chi phí query. Labels vì thế nên mô tả những chiều có tập giá trị tương đối ổn định và hữu ích cho việc lọc hoặc tổng hợp.
 
 ## 2.4. Hands-on: From Raw Metrics to Operational Signals with PromQL
 
-Các ví dụ trong phần này sử dụng cùng một monitoring stack gồm checkout application, Node Exporter và Prometheus. Các operational signals được xây dựng và kiểm tra trực tiếp trên Prometheus trước khi được sử dụng lại để tạo Grafana dashboard.
+Các ví dụ sau sử dụng demo application, Node Exporter và Prometheus trong môi trường lab. Mỗi query bắt đầu từ một câu hỏi vận hành. Cửa sổ `[5m]` được chọn để quan sát dữ liệu gần đây và làm mượt dao động ngắn trong lab. Hệ thống production cần chọn window theo traffic và mục tiêu vận hành riêng.
 
-Các time series được lưu trong Prometheus mới chỉ là dữ liệu thô. Để trả lời những câu hỏi vận hành như service có đang hoạt động không, traffic hiện tại bao nhiêu, tỷ lệ lỗi có tăng hay CPU và memory có gần quá tải không, các time series này cần được lựa chọn và tính toán thành những tín hiệu cụ thể.
+> **PromQL** là ngôn ngữ truy vấn dùng để chọn, lọc và tổng hợp time series trong Prometheus.
 
-PromQL (Prometheus Query Language) là ngôn ngữ truy vấn của Prometheus dùng để thực hiện quá trình đó. PromQL cho phép chọn metric, lọc theo labels, lấy dữ liệu trong một khoảng thời gian, tính tốc độ thay đổi và tổng hợp nhiều time series.
+### Prometheus có còn thu thập được dữ liệu không?
 
-### Target Health
-
-Metric `up` cho biết Prometheus có scrape một target thành công hay không.
+Query sử dụng metric `up` từ phần 2.1 để kiểm tra target của demo application:
 
 ```promql
 up{job="demo-app", instance="demo-app:8000"}
 ```
 
-![Truy vấn trạng thái scrape của checkout service bằng metric `up`.](images/practice/prometheus_target_health.png)
+![Truy vấn trạng thái scrape của demo application bằng metric `up`.](images/practice/prometheus_target_health.png)
 
-Giá trị `1` cho biết lần scrape gần nhất thành công, còn `0` cho biết Prometheus không thể thu thập metrics từ target đó.
+Kết quả `1` xác nhận lần scrape gần nhất thành công. Application health vẫn cần được đánh giá bằng các signal tiếp theo.
 
-### Counter to Request Rate
+### Service đang nhận bao nhiêu traffic?
 
-`app_requests_total` là Counter, biểu diễn tổng số HTTP request mà demo-app đã xử lý. Mỗi request hoàn tất làm Counter tăng lên, với các labels `method`, `endpoint` và `status`.
+`app_requests_total` tăng mỗi khi demo application xử lý xong một request.
 
-Để tính Request Rate, PromQL sử dụng `rate()` trên dữ liệu của 5 phút gần đây và có thể aggregate nhiều time series bằng `sum()`.
+> **Counter** lưu một giá trị tích lũy thường tăng theo thời gian và có thể trở về điểm bắt đầu khi process restart.
+
+Giá trị hiện tại của Counter chưa cho biết traffic đang nhanh đến đâu. `rate()` ước tính tốc độ tăng trung bình trong cửa sổ đã chọn:
 
 ```promql
 sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
 ```
 
-![Request Rate trung bình của demo-app đối với checkout request trong cửa sổ 5 phút.](images/practice/counter_to_request_rate.png)
+![Request Rate trung bình của demo application đối với checkout request trong cửa sổ 5 phút.](images/practice/counter_to_request_rate.png)
 
-Kết quả `0.04` trong hình có thể hiểu demo-app xử lý trung bình khoảng 0.04 checkout request mỗi giây trong 5 phút gần đây.
+Trong dữ liệu lab ở hình, kết quả `0.04` tương ứng trung bình khoảng `0.04` request mỗi giây trong năm phút gần nhất. Đây là mức traffic của lần chạy thực hành, không phải baseline cho hệ thống khác.
 
-### Counter to Error Rate
+### Bao nhiêu request đang thất bại?
 
-Cùng một `app_requests_total` có thể được sử dụng để theo dõi lỗi thông qua label `status`.
+Cùng Counter có label `status`, nên có thể tách request 5xx khỏi tổng traffic:
 
 ```promql
 sum(rate(app_requests_total{endpoint="/checkout",status=~"5.."}[5m]))
@@ -575,11 +546,11 @@ sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
 
 ![Tỷ lệ request kết thúc bằng HTTP status 5xx trong cửa sổ 5 phút.](images/practice/counter_to_error_rate.png)
 
-Kết quả `0.1667` cho biết khoảng 16.67% checkout request trong 5 phút gần đây kết thúc bằng server error. Với traffic hiện tại, tỷ lệ này tương ứng 2 request lỗi trên tổng 12 checkout request.
+Kết quả `0.1667` trong dữ liệu lab tương ứng khoảng `16.67%`. Trong tập dữ liệu minh họa, 2 trong 12 checkout request kết thúc bằng 5xx. Query giúp định lượng symptom. Nó chưa xác định nguyên nhân gây lỗi.
 
-### Counter to CPU Usage
+### CPU đang được sử dụng bao nhiêu?
 
-Một ví dụ khác của Counter là `node_cpu_seconds_total`, metric ghi nhận tổng thời gian CPU đã dành cho từng mode như `idle`, `user`, `system` hoặc `iowait`.
+`node_cpu_seconds_total` tích lũy thời gian CPU dành cho từng mode. Query sau tính tốc độ tăng của thời gian `idle`, lấy trung bình theo instance rồi đổi phần còn lại thành phần trăm CPU đang sử dụng:
 
 ```promql
 100 * (
@@ -591,16 +562,22 @@ Một ví dụ khác của Counter là `node_cpu_seconds_total`, metric ghi nh�
 
 ![CPU usage theo từng core và CPU usage trung bình theo instance sau khi aggregate.](images/practice/counter_to_cpu_usage.pdf)
 
-Trong hình, từng core có CPU usage khoảng 2.3–2.5%, còn `avg by (instance)` gộp bốn core thành mức trung bình khoảng 2.4% cho `node-exporter:9100`.
+Trong ảnh lab, từng core dùng khoảng `2.3%` đến `2.5%`, còn mức trung bình của instance vào khoảng `2.4%`. Một giá trị thấp hoặc cao chỉ có ý nghĩa khi được so với baseline, workload và capacity của chính hệ thống đó.
 
-### Gauge to Memory Usage
+### Memory hiện đang được sử dụng bao nhiêu?
 
-Sau Counter, một metric type phổ biến khác là Gauge. Nếu Counter dùng để biểu diễn một giá trị tích lũy chỉ tăng theo thời gian, thì Gauge biểu diễn trạng thái hiện tại của một giá trị tại thời điểm được quan sát và có thể tăng hoặc giảm giữa các lần scrape.
+Câu hỏi về memory cần giá trị tại thời điểm hiện tại, thay vì một tổng tích lũy như request counter.
 
-Node Exporter cung cấp hai Gauge thường dùng để quan sát memory:
+> **Gauge** lưu giá trị hiện tại của một đại lượng có thể tăng hoặc giảm.
 
-- `node_memory_MemTotal_bytes`: tổng lượng memory của host.
-- `node_memory_MemAvailable_bytes`: lượng memory còn khả dụng.
+Node Exporter cung cấp tổng memory và phần còn khả dụng:
+
+```text
+node_memory_MemTotal_bytes
+node_memory_MemAvailable_bytes
+```
+
+Phần memory đang sử dụng được ước tính bằng:
 
 ```promql
 100 * (
@@ -611,13 +588,15 @@ Node Exporter cung cấp hai Gauge thường dùng để quan sát memory:
 
 ![Tỷ lệ memory đang được sử dụng trên từng host.](images/practice/gauge_to_mem_usage.pdf)
 
-Kết quả trong hình dao động quanh 16%, cho biết môi trường mà Node Exporter quan sát đang sử dụng khoảng 16% memory.
+Kết quả quanh `16%` chỉ mô tả host trong lần chạy lab. Muốn đánh giá rủi ro, engineer còn cần capacity, baseline và dấu hiệu như swapping hoặc memory pressure.
 
-### Histogram to P95 Latency
+### Phần lớn request phải chờ bao lâu?
 
-Mỗi request có thể có thời gian xử lý khác nhau, vì vậy latency cần được quan sát trên nhiều request thay vì chỉ một giá trị riêng lẻ. Prometheus thường sử dụng Histogram để ghi nhận phân phối này bằng cách nhóm các observation vào các bucket theo những ngưỡng xác định trước.
+Một giá trị latency đơn lẻ không đại diện cho trải nghiệm của nhiều request. Ta cần giữ lại phân phối để biết phần lớn request nằm ở vùng nhanh hay chậm.
 
-Các metric `_bucket` sử dụng label `le` (*less than or equal*) để cho biết có bao nhiêu observation nhỏ hơn hoặc bằng từng ngưỡng. Histogram còn cung cấp `_count` là tổng số observation và `_sum` là tổng giá trị đã ghi nhận.
+> **Histogram** đếm observations vào các bucket có ngưỡng xác định trước. Nó cũng cung cấp tổng số observations qua `_count` và tổng giá trị qua `_sum`.
+
+Với classic histogram, `_bucket` dùng label `le` để biểu diễn số observations nhỏ hơn hoặc bằng từng ngưỡng. P95 có thể được ước tính từ các bucket:
 
 ```promql
 histogram_quantile(
@@ -630,52 +609,30 @@ histogram_quantile(
 )
 ```
 
-![P95 request latency của checkout service trong cửa sổ 5 phút.](images/practice/p95_request_latency.pdf)
+![P95 request latency của demo application trong cửa sổ 5 phút.](images/practice/p95_request_latency.pdf)
 
-Trong kết quả, bucket `le="+Inf"` cho biết tổng request rate khoảng 0.04068 req/s. Mốc P95 tương ứng với 95% tổng rate:
+Trong dữ liệu của hình, P95 được ước tính khoảng `0.98` giây và nằm trong bucket từ `0.75` đến `1.0` giây. Có thể diễn giải rằng khoảng 95% request quan sát trong window hoàn thành không chậm hơn mức ước tính này.
 
-$$
-q = 0.95 \times 0.04068 \approx 0.03864.
-$$
+Kết quả phụ thuộc vào bucket boundaries, số observations và window truy vấn. Với traffic thấp như môi trường lab, P95 có thể thay đổi mạnh chỉ vì một vài request.
 
-Giá trị này nằm giữa bucket `le="0.75"` với rate khoảng 0.01356 req/s và bucket `le="1.0"` với rate khoảng 0.04068 req/s. Vì vậy, P95 nằm trong khoảng 0.75–1.0 giây.
+### Vì sao không lấy trung bình P95 của các instance?
 
-Với một quantile nằm giữa hai bucket, phép nội suy có thể được biểu diễn bằng công thức:
+Giả sử hai instance báo cáo:
 
-$$
-\mathrm{Quantile}
-= L + \frac{q-C_{\mathrm{prev}}}
-{C_{\mathrm{upper}}-C_{\mathrm{prev}}}(U-L).
-$$
+- `demo-app-1`: 1.000 request, P95 = 0.4 giây.
+- `demo-app-2`: 20 request, P95 = 1.0 giây.
 
-Trong đó, \(L\) và \(U\) là cận dưới và cận trên của bucket chứa quantile, \(C_{\mathrm{prev}}\) là cumulative rate trước bucket đó, \(C_{\mathrm{upper}}\) là cumulative rate tại cận trên, còn \(q\) là vị trí quantile cần tìm.
+Trung bình hai giá trị là `0.7` giây, nhưng phép tính đó trao trọng số ngang nhau cho hai instance dù lượng request rất khác nhau.
 
-Thay các giá trị từ kết quả:
-
-$$
-\mathrm{P95}
-= 0.75 + \frac{0.03864-0.01356}{0.04068-0.01356}(1.0-0.75)
-\approx 0.98125\ \text{s}.
-$$
-
-Có thể hiểu rằng khoảng 95% request hoàn thành trong không quá 0.981 giây trong cửa sổ 5 phút.
-
-### Histogram và Summary
-
-Histogram và Summary đều được dùng để theo dõi phân phối dữ liệu như request latency, nhưng khác nhau ở cách percentile được tính. Với Histogram, application ghi observations vào các bucket và Prometheus sử dụng dữ liệu đó để tính percentile tại thời điểm query. Với Summary, percentile như p95 được tính trực tiếp tại application trước khi metrics được expose.
+Histogram giữ bucket counts để Prometheus có thể gộp phân phối trước khi tính percentile. Summary tính quantile tại application, nên các quantile đã xuất ra thường không thể được aggregate thành percentile chính xác cho toàn service.
 
 ![Histogram giữ phân phối dưới dạng bucket để Prometheus tính percentile khi query, trong khi Summary tính quantile ngay tại application trước khi expose metrics.](images/practice/prometheus_histogram_summary.png)
 
-Sự khác biệt này ảnh hưởng trực tiếp đến khả năng tính percentile cho toàn service.
+### Service đáp ứng tiêu chí thành công ở mức nào?
 
-- `checkout-1`: 1,000 requests, p95 = 0.4 s.
-- `checkout-2`: 20 requests, p95 = 1.0 s.
+Trong lab này, một checkout request được xem là thành công khi trả HTTP 2xx. Đây là tiêu chí của ví dụ. Service khác có thể cần định nghĩa success theo contract riêng.
 
-Nếu lấy trung bình hai giá trị này sẽ được 0.7 giây, nhưng kết quả đó xem hai instance như có ảnh hưởng ngang nhau dù phần lớn request thực tế được xử lý bởi `checkout-1`. Vì vậy, p95 của toàn service phải được tính từ phân phối của tất cả request.
-
-### Availability SLI
-
-Metrics có thể được kết hợp để tính SLI (Service Level Indicator). Với một HTTP service, Availability SLI có thể được xác định bằng tỷ lệ giữa số request thành công và tổng số request trong cùng một khoảng thời gian.
+Tỷ lệ request thành công trong năm phút gần nhất là:
 
 ```promql
 sum(rate(app_requests_total{endpoint="/checkout",status=~"2.."}[5m]))
@@ -685,54 +642,58 @@ sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
 
 ![Availability SLI được tính từ tỷ lệ successful requests trên total requests.](images/practice/prometheus_sli.png)
 
-Kết quả `0.8333` cho biết Availability SLI của checkout service trong 5 phút gần đây là khoảng 83.33%. Trong khoảng này, 10 trong tổng 12 request kết thúc thành công với HTTP status 2xx.
+Kết quả `0.8333` tương ứng khoảng `83.33%` theo tiêu chí của lab. Trong dữ liệu minh họa, 10 trong 12 request trả HTTP 2xx.
 
 ### Operational Signals Overview
 
-| Operational Signal | Raw Metric / Type | Cách xử lý | Ý nghĩa |
+| Operational Signal | Dữ liệu đầu vào | Cách xử lý | Câu hỏi được trả lời |
 |---|---|---|---|
-| Target Health | `up` | Chọn metric và lọc theo labels | Kiểm tra Prometheus có scrape được target hay không |
-| Request Rate | Counter | Tính tốc độ tăng và aggregate | Mức traffic hiện tại của service |
-| Error Rate | Counter | Lọc request lỗi, tính rate và tỷ lệ | Tỷ lệ request thất bại |
-| Memory Usage | Gauge | Tính toán trực tiếp từ các giá trị hiện tại | Mức memory đang được sử dụng |
-| CPU Usage | Counter | Tính rate của CPU time và aggregate | Mức CPU đang được sử dụng |
-| P95 Latency | Histogram | Tính percentile từ histogram buckets | Mức latency mà khoảng 95% request không vượt quá |
-| Availability SLI | Counter | Tính tỷ lệ successful requests trên total requests | Tỷ lệ request thành công |
-
-Các query trên đã tạo ra tập operational signals cần thiết cho việc theo dõi checkout service.
+| Target Health | `up` | Lọc theo `job` và `instance` | Prometheus có scrape được target không? |
+| Request Rate | Counter | Tính tốc độ tăng và aggregate | Service đang nhận bao nhiêu traffic? |
+| Error Rate | Counter | Lọc lỗi rồi chia cho tổng request | Tỷ lệ request thất bại là bao nhiêu? |
+| CPU Usage | Counter | Tính rate của CPU time | CPU đang được sử dụng ở mức nào? |
+| Memory Usage | Gauge | Tính từ total và available memory | Bao nhiêu memory đang được sử dụng? |
+| P95 Latency | Histogram | Tính quantile từ buckets | Khoảng 95% request hoàn thành trong bao lâu? |
+| Availability SLI | Counter | Chia successful requests cho total requests | Service đạt tiêu chí thành công ở mức nào? |
 
 ## 2.5. Visualizing Metrics with Grafana
 
-Sau khi các operational signals đã được kiểm tra trên Prometheus, Grafana được sử dụng để tập hợp chúng vào cùng một dashboard và theo dõi sự thay đổi theo thời gian.
+PromQL trả lời từng câu hỏi riêng lẻ. Khi điều tra một thay đổi, engineer thường cần đặt traffic, error rate, latency và resource usage trong cùng một time range để xem chúng thay đổi vào thời điểm nào.
+
+Grafana sử dụng Prometheus làm data source và biểu diễn các query này thành dashboard.
 
 ### Connecting Grafana to Prometheus
 
-Mở Grafana tại [http://localhost:3000](http://localhost:3000) và đăng nhập bằng tài khoản `admin` với mật khẩu `grafana`. Sau khi đăng nhập, cấu hình Prometheus làm data source để Grafana có thể truy vấn metrics.
+Trong môi trường lab, mở Grafana tại [http://localhost:3000](http://localhost:3000) và đăng nhập bằng tài khoản `admin` với mật khẩu `grafana`. Sau đó cấu hình Prometheus làm data source.
 
 ![Prometheus được cấu hình làm data source trong Grafana.](images/practice/prometheus_data_sources.pdf)
 
 ### Building the Metrics Dashboard
 
-Một dashboard gồm nhiều panel, trong đó mỗi panel biểu diễn một signal hoặc một góc nhìn cụ thể của hệ thống. Để minh họa quy trình, ta chọn Request Rate sử dụng làm panel mẫu.
+Tạo một dashboard mới, thêm panel và chọn Prometheus làm data source. Với panel đầu tiên, sử dụng query Request Rate:
 
-Trong Grafana, tạo một dashboard mới, chọn *Add panel* và chọn Prometheus làm data source. Sau đó sử dụng lại PromQL query Request Rate, chọn Time series làm visualization, đặt tên panel là *Request Rate*, cấu hình đơn vị requests per second và lưu panel.
+```promql
+sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
+```
+
+Chọn Time series, đặt tên panel là *Request Rate* và dùng đơn vị requests per second.
 
 ![Xây dựng panel Request Rate bằng PromQL và Time series visualization.](images/practice/grafana_request_rate.pdf)
 
-Sau khi hoàn thành panel Request Rate, các query đã xây dựng được tái sử dụng để bổ sung các panel còn lại.
+Các query còn lại được thêm theo cùng quy trình:
 
 | Panel | PromQL | Visualization | Unit |
 |---|---|---|---|
 | Request Rate | `sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Time series | req/s |
-| Error Rate | `sum(rate(app_requests_total{endpoint="/checkout",status=~"5.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0 - 1) |
+| Error Rate | `sum(rate(app_requests_total{endpoint="/checkout",status=~"5.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0–1) |
 | P95 Latency | `histogram_quantile(0.95, sum by (le) (rate(app_request_latency_seconds_bucket{endpoint="/checkout"}[5m])))` | Time series | seconds |
-| CPU Usage | `100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))` | Time series | Percent (0 - 100) |
-| Memory Usage | `100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)` | Time series | Percent (0 - 100) |
-| Availability SLI | `sum(rate(app_requests_total{endpoint="/checkout",status=~"2.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0 - 1) |
+| CPU Usage | `100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))` | Time series | Percent (0–100) |
+| Memory Usage | `100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)` | Time series | Percent (0–100) |
+| Availability SLI | `sum(rate(app_requests_total{endpoint="/checkout",status=~"2.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0–1) |
 
-![Dashboard tập hợp các operational signals của checkout service trên cùng một giao diện.](images/practice/grafana_dashboard.png)
+![Dashboard tập hợp các operational signals của demo application trên cùng một giao diện.](images/practice/grafana_dashboard.png)
 
-Dashboard hoàn chỉnh cho phép quan sát nhiều khía cạnh của service trong cùng một time range. Request Rate phản ánh Traffic, Error Rate phản ánh Errors, P95 Latency thể hiện Latency, còn CPU Usage và Memory Usage cho thấy mức sử dụng tài nguyên, đồng thời hỗ trợ đánh giá saturation khi kết hợp với các tín hiệu chờ hoặc queue. Availability SLI cho biết tỷ lệ request thành công và hỗ trợ đánh giá reliability của service.
+Dashboard cho phép đối chiếu các signal trong cùng một khoảng thời gian. Chẳng hạn, engineer có thể kiểm tra error rate có tăng cùng lúc với traffic, latency hoặc resource usage hay không. Những quan sát này giúp thu hẹp hướng điều tra. Chúng chưa đủ để tự xác định nguyên nhân.
 
 # 3. Logs with Loki and Alloy
 

@@ -46,11 +46,23 @@ const chapters: LearningTocTrackSeed[] = [
       description: { en: 'Prometheus collection, data model, PromQL, and Grafana dashboards.', vi: 'Prometheus collection, data model, PromQL và Grafana dashboards.' },
     },
     lessonIds: [
-      missing('prometheus-metrics-pipeline', 'Prometheus and the Metrics Pipeline'),
-      missing('exposing-prometheus-metrics', 'Exposing Metrics: Application Instrumentation and Exporters'),
-      missing('prometheus-time-series-data-model', 'Prometheus Time-Series Data Model'),
-      missing('promql-operational-signals', 'Hands-on: From Raw Metrics to Operational Signals with PromQL'),
-      missing('grafana-metrics-dashboard', 'Visualizing Metrics with Grafana'),
+      published('prometheus-metrics-pipeline', 'Prometheus and the Metrics Pipeline', 'Prometheus and the Metrics Pipeline'),
+      published(
+        'exposing-prometheus-metrics',
+        'Exposing Metrics: Application Instrumentation and Exporters',
+        'Exposing Metrics: Application Instrumentation and Exporters',
+      ),
+      published(
+        'prometheus-time-series-data-model',
+        'Prometheus Time-Series Data Model',
+        'Prometheus Time-Series Data Model',
+      ),
+      published(
+        'promql-operational-signals',
+        'Hands-on: From Raw Metrics to Operational Signals with PromQL',
+        'Hands-on: From Raw Metrics to Operational Signals with PromQL',
+      ),
+      published('grafana-metrics-dashboard', 'Visualizing Metrics with Grafana', 'Visualizing Metrics with Grafana'),
     ],
   },
   {
