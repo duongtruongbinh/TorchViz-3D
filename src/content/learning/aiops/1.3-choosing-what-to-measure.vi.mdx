@@ -1,0 +1,61 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'choosing-what-to-measure',
+  locale: 'vi',
+  title: 'Lựa chọn nội dung cần đo lường',
+  headings: ['USE Method: Tình trạng tài nguyên', 'Four Golden Signals: Tình trạng chung của dịch vụ', 'RED Method: Cách xử lý yêu cầu', 'Mối quan hệ giữa ba phương pháp'],
+  headingContract: 'exact',
+  keywords: ['USE Method', 'Four Golden Signals', 'RED Method', 'metrics'],
+}
+
+
+Một hệ thống có thể tạo ra rất nhiều chỉ số, từ mức sử dụng CPU và bộ nhớ đến số lượng yêu cầu, tỷ lệ lỗi và thời gian phản hồi. Nếu theo dõi tất cả chỉ số với cùng mức độ ưu tiên, kỹ sư sẽ khó biết nên bắt đầu từ đâu khi hệ thống xuất hiện vấn đề.
+
+Vì vậy, việc lựa chọn chỉ số nên bắt đầu từ đối tượng cần quan sát. USE Method, Four Golden Signals và RED Method là ba cách tiếp cận phổ biến, mỗi cách tập trung vào một phạm vi khác nhau của hệ thống.
+
+<LessonImage
+  assetPath="aiops/USE_GOLDEN_RED_Method.webp"
+  alt="USE, Four Golden Signals và RED tập trung vào những phạm vi khác nhau và có thể được kết hợp trong quá trình điều tra."
+  maxWidth="52rem"
+/>
+
+### [USE Method](https://www.brendangregg.com/usemethod.html): Tình trạng tài nguyên
+
+Khi cần kiểm tra tình trạng của CPU, bộ nhớ, thiết bị lưu trữ hoặc network, USE Method tập trung vào ba nhóm tín hiệu:
+
+- **Utilization:** tài nguyên đang được sử dụng ở mức nào.
+- **Saturation:** có bao nhiêu công việc đang phải chờ vì tài nguyên chưa thể xử lý kịp.
+- **Errors:** các lỗi xảy ra trong quá trình tài nguyên hoạt động.
+
+Ví dụ, với thiết bị lưu trữ, kỹ sư có thể theo dõi tỷ lệ thời gian thiết bị đang thực hiện thao tác đọc hoặc ghi để đánh giá Utilization, số yêu cầu I/O đang phải chờ để đánh giá Saturation và số lỗi đọc ghi để kiểm tra Errors.
+
+Ba tín hiệu này giúp phân biệt một tài nguyên chỉ đang được sử dụng nhiều với trường hợp nó đã bắt đầu không theo kịp lượng công việc cần xử lý.
+
+### [Four Golden Signals](https://sre.google/sre-book/monitoring-distributed-systems): Tình trạng chung của dịch vụ
+
+USE giúp kiểm tra các tài nguyên bên dưới, nhưng trạng thái của tài nguyên chưa phản ánh đầy đủ cách một dịch vụ đang hoạt động. CPU và bộ nhớ có thể vẫn ở mức bình thường trong khi dịch vụ phản hồi chậm hoặc tỷ lệ lỗi bắt đầu tăng. Vì vậy, khi muốn đánh giá tình trạng chung của dịch vụ, Four Golden Signals tập trung vào bốn tín hiệu:
+
+- **Latency:** thời gian cần để xử lý yêu cầu.
+- **Traffic (lưu lượng yêu cầu):** lượng yêu cầu mà dịch vụ đang tiếp nhận.
+- **Errors:** số lượng hoặc tỷ lệ yêu cầu không được xử lý đúng.
+- **Saturation:** mức độ dịch vụ tiến gần giới hạn xử lý.
+
+Latency và Errors phản ánh chất lượng xử lý yêu cầu hiện tại. Traffic cho biết lượng công việc dịch vụ đang tiếp nhận, còn Saturation cho biết dịch vụ còn khả năng xử lý thêm hay đã bắt đầu tiến gần giới hạn.
+
+Saturation ở đây vẫn phản ánh việc hệ thống tiến gần khả năng xử lý tối đa, nhưng được xem ở cấp độ dịch vụ thay vì một thành phần tài nguyên cụ thể như trong USE Method.
+
+### [RED Method](https://grafana.com/blog/the-red-method-how-to-instrument-your-services): Cách xử lý yêu cầu
+
+Four Golden Signals cung cấp góc nhìn tổng thể về tình trạng của dịch vụ. Khi cần đi cụ thể hơn vào cách yêu cầu được xử lý tại từng dịch vụ hoặc điểm cuối, RED Method tập trung vào ba tín hiệu:
+
+- **Rate:** số yêu cầu được xử lý trong một đơn vị thời gian.
+- **Errors:** số lượng hoặc tỷ lệ yêu cầu thất bại.
+- **Duration (thời gian xử lý):** thời gian cần để xử lý yêu cầu.
+
+Điểm khác biệt chính là RED áp dụng cùng một bộ ba tín hiệu cho từng điểm xử lý yêu cầu. Nhờ đó, kỹ sư có thể so sánh các dịch vụ hoặc điểm cuối và nhận biết nơi nào đang nhận nhiều yêu cầu, nơi nào xuất hiện nhiều lỗi hoặc nơi nào có thời gian xử lý tăng bất thường.
+
+### Mối quan hệ giữa ba phương pháp
+
+Ba phương pháp này không tách rời nhau mà bổ sung cho nhau khi kỹ sư cần nhìn hệ thống ở những mức khác nhau. Một dấu hiệu bất thường ở dịch vụ có thể dẫn đến việc kiểm tra chi tiết hơn cách yêu cầu được xử lý, hoặc ngược lại, một vấn đề ở yêu cầu có thể khiến kỹ sư quay xuống kiểm tra tài nguyên bên dưới.
+
+Trong quá trình đó, Four Golden Signals, RED và USE được sử dụng như những góc nhìn khác nhau để thu hẹp dần khu vực cần kiểm tra. Phương pháp nào được dùng trước không cố định mà phụ thuộc vào dấu hiệu ban đầu và hướng mà quá trình điều tra đang dẫn tới.

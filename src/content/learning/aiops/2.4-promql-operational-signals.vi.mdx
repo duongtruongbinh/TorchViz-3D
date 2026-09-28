@@ -1,0 +1,202 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'promql-operational-signals',
+  locale: 'vi',
+  title: 'Hands-on: From Raw Metrics to Operational Signals with PromQL',
+  headings: ['Prometheus có còn thu thập được dữ liệu không?', 'Service đang nhận bao nhiêu traffic?', 'Bao nhiêu request đang thất bại?', 'CPU đang được sử dụng bao nhiêu?', 'Memory hiện đang được sử dụng bao nhiêu?', 'Phần lớn request phải chờ bao lâu?', 'Vì sao không lấy trung bình P95 của các instance?', 'Service đáp ứng tiêu chí thành công ở mức nào?', 'Operational Signals Overview'],
+  headingContract: 'exact',
+  keywords: ['PromQL', 'request rate', 'error rate', 'CPU usage', 'memory usage', 'P95 latency', 'Availability SLI'],
+}
+
+
+Prometheus đang lưu các time series thô như tổng request tích lũy, lượng memory hiện tại và số observations trong các latency buckets. Những giá trị này cần được lọc và tính toán trước khi có thể trả lời các câu hỏi như traffic bao nhiêu, tỷ lệ lỗi thế nào hoặc P95 latency là bao lâu.
+
+<LessonNote tone="info">
+  **PromQL:** Là ngôn ngữ truy vấn dùng để chọn, lọc và tổng hợp time series trong Prometheus.
+</LessonNote>
+
+Trong bài thực hành này, mỗi query bắt đầu từ một câu hỏi vận hành và được chạy trực tiếp trên Prometheus. Với các phép tính `rate()`, cửa sổ `[5m]` sử dụng những sample được thu thập trong năm phút gần nhất.
+
+### Prometheus có còn thu thập được dữ liệu không?
+
+Query sử dụng metric `up` từ bài Prometheus pipeline để kiểm tra target của demo application:
+
+```promql
+up{job="demo-app", instance="demo-app:8000"}
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/prometheus_target_health.png`
+
+  Alt: Truy vấn trạng thái scrape của demo application bằng metric `up`.
+</LessonNote>
+
+Kết quả `1` xác nhận lần scrape gần nhất thành công. Application health sẽ được quan sát qua các signal ở những bước tiếp theo. Khi Prometheus đã thu thập được dữ liệu, câu hỏi tiếp theo là service đang xử lý bao nhiêu traffic.
+
+### Service đang nhận bao nhiêu traffic?
+
+`app_requests_total` tăng mỗi khi demo application xử lý xong một request. Giá trị này cho biết tổng số request đã ghi nhận, nhưng chưa cho biết request đang đến nhanh như thế nào.
+
+<LessonNote tone="info">
+  **Counter:** Lưu một giá trị tích lũy thường tăng theo thời gian và có thể trở về điểm bắt đầu khi process restart.
+</LessonNote>
+
+`rate()` sử dụng mức tăng của Counter trong cửa sổ năm phút để tính Request Rate:
+
+```promql
+sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/counter_to_request_rate.png`
+
+  Alt: Request Rate trung bình của demo application đối với checkout request trong cửa sổ 5 phút.
+</LessonNote>
+
+Trong dữ liệu đang quan sát, kết quả `0.04` tương ứng trung bình khoảng `0.04` checkout request mỗi giây trong năm phút gần nhất. Để tính tỷ lệ request lỗi, query tiếp theo tiếp tục lọc Counter theo label `status`.
+
+### Bao nhiêu request đang thất bại?
+
+Cùng Counter có label `status`, nên query sau tách request 5xx khỏi tổng traffic:
+
+```promql
+sum(rate(app_requests_total{endpoint="/checkout",status=~"5.."}[5m]))
+/
+sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/counter_to_error_rate.png`
+
+  Alt: Tỷ lệ request kết thúc bằng HTTP status 5xx trong cửa sổ 5 phút.
+</LessonNote>
+
+Kết quả `0.1667` tương ứng `16.67%`: 2 trong 12 checkout request kết thúc bằng HTTP 5xx.
+
+### CPU đang được sử dụng bao nhiêu?
+
+`node_cpu_seconds_total` tích lũy thời gian CPU dành cho từng mode. Query sau tính tốc độ tăng của thời gian `idle`, lấy trung bình theo instance rồi đổi phần còn lại thành phần trăm CPU đang sử dụng:
+
+```promql
+100 * (
+  1 - avg by (instance) (
+    rate(node_cpu_seconds_total{mode="idle"}[5m])
+  )
+)
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/counter_to_cpu_usage.pdf`
+
+  Alt: CPU usage theo từng core và CPU usage trung bình theo instance sau khi aggregate.
+</LessonNote>
+
+Kết quả cho thấy từng core sử dụng khoảng `2.3%` đến `2.5%` CPU, còn mức trung bình của instance là khoảng `2.4%`. CPU time là giá trị tích lũy nên query cần `rate()`. Memory mô tả trạng thái hiện tại nên sử dụng Gauge.
+
+### Memory hiện đang được sử dụng bao nhiêu?
+
+Memory được cấp phát khi application cần và được giải phóng khi không còn sử dụng, nên lượng memory hiện tại có thể tăng hoặc giảm giữa hai lần scrape. Một giá trị chỉ tăng như Counter không thể biểu diễn trạng thái này.
+
+<LessonNote tone="info">
+  **Gauge:** Lưu giá trị hiện tại của một đại lượng có thể tăng hoặc giảm.
+</LessonNote>
+
+Node Exporter cung cấp tổng memory và phần còn khả dụng:
+
+```text
+node_memory_MemTotal_bytes
+node_memory_MemAvailable_bytes
+```
+
+Phần memory đang sử dụng được ước tính bằng:
+
+```promql
+100 * (
+  1 - node_memory_MemAvailable_bytes
+      / node_memory_MemTotal_bytes
+)
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/gauge_to_mem_usage.pdf`
+
+  Alt: Tỷ lệ memory đang được sử dụng trên từng host.
+</LessonNote>
+
+Kết quả cho thấy host đang sử dụng khoảng `16%` memory. CPU và memory mô tả trạng thái tài nguyên, còn latency cho biết request mất bao lâu để hoàn thành.
+
+### Phần lớn request phải chờ bao lâu?
+
+Một giá trị latency đơn lẻ không đại diện cho trải nghiệm của nhiều request. Ta cần giữ lại phân phối để biết phần lớn request nằm ở vùng nhanh hay chậm.
+
+<LessonNote tone="info">
+  **Histogram:** Đếm observations vào các bucket có ngưỡng xác định trước. Nó cũng cung cấp tổng số observations qua `_count` và tổng giá trị qua `_sum`.
+</LessonNote>
+
+Với classic histogram, `_bucket` dùng label `le` để biểu diễn số observations nhỏ hơn hoặc bằng từng ngưỡng. P95 có thể được ước tính từ các bucket:
+
+```promql
+histogram_quantile(
+  0.95,
+  sum by (le) (
+    rate(app_request_latency_seconds_bucket{
+      endpoint="/checkout"
+    }[5m])
+  )
+)
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/p95_request_latency.pdf`
+
+  Alt: P95 request latency của demo application trong cửa sổ 5 phút.
+</LessonNote>
+
+P95 được ước tính khoảng `0.98` giây. Điều này nghĩa là khoảng 95% request trong cửa sổ quan sát hoàn thành trong không quá `0.98` giây.
+
+### Vì sao không lấy trung bình P95 của các instance?
+
+Query trên tính P95 từ phân phối của các request. Khi service có nhiều instance, không thể thay bước aggregate bằng cách lấy trung bình các giá trị P95 riêng lẻ. Giả sử hai instance báo cáo:
+
+- `demo-app-1`: 1.000 request, P95 = 0.4 giây.
+- `demo-app-2`: 20 request, P95 = 1.0 giây.
+
+Trung bình hai giá trị là `0.7` giây, nhưng phép tính đó trao trọng số ngang nhau cho hai instance dù lượng request rất khác nhau.
+
+Histogram giữ bucket counts để Prometheus có thể gộp phân phối trước khi tính percentile. Summary tính quantile tại application, nên các quantile đã xuất ra thường không thể được aggregate thành percentile chính xác cho toàn service.
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/prometheus_histogram_summary.png`
+
+  Alt: Histogram giữ phân phối dưới dạng bucket để Prometheus tính percentile khi query, trong khi Summary tính quantile ngay tại application trước khi expose metrics.
+</LessonNote>
+
+### Service đáp ứng tiêu chí thành công ở mức nào?
+
+Error Rate ở phần trước tập trung vào request 5xx. Query này xem request trả HTTP 2xx là thành công và dùng cùng Counter để tính Availability SLI trong năm phút gần nhất.
+
+```promql
+sum(rate(app_requests_total{endpoint="/checkout",status=~"2.."}[5m]))
+/
+sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
+```
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/prometheus_sli.png`
+
+  Alt: Availability SLI được tính từ tỷ lệ successful requests trên total requests.
+</LessonNote>
+
+Kết quả `0.8333` nghĩa là 10 trong 12 checkout request thành công, tương ứng khoảng `83.33%`.
+
+### Operational Signals Overview
+
+| Operational Signal | Dữ liệu đầu vào | Cách xử lý | Câu hỏi được trả lời |
+|---|---|---|---|
+| Target Health | `up` | Lọc theo `job` và `instance` | Prometheus có scrape được target không? |
+| Request Rate | Counter | Tính tốc độ tăng và aggregate | Service đang nhận bao nhiêu traffic? |
+| Error Rate | Counter | Lọc lỗi rồi chia cho tổng request | Tỷ lệ request thất bại là bao nhiêu? |
+| CPU Usage | Counter | Tính rate của CPU time | CPU đang được sử dụng ở mức nào? |
+| Memory Usage | Gauge | Tính từ total và available memory | Bao nhiêu memory đang được sử dụng? |
+| P95 Latency | Histogram | Tính quantile từ buckets | Khoảng 95% request hoàn thành trong bao lâu? |
+| Availability SLI | Counter | Chia successful requests cho total requests | Service đạt tiêu chí thành công ở mức nào? |

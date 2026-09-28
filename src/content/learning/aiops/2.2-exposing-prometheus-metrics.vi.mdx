@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'exposing-prometheus-metrics',
+  locale: 'vi',
+  title: 'Exposing Metrics: Application Instrumentation and Exporters',
+  headings: ['Application Instrumentation', 'Exporters', 'Prometheus Exposition Format', 'Metric Naming Convention'],
+  headingContract: 'exact',
+  keywords: ['application instrumentation', 'exporter', 'Node Exporter', 'exposition format', 'metric naming'],
+}
+
+
+Prometheus đã biết khi nào và ở đâu cần lấy metrics. Endpoint `/metrics` vẫn cần một thành phần tạo ra các giá trị mà Prometheus sẽ đọc. Khi team kiểm soát source code, application có thể tự ghi nhận các sự kiện mà nó hiểu. Khi dữ liệu nằm trong operating system, database hoặc phần mềm có sẵn, một exporter có thể chuyển dữ liệu đó sang dạng Prometheus đọc được.
+
+<LessonNote tone="warning">
+  TODO(image): `images/application_exporter.png`
+
+  Alt: Application có thể tự instrument để expose metrics, trong khi exporter chuyển dữ liệu từ các hệ thống có sẵn sang định dạng mà Prometheus có thể thu thập.
+</LessonNote>
+
+### Application Instrumentation
+
+Application là nơi hiểu rõ một request đã bắt đầu, hoàn tất hay thất bại. Nó cũng biết một tác vụ đang chờ, mất bao lâu hoặc kết thúc với kết quả nào. Muốn quan sát những tín hiệu này, code cần cập nhật metrics tại các điểm tương ứng trong quá trình xử lý.
+
+<LessonNote tone="info">
+  **Application instrumentation:** Là việc bổ sung code hoặc cấu hình để application tạo telemetry trong lúc chạy.
+</LessonNote>
+
+Với Prometheus, application thường dùng client library để định nghĩa metric, cập nhật metric khi sự kiện xảy ra và cung cấp giá trị qua endpoint `/metrics`.
+
+Ví dụ, khi xử lý một HTTP request, application có thể tăng tổng số request, ghi nhận status và đo duration. Những dữ liệu này phản ánh hành vi bên trong application mà operating system không tự biết được.
+
+### Exporters
+
+Nhiều hệ thống đã có dữ liệu vận hành nhưng không cung cấp dữ liệu theo định dạng Prometheus. Operating system có CPU counters và memory statistics. Database hoặc network device có thể cung cấp dữ liệu qua API, system files hoặc giao thức riêng.
+
+<LessonNote tone="info">
+  **Exporter:** Đọc dữ liệu từ một hệ thống có sẵn, chuyển các giá trị cần thiết thành Prometheus metrics và expose chúng cho Prometheus scrape.
+</LessonNote>
+
+Node Exporter là một ví dụ. Nó đọc dữ liệu do Linux hoặc Unix cung cấp và tạo các metrics như:
+
+```text
+node_cpu_seconds_total
+node_memory_MemAvailable_bytes
+node_filesystem_avail_bytes
+```
+
+Dù metrics đến từ application hay exporter, endpoint vẫn phải trả về một format mà Prometheus có thể parse.
+
+### Prometheus Exposition Format
+
+Một endpoint metrics có thể trả về:
+
+```text
+# HELP http_requests_total Total number of HTTP requests.
+# TYPE http_requests_total counter
+http_requests_total{service="demo-app",status="200"} 15230
+```
+
+Hai dòng đầu cung cấp metadata:
+
+- `# HELP` mô tả metric.
+- `# TYPE` khai báo loại metric.
+
+Dòng cuối là sample mà Prometheus lưu:
+
+```text
+metric_name{labels} value
+```
+
+Trong ví dụ trên, metric có tên `http_requests_total`, hai labels mô tả service và HTTP status, còn `15230` là giá trị tại thời điểm scrape. Prometheus gắn thêm timestamp khi lưu sample.
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/prometheus_metrics_endpoint.pdf`
+
+  Alt: Endpoint `/metrics` cung cấp metadata và các metric sample theo Prometheus exposition format.
+</LessonNote>
+
+### Metric Naming Convention
+
+Tên metric nên cho biết đại lượng và đơn vị đang được đo. Một số suffix thường gặp gồm:
+
+- `_total` cho giá trị tích lũy kiểu Counter, chẳng hạn `http_requests_total`.
+- `_seconds` cho thời gian tính bằng giây.
+- `_bytes` cho dung lượng tính bằng byte.
+
+Đây là naming conventions giúp người đọc nhận ra ý nghĩa của metric. Chúng không thay thế phần mô tả `HELP` hoặc tài liệu của metric.

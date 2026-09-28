@@ -1,0 +1,76 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'prometheus-time-series-data-model',
+  locale: 'vi',
+  title: 'Prometheus Time-Series Data Model',
+  headings: ['Metric Samples và Time Series', 'Labels', 'Cardinality'],
+  headingContract: 'exact',
+  keywords: ['metric sample', 'time series', 'labels', 'cardinality'],
+}
+
+
+Mỗi lần scrape chỉ tạo ra một tập giá trị tại một thời điểm. Prometheus giữ lại các lần đo liên tiếp để engineer có thể quan sát thay đổi, tính tốc độ tăng và so sánh các khoảng thời gian.
+
+### Metric Samples và Time Series
+
+Giả sử Prometheus đọc cùng một metric ba lần:
+
+```text
+10:00:00  http_requests_total{status="200"}  120
+10:00:15  http_requests_total{status="200"}  126
+10:00:30  http_requests_total{status="200"}  135
+```
+
+Mỗi dòng là một sample gồm timestamp và value. Các sample có cùng metric name và cùng label set tạo thành một time series.
+
+<LessonNote tone="info">
+  **Time series:** Được nhận diện bởi metric name cùng toàn bộ labels đi kèm.
+</LessonNote>
+
+<LessonNote tone="warning">
+  TODO(image): `images/metric_samle_timeseries.png`
+
+  Alt: Mỗi lần scrape tạo ra một sample gồm timestamp và value. Các sample được thu thập liên tục theo thời gian sẽ hình thành một time series.
+</LessonNote>
+
+Thay đổi một label value sẽ tạo ra series khác:
+
+```text
+http_requests_total{method="GET",status="200"}
+http_requests_total{method="POST",status="200"}
+http_requests_total{method="POST",status="500"}
+```
+
+Ba dòng trên thuộc ba time series, dù dùng cùng metric name.
+
+### Labels
+
+Một metric name cho biết đại lượng đang được đo. Labels cho phép chia đại lượng đó theo những chiều cần phân tích:
+
+```text
+http_requests_total{
+  service="demo-app",
+  endpoint="/checkout",
+  status="500"
+}
+```
+
+Trong sample này, `service` xác định service, `endpoint` xác định nơi xử lý request và `status` phân biệt kết quả.
+
+Application hoặc exporter thường tạo các labels mô tả dữ liệu. Prometheus có thể bổ sung `job` và `instance` để nhận diện nguồn scrape. PromQL dùng những labels này để lọc và tổng hợp series.
+
+### Cardinality
+
+Labels giúp đặt nhiều góc nhìn lên cùng một metric, nhưng mỗi tổ hợp label values xuất hiện trong dữ liệu đều tạo thêm một time series.
+
+<LessonNote tone="info">
+  **Cardinality:** Là số lượng time series khác nhau được tạo bởi metric name và các tổ hợp label values.
+</LessonNote>
+
+Nếu dữ liệu có 20 endpoint, 5 status code, 10 instance và 3 environment, số tổ hợp tối đa có thể đạt:
+
+<BlockMath formula="20 \times 5 \times 10 \times 3 = 3{,}000 \text{ time series}" />
+
+Con số 3.000 là upper bound khi mọi giá trị có thể kết hợp với nhau. Số series thực tế phụ thuộc vào những tổ hợp thực sự xuất hiện.
+
+Các giá trị gần như luôn khác nhau, chẳng hạn `request_id`, email hoặc timestamp, có thể tạo một series mới cho gần như mỗi event. Số series lớn làm tăng memory, storage và chi phí query. Labels vì thế nên mô tả những chiều có tập giá trị tương đối ổn định và hữu ích cho việc lọc hoặc tổng hợp.

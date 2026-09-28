@@ -1,0 +1,57 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'grafana-metrics-dashboard',
+  locale: 'vi',
+  title: 'Visualizing Metrics with Grafana',
+  headings: ['Connecting Grafana to Prometheus', 'Building the Metrics Dashboard'],
+  headingContract: 'exact',
+  keywords: ['Grafana', 'Prometheus data source', 'metrics dashboard', 'PromQL'],
+}
+
+
+PromQL trả lời từng câu hỏi riêng lẻ. Khi điều tra một thay đổi, engineer thường cần đặt traffic, error rate, latency và resource usage trong cùng một time range để xem chúng thay đổi vào thời điểm nào. Grafana sử dụng Prometheus làm data source và biểu diễn các query này thành dashboard.
+
+### Connecting Grafana to Prometheus
+
+Trong môi trường lab, mở Grafana tại [http://localhost:3000](http://localhost:3000) và đăng nhập bằng tài khoản `admin` với mật khẩu `grafana`. Sau đó cấu hình Prometheus làm data source.
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/prometheus_data_sources.pdf`
+
+  Alt: Prometheus được cấu hình làm data source trong Grafana.
+</LessonNote>
+
+### Building the Metrics Dashboard
+
+Tạo một dashboard mới, thêm panel và chọn Prometheus làm data source. Với panel đầu tiên, sử dụng query Request Rate:
+
+```promql
+sum(rate(app_requests_total{endpoint="/checkout"}[5m]))
+```
+
+Chọn Time series, đặt tên panel là *Request Rate* và dùng đơn vị requests per second.
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/grafana_request_rate.pdf`
+
+  Alt: Xây dựng panel Request Rate bằng PromQL và Time series visualization.
+</LessonNote>
+
+Các query còn lại được thêm theo cùng quy trình:
+
+| Panel | PromQL | Visualization | Unit |
+|---|---|---|---|
+| Request Rate | `sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Time series | req/s |
+| Error Rate | `sum(rate(app_requests_total{endpoint="/checkout",status=~"5.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0–1) |
+| P95 Latency | `histogram_quantile(0.95, sum by (le) (rate(app_request_latency_seconds_bucket{endpoint="/checkout"}[5m])))` | Time series | seconds |
+| CPU Usage | `100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))` | Time series | Percent (0–100) |
+| Memory Usage | `100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)` | Time series | Percent (0–100) |
+| Availability SLI | `sum(rate(app_requests_total{endpoint="/checkout",status=~"2.."}[5m])) / sum(rate(app_requests_total{endpoint="/checkout"}[5m]))` | Stat | Percent (0–1) |
+
+<LessonNote tone="warning">
+  TODO(image): `images/practice/grafana_dashboard.png`
+
+  Alt: Dashboard tập hợp các operational signals của demo application trên cùng một giao diện.
+</LessonNote>
+
+Dashboard cho phép đối chiếu các signal trong cùng một khoảng thời gian. Chẳng hạn, engineer có thể kiểm tra error rate có tăng cùng lúc với traffic, latency hoặc resource usage hay không. Những quan sát này giúp thu hẹp hướng điều tra. Chúng chưa đủ để tự xác định nguyên nhân.

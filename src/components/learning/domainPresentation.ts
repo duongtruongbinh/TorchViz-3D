@@ -32,6 +32,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'continual-learning-llm': RefreshCw,
   'llm-unlearning': Eraser,
   'mlops-llmops-production-systems': ServerCog,
+  aiops: ServerCog,
   'ai-system-design': Network,
   'ai-ethics-safety-governance': ShieldCheck,
   'reinforcement-learning': Route,
@@ -102,6 +103,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     accent: 'bg-[#7660A6]',
   },
   'mlops-llmops-production-systems': {
+    visual: 'bg-[#A7C8CF]',
+    glow: 'bg-[#E9FCFF]/38',
+    icon: 'bg-[#ECFBFD] text-[#32636C]',
+    accent: 'bg-[#4F8A94]',
+  },
+  aiops: {
     visual: 'bg-[#A7C8CF]',
     glow: 'bg-[#E9FCFF]/38',
     icon: 'bg-[#ECFBFD] text-[#32636C]',

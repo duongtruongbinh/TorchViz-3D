@@ -458,11 +458,13 @@ export function LessonImage({
   alt,
   caption,
   aspectRatio = '16 / 9',
+  maxWidth = '100%',
 }: {
   assetPath: string;
   alt: string;
   caption?: string;
   aspectRatio?: string;
+  maxWidth?: string;
 }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
@@ -507,10 +509,10 @@ export function LessonImage({
         aria-busy="true"
         aria-label={alt}
         className={cx(
-          'my-6 w-full animate-pulse rounded-lg motion-reduce:animate-none',
+          'mx-auto my-6 w-full animate-pulse rounded-lg motion-reduce:animate-none',
           themeClasses.isLight ? 'bg-[#B8C8DA]/45' : 'bg-[#A8B8C8]/12',
         )}
-        style={{ aspectRatio }}
+        style={{ aspectRatio, maxWidth }}
       />
     );
   }
@@ -519,8 +521,8 @@ export function LessonImage({
       <div
         role="alert"
         aria-label={alt}
-        className={cx('my-6 grid w-full place-content-center justify-items-center gap-3 rounded-lg border p-5 text-center', themeClasses.surface.unavailable, themeClasses.mutedText)}
-        style={{ aspectRatio }}
+        className={cx('mx-auto my-6 grid w-full place-content-center justify-items-center gap-3 rounded-lg border p-5 text-center', themeClasses.surface.unavailable, themeClasses.mutedText)}
+        style={{ aspectRatio, maxWidth }}
       >
         <p className="text-sm font-bold">{strings.imageLoadError}</p>
         <button type="button" onClick={() => setRetryVersion((current) => current + 1)} className={cx('min-h-10 px-4 text-xs font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
@@ -530,7 +532,7 @@ export function LessonImage({
     );
   }
   return (
-    <figure className="my-6 grid justify-items-center gap-2">
+    <figure className="mx-auto my-6 grid w-full justify-items-center gap-2" style={{ maxWidth }}>
       <div
         className="w-full overflow-hidden rounded-xl border shadow-sm"
         style={{

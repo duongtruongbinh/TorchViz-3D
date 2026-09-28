@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+  domainId: 'aiops',
+  id: 'service-reliability-sli-slo-error-budget',
+  locale: 'vi',
+  title: 'Độ tin cậy của dịch vụ với SLI, SLO và Error Budget',
+  headings: ['Chuyển chỉ số thành SLI', 'Đặt mục tiêu bằng SLO', 'Xác định Error Budget (ngân sách lỗi)'],
+  headingContract: 'exact',
+  keywords: ['SLI', 'SLO', 'Error Budget', 'service reliability'],
+}
+
+
+Các chỉ số cho biết hệ thống đang hoạt động như thế nào, nhưng một giá trị riêng lẻ chưa cho biết mức hoạt động đó có đáp ứng yêu cầu hay không. Để đánh giá rõ hơn, kỹ sư cần một phép đo phản ánh chất lượng thực tế, một mục tiêu để so sánh và một mức sai lệch được phép chấp nhận.
+
+Ba khái niệm tương ứng là SLI, SLO và Error Budget. SLI phản ánh kết quả thực tế, SLO đặt ra mức mong muốn, còn Error Budget cho biết mức sai lệch được chấp nhận trong khoảng thời gian đã xác định.
+
+<LessonImage
+  assetPath="aiops/sli_slo_eb.webp"
+  alt="Từ chỉ số, SLI được tính và so sánh với SLO để xác định Error Budget còn lại."
+  maxWidth="52rem"
+/>
+
+### Chuyển chỉ số thành SLI
+
+Các chỉ số ban đầu cung cấp dữ liệu như số yêu cầu thành công và tổng số yêu cầu. Từ những giá trị này, kỹ sư có thể xây dựng một chỉ số đại diện cho chất lượng mà người dùng thực sự nhận được.
+
+<LessonNote tone="info">
+  **SLI (Service Level Indicator – chỉ số mức dịch vụ)** là phép đo phản ánh một khía cạnh cụ thể về chất lượng hoạt động của dịch vụ.
+</LessonNote>
+
+Ví dụ, nếu muốn đo tỷ lệ yêu cầu được xử lý thành công:
+
+<BlockMath formula="\mathrm{SLI}
+= \frac{\text{Successful Requests}}{\text{Total Requests}}
+\times 100\%" />
+
+Giả sử một dịch vụ xử lý 1.000.000 yêu cầu trong 30 ngày, trong đó 999.200 yêu cầu thành công:
+
+<BlockMath formula="\mathrm{SLI}
+= \frac{999{,}200}{1{,}000{,}000} \times 100\%
+= 99{,}92\%" />
+
+Kết quả này phản ánh tỷ lệ yêu cầu thành công thực tế của dịch vụ trong 30 ngày.
+
+### Đặt mục tiêu bằng SLO
+
+Biết SLI bằng 99,92% vẫn chưa đủ để kết luận dịch vụ đang hoạt động tốt hay chưa. Kỹ sư cần một mức mục tiêu để so sánh với kết quả thực tế đó.
+
+<LessonNote tone="info">
+  **SLO (Service Level Objective – mục tiêu mức dịch vụ)** là mục tiêu được đặt cho một SLI trong một khoảng thời gian xác định.
+</LessonNote>
+
+Ví dụ:
+
+> Trong 30 ngày, ít nhất 99,9% yêu cầu phải được xử lý thành công.
+
+SLO này sử dụng tỷ lệ thành công của yêu cầu làm SLI và đặt mục tiêu 99,9% trong 30 ngày. Vì SLI thực tế là 99,92%, dịch vụ vẫn đang đáp ứng mục tiêu đã đặt.
+
+### Xác định Error Budget (ngân sách lỗi)
+
+SLO 99,9% không có nghĩa mọi yêu cầu đều phải thành công. Nó cho phép một phần nhỏ yêu cầu không đạt yêu cầu mà dịch vụ vẫn được xem là đáp ứng mục tiêu.
+
+<LessonNote tone="info">
+  **Error Budget** là mức sai lệch được phép mà dịch vụ vẫn đáp ứng SLO.
+</LessonNote>
+
+Với SLO 99,9%:
+
+<BlockMath formula="\text{Error Budget} = 100\% - 99{,}9\% = 0{,}1\%" />
+
+Nếu dịch vụ xử lý 1.000.000 yêu cầu trong 30 ngày, số yêu cầu có thể thất bại trong Error Budget là:
+
+<BlockMath formula="1{,}000{,}000 \times 0{,}1\% = 1{,}000" />
+
+Nếu thực tế có 800 yêu cầu thất bại, dịch vụ đã sử dụng 80% Error Budget và còn lại mức tương đương 200 yêu cầu trước khi vượt SLO.

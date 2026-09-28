@@ -10,6 +10,7 @@ import { learningTableOfContents as fundamentalsToc } from './fundamentals/table
 import { learningTableOfContents as llmAiEngineeringToc } from './llm-ai-engineering/table-of-contents.ts';
 import { learningTableOfContents as linearAlgebraToc } from './linear-algebra/table-of-contents.ts';
 import { learningTableOfContents as mlopsLlmopsProductionSystemsToc } from './mlops-llmops-production-systems/table-of-contents.ts';
+import { learningTableOfContents as aiopsToc } from './aiops/table-of-contents.ts';
 import { learningTableOfContents as nlpToc } from './nlp/table-of-contents.ts';
 import { learningTableOfContents as programmingFoundationToc } from './programming-foundation/table-of-contents.ts';
 import { learningTableOfContents as reinforcementLearningToc } from './reinforcement-learning/table-of-contents.ts';
@@ -29,6 +30,7 @@ export const learningTableOfContents = [
   continualLearningLlmToc,
   llmUnlearningToc,
   mlopsLlmopsProductionSystemsToc,
+  aiopsToc,
   aiSystemDesignToc,
   reinforcementLearningToc,
   aiEthicsSafetyGovernanceToc,
