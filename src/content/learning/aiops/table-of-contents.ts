@@ -20,7 +20,7 @@ const chapters: LearningTocTrackSeed[] = [
     text: {
       title: {
         en: '1. Fundamentals of Observability and System Signals',
-        vi: '1. Fundamentals of Observability and System Signals',
+        vi: '1. Nền tảng về Observability và tín hiệu hệ thống',
       },
       description: {
         en: 'Monitoring, observability, telemetry signals, measurement methods, service reliability, and the shared lab environment.',
@@ -30,13 +30,13 @@ const chapters: LearningTocTrackSeed[] = [
     lessonIds: [
       published('monitoring-and-observability', 'Monitoring and Observability', 'Monitoring and Observability'),
       published('metrics-logs-and-traces', 'Metrics, Logs, and Traces', 'Metrics, Logs, and Traces'),
-      published('choosing-what-to-measure', 'Choosing What to Measure', 'Choosing What to Measure'),
+      published('choosing-what-to-measure', 'Choosing What to Measure', 'Lựa chọn nội dung cần đo lường'),
       published(
         'service-reliability-sli-slo-error-budget',
         'Service Reliability with SLI, SLO, and Error Budget',
-        'Service Reliability with SLI, SLO, and Error Budget',
+        'Độ tin cậy của dịch vụ với SLI, SLO và Error Budget',
       ),
-      published('observability-environment-setup', 'Hands-on: Environment Setup', 'Hands-on: Chuẩn bị môi trường'),
+      published('observability-environment-setup', 'Hands-on: Environment Setup', 'Thực hành: Chuẩn bị môi trường'),
     ],
   },
   {

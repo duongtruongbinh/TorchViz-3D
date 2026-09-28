@@ -2,7 +2,7 @@
 title: Rewrite Observability Metrics Section
 status: done
 created: 2026-09-28T22:46:30+07:00
-updated: 2026-09-28T23:11:26+07:00
+updated: 2026-09-29T01:09:29+07:00
 author: Codex
 task: "Rewrite section 2 of the observability lesson so concepts follow context, problem, need, solution, example, and implication."
 supersedes: []
@@ -67,6 +67,21 @@ not a predecessor implementation plan.
 - No separate wiki or README update is expected because the target lesson itself
   is the documentation surface being revised.
 
+## Phase 4: Synchronize the reviewed Learning Lab copy back to the source
+
+- Compare section 2 with the five published Chapter 2 MDX lessons and carry back
+  prose changes that affect meaning, motivation, or transition logic.
+- Focus the rewrite on section 2.4, where the reviewed UI copy now introduces
+  PromQL, Counter, and Gauge from the operational need and connects the queries
+  as one investigation.
+- Remove the generic baseline and root-cause caveats that were already removed
+  from the UI copy at the user's request.
+- Preserve the source document's Markdown image references, headings, PromQL,
+  formulas, values, and surrounding chapters. Do not copy MDX metadata,
+  `LessonNote`, `BlockMath`, or `TODO(image)` presentation wrappers into it.
+- Verify that section 2 retains sixteen image references, seven PromQL blocks in
+  the hands-on section, and no semicolons, then record the final diff.
+
 # Out of scope
 
 - Rewriting sections 1, 3, 4, or 5.
@@ -106,3 +121,31 @@ not a predecessor implementation plan.
   sentence boundaries and consistent bullet punctuation. Verified that section
   2 contains zero semicolons and that `git diff --check` reports only existing
   line-ending warnings.
+- 2026-09-29T00:51:40+07:00: Reopened the plan as a draft follow-up after
+  comparing the documentation source with the five published Chapter 2 lessons.
+  The meaningful drift is concentrated in section 2.4. Awaiting approval to
+  synchronize the reviewed UI prose back to the source document.
+- 2026-09-29T00:57:23+07:00: User approved the synchronization follow-up. The
+  plan advanced through `approved` and `executing`, then the reviewed section
+  2.4 prose was synchronized from the Learning Lab lesson back to the source.
+  Preserved the source's Markdown image links and formulas while carrying back
+  the motivation for PromQL, Counter, and Gauge, the query-to-query transitions,
+  and the shorter result interpretations.
+- 2026-09-29T00:57:23+07:00: Verified that section 2 still has sixteen image
+  references and zero semicolons. Section 2.4 retains nine subheadings and seven
+  PromQL blocks. `git diff --check` reported no content errors, only the existing
+  LF-to-CRLF warning. No build was run because this follow-up changes Markdown
+  documentation only.
+- 2026-09-29T01:07:42+07:00: Performed a line-by-line comparison after
+  normalizing MDX callouts, image flags, metadata, and `BlockMath` back to their
+  Markdown equivalents. Section 2.4 now matches the reviewed UI prose exactly.
+  Remaining differences in the other lessons are limited to paragraph
+  boundaries, Markdown presentation, and chapter-aware cross-references.
+- 2026-09-29T01:09:29+07:00: User clarified that the entire Chapter 2 source,
+  not only section 2.4, must track the reviewed UI lessons. Synchronized the
+  remaining prose, definition wording, paragraph flow, and lesson-aware
+  cross-references across sections 2.1, 2.2, 2.3, and 2.5. After normalizing UI
+  wrappers, sections 2.2, 2.4, and 2.5 match line for line. Section 2.3 differs
+  only in Markdown formula syntax, while section 2.1 keeps the chapter lead-in
+  above its heading to avoid stacked headings in the continuous source document.
+  Reconfirmed sixteen image references and zero semicolons in Chapter 2.

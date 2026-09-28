@@ -138,3 +138,5 @@ Genesis plan — no predecessor.
 - 2026-09-28 13:15 +07:00 — Reused the shared `LessonNote` info box for the eight authored definitions in Chapter 1; retained the SLO target example as a normal blockquote.
 - 2026-09-28 14:00 +07:00 — Updated the catalog test expectations for the new AIOps domain and added the required matching heading to lesson 1.5 after CI reported five contract failures.
 - 2026-09-28 14:15 +07:00 — Regenerated the catalog statistics reference and synchronized the Learning Lab wiki headline counts after the catalog-stats CI check reported drift.
+- 2026-09-28 14:30 +07:00 — Applied the approved Vietnamese terminology pass to Source 1 section 1: translated general prose labels, retained established technical terms with Vietnamese explanations, and left formulas and image text unchanged.
+- 2026-09-29 09:00 +07:00 — Synchronized the approved Chapter 1 Vietnamese terminology into the AIOps MDX metadata, lesson prose, and Vietnamese TOC labels; retained formulas, image references, method names, and established technical terms.
