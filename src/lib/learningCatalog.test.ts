@@ -444,7 +444,7 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'aiops').length, 5);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'aiops').length, 10);
   const researchPapersPublished = publishedLessons.filter((lesson) => lesson.domainId === 'research-papers');
   assert.equal(researchPapersPublished.length, 33);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-unlearning').length, 66);
