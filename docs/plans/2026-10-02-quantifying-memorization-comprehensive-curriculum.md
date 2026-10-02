@@ -2,7 +2,7 @@
 title: Quantifying Memorization paper curriculum
 status: done
 created: 2026-10-02T02:00:00+07:00
-updated: 2026-10-02T17:10:00+07:00
+updated: 2026-10-02T21:50:03+07:00
 author: nmkhiem
 task: "Publish an interactive Quantifying Memorization paper track and audit its quizzes and shared rendering code"
 supersedes: []
@@ -32,12 +32,18 @@ Genesis plan — no predecessor.
 - Match claims to the paper's measured conditions. Figure 1(b) samples strings
   repeated 2–900 times, Figure 1(c) compares 50 and 450 context tokens, and
   Section 4.5 discusses selected qualitative examples.
+- Approved follow-up: remove page 1 of the title-and-authors lesson, including
+  its method-comparison matrix and ICLR impact section. Keep page 0 and the
+  canonical lesson identity; remove the two metadata headings and set
+  `pageCount` to 1. Consolidate the temporary removal plan into this document.
 
 # Phases
 
 1. Register the track and author the nine reading nodes plus two quizzes.
 2. Add the domain excerpt renderer and validate the MDX contract and catalog.
 3. Audit quiz answer leakage, paper logic, unused code, and documentation.
+4. Pull the latest code, remove the approved second page, synchronize metadata
+   and the Learning Lab wiki, verify, and consolidate the follow-up plan.
 
 # Execution log
 
@@ -55,3 +61,19 @@ Genesis plan — no predecessor.
   `sectionHeadingAlign`, `children`).
 - `npm run verify` passed: TypeScript, 175 tests, and production build. A
   parser audit checked all fourteen single-choice answer lengths.
+
+- 2026-10-02 — User approved the page removal on temporary branch
+  `refactor/remove-memorization-method-comparison`, including a local merge
+  into `feat/quantifying-memorization-paper` and deletion of the temporary branch.
+  The later instruction requested pulling first and consolidating the new plan
+  into this original plan. Pulled `origin/main` through PR #95 before editing.
+- 2026-10-02 — Removed the complete second MDX page and both metadata headings;
+  changed `pageCount` from 2 to 1 and updated the existing Learning Lab wiki.
+  Preserved the first page, shared UI, catalog nodes, and canonical route.
+- 2026-10-02 — Absorbed the temporary removal plan’s goal, decisions, approval,
+  phases, and execution history here, then deleted its file.
+- 2026-10-02 — Follow-up verification passed: `npm run verify` (TypeScript,
+  175 tests, production build), `git diff --check`, and focused checks for
+  one MDX page, synchronized metadata, and removal of the temporary plan.
+  Committed the follow-up, merged locally into the original feature branch,
+  and deleted the temporary branch.

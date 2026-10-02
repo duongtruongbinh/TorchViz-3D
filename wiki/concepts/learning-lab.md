@@ -32,6 +32,8 @@ lessons), and ten in `aiops`.
 The `research-papers` domain includes the eleven-node Quantifying Memorization
 track, with nine reading lessons and two quizzes. Its `PaperExcerpt` component
 is owned by the domain adapter and registered through the MDX allowlist.
+The title-and-authors lesson has one page; the method-comparison and ICLR
+impact sections were removed in the approved follow-up.
 The other 461 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by

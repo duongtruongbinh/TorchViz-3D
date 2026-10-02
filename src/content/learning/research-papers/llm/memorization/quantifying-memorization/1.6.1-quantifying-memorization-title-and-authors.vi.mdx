@@ -5,8 +5,6 @@ export const lessonMetadata = {
   title: 'Tiêu đề & Đội ngũ Tác giả',
   headings: [
     'Paper Snippet & Giải mã Tiêu đề',
-    'So sánh Phương pháp: Thăm dò Đơn lẻ vs Định lượng Chuẩn mực',
-    'Vị thế Học thuật & Tầm ảnh hưởng tại ICLR 2023',
   ],
   headingContract: 'exact',
   keywords: [
@@ -19,7 +17,7 @@ export const lessonMetadata = {
     'Data Extraction',
     'The Pile',
   ],
-  pageCount: 2,
+  pageCount: 1,
 };
 
 <MdxPage page={0}>
@@ -97,60 +95,5 @@ Ghi chú chân trang xác định quy ước phân bổ vai trò tác giả:
 />
 
 Dòng ghi chú này xác nhận toàn bộ 6 tác giả được xếp tên theo thứ tự bảng chữ cái (*Carlini, Ippolito, Jagielski, Lee, Tramèr, Zhang*), thể hiện mức đóng góp đồng đều trong nghiên cứu. Đây là sự kết hợp chuyên môn giữa các hướng tấn công bảo mật AI (Nicholas Carlini, Florian Tramèr), lý thuyết tổng quát hóa mô hình (Chiyuan Zhang) cùng kỹ thuật loại bỏ dữ liệu trùng lặp quy mô lớn (Katherine Lee, Daphne Ippolito, Matthew Jagielski).
-
-</MdxPage>
-
-<MdxPage page={1}>
-
-### So sánh Phương pháp: Thăm dò Đơn lẻ vs Định lượng Chuẩn mực
-
-Trước công trình này, việc đánh giá hiện tượng học vẹt trong LLM chỉ dừng lại ở các cuộc tấn công thăm dò giới hạn:
-
-<ComparisonMatrix
-  ariaLabel="So sánh cách tiếp cận nghiên cứu trước đây và bài báo Carlini et al. 2023"
-  columns={[
-    { name: 'Tiêu chí', width: '25%' },
-    { name: 'Nghiên cứu trước (Carlini et al., 2020)', width: '37%' },
-    { name: 'Công trình này (ICLR 2023)', width: '38%' },
-  ]}
-  rows={[
-    [
-      'Mục tiêu',
-      'Chứng minh lỗ hổng bảo mật khả thi (Proof of Concept).',
-      'Đo đạc định lượng giới hạn trích xuất trên toàn tập dữ liệu.',
-    ],
-    [
-      'Số lượng mẫu tìm được',
-      'Tìm được khoảng 600 chuỗi mẫu bị trích xuất trên 40GB dữ liệu GPT-2.',
-      'Chứng minh GPT-J 6B nhớ ít nhất 1% toàn bộ The Pile (tương đương 8GB văn bản).',
-    ],
-    [
-      'Độ tin cậy cận dưới',
-      'Cận dưới lỏng lẻo (ước tính khoảng 0.00000015% dữ liệu).',
-      'Thiết lập cận dưới chặt hơn gấp hàng triệu lần nhờ quyền truy cập tập train gốc.',
-    ],
-    [
-      'Công cụ kỹ thuật',
-      'Sinh mẫu ngẫu nhiên không mồi hoặc mồi thăm dò đơn lẻ.',
-      'Dựng cấu trúc dữ liệu Suffix Array trên 800GB văn bản để phân tích theo tần suất lặp.',
-    ],
-  ]}
-/>
-
----
-
-### Vị thế Học thuật & Tầm ảnh hưởng tại ICLR 2023
-
-<RequirementCard
-  title="Dấu ấn Quan trọng tại ICLR 2023"
-  status="completed"
-  tone="teal"
->
-  Công trình công bố tại ICLR 2023 đóng góp ba kết quả thực nghiệm và phương pháp luận cốt lõi:
-
-  * **Quy luật Log-Linear:** Xác lập 3 mối quan hệ tuyến tính theo logarit giữa tỷ lệ học vẹt với kích thước mô hình, tần suất lặp lại và độ dài ngữ cảnh mồi.
-  * **Hiện tượng Khám phá (Discoverability):** Chứng minh kiểm toán an toàn LLM sau huấn luyện chỉ bộc lộ đầy đủ khi mô hình nhận prompt mồi đủ dài.
-  * **Biện pháp Phòng vệ:** Xác định kỹ thuật loại bỏ dữ liệu trùng lặp (*Dataset Deduplication*) là giải pháp tiên quyết để giảm thiểu rò rỉ dữ liệu trong pipeline tiền huấn luyện.
-</RequirementCard>
 
 </MdxPage>
