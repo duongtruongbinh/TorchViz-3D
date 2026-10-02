@@ -32,7 +32,6 @@ Genesis plan — no predecessor.
 - Match claims to the paper's measured conditions. Figure 1(b) samples strings
   repeated 2–900 times, Figure 1(c) compares 50 and 450 context tokens, and
   Section 4.5 discusses selected qualitative examples.
-
 - Approved follow-up: remove page 1 of the title-and-authors lesson, including
   its method-comparison matrix and ICLR impact section. Keep page 0 and the
   canonical lesson identity; remove the two metadata headings and set
@@ -43,7 +42,6 @@ Genesis plan — no predecessor.
 1. Register the track and author the nine reading nodes plus two quizzes.
 2. Add the domain excerpt renderer and validate the MDX contract and catalog.
 3. Audit quiz answer leakage, paper logic, unused code, and documentation.
-
 4. Pull the latest code, remove the approved second page, synchronize metadata
    and the Learning Lab wiki, verify, and consolidate the follow-up plan.
 
@@ -74,3 +72,8 @@ Genesis plan — no predecessor.
   Preserved the first page, shared UI, catalog nodes, and canonical route.
 - 2026-10-02 — Absorbed the temporary removal plan’s goal, decisions, approval,
   phases, and execution history here, then deleted its file.
+- 2026-10-02 — Follow-up verification passed: `npm run verify` (TypeScript,
+  175 tests, production build), `git diff --check`, and focused checks for
+  one MDX page, synchronized metadata, and removal of the temporary plan.
+  Committed the follow-up, merged locally into the original feature branch,
+  and deleted the temporary branch.
