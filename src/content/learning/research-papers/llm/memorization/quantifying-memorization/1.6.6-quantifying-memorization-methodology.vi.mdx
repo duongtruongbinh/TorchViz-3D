@@ -1,0 +1,307 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-methodology',
+  locale: 'vi',
+  title: 'Phương pháp Luận & Định nghĩa Học vẹt',
+  headings: [
+    'Định nghĩa Khả năng Trích xuất & Đối chiếu Lý thuyết',
+    'Chiến lược Lấy mẫu & Rào cản Tính toán 30 GPU-Năm',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Methodology',
+    'Definition of Memorization',
+    'Extractable String',
+    'Greedy Decoding',
+    'Differential Privacy Bounds',
+    'Counterfactual Memorization',
+    'k-eidetic Memorization',
+    'Evaluation Data Selection',
+    'Uniform Sampling',
+    'Duplication-Normalized Sampling',
+    'Suffix Array',
+  ],
+  conceptIds: [
+    'memorization-definition-3-1',
+    'evaluation-sampling-suffix-arrays',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+## Định nghĩa Khả năng Trích xuất & Đối chiếu Lý thuyết
+
+Bước vào Section 3 (Methodology), bài báo thiết lập một định nghĩa mang tính khả thi thực nghiệm cao về hiện tượng học vẹt trên mô hình ngôn ngữ lớn:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="3 METHODOLOGY"
+  sectionParagraphs={[
+    "3.1 DEFINITION OF MEMORIZATION",
+    "Definition 3.1. A string s is extractable with k tokens of context from a model f if there exists a (length-k) string p, such that the concatenation [p || s] is contained in the training data for f, and f produces s when prompted with p using greedy decoding.",
+    "For example, if a model’s training dataset contains the sequence “My phone number is 555-6789”, and given the length k = 4 prefix “My phone number is”, the most likely output is “555-6789”, then this sequence is extractable (with 4 words of context). We focus on greedy sampling in this paper, and verify in Section 4.1 that our choice of decoding strategy does not significantly impact our results."
+  ]}
+  sectionHighlights={[
+    "Definition 3.1",
+    "extractable with k tokens of context",
+    "concatenation [p || s] is contained in the training data",
+    "produces s when prompted with p using greedy decoding",
+    "greedy sampling",
+  ]}
+/>
+
+Định nghĩa này phân tách một mẫu dữ liệu huấn luyện thành hai thành phần liên tiếp:
+
+<ConceptFlow
+  ariaLabel="Hai thành phần của một mẫu dữ liệu kiểm thử học vẹt theo Định nghĩa 3.1"
+  items={[
+    {
+      title: 'Tiền tố Mồi (Prefix p)',
+      detail: 'Gồm k token làm ngữ cảnh đầu vào đưa vào mô hình ngôn ngữ.',
+      example: '"My phone number is" (đóng vai trò tiền tố mồi gồm 4 từ).',
+      tone: 'blue',
+    },
+    {
+      title: 'Hậu tố Mục tiêu (Suffix s)',
+      detail: 'Chuỗi văn bản tiếp nối trong tập dữ liệu huấn luyện gốc cần được mô hình tái hiện nguyên văn.',
+      example: '"555-6789" (chuỗi thông tin nhạy cảm được sinh ra chính xác qua giải mã tham lam).',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Nếu khi giải mã tham lam (greedy decoding - chọn token có xác suất cao nhất tại từng bước), mô hình tái hiện nguyên văn chính xác 100% chuỗi hậu tố <InlineMath formula="s" />, chuỗi đó được xác nhận là đã bị học vẹt và có khả năng trích xuất (extractable).
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "While prior work proposed other definitions, we prefer ours in this paper as it is more actionable. Some memorization definitions, including lower-bounds on differential privacy (Dwork et al., 2006; Jagielski et al., 2020; Nasr et al., 2021) or counterfactual memorization (Feldman and Zhang, 2020; Zhang et al., 2021), require training hundreds or thousands of models, which is impractical for large language models. Alternatively, computing exposure (Carlini et al., 2019) requires thousands of generations per sequence, and is only designed for carefully crafted training examples.Finally, k-eidetic memorization (Carlini et al., 2020), is a useful definition for unprompted memorization, but less useful for tightly bounding memorization by prompting with training data (as we will do)."
+  ]}
+  sectionHighlights={[
+    "more actionable",
+    "require training hundreds or thousands of models",
+    "impractical for large language models",
+    "computing exposure",
+    "k-eidetic memorization",
+  ]}
+/>
+
+#### Vì sao Nhóm Tác giả không chọn các phương pháp khác?
+
+<ConceptHierarchy
+  ariaLabel="So sánh tính khả thi của các định nghĩa học vẹt đối với mô hình ngôn ngữ lớn"
+  root={{
+    title: 'Các Định nghĩa Học vẹt trong Tài liệu Khoa học',
+    detail: 'Đánh giá tính khả thi khi áp dụng trên các mô hình ngôn ngữ quy mô hàng tỷ tham số',
+  }}
+  nodes={[
+    {
+      title: 'Cận dưới DP & Counterfactual',
+      tone: 'rose',
+      detail: 'Đòi hỏi huấn luyện lại hàng trăm hoặc hàng nghìn mô hình độc lập (shadow models) để đo độ nhạy của từng mẫu.',
+      examplePrefix: 'Hạn chế',
+      example: 'Hoàn toàn bất khả thi đối với các mô hình ngôn ngữ lớn vì chi phí huấn luyện quá đắt đỏ.',
+    },
+    {
+      title: 'Chỉ số Exposure',
+      tone: 'rose',
+      detail: 'Yêu cầu thực hiện hàng nghìn lần sinh mẫu ngẫu nhiên cho mỗi chuỗi và chỉ áp dụng được cho chuỗi mồi nhân tạo (canaries).',
+      examplePrefix: 'Hạn chế',
+      example: 'Không thể mở rộng để đo lường trên toàn bộ văn bản tự nhiên trong tập huấn luyện.',
+    },
+    {
+      title: 'k-eidetic Memorization',
+      tone: 'rose',
+      detail: 'Phù hợp khi đánh giá mô hình trong điều kiện truy vấn mù, không cung cấp prompt mồi từ tập dữ liệu huấn luyện.',
+      examplePrefix: 'Hạn chế',
+      example: 'Không thiết lập được cận đo lường chặt chẽ khi kẻ tấn công chủ động khai thác ngữ cảnh.',
+    },
+    {
+      title: 'Định nghĩa 3.1 (Được chọn)',
+      tone: 'teal',
+      detail: 'Chỉ cần một mô hình đã huấn luyện sẵn và thực hiện suy luận greedy một lần duy nhất cho mỗi tiền tố kiểm thử.',
+      examplePrefix: 'Ưu thế',
+      example: 'Cung cấp cận dưới thực tế, có tính hành động cao và khả thi trên quy mô hàng trăm nghìn mẫu.',
+    },
+  ]}
+/>
+</MdxPage>
+
+<MdxPage page={1}>
+## Chiến lược Lấy mẫu & Rào cản Tính toán 30 GPU-Năm
+
+Sau khi thống nhất định nghĩa, bài toán đặt ra là làm thế nào để kiểm thử trên toàn bộ tập dữ liệu huấn luyện quy mô khổng lồ bởi vì tập dữ liệu The Pile có dung lượng 825 GB văn bản thuần. Trên phần cứng GPU Nvidia V100, mô hình GPT-Neo 6B đạt tốc độ suy luận khoảng 100 token mỗi giây nên nếu quét toàn bộ từng chuỗi một trong tập train, tổng thời gian tính toán sẽ vượt quá 30 năm GPU liên tục:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "3.2 SELECTION OF EVALUATION DATA",
+    "Having chosen a definition, we next describe our evaluation procedure. Ideally, we would consider every sequence x = [p || s] in the model’s training dataset (where x has been split into a length-k prefix p and a suffix s). For each sequence, we would report if the model exactly reproduces s when prompted with p, following Definition 3.1. Unfortunately, performing this test on every sequence in the training data would be prohibitively expensive. For example, the largest 6 billion parameter GPT-Neo model has a throughput of roughly one 100-token generation per second on a V100 GPU. Extrapolating to the 800GB training dataset, this would require over 30 GPU-years of compute."
+  ]}
+  sectionHighlights={[
+    "prohibitively expensive",
+    "require over 30 GPU-years of compute",
+  ]}
+/>
+
+Thay vì kiểm thử toàn bộ, nhóm tác giả chuyển hướng sang giải pháp lấy mẫu thống kê khả thi hơn về mặt tính toán:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Instead, we query on a smaller subset of the training data, that still produces statistically confident estimates. In this paper we randomly choose subsets of roughly 50,000 sequences, allowing us to efficiently run inference in just a few hours. The primary criteria when choosing a subset of the training data is to obtain a representative sample that allows us to draw meaningful conclusions from the data. We consider two approaches to constructing a subset of the data."
+  ]}
+  sectionHighlights={[
+    "query on a smaller subset of the training data",
+    "statistically confident estimates",
+    "subsets of roughly 50,000 sequences",
+    "efficiently run inference in just a few hours",
+    "two approaches to constructing a subset",
+  ]}
+/>
+
+#### 1. Lấy mẫu Ngẫu nhiên Đồng đều (Uniform Random Sampling)
+
+Chiến lược đầu tiên là rút ngẫu nhiên không lặp lại 50.000 chuỗi từ tập dữ liệu huấn luyện:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Our first subset is a uniformly random sample of 50,000 sequences, drawn from the training dataset without repetition. While a uniform sample is useful to estimate the absolute amount of memorization in a model, it is poorly suited for studying how memorization scales with data properties that are not uniformly represented in the training set. For example, prior work has identified that data duplication (i.e., how often the same sequence is repeated either exactly or approximately) is an important factor for memorization. Yet, because the frequency of training data duplication decays extremely quickly (Lee et al., 2021), a uniformly random sample of 50,000 sequences (accounting for <= 0.02% of the dataset) is unlikely to contain any signal that would allow us to accurately measure the tail of this repeated data distribution. A similar concern arises for measuring how memorization scales with prompt length, since very long sentences account for only a small fraction of the training set."
+  ]}
+  sectionHighlights={[
+    "uniformly random sample of 50,000 sequences",
+    "estimate the absolute amount of memorization",
+    "poorly suited for studying how memorization scales with data properties",
+    "frequency of training data duplication decays extremely quickly",
+  ]}
+/>
+
+Rút ngẫu nhiên 50.000 chuỗi từ trong tập train, nếu mô hình đọc lại đúng được 500 câu (tức 1%) thì đây chính là tỷ lệ học vẹt của mô hình. Cách này giúp việc đo đạc hoàn toàn công bằng, không thiên vị và phản ánh trung thực phân phối thực tế của toàn bộ tập dữ liệu.
+
+Tuy nhiên, dữ liệu ngôn ngữ tự nhiên trên internet tuân theo quy luật phân phối đuôi dài (heavy-tailed distribution):
+
+```text
+Số lượng câu
+    ▲
+    │  ████████████ (Phần ĐẦU: 99.9% là các câu chỉ xuất hiện 1 lần)
+    │  █
+    │  █
+    │  █
+    │  █           (Phần ĐUÔI: Cực kỳ hiếm câu lặp lại 100 - 1.000 lần)
+    └─────────────────────────────────────────────────────────────►
+       1 lần       10 lần          100 lần         1.000 lần (Tần suất lặp)
+```
+
+Phần đuôi chứa các văn bản bị lặp lại hàng trăm hay hàng nghìn lần (như mã bản quyền, boilerplate code). Việc lấy mẫu đồng đều (uniform sampling) 50.000 chuỗi trong tập dữ liệu hàng trăm triệu câu chả khác nào mò kim đáy bể. Tập mẫu thu được sẽ gần như toàn các câu chỉ xuất hiện 1 lần, khiến các tác giả không có đủ dữ liệu để nghiên cứu quy luật lặp lại ảnh hưởng thế nào đến tỷ lệ học vẹt.
+
+#### 2. Lấy mẫu Chuẩn hóa theo Trùng lặp & Độ dài (Duplication-Normalized Sampling)
+
+Do đó, nhóm nghiên cứu bắt buộc phải dùng đến phương pháp thứ hai: chủ động chia ngăn và lấy mẫu chuẩn hóa:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Therefore, our second subset is a random sample normalized by both sequence lengths and duplication counts, which allows us to accurately measure memorization of large language models in the worst-case, on highly duplicated data with long prompts. For each sequence length l in {50, 100, 150, . . . , 500}, and integer n, we select 1,000 sequences of length l that are contained in the training dataset between 2^(n/4) and 2^((n+1)/4) times."
+  ]}
+  sectionHighlights={[
+    "normalized by both sequence lengths and duplication counts",
+    "measure memorization of large language models in the worst-case",
+    "select 1,000 sequences of length l that are contained in the training dataset between 2^(n/4) and 2^((n+1)/4) times",
+  ]}
+/>
+
+Thay vì bốc ngẫu nhiên mù quáng, các tác giả chia tần suất lặp lại thành các khoảng theo lũy thừa cơ số 2 với số mũ tăng dần theo từng nấc <InlineMath formula="2^{n/4}" /> và tương ứng với số lần lặp thực tế như bảng sau:
+
+| Chỉ số n | Khoảng Lũy thừa <InlineMath formula="2^{n/4} \rightarrow 2^{(n+1)/4}" /> | Số lần Lặp lại Thực tế | Dạng Dữ liệu Tiêu biểu trong The Pile |
+| :--- | :--- | :--- | :--- |
+| **n = 4** | <InlineMath formula="2^{1.00} \rightarrow 2^{1.25}" /> | 2 – 3 lần | Đoạn văn bản tự nhiên, tin tức, bài đăng blog cá nhân |
+| **n = 11** | <InlineMath formula="2^{2.75} \rightarrow 2^{3.00}" /> | 6 – 8 lần | Câu châm ngôn, danh ngôn nổi tiếng, trích dẫn học thuật |
+| **n = 20** | <InlineMath formula="2^{5.00} \rightarrow 2^{5.25}" /> | 32 – 38 lần | Đoạn code mẫu thông dụng, điều khoản website, cấu hình |
+| **n = 38** | <InlineMath formula="2^{9.50} \rightarrow 2^{9.75}" /> | 724 – 861 lần | Giấy phép mã nguồn mở (Apache, MIT, GPL), chữ ký email |
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "This gives us 1,000 sequences that repeat between 6 and 8 times (~ 2^(11/4) and ~ 2^(12/4)) and also 1,000 sequences that repeat between 724 and 861 times (~ 2^(38/4) and ~ 2^(39/4)). This biased sampling allows us to more accurately measure memorization as a function of a sample’s duplication factor and prompt length, without querying the entire dataset."
+  ]}
+  sectionHighlights={[
+    "repeat between 6 and 8 times (~ 2^(11/4) and ~ 2^(12/4))",
+    "repeat between 724 and 861 times (~ 2^(38/4) and ~ 2^(39/4))",
+    "biased sampling allows us to more accurately measure memorization as a function of a sample’s duplication factor and prompt length",
+  ]}
+/>
+
+Đoạn trích trên làm sáng tỏ hai ví dụ tiêu biểu mà nhóm tác giả đã chọn để kiểm nghiệm công thức:
+* **Nhóm lặp vừa phải (<InlineMath formula="n = 11" />):** Khi thay <InlineMath formula="n = 11" /> vào lũy thừa, khoảng tần suất là <InlineMath formula="2^{11/4} \approx 6{,}7" /> đến <InlineMath formula="2^{12/4} = 8" /> lần. Nhóm thu thập đúng 1.000 chuỗi lặp từ 6 đến 8 lần trong tập train (đại diện cho các câu danh ngôn, trích dẫn học thuật phổ biến).
+* **Nhóm lặp cực nhiều (<InlineMath formula="n = 38" />):** Khi thay <InlineMath formula="n = 38" /> vào lũy thừa, khoảng tần suất vọt lên <InlineMath formula="2^{38/4} \approx 724" /> đến <InlineMath formula="2^{39/4} \approx 861" /> lần. Nhóm cũng thu thập đúng 1.000 chuỗi lặp từ 724 đến 861 lần (đại diện cho giấy phép mã nguồn mở như MIT, Apache hay chữ ký email).
+
+**Ý nghĩa của kỹ thuật lấy mẫu có chủ đích (Biased Sampling):**
+Nếu bốc ngẫu nhiên đồng đều (uniform sampling), bạn sẽ gần như không thể gom đủ các câu lặp 800 lần vì chúng chỉ chiếm một phần rất nhỏ ở đuôi phân phối. Bằng cách chủ động lấy thiên lệch để gom đủ 1.000 câu cho nhóm lặp 7 lần và cũng đúng 1.000 câu cho nhóm lặp 800 lần, các tác giả tạo ra một tập dữ liệu phẳng và đồng đều ở mọi tầng. Nhờ đó, họ có thể phân tích chính xác mức độ học vẹt như một hàm số toán học theo tần suất lặp và độ dài đề bài mồi mà không cần tốn 30 năm GPU để quét toàn bộ tập dữ liệu.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Note that constructing this duplicate-normalized data subset requires some work, as efficiently identifying duplicate substrings in an 800GB training dataset is computationally challenging. We make use of the suffix array construction from Lee et al. (2021) (see Appendix)."
+  ]}
+  sectionHighlights={[
+    "efficiently identifying duplicate substrings in an 800GB training dataset is computationally challenging",
+    "suffix array construction from Lee et al. (2021)",
+  ]}
+/>
+
+Để đếm chính xác số lần xuất hiện và lọc ra các chuỗi thỏa mãn hai tiêu chí trên trong 800 GB dữ liệu The Pile mà không mất hàng năm tính toán, nhóm tác giả ứng dụng cấu trúc **mảng hậu tố (Suffix Array)** từ nghiên cứu của Lee et al. (2021).
+
+Cấu trúc này lập chỉ mục toàn bộ tập dữ liệu huấn luyện, cho phép truy vấn và bốc ra đúng 1.000 chuỗi mẫu cho từng khoảng tần suất một cách tức thì.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "For each length from 50 to 500 tokens, we collect 50,000 examples duplicated varying numbers of times, totaling roughly 500,000 sequences. For each sequence of length ℓ, we prompt the model with the first ℓ − 50 tokens and report the sequence as “extractable” if the model exactly emits the next 50 token suffix of this sequence."
+  ]}
+  sectionHighlights={[
+    "totaling roughly 500,000 sequences",
+    "prompt the model with the first ℓ − 50 tokens",
+    "report the sequence as “extractable” if the model exactly emits the next 50 token suffix",
+  ]}
+/>
+
+Với mỗi khoảng tần suất lặp, nhóm nghiên cứu thu thập các chuỗi có tổng độ dài <InlineMath formula="\ell" /> biến thiên từ 50 đến 500 token (gồm các mốc 50, 100, 150, ..., 500 token). Mỗi chuỗi dài <InlineMath formula="\ell" /> token được chia thành hai phần:
+
+```text
+|<----------------------- Tổng độ dài chuỗi: ℓ token ----------------------->|
++----------------------------------------------------+-----------------------+
+|           Tiền tố mồi (Prompt / Prefix)            |   Hậu tố cần đoán     |
+|                Dài (ℓ - 50) token                  |   Cố định 50 token    |
++----------------------------------------------------+-----------------------+
+                ▲                                                ▲
+    Cung cấp làm đầu vào cho mô hình                 Mô hình phải đoán đúng 100%
+```
+
+Mô hình được nhận phần tiền tố mồi gồm <InlineMath formula="\ell - 50" /> token đầu tiên. Nếu mô hình sinh tiếp chính xác từng từ trong 50 token hậu tố còn lại, chuỗi đó được ghi nhận là đã bị học vẹt.
+
+Ví dụ cụ thể khi điều chỉnh biến số <InlineMath formula="\ell" /> như sau:
+* **Khi <InlineMath formula="\ell = 50" />:** Tiền tố mồi dài <InlineMath formula="50 - 50 = 0" /> token, mô hình gần như không có gợi ý ngữ cảnh nào trước đó nhưng phải tự sinh trọn vẹn 50 token tiếp theo.
+* **Khi <InlineMath formula="\ell = 100" />:** Mô hình được cung cấp 50 token mồi đầu tiên làm đề bài để sinh chính xác 50 token tiếp theo.
+* **Khi <InlineMath formula="\ell = 200" />:** Mô hình được cung cấp 150 token mồi đầu tiên làm đề bài để sinh chính xác 50 token tiếp theo.
+* **Khi <InlineMath formula="\ell = 500" />:** Mô hình được cung cấp tới 450 token mồi (ngữ cảnh mồi rất dài và chi tiết) để sinh chính xác 50 token tiếp theo.
+
+#### Quy Mô Tập Kiểm Thử Worst-case
+
+Bằng cách chọn đúng 1.000 chuỗi cho mỗi ô kết hợp giữa tần suất lặp và độ dài chuỗi, nhóm tác giả tạo ra một tập kiểm thử chuẩn hóa gồm xấp xỉ 500.000 chuỗi mẫu.
+
+Tập dữ liệu này cho phép đo lường chính xác các quy luật mở rộng (scaling laws) trong trường hợp xấu nhất, khi kẻ tấn công khai thác những văn bản lặp lại nhiều lần kết hợp với độ dài tiền tố mồi dài.
+
+<LessonNote tone="note">
+50 token tiếp vị từ tương ứng với trung bình 127 ký tự hoặc khoảng 25 từ tiếng Anh trong The Pile, dài hơn đáng kể so với một câu văn thông thường. Nhờ đó, việc tái hiện đúng 50 token tiếp theo là bằng chứng không thể chối cãi về việc mô hình đã ghi nhớ dữ liệu nguyên bản.
+</LessonNote>
+</MdxPage>

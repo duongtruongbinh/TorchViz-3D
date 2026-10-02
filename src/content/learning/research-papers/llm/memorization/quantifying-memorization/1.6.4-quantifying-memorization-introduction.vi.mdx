@@ -1,0 +1,238 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-introduction',
+  locale: 'vi',
+  title: 'Mức độ học vẹt lớn hơn chúng ta tưởng?',
+  headings: [
+    'Đe dọa Trích xuất Dữ liệu Huấn luyện',
+    'Mức độ học vẹt lớn hơn chúng ta tưởng?',
+    'Hai Câu hỏi Mở & Phương pháp Prefix Prompting',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Introduction',
+    'Extraction Attack',
+    'Practical Threat',
+    'Model Scale',
+    'Loose Lower Bound',
+    'GPT-2',
+    'GPT-J',
+    'The Pile',
+    'Prefix Prompting',
+  ],
+  conceptIds: [
+    'practical-extraction-threat',
+    'scale-and-loose-bound-gap',
+    'open-questions-methodology',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+## Đe dọa Trích xuất Dữ liệu Huấn luyện
+
+Bước sang Section 1 (Introduction), các tác giả đi sâu giải thích lý do bài báo ra đời và phân tích thực trạng an toàn của các mô hình ngôn ngữ lớn hiện nay:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    "The performance of neural language models has continuously improved as these models have grown from millions to trillions of parameters (Fedus et al., 2021), with their training sets similarly growing from millions to trillions of tokens. In anticipation of future, even larger models trained on minimally curated datasets, it is important to quantify factors that lead to increased memorization of a model's training set. Indeed, recent work has shown that training data extraction attacks are a practical threat for current language models (Carlini et al., 2020); an adversary interacting with a pretrained model can extract individual sequences that were used to train the model."
+  ]}
+  sectionHighlights={[
+    "Indeed, recent work has shown that training data extraction attacks are a practical threat for current language models (Carlini et al., 2020); an adversary interacting with a pretrained model can extract individual sequences that were used to train the model."
+  ]}
+/>
+
+1. Kẻ tấn công (adversary) không cần quyền truy cập vào mã nguồn nội bộ, kiến trúc hay ma trận trọng số, mà chỉ đóng vai trò là một người dùng thông thường gửi các prompt truy vấn thông qua giao diện API suy luận của mô hình.
+2. Thông qua việc quan sát phân phối xác suất của các token đầu ra, kẻ tấn công có thể bóc tách và khôi phục chính xác từng câu văn nguyên bản (extract individual sequences) đã xuất hiện trong tập dữ liệu huấn luyện.
+
+<LessonNote tone="warning">
+Khác với các giả định phòng thí nghiệm xa vời, Carlini et al. (2020) đã chứng minh đây là một lỗ hổng an ninh hoàn toàn khả thi trong thực tế, đe dọa trực tiếp các bí mật thương mại, mã nguồn phần mềm, hoặc dữ liệu định danh cá nhân (PII) của người dùng.
+</LessonNote>
+
+Khi nguy cơ trích xuất dữ liệu đã được xác nhận trong thực tế, câu hỏi đặt ra là điều gì khiến nguy cơ này trở nên cấp bách đối với các thế hệ mô hình tiếp theo. Nhóm tác giả hướng sự chú ý vào bối cảnh mở rộng quy mô:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    "The performance of neural language models has continuously improved as these models have grown from millions to trillions of parameters (Fedus et al., 2021), with their training sets similarly growing from millions to trillions of tokens. In anticipation of future, even larger models trained on minimally curated datasets, it is important to quantify factors that lead to increased memorization of a model's training set. Indeed, recent work has shown that training data extraction attacks are a practical threat for current language models (Carlini et al., 2020); an adversary interacting with a pretrained model can extract individual sequences that were used to train the model."
+  ]}
+  sectionHighlights={[
+    "even larger models trained on minimally curated datasets, it is important to quantify factors that lead to increased memorization of a model's training set."
+  ]}
+/>
+
+Các tác giả cho rằng điều này quan trọng vì trong tương lai, các mô hình ngôn ngữ sẽ tiếp tục mở rộng lên quy mô thậm chí còn lớn hơn nữa (*even larger models*), được huấn luyện trên những tập dữ liệu hàng nghìn tỷ tokens thu thập tự động từ internet với mức độ chọn lọc tối thiểu (*minimally curated datasets*). Trong bối cảnh dữ liệu web chắc chắn chứa đầy thông tin nhạy cảm và văn bản lặp lại, nếu không định lượng chính xác các yếu tố kỹ thuật nào đang làm gia tăng mức độ học vẹt (*quantify factors that lead to increased memorization*), cộng đồng nghiên cứu sẽ hoàn toàn bị động trước nguy cơ rò rỉ dữ liệu diện rộng khi triển khai các thế hệ mô hình tiếp theo.
+</MdxPage>
+
+<MdxPage page={1}>
+## Mức độ học vẹt lớn hơn chúng ta tưởng?
+
+Các cuộc tấn công để trích xuất dữ liệu huấn luyện trước đây được các tác giả công nhận là khá thông minh và hiệu quả, tuy nhiên lượng thông tin bị học vẹt mà chúng phát hiện dường như được ước lượng thấp hơn nhiều (lower bound) so với thực tế.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "While current attacks are effective, they only represent a lower bound on how much memorization occurs in existing models. For example, by querying the GPT-2 language model, Carlini et al. (2020) (manually) identified just 600 memorized training examples out of a 40GB training dataset. This attack establishes a (loose) lower bound that at least 0.00000015% of the dataset is memorized. In contrast, we are able to show that the 6 billion parameter GPT-J model (Black et al., 2021; Wang and Komatsuzaki, 2021) memorizes at least 1% of its training dataset: The Pile (Gao et al., 2020)."
+  ]}
+  sectionHighlights={[
+    "While current attacks are effective",
+    "a (loose) lower bound that at least 0.00000015% of the dataset is memorized",
+  ]}
+/>
+
+Ví dụ như khi truy vấn mô hình GPT-2 trên tập dữ liệu 40GB, nghiên cứu của Carlini et al. (2020) chỉ tìm thấy thủ công 600 chuỗi bị ghi nhớ, tương ứng với tỷ lệ ước tính vỏn vẹn 0.00000015%.
+
+Khi kẻ tấn công thăm dò mò mẫm mà không biết trước nội dung tập huấn luyện, xác suất vô tình kích hoạt trúng một chuỗi dữ liệu cụ thể là vô cùng nhỏ. Con số 0.00000015% phản ánh sự bất lực của phương pháp tấn công mò mẫm đúng hơn là phản ánh mức độ ghi nhớ thực sự của mô hình.
+
+<LessonNote tone="warning">
+Điều đó khiến chúng ta lầm tưởng rằng hiện tượng học vẹt chỉ là một lỗi ngẫu nhiên vô cùng hiếm và mô hình ngôn ngữ lớn chủ yếu học được các quy luật tổng quát.
+</LessonNote>
+
+Trái lại, bằng cách kiểm tra trực tiếp đối chiếu với tập dữ liệu The Pile, nhóm tác giả phát hiện mô hình GPT-J 6B đã học vẹt ít nhất **1%** toàn bộ dữ liệu. Trong một tập dữ liệu hàng trăm gigabytes, 1% đại diện cho hàng gigabytes văn bản nguyên văn bị mô hình khắc sâu và có thể trích xuất được.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "While current attacks are effective, they only represent a lower bound on how much memorization occurs in existing models. For example, by querying the GPT-2 language model, Carlini et al. (2020) (manually) identified just 600 memorized training examples out of a 40GB training dataset. This attack establishes a (loose) lower bound that at least 0.00000015% of the dataset is memorized. In contrast, we are able to show that the 6 billion parameter GPT-J model (Black et al., 2021; Wang and Komatsuzaki, 2021) memorizes at least 1% of its training dataset: The Pile (Gao et al., 2020)."
+  ]}
+  sectionHighlights={[
+    "memorizes at least 1% of its training dataset: The Pile",
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+## Hai Câu hỏi Mở & Phương pháp Prefix Prompting
+
+Sau khi chứng minh mức độ học vẹt thực tế lớn hơn hàng triệu lần so với các ước tính trước đây, nhóm tác giả chỉ ra lỗ hổng lớn nhất trong nhận thức của giới nghiên cứu:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "In addition to prior work's loose estimates of models' memorization capabilities, there is a limited understanding of how memorization varies across different neural language models and datasets of different scales."
+  ]}
+  sectionHighlights={[
+    "limited understanding of how memorization varies across different neural language models",
+  ]}
+/>
+
+Nhóm tác giả nhấn mạnh rằng bên cạnh việc các con số ước tính trước đây quá lỏng lẻo, giới nghiên cứu gần như chưa có hiểu biết thấu đáo về việc hiện tượng học vẹt biến thiên ra sao giữa các kiến trúc mô hình ngôn ngữ khác nhau cũng như trên các tập dữ liệu có quy mô khác biệt.
+
+Lý giải về sự thiếu hụt này, các tác giả điểm lại những hạn chế phương pháp luận trong các công trình đi trước:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "In addition to prior work's loose estimates of models' memorization capabilities, there is a limited understanding of how memorization varies across different neural language models and datasets of different scales. Prior studies of memorization in language models either focus on models or datasets of a fixed size (Carlini et al., 2019; Zhang et al., 2021; Thakkar et al., 2020) or identify a narrow memorization-versus-scale relationship (Carlini et al., 2020; Lee et al., 2021). While McCoy et al. (2021) broadly study the extent to which language models memorize, their focus is on how to avoid the problem and ensure novelty of model outputs, rather than on studying model risk through identifying the maximal amount of data memorization."
+  ]}
+  sectionHighlights={[
+    "Prior studies",
+    "focus on models or datasets of a fixed size",
+    "identify a narrow memorization-versus-scale relationship",
+  ]}
+/>
+
+1. Đa số nghiên cứu chỉ khảo sát trên mô hình hoặc tập dữ liệu có kích thước cố định (*fixed size*), hoặc chỉ đo lường mối quan hệ giữa học vẹt và quy mô trong một phạm vi hẹp (*narrow memorization-versus-scale relationship*), khiến kết quả không thể khái quát hóa cho toàn bộ hệ sinh thái mô hình ngôn ngữ.
+2. Một số công trình khác chỉ tập trung tìm cách ngăn chặn học vẹt để đảm bảo tính mới mẻ cho văn bản sinh ra (*ensure novelty*), thay vì khảo sát rủi ro an toàn bằng cách xác định lượng dữ liệu tối đa mà mô hình có thể ghi nhớ (*maximal amount of data memorization*).
+
+Để vượt qua những rào cản này, công trình của Carlini et al. (2023) trực tiếp giải quyết đồng thời cả hai câu hỏi mở trên:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "In addition to prior work's loose estimates of models' memorization capabilities, there is a limited understanding of how memorization varies across different neural language models and datasets of different scales. Prior studies of memorization in language models either focus on models or datasets of a fixed size (Carlini et al., 2019; Zhang et al., 2021; Thakkar et al., 2020) or identify a narrow memorization-versus-scale relationship (Carlini et al., 2020; Lee et al., 2021). While McCoy et al. (2021) broadly study the extent to which language models memorize, their focus is on how to avoid the problem and ensure novelty of model outputs, rather than on studying model risk through identifying the maximal amount of data memorization.",
+    "This paper addresses both of the above open questions by comprehensively quantifying memorization across three families of neural language models and their associated datasets. We leverage access to each model's original training set to provide order-of-magnitude more precise bounds on the amount of extractable data that an adversary could recover than in prior works."
+  ]}
+  sectionHighlights={[
+    "addresses both of the above open questions",
+    "comprehensively quantifying memorization across three families of neural language models",
+    "order-of-magnitude more precise bounds",
+  ]}
+/>
+
+Bằng cách tiếp cận trực tiếp tập dữ liệu huấn luyện gốc của từng mô hình, bài báo không còn phải suy đoán mò mẫm như các nghiên cứu trước, mà thiết lập được các chặn đo lường chặt chẽ và chính xác hơn gấp nhiều bậc (*order-of-magnitude more precise bounds*) trên 3 họ mô hình khác nhau.
+
+Để hiện thực hóa mục tiêu này, nhóm tác giả xây dựng một phương thức kiểm thử trực tiếp:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "This paper addresses both of the above open questions by comprehensively quantifying memorization across three families of neural language models and their associated datasets. We leverage access to each model's original training set to provide order-of-magnitude more precise bounds on the amount of extractable data that an adversary could recover than in prior works.",
+    "We first construct a set of prompts from the model's training set. By feeding prefixes of these prompts into the trained model, we check whether the model has the ability to complete the rest of the example verbatim. This allows us to measure memorization across models, datasets, and prompts of varying sizes."
+  ]}
+  sectionHighlights={[
+    "construct a set of prompts from the model's training set",
+    "feeding prefixes of these prompts into the trained model, we check whether the model has the ability to complete the rest of the example verbatim",
+    "measure memorization across models, datasets, and prompts of varying sizes",
+  ]}
+/>
+
+Nhóm tác giả cụ thể hóa phương pháp thực nghiệm thành quy trình 3 bước trực diện:
+
+<ConceptFlow
+  ariaLabel="Quy trình đo lường học vẹt bằng phương pháp Prefix Prompting"
+  items={[
+    {
+      title: 'Xây dựng Tập Prompt từ Dữ liệu Huấn luyện',
+      subtitle: 'Construct prompts from training set',
+      detail: 'Trích xuất ngẫu nhiên các đoạn văn bản từ tập dữ liệu huấn luyện gốc (training dataset) của từng mô hình để thiết lập kho câu lệnh kiểm thử chuẩn đối chiếu.',
+      tone: 'blue',
+    },
+    {
+      title: 'Mồi Tiền tố & Kiểm thử Khôi phục Nguyên văn',
+      subtitle: 'Feed prefixes & complete verbatim',
+      detail: 'Đưa phần đầu (tiền tố prompt) của chuỗi vào mô hình để kiểm tra xem mô hình có khả năng giải mã và phát sinh nguyên bản 100% phần đuôi còn lại hay không.',
+      tone: 'amber',
+    },
+    {
+      title: 'Đo lường & Đánh giá Khả năng Ghi nhớ Đa chiều',
+      subtitle: 'Measure across models, datasets & prompt sizes',
+      detail: 'Đo lường, định lượng mức độ học vẹt trên các họ mô hình khác nhau, các tập dữ liệu quy mô khác nhau cũng như sự khác biệt rõ rệt khi thay đổi độ dài ngữ cảnh của prompt.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Phương pháp này giúp đo lường rủi ro trong kịch bản tồi tệ nhất (*worst-case evaluation*): Nếu một kẻ tấn công nắm được phần đầu của một văn bản nhạy cảm (ví dụ tiền tố "Số định danh của bệnh nhân Nguyễn Văn A là..."), mô hình có khả năng tự động hoàn thành chính xác phần đuôi nguyên văn hay không.
+
+Áp dụng phương pháp Prefix Prompting, nhóm tác giả đúc kết 3 thuộc tính then chốt chi phối trực tiếp mức độ học vẹt:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "We identify three properties that significantly impact memorization:",
+    "1. **Model scale:** Within a model family, larger models memorize 2-5× more than smaller models.",
+    "2. **Data duplication:** Examples repeated more often are more likely to be extractable.",
+    "3. **Context:** It is orders of magnitude easier to extract sequences when given a longer context.",
+    "Our analysis suggests that future research on neural language modeling will need to take steps to prevent future (larger) models from memorizing their training datasets."
+  ]}
+  sectionHighlights={[
+    "Model scale",
+    "Data duplication",
+    "Context",
+  ]}
+/>
+
+Thông qua phương pháp trên, các tác giả xác lập 3 kết luận thực nghiệm then chốt:
+
+* **Quy mô mô hình (Model scale):** Trong cùng một họ mô hình, các mô hình lớn hơn ghi nhớ nhiều gấp từ 2 đến 5 lần so với các mô hình nhỏ hơn.
+* **Trùng lặp dữ liệu (Data duplication):** Những ví dụ xuất hiện lặp đi lặp lại nhiều lần trong tập huấn luyện có xác suất bị học vẹt cao hơn vượt trội.
+* **Ngữ cảnh (Context):** Chiều dài prompt mồi đóng vai trò quyết định; ngữ cảnh càng dài càng giúp việc trích xuất chuỗi học vẹt trở nên dễ dàng hơn gấp nhiều bậc độ lớn.
+
+<LessonNote tone="warning">
+Như vậy chúng ta thấy rằng học vẹt không phải là một lỗi ngẫu nhiên cá biệt, mà là một thuộc tính có quy luật nội tại gắn liền với quy mô tham số và độ dài ngữ cảnh. Nếu không chủ động áp dụng các giải pháp phòng vệ như loại bỏ dữ liệu trùng lặp ngay từ khâu tiền xử lý, việc tăng kích thước mô hình trong tương lai sẽ tỉ lệ thuận với mức độ rò rỉ dữ liệu.
+</LessonNote>
+</MdxPage>

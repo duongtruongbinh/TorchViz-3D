@@ -54,6 +54,12 @@ Each lesson must deliver an intuitive learning curve, following the progression:
   - **Mandatory Rule:** ONLY use callout notes (`<LessonNote>`) when the user explicitly requests them in the prompt. By default, never use callout notes.
   - Present all notes, warnings, key takeaways, and insights as clean regular markdown prose (e.g. standard paragraphs or bullet lists) instead of callouts.
   - If a callout note is explicitly requested by the user, keep all text inside `<LessonNote>` in clean, regular font weight with ZERO bolding (no bold inside callouts). Do not bold arbitrarily across regular paragraphs.
+- **Strict Restriction on Colons (`:`):**
+  - **Forbidden in ordinary prose:** Never use a colon (`:`) arbitrarily within regular sentences or explanatory paragraphs.
+  - **Only allowed in three specific contexts:**
+    1. Direct quotation in quotes (`"..."`): e.g., `Tác giả nhận định: "..."`.
+    2. Bullet point keyword definitions: `* **Keyword:** Explanation text`.
+    3. Direct lead-in to an excerpt or list: when immediately followed by a paper excerpt block (`<PaperExcerpt ... />`, quote block) or a series of bullet points.
 
 ### B. Retain Standard Technical English Terms
 Keep foundational terms in standard English across titles and prose for academic precision and global reference:

@@ -1,0 +1,149 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-abstract',
+  locale: 'vi',
+  title: 'Tóm tắt Bài báo',
+  headings: [
+    'Đoạn 1: Định nghĩa Học vẹt & 3 Tác hại Kỹ thuật',
+    'Đoạn 2: Ba Mối quan hệ Log-Linear & Quy luật Mở rộng Quy mô',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Abstract',
+    'Memorization',
+    'Verbatim Emission',
+    'Log-Linear Relationships',
+    'Model Capacity',
+    'Duplication Count',
+    'Prompt Context',
+    'Privacy',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+### Đoạn 1: Định nghĩa Học vẹt & 3 Tác hại Kỹ thuật
+
+<PaperExcerpt
+  venue="Conference paper at ICLR 2023"
+  abstractParagraphs={[
+    'Large language models (LMs) have been shown to memorize parts of their training data, and when prompted appropriately, they will emit the memorized training data verbatim.',
+  ]}
+  abstractHighlights={[
+    'memorize parts of their training data',
+    'emit the memorized training data verbatim',
+  ]}
+/>
+
+Abstract nêu rõ vấn đề hiện tại của các LLMs là học vẹt nhiều phần trong training data và **phát sinh nguyên văn (verbatim emission)**. Thay vì chỉ học quy luật phân phối ngữ nghĩa để khái quát hóa tri thức mới, mô hình ngôn ngữ nơ-ron lưu trữ cơ học các chuỗi token từ tập huấn luyện. Khi nhận chuỗi tiền tố phù hợp, mô hình tái hiện chính xác từng từ trong dữ liệu gốc mà không có bất kỳ sự biến đổi nào.
+
+Hiện tượng này gây ra ba tổn hại trực tiếp:
+
+<PaperExcerpt
+  venue="Conference paper at ICLR 2023"
+  abstractParagraphs={[
+    'Large language models (LMs) have been shown to memorize parts of their training data, and when prompted appropriately, they will emit the memorized training data verbatim. This is undesirable because memorization violates privacy (exposing user data), degrades utility (repeated easy-to-memorize text is often low quality), and hurts fairness (some texts are memorized over others).',
+  ]}
+  abstractHighlights={[
+    'violates privacy',
+    'degrades utility',
+    'hurts fairness',
+  ]}
+/>
+
+<ConceptFlow
+  ariaLabel="Ba tác hại trực tiếp của hiện tượng học vẹt"
+  items={[
+    {
+      title: '1. Violates Privacy',
+      detail: 'Làm lộ thông tin định danh cá nhân (PII), bí mật kinh doanh, nhật ký trò chuyện hoặc mã nguồn phần mềm nội bộ từng xuất hiện trong tập huấn luyện.',
+      tone: 'violet',
+    },
+    {
+      title: '2. Degrades Utility',
+      detail: 'Những chuỗi dễ bị ghi nhớ thường là văn bản rác lặp lại hoặc văn bản mẫu có chất lượng thông tin thấp, làm suy giảm chất lượng phân phối sinh token.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Hurts Fairness',
+      detail: 'Tần suất học vẹt phân bổ không đồng đều giữa các nhóm văn bản, khiến một số nguồn dữ liệu bị ghi nhớ áp đảo trong khi các miền khác bị lu mờ.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Đoạn 2: Ba Mối quan hệ Log-Linear & Quy luật Mở rộng Quy mô
+
+<PaperExcerpt
+  venue="Conference paper at ICLR 2023"
+  abstractParagraphs={[
+    'Large language models (LMs) have been shown to memorize parts of their training data, and when prompted appropriately, they will emit the memorized training data verbatim. This is undesirable because memorization violates privacy (exposing user data), degrades utility (repeated easy-to-memorize text is often low quality), and hurts fairness (some texts are memorized over others).',
+    'We describe three log-linear relationships that quantify the degree to which LMs emit memorized training data. Memorization significantly grows as we increase (1) the capacity of a model, (2) the number of times an example has been duplicated, and (3) the number of tokens of context used to prompt the model.',
+  ]}
+  abstractHighlights={[
+    'three log-linear relationships',
+    'the capacity of a model',
+    'the number of times an example has been duplicated',
+    'the number of tokens of context used to prompt the model',
+  ]}
+/>
+
+Để chứng minh mức độ học vẹt của các mô hình, các tác giả đưa ra 3 mối quan hệ tuyến tính theo thang đo logarit (log-linear) đối với 3 yếu tố:
+
+<ConceptFlow
+  ariaLabel="Ba mối quan hệ log-linear định lượng hiện tượng học vẹt"
+  items={[
+    {
+      title: '1. Model Capacity (Fig 1a)',
+      detail: 'Độ lớn tham số đồng biến (log-linear) với mức độ ghi nhớ nguyên văn.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Duplicated Examples (Fig 1b)',
+      detail: 'Số lần một chuỗi văn bản bị lặp lại trong tập huấn luyện càng lớn thì xác suất mô hình phát sinh lại nguyên văn càng cao.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Tokens of Context (Fig 1c)',
+      detail: "Ví dụ câu gốc trong tập training là 'My phone number is 555-6789'. Khi đưa vào câu mồi ngắn 'My phone...' mô hình không sinh chính xác, nhưng khi câu mồi bắt đầu dài hơn 'My phone number is...' mô hình sẽ nhả chính xác nguyên văn '555-6789'. Do đó, câu prompt càng dài và càng sát với chuỗi data training gốc, không gian xác suất càng được thu hẹp và kích hoạt đúng dữ liệu đã bị ghi nhớ nguyên văn.",
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/01-figure-1-log-linear-memorization-trends.png"
+  alt="Figure 1: Ba định luật log-linear định lượng tỷ lệ học vẹt theo quy mô mô hình, tần suất lặp lại và độ dài ngữ cảnh mồi"
+  caption="Figure 1: Tỷ lệ trích xuất dữ liệu học vẹt (Fraction extractable) theo hàm log-linear: (a) Kích thước mô hình (Model Size), (b) Tần suất lặp lại trong tập train (# repetitions), và (c) Độ dài ngữ cảnh mồi (Prompt length)."
+/>
+
+Bên cạnh các quy luật định lượng, bài báo chỉ ra sự phức tạp khi khái quát hóa và đưa ra cảnh báo thực nghiệm:
+
+<PaperExcerpt
+  venue="Conference paper at ICLR 2023"
+  abstractParagraphs={[
+    'Large language models (LMs) have been shown to memorize parts of their training data, and when prompted appropriately, they will emit the memorized training data verbatim. This is undesirable because memorization violates privacy (exposing user data), degrades utility (repeated easy-to-memorize text is often low quality), and hurts fairness (some texts are memorized over others).',
+    'We describe three log-linear relationships that quantify the degree to which LMs emit memorized training data. Memorization significantly grows as we increase (1) the capacity of a model, (2) the number of times an example has been duplicated, and (3) the number of tokens of context used to prompt the model. Surprisingly, we find the situation becomes more complicated when generalizing these results across model families. On the whole, we find that memorization in LMs is more prevalent than previously believed and will likely get worse as models continues to scale, at least without active mitigations.',
+  ]}
+  abstractHighlights={[
+    'more complicated when generalizing these results across model families',
+    'more prevalent than previously believed',
+    'likely get worse as models continues to scale',
+    'without active mitigations',
+  ]}
+/>
+
+Nghiên cứu chỉ ra rằng khi đối chiếu giữa các họ mô hình khác nhau, mỗi kiến trúc mạng và tokenizer sở hữu hệ số tương quan riêng biệt, khiến mức độ học vẹt không thể suy diễn đơn giản từ họ mô hình này sang họ mô hình khác. Đặc biệt, hiện tượng này phổ biến hơn nhiều so với các ước tính trước đây và sẽ tiếp tục xấu đi theo quy mô mở rộng nếu thiếu các biện pháp can thiệp chủ động.
+
+<LessonNote tone="warning">
+1. Hiện tượng học vẹt trên thực tế diễn ra rất phổ biến, do đó đây là một vấn đề nghiêm trọng đối với an toàn mô hình.
+2. Mức độ học vẹt tiếp tục mở rộng theo quy mô tham số và dữ liệu huấn luyện nếu không áp dụng giải pháp loại bỏ dữ liệu trùng lặp.
+3. Không thể suy diễn kết quả từ họ mô hình này sang họ mô hình khác, do đó mỗi họ kiến trúc đòi hỏi quy trình kiểm toán và phòng vệ độc lập.
+</LessonNote>
+
+</MdxPage>

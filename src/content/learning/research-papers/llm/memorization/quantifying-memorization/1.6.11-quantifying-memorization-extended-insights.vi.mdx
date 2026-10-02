@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-extended-insights',
+  locale: 'vi',
+  title: 'Các Phát hiện Mở rộng Khác',
+  headings: [
+    'Độ Dài Tài Liệu Không Làm Tăng Tỷ Lệ Học Vẹt',
+    'Văn Bản Bị Học Vẹt Riêng Biệt Theo Từng Mô Hình',
+    'Quy Luật Học Vẹt Nội Bộ trên Họ Mô Hình OPT',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Extended Insights',
+    'Document Length',
+    'Figure 5',
+    'Context Tokens vs Document Length',
+    'Unique Memorization',
+    'Table 1',
+    'Model-specific Memorization',
+    'OPT In-distribution',
+    'Figure 7',
+    'Training Set Prompting',
+  ],
+  conceptIds: [
+    'doc-length-not-easier-to-memorize',
+    'model-specific-unique-memorization',
+    'opt-in-distribution-memorization-scaling',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+## Độ Dài Tài Liệu Không Làm Tăng Tỷ Lệ Học Vẹt
+
+Nhiều giả thuyết trước đây cho rằng tài liệu càng dài thì mô hình càng dễ học vẹt vì chứa nhiều token đặc trưng để nhận diện. Nhóm tác giả kiểm chứng giả thuyết này trong Figure 5 bằng cách đo xác suất trích xuất theo độ dài tiền tố mồi trên các chuỗi có tổng độ dài khác nhau:
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/05-figure-5-longer-sequences.png"
+  alt="Figure 5: Longer sequences are not easier to extract"
+  caption="Figure 5: Xác suất trích xuất chuỗi theo số lượng token mồi (prompt length) trên mô hình 6B. Các đường biểu diễn chuỗi có tổng độ dài từ 100 đến 500 token gần như chồng khít lên nhau hoàn toàn."
+/>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Longer documents are not easier to memorize than shorter documents... In Figure 5, we test this hypothesis by measuring extractability as a function of prompt length... Because all lines nearly perfectly overlap, longer sequences are not fundamentally “easier” to extract than shorter sequences."
+  ]}
+  sectionHighlights={[
+    "Longer documents are not easier to memorize",
+    "all lines nearly perfectly overlap",
+    "not fundamentally “easier” to extract",
+  ]}
+/>
+
+Ba nhận định rút ra từ thực nghiệm:
+* **Các đường đồ thị chồng khít:** Khi cố định số lượng token mồi (ví dụ 100 hoặc 200 token), tỷ lệ trích xuất thành công của chuỗi dài 100, 200, 300, 400 hay 500 token là hoàn toàn tương đương nhau.
+* **Biến số quyết định là độ dài tiền tố:** Khả năng trích xuất tăng lên không phải do văn bản gốc dài, mà thuần túy do kẻ tấn công cung cấp tiền tố mồi (context) dài hơn để định hướng cho mô hình.
+* **Hệ quả phòng thủ:** Việc chia nhỏ văn bản dài thành các đoạn ngắn không giúp giảm nguy cơ học vẹt nếu kẻ tấn công vẫn nắm được đoạn mồi đủ dài.
+
+<LessonNote tone="note">
+Tài liệu dài không vốn dĩ dễ học vẹt hơn tài liệu ngắn. Yếu tố chi phối rủi ro rò rỉ dữ liệu duy nhất là độ dài đoạn prompt mồi mà người dùng hoặc kẻ tấn công đưa vào mô hình.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+## Văn Bản Bị Học Vẹt Riêng Biệt Theo Từng Mô Hình
+
+Khi so sánh giữa các kích thước mô hình (125M, 1.3B, 2.7B, 6B), một câu hỏi quan trọng là liệu dữ liệu học vẹt của mô hình nhỏ có phải là tập con hoàn toàn của mô hình lớn hơn hay không:
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/06-table-1-memorized-by-some-models.png"
+  alt="Table 1: The number of sequences memorized by one model, and not memorized by another"
+  caption="Table 1: Số lượng chuỗi văn bản bị học vẹt bởi một mô hình nhưng không bị học vẹt bởi mô hình khác. Ngay cả mô hình nhỏ 125M cũng học vẹt 293 chuỗi mà mô hình 6B không nhớ."
+/>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Table 1 shows the total number of sequences that are memorized by one model but not another. Larger models have more uniquely memorized sequences, although every model has some memorization not shared by any other model. (Even the 125M model memorizes a few sequences that the 6B model does not.)"
+  ]}
+  sectionHighlights={[
+    "Larger models have more uniquely memorized sequences",
+    "every model has some memorization not shared by any other model",
+    "Even the 125M model memorizes a few sequences that the 6B model does not",
+  ]}
+/>
+
+Các phân tích định lượng từ Table 1:
+* **Mô hình lớn ghi nhớ nhiều chuỗi độc bản hơn:** Mô hình 6B ghi nhớ tới 10.273 chuỗi mà mô hình 125M không ghi nhớ, và 4.070 chuỗi mà mô hình 2.7B không ghi nhớ.
+* **Học vẹt không mang tính bao hàm đơn thuần:** Tập chuỗi ghi nhớ của mô hình nhỏ không nằm trọn vẹn bên trong mô hình lớn. Mỗi mô hình đều có những chuỗi bị học vẹt riêng biệt do tính ngẫu nhiên của việc xáo trộn dữ liệu (batch order) và khởi tạo trọng số.
+* **Mô hình 125M vẫn nhớ chuỗi mà 6B quên:** Mô hình 125M học vẹt **293 chuỗi** mà mô hình 6B hoàn toàn không thể tái hiện.
+
+<LessonNote tone="warning">
+Trong đánh giá an toàn và quyền riêng tư, việc kiểm tra mô hình lớn nhất không thể thay thế cho việc kiểm định các mô hình nhỏ hơn, vì các mô hình nhỏ vẫn có thể làm rò rỉ những dữ liệu nhạy cảm riêng biệt.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={2}>
+## Quy Luật Học Vẹt Nội Bộ trên Họ Mô Hình OPT
+
+Trong Section 5.3, khi dùng dữ liệu The Pile để kiểm tra mô hình OPT, mức độ học vẹt rất thấp do dịch chuyển phân phối (distribution shift). Trong Figure 7, nhóm tác giả kiểm thử lại bằng cách lấy mẫu prompt trực tiếp từ chính tập dữ liệu huấn luyện của OPT:
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/07-figure-7-opt-memorization.png"
+  alt="Figure 7: Memorization in OPT models when prompted with their own training data"
+  caption="Figure 7: Đánh giá học vẹt nội bộ trên họ mô hình OPT (prompt length = 100). (a) Tỷ lệ trích xuất theo quy mô từ 125M đến 66B; (b) Tỷ lệ trích xuất theo số lần lặp lại dữ liệu huấn luyện."
+/>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Figure 7: We prompt OPT models with data sampled from their training set. We use a prompt length of 100 here. (a) Fraction of sequences extracted as a function of model scale. (b) Fraction of sequences extracted as the number of repetitions of that sequence in the training set increases."
+  ]}
+  sectionHighlights={[
+    "prompt OPT models with data sampled from their training set",
+    "Fraction of sequences extracted as a function of model scale",
+    "number of repetitions of that sequence in the training set increases",
+  ]}
+/>
+
+Kết quả khi kiểm thử đúng phân phối (in-distribution):
+* **Hồi phục hoàn toàn quy luật mở rộng (Figure 7a):** Tỷ lệ học vẹt tăng đều đặn theo quy mô tham số, từ ~8% trên bản 125M lên xấp xỉ 20% trên bản 66B.
+* **Tác động của tần suất lặp lại (Figure 7b):** Khi một chuỗi xuất hiện từ 100 đến 1.000 lần trong tập train của OPT, tỷ lệ học vẹt vượt ngưỡng 20% trên các phiên bản 30B và 66B.
+* **Bản chất của hiện tượng:** Họ mô hình OPT không hề có cơ chế kỳ diệu nào ngăn chặn học vẹt. Mức độ ghi nhớ của OPT hoàn toàn tuân theo các quy luật mở rộng phổ quát khi được đánh giá trên đúng tập dữ liệu gốc của chúng.
+
+<LessonNote tone="note">
+Sự suy giảm học vẹt của OPT trong Section 5.3 thuần túy là hệ quả của dịch chuyển phân phối dữ liệu (cross-dataset testing). Khi kiểm thử đúng phân phối huấn luyện, các quy luật mở rộng theo quy mô và tần suất lặp lại vẫn được bảo toàn trọn vẹn.
+</LessonNote>
+</MdxPage>
