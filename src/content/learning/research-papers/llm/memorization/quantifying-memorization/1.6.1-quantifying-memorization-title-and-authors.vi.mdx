@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-title-and-authors',
+  locale: 'vi',
+  title: 'Tiêu đề & Đội ngũ Tác giả',
+  headings: [
+    'Paper Snippet & Giải mã Tiêu đề',
+    'So sánh Phương pháp: Thăm dò Đơn lẻ vs Định lượng Chuẩn mực',
+    'Vị thế Học thuật & Tầm ảnh hưởng tại ICLR 2023',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Quantifying Memorization',
+    'Nicholas Carlini',
+    'Chiyuan Zhang',
+    'Florian Tramèr',
+    'ICLR 2023',
+    'LLM Privacy',
+    'Data Extraction',
+    'The Pile',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+**Paper gốc:** [Link to Paper (arXiv:2202.07646)](https://arxiv.org/abs/2202.07646)
+
+**Hội nghị:** Conference paper at ICLR 2023
+
+**Xếp hạng:** CORE A* (Hội nghị Trọng điểm Hàng đầu về Học Biểu diễn & Trí tuệ Nhân tạo)
+
+---
+
+Bài học này phân tích công trình hợp tác nghiên cứu giữa **Google Research**, **UPenn** và **Cornell**, với sự tham gia của các chuyên gia an toàn AI như **Nicholas Carlini** (nghiên cứu về trích xuất dữ liệu huấn luyện LLM):
+
+### Paper Snippet & Giải mã Tiêu đề
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  titleLines={[
+    'QUANTIFYING MEMORIZATION ACROSS',
+    'NEURAL LANGUAGE MODELS',
+  ]}
+  authorColumns={[
+    [
+      { name: 'Nicholas Carlini', isAlphabetical: true, affiliationIndexes: ['1'] },
+      { name: 'Katherine Lee', affiliationIndexes: ['1', '3'] },
+    ],
+    [
+      { name: 'Daphne Ippolito', affiliationIndexes: ['1', '2'] },
+      { name: 'Florian Tramèr', affiliationIndexes: ['1'] },
+    ],
+    [
+      { name: 'Matthew Jagielski', affiliationIndexes: ['1'] },
+      { name: 'Chiyuan Zhang', affiliationIndexes: ['1'] },
+    ],
+  ]}
+  affiliations={[
+    { index: '1', name: 'Google Research' },
+    { index: '2', name: 'University of Pennsylvania' },
+    { index: '3', name: 'Cornell University' },
+  ]}
+  footnote="*Authors ordered alphabetically."
+/>
+
+Ba cụm từ trong tiêu đề xác định trực tiếp đối tượng nghiên cứu và phạm vi thực nghiệm:
+
+<PaperExcerpt
+  titleLines={[
+    'QUANTIFYING MEMORIZATION ACROSS',
+    'NEURAL LANGUAGE MODELS',
+  ]}
+  titleHighlights={['MEMORIZATION', 'NEURAL LANGUAGE MODELS']}
+/>
+
+Các mô hình ngôn ngữ lớn luôn phải đối mặt với rủi ro bảo mật thực tế. Thay vì chỉ học các quy luật trừu tượng để tổng quát hóa, chúng học vẹt (*memorize*) nguyên văn dữ liệu huấn luyện. Khi nhận prompt tiền tố phù hợp, mô hình phát sinh lại chính xác chuỗi văn bản gốc trong tập train, gây lộ dữ liệu riêng tư và suy giảm chất lượng sinh. Bài báo khảo sát hành vi học vẹt này xuyên suốt nhiều họ mô hình nơ-ron với quy mô kiến trúc khác nhau (từ Causal LM như GPT-Neo, GPT-2 đến Masked LM như T5).
+
+<PaperExcerpt
+  titleLines={[
+    'QUANTIFYING MEMORIZATION ACROSS',
+    'NEURAL LANGUAGE MODELS',
+  ]}
+  titleHighlights={['QUANTIFYING']}
+/>
+
+Trước đây, giới nghiên cứu mới chỉ dừng ở mức chứng minh định tính (như việc mò ra được vài trăm số điện thoại hay URL bị rò rỉ lẻ tẻ). Đọc tiếp đến các phần sau, chúng ta mới hiểu cụm từ **Quantifying** ở đây dùng để chỉ việc nhóm tác giả lần đầu tiên đo đạc chính xác bằng tỷ lệ phần trăm cụ thể trên toàn bộ tập dữ liệu, từ đó xác lập nên 3 quy luật log-linear chi phối hiện tượng học vẹt này.
+
+---
+
+Ghi chú chân trang xác định quy ước phân bổ vai trò tác giả:
+
+<PaperExcerpt
+  titleLines={[]}
+  footnote="*Authors ordered alphabetically."
+  footnoteHighlight={true}
+/>
+
+Dòng ghi chú này xác nhận toàn bộ 6 tác giả được xếp tên theo thứ tự bảng chữ cái (*Carlini, Ippolito, Jagielski, Lee, Tramèr, Zhang*), thể hiện mức đóng góp đồng đều trong nghiên cứu. Đây là sự kết hợp chuyên môn giữa các hướng tấn công bảo mật AI (Nicholas Carlini, Florian Tramèr), lý thuyết tổng quát hóa mô hình (Chiyuan Zhang) cùng kỹ thuật loại bỏ dữ liệu trùng lặp quy mô lớn (Katherine Lee, Daphne Ippolito, Matthew Jagielski).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### So sánh Phương pháp: Thăm dò Đơn lẻ vs Định lượng Chuẩn mực
+
+Trước công trình này, việc đánh giá hiện tượng học vẹt trong LLM chỉ dừng lại ở các cuộc tấn công thăm dò giới hạn:
+
+<ComparisonMatrix
+  ariaLabel="So sánh cách tiếp cận nghiên cứu trước đây và bài báo Carlini et al. 2023"
+  columns={[
+    { name: 'Tiêu chí', width: '25%' },
+    { name: 'Nghiên cứu trước (Carlini et al., 2020)', width: '37%' },
+    { name: 'Công trình này (ICLR 2023)', width: '38%' },
+  ]}
+  rows={[
+    [
+      'Mục tiêu',
+      'Chứng minh lỗ hổng bảo mật khả thi (Proof of Concept).',
+      'Đo đạc định lượng giới hạn trích xuất trên toàn tập dữ liệu.',
+    ],
+    [
+      'Số lượng mẫu tìm được',
+      'Tìm được khoảng 600 chuỗi mẫu bị trích xuất trên 40GB dữ liệu GPT-2.',
+      'Chứng minh GPT-J 6B nhớ ít nhất 1% toàn bộ The Pile (tương đương 8GB văn bản).',
+    ],
+    [
+      'Độ tin cậy cận dưới',
+      'Cận dưới lỏng lẻo (ước tính khoảng 0.00000015% dữ liệu).',
+      'Thiết lập cận dưới chặt hơn gấp hàng triệu lần nhờ quyền truy cập tập train gốc.',
+    ],
+    [
+      'Công cụ kỹ thuật',
+      'Sinh mẫu ngẫu nhiên không mồi hoặc mồi thăm dò đơn lẻ.',
+      'Dựng cấu trúc dữ liệu Suffix Array trên 800GB văn bản để phân tích theo tần suất lặp.',
+    ],
+  ]}
+/>
+
+---
+
+### Vị thế Học thuật & Tầm ảnh hưởng tại ICLR 2023
+
+<RequirementCard
+  title="Dấu ấn Quan trọng tại ICLR 2023"
+  status="completed"
+  tone="teal"
+>
+  Công trình công bố tại ICLR 2023 đóng góp ba kết quả thực nghiệm và phương pháp luận cốt lõi:
+
+  * **Quy luật Log-Linear:** Xác lập 3 mối quan hệ tuyến tính theo logarit giữa tỷ lệ học vẹt với kích thước mô hình, tần suất lặp lại và độ dài ngữ cảnh mồi.
+  * **Hiện tượng Khám phá (Discoverability):** Chứng minh kiểm toán an toàn LLM sau huấn luyện chỉ bộc lộ đầy đủ khi mô hình nhận prompt mồi đủ dài.
+  * **Biện pháp Phòng vệ:** Xác định kỹ thuật loại bỏ dữ liệu trùng lặp (*Dataset Deduplication*) là giải pháp tiên quyết để giảm thiểu rò rỉ dữ liệu trong pipeline tiền huấn luyện.
+</RequirementCard>
+
+</MdxPage>

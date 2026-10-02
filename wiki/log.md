@@ -3,6 +3,11 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-10-02 — Quantifying Memorization paper track.** Published eleven
+  research-papers nodes, including two audited quizzes; registered a domain
+  paper excerpt renderer, synchronized catalog counts, and compacted the
+  [curriculum plan](../docs/plans/2026-10-02-quantifying-memorization-comprehensive-curriculum.md).
+
 - **2026-09-24 — Machine Learning curriculum consolidated and code labs structured as placeholders.**
   Reconciled the Machine Learning curriculum with main: externalized tensor prerequisites to Linear Algebra,
   integrated core concepts into problem-driven regression and classification chapters, separated regression and

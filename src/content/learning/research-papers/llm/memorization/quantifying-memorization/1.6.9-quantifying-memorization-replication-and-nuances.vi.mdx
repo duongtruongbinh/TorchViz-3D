@@ -1,0 +1,250 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-replication-and-nuances',
+  locale: 'vi',
+  title: 'Nghiên cứu Tái lập trên T5, C4 và OPT',
+  headings: [
+    'Kiến trúc T5 Masked LM & Thích ứng Định nghĩa Trích xuất',
+    'Ba Khám phá Thực nghiệm trên T5 và C4 (Figure 4)',
+    'Họ Mô hình OPT & Tác động của Dịch chuyển Phân phối Dữ liệu',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Replication Study',
+    'T5 Masked LM',
+    'C4 Dataset',
+    'Encoder-Decoder',
+    'Span Masking',
+    'Order of Magnitude Difference',
+    'Whitespace Anomaly',
+    'Non-monotonic Scaling',
+    'Deduplicated C4',
+    'Exact vs Near Deduplication',
+    'Plateau at 408 Repeats',
+    'OPT Models',
+    'Meta AI',
+    'Distribution Shift',
+  ],
+  conceptIds: [
+    't5-masked-lm-architecture-memorization',
+    'whitespace-anomaly-c4-deduplication-limits',
+    'opt-modified-pile-distribution-shift',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+## Kiến trúc T5 Masked LM & Thích ứng Định nghĩa Trích xuất
+
+Bước sang Section 5 (Replication Study), bài báo kiểm chứng xem ba quy luật mở rộng (Scaling Laws) phát hiện trên họ mô hình causal LM (GPT-Neo) có còn đúng khi áp dụng cho các kiến trúc mô hình và mục tiêu huấn luyện hoàn toàn khác hay không. Đối tượng khảo sát đầu tiên là họ mô hình T5 trên tập dữ liệu C4:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="5.1 T5 MASKED LANGUAGE MODELING"
+  sectionParagraphs={[
+    "Model and dataset. The T5 v1.1 models are masked encoder-decoder models trained to reproduce randomly deleted spans from an input sequence. The models vary in size from 77M to 11B billion parameters, and are trained on C4—a 806 GB curated version of English web pages from the Common Crawl. The largest T5 model (11B parameters) is the largest publicly available masked language model...",
+    "We must first define what is meant by “extractable data” for the masked language modeling task. T5 models are trained by removing a random 15% of tokens from each training sequence... We instead call a sequence memorized if the model perfectly solves the masked language modeling task on that sequence. For example, we call a 200-token sequence memorized if the model can use the 170 (= 200 · 0.85) tokens of context to perfectly predict the remaining 30 tokens (= 200 · 0.15)..."
+  ]}
+  sectionHighlights={[
+    "masked encoder-decoder models",
+    "trained on C4—a 806 GB curated version of English web pages",
+    "removing a random 15% of tokens",
+    "perfectly solves the masked language modeling task",
+  ]}
+/>
+
+Mô hình T5 (Text-to-Text Transfer Transformer) hoạt động theo cơ chế **mã hóa - giải mã (encoder-decoder)** với mục tiêu điền khuyết ngẫu nhiên (span corruption). Do T5 không nhận tiền tố rồi sinh tiếp hậu tố như các mô hình causal LM (như GPT), Định nghĩa 3.1 không thể áp dụng trực tiếp.
+
+Nhóm tác giả đã điều chỉnh định nghĩa kiểm thử một cách tương đương:
+* Trong chuỗi 200 token từ tập huấn luyện C4 (806 GB), hệ thống xóa ngẫu nhiên 15% số token (tương đương 30 token độc lập) theo đúng quy trình huấn luyện của T5.
+* Mô hình được cung cấp 85% số token còn lại (170 token ngữ cảnh xung quanh) và phải **khôi phục chính xác 100% toàn bộ 30 token bị ẩn đi**.
+* Nếu mô hình đoán trúng toàn bộ các token bị xóa, chuỗi đó được ghi nhận là bị học vẹt.
+
+<ConceptFlow
+  ariaLabel="Quy trình kiểm thử học vẹt thích ứng cho T5 Masked LM"
+  items={[
+    {
+      title: 'Tập Dữ liệu Huấn luyện C4',
+      subtitle: '806 GB Common Crawl',
+      detail: 'Tập dữ liệu web tiếng Anh được lọc kỹ lưỡng, làm nền tảng huấn luyện các phiên bản T5 từ 77M đến 11B tham số.',
+      tone: 'blue',
+    },
+    {
+      title: 'Điền Khuyết Ngẫu Nhiên (15%)',
+      subtitle: 'Span Corruption Protocol',
+      detail: 'Trong chuỗi 200 token, ẩn đi 30 token ngẫu nhiên và giữ lại 170 token ngữ cảnh hai chiều xung quanh.',
+      tone: 'amber',
+    },
+    {
+      title: 'Chuẩn Đoán Học Vẹt Nghiêm Ngặt',
+      subtitle: '100% Exact Reconstruction',
+      detail: 'Mô hình phải khôi phục chính xác hoàn toàn toàn bộ 30 token bị ẩn để được tính là một chuỗi bị học vẹt.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<LessonNote tone="note">
+Việc chuẩn hóa định nghĩa học vẹt sang bài toán điền khuyết 15% span corruption đảm bảo phép đo hoàn toàn tương thích với cơ chế huấn luyện nguyên bản của T5, tạo tiền đề công bằng để đối chiếu trực tiếp với các mô hình Causal LM.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+## Ba Khám phá Thực nghiệm trên T5 và C4 (Figure 4)
+
+Trong Figure 4, nhóm nghiên cứu công bố ba kết quả thực nghiệm then chốt: mở rộng quy mô trên T5 (4a), hiện tượng không đơn điệu do ký tự khoảng trắng (4b), và giới hạn của các kỹ thuật khử trùng lặp dữ liệu trên C4 (4c):
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/04-figure-4-replication-t5-dedup.png"
+  alt="Figure 4: Nghiên cứu tái lập trên kiến trúc T5 Masked LM và các biến thể khử trùng lặp dữ liệu trên C4"
+  caption="Figure 4: (a) Quy luật mở rộng trên T5 Masked LM; (b) Hiện tượng dị thường của ký tự khoảng trắng (Whitespace Anomaly) trên T5; (c) So sánh hiệu quả của khử trùng lặp gần (C4 NearDup) và khử trùng lặp chính xác (C4 ExactSubtr)."
+/>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Results. In Figure 4a, we reproduce the model scaling effect for T5 models... Surprisingly, while a scaling trend does hold here as well, the absolute memorization in masked models is an order of magnitude lower than for comparably sized causal language models. For example, the 3B parameter T5-XL model memorizes 3.5% of sequences repeated 100 times, whereas the GPT-Neo 2.7B model memorizes 53.6% of sequences repeated 100 times (with 150 tokens of context)."
+  ]}
+  sectionHighlights={[
+    "reproduce the model scaling effect for T5 models",
+    "absolute memorization in masked models is an order of magnitude lower",
+    "T5-XL model memorizes 3.5%",
+    "GPT-Neo 2.7B model memorizes 53.6%",
+  ]}
+/>
+
+#### 1. Quy Luật Mở Rộng Theo Quy Mô trên T5 (Figure 4a)
+
+* **Bảo toàn quy luật mở rộng (Scaling Law Confirmed):** Trên kiến trúc Masked LM, mô hình càng lớn vẫn học vẹt càng nhiều, tuân theo đúng hàm tăng trưởng log-linear.
+* **Khoảng cách 1 bậc độ lớn so với Causal LM:** Tỷ lệ học vẹt tuyệt đối của Masked LM thấp hơn hẳn 1 bậc độ lớn (order of magnitude) so với Causal LM cùng kích thước. Trên các chuỗi lặp 100 lần, T5-XL (khoảng 3B tham số) chỉ học vẹt **3.5%**, trong khi GPT-Neo 2.7B học vẹt tới **53.6%** (gấp hơn 15 lần).
+
+| Kiến trúc & Mô hình | Mục tiêu Huấn luyện | Kích thước Tham số | Tỷ lệ Học vẹt ở 100 Lần Lặp | Bản chất Cơ chế Ghi nhớ |
+| :--- | :--- | :--- | :--- | :--- |
+| **GPT-Neo 2.7B** | Causal LM (Next-token prediction) | 2,7 tỷ | **53.6%** | Học vẹt cực mạnh theo chuỗi liên tục một chiều |
+| **T5-XL** | Masked LM (Span corruption / Điền khuyết) | 2,8 tỷ | **3.5%** | Học vẹt thấp hơn 15 lần do ngữ cảnh 2 chiều phân tán trí nhớ |
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Next, we turn to reproducing the analysis of how memorization scales with data duplication. The situation here becomes significantly less clear. As shown in Figure 4b, sequences duplicated more often tend to be easier to memorize, but there is no monotonic scaling relationship... sequences repeated 159 to 196 times are memorized with probability less than 5.1%... however sequences repeated 138 to 158 times are memorized with probability at least 6.2%...",
+    "We find that most of the duplicate examples repeated 138-158 times consist mainly of whitespace tokens. These sequences are thus much easier to predict correctly than other sequences, even if they are repeated more often."
+  ]}
+  sectionHighlights={[
+    "no monotonic scaling relationship",
+    "sequences repeated 138 to 158 times are memorized with probability at least 6.2%",
+    "sequences repeated 159 to 196 times are memorized with probability less than 5.1%",
+    "consist mainly of whitespace tokens",
+    "much easier to predict correctly",
+  ]}
+/>
+
+#### 2. Dị Thường Không Đơn Điệu & Ký Tự Khoảng Trắng (Figure 4b)
+
+Khác với quy luật đơn điệu tăng dần mượt mà trên The Pile, đồ thị Figure 4(b) của mô hình T5 trên tập dữ liệu C4 xuất hiện các bước nhảy gồ ghề bất thường:
+* **Đột biến ở mốc 138 – 158 lần lặp:** Tỷ lệ học vẹt đột ngột dựng đứng thành một cột nhọn (spike), đạt tới **10%** trên T5 XL, **8.5%** trên T5 Large và **4.5%** trên T5 Base (vượt mức trung bình ít nhất 6.2%).
+* **Sụt giảm ngay sau đó ở mốc 159 – 196 lần lặp:** Mặc dù số lần lặp tăng lên, tỷ lệ học vẹt lại giảm xuống dưới **5.1%** trên T5 XL, phá vỡ tính đơn điệu (non-monotonic).
+* **Bóc tách nguyên nhân:** Các chuỗi trong nhóm 138–158 lần lặp hầu như toàn **các ký tự khoảng trắng (whitespace tokens)** do lỗi cào dữ liệu từ web (HTML layout padding). Việc đoán một chuỗi toàn dấu cách dễ hơn vô số lần so với đoán từ ngữ tự nhiên, làm sai lệch nghiêm trọng các phép đo an toàn mô hình.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="5.2 LANGUAGE MODELS TRAINED ON DEDUPLICATED DATA"
+  sectionParagraphs={[
+    "Model and dataset. The models used in Lee et al. (2021) are 1.5B parameter causal language models. This model family consists of one model trained on C4 (the same dataset as T5), one model trained on a version of C4 that was deduplicated by removing all documents which were near-duplicates of other documents, and one model trained on a version of C4 that was deduplicated by deleting any string of length-50 tokens that occurred more than once...",
+    "Results... First, we confirm that models trained on deduplicated datasets memorize less data than models trained without deduplication. For example, for sequences repeated below 35 times, the exact deduplicated model memorizes an average of 1.2% of sequences, compared to 3.6% without deduplication, a statistically significant (p < 10^(-15)) decrease by a factor of 3x.",
+    "Second, while deduplication does help for sequences repeated up to ~100 times, it does not help for sequences repeated more often! The extractability of examples repeated at least 408 times is statistically significantly higher than any other number of repeats before this. We hypothesize that this is due to the fact that any deduplication strategy is necessarily imperfect in order to efficiently scale to hundreds of gigabytes of training data."
+  ]}
+  sectionHighlights={[
+    "three models: C4 Original, C4 NearDup, C4 ExactSubtr",
+    "decrease by a factor of 3x",
+    "statistically significant (p < 10^(-15))",
+    "does not help for sequences repeated more often",
+    "repeated at least 408 times is statistically significantly higher",
+    "any deduplication strategy is necessarily imperfect",
+  ]}
+/>
+
+#### 3. Giới Hạn Khử Trùng Lặp Dữ Liệu trên C4 (Figure 4c)
+
+Nhóm tác giả đánh giá ba mô hình causal LM 1.5B (C4 Original, C4 NearDup dùng MinHash/LSH, và C4 ExactSubtr dùng Suffix Array xóa chuỗi <InlineMath formula="\ge 50" /> token trùng lặp):
+* **Chiến thắng ở vùng tần suất thấp (< 35 lần):** Thuật toán khử trùng lặp chính xác (C4 ExactSubtr) giúp giảm tỷ lệ học vẹt từ 3.6% xuống còn 1.2% (giảm đúng **3 lần**, đạt ý nghĩa thống kê áp đảo với <InlineMath formula="p < 10^{-15}" />). Trong khi đó, thuật toán khử trùng lặp gần (C4 NearDup) hầu như không tạo ra sự khác biệt nào so với bản gốc.
+* **Sự sụp đổ ở vùng tần suất cao (<InlineMath formula="\ge 408" /> lần):** Đối với các chuỗi xuất hiện trên 400 lần trong tập train gốc, cả 3 đường đồ thị (kể cả bản khử trùng lặp chính xác) đều dựng ngược lên và hội tụ ở mức **50% – 58%** do giới hạn kỹ thuật khi mở rộng lên tập dữ liệu hàng trăm gigabyte.
+
+| Biến thể Huấn luyện C4 | Phương pháp Khử Trùng lặp | Tần suất Thấp (< 35 lần) | Tần suất Cực cao (<InlineMath formula="\ge 408" /> lần) | Nhận xét Thực tiễn |
+| :--- | :--- | :--- | :--- | :--- |
+| **C4 Original (Nét đứt)** | Không xử lý | ~3.6% học vẹt | **50% – 58%** (Đỉnh nhọn) | Đường cơ sở ban đầu |
+| **C4 NearDup (Đường tím)** | MinHash / LSH loại bỏ tài liệu tương đồng | ~3.5% (Không đổi đáng kể) | **50% – 58%** (Đỉnh nhọn) | Hoàn toàn bất lực với chuỗi con chính xác |
+| **C4 ExactSubtr (Đường xanh)** | Suffix Array xóa chuỗi <InlineMath formula="\ge 50" /> token trùng lặp | **1.2% (Giảm 3 lần, <InlineMath formula="p < 10^{-15}" />)** | **50% – 58%** (Đỉnh nhọn) | Hiệu quả cao ở tần suất thấp nhưng thất thủ ở tần suất cao |
+
+<LessonNote tone="note">
+Ba phát hiện tại Figure 4 khẳng định: mục tiêu huấn luyện và chất lượng dữ liệu chi phối sâu sắc hành vi học vẹt. Khử trùng lặp chính xác là biện pháp phòng vệ giá trị ở tần suất thấp nhưng không thể thay thế hoàn toàn các giải pháp bảo mật toàn diện ở quy mô dữ liệu lớn.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={2}>
+## Họ Mô hình OPT & Tác động của Dịch chuyển Phân phối Dữ liệu
+
+Trong khảo nghiệm cuối cùng của nghiên cứu tái lập, các tác giả kiểm thử họ mô hình **OPT (Open Pre-trained Transformer)** của Meta AI để đánh giá mức độ khái quát trên các tập dữ liệu đã qua tinh chỉnh:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="5.3 LANGUAGE MODELS TRAINED ON A MODIFIED VERSION OF THE PILE"
+  sectionParagraphs={[
+    "Model and dataset. We finally study the OPT family of models (Zhang et al., 2022), that vary from 125 million to 175 billion parameters. These models were trained on a 800GB dataset that overlaps with The Pile but is not identical and contains data from many new sources, while also removing some data from the Pile. This dataset was also deduplicated prior to training, and so we do not expect to see duplicate sequences memorized (much) more than sequences repeated only a few times.",
+    "Results. Overall, we find that while there are nearly identical scaling trends to those we found for GPT-Neo’s model family, the effect size is orders-of-magnitude smaller. Even the 66 billion parameter model memorizes a smaller fraction of The Pile than the smallest 125 million parameter GPT Neo model. This suggests two possible conclusions: (a) careful data curation and training can mitigate memorization, or (b) even slight shifts in data distribution can significantly alter what content gets memorized."
+  ]}
+  sectionHighlights={[
+    "OPT family of models",
+    "vary from 125 million to 175 billion parameters",
+    "dataset that overlaps with The Pile but is not identical",
+    "nearly identical scaling trends",
+    "effect size is orders-of-magnitude smaller",
+    "even the 66 billion parameter model memorizes a smaller fraction",
+    "slight shifts in data distribution can significantly alter what content gets memorized",
+  ]}
+/>
+
+#### Thử Nghiệm Trên OPT (125M đến 66B Tham Số)
+
+Họ mô hình OPT được huấn luyện trên một tập dữ liệu 800 GB có phần giao thoa một phần với The Pile nhưng không hoàn toàn trùng khớp. Cụ thể, Meta AI đã loại bỏ một số danh mục của The Pile, bổ sung thêm nhiều nguồn dữ liệu mới từ Internet và chạy khử trùng lặp trước khi train.
+
+Khi nhóm tác giả đưa tập prompt mồi từ The Pile vào kiểm thử các mô hình OPT:
+1. **Bảo tồn quy luật log-linear:** Đồ thị tỷ lệ học vẹt vẫn tăng tuyến tính theo logarit kích thước mô hình (OPT càng lớn càng nhớ nhiều hơn OPT nhỏ).
+2. **Biên độ hiệu ứng sụt giảm hàng trăm lần:** Tuy nhiên, tỷ lệ phần trăm trích xuất tuyệt đối lại nhỏ hơn một cách đáng kinh ngạc. Ngay cả mô hình khổng lồ **OPT 66B (66 tỷ tham số)** cũng trích xuất được ít dữ liệu The Pile hơn cả mô hình tí hon **GPT-Neo 125M (125 triệu tham số)**!
+
+#### Hai Giả Thuyết Khoa Học Then Chốt
+
+Kết quả tương phản trên họ mô hình OPT dẫn đến hai cách giải thích học thuật có ý nghĩa thực tiễn to lớn:
+
+<ConceptHierarchy
+  ariaLabel="Hai giả thuyết khoa học giải thích sự suy giảm tỷ lệ học vẹt trên mô hình OPT"
+  root={{
+    title: 'Giải Mã Hiện Tượng Suy Giảm Học Vẹt Trên OPT',
+    detail: 'Nguyên nhân khiến mô hình 66B trích xuất ít dữ liệu The Pile hơn mô hình 125M',
+  }}
+  nodes={[
+    {
+      title: 'Giả thuyết 1: Khâu Lọc Dữ liệu Nghiêm ngặt Giúp Giảm Học Vẹt',
+      tone: 'teal',
+      detail: 'Quy trình chọn lọc nguồn dữ liệu cẩn thận, loại bỏ rác và khử trùng lặp kỹ lưỡng của Meta AI trước khi tiền huấn luyện đã hạn chế đáng kể khả năng mô hình học vẹt các chuỗi phổ biến.',
+      examplePrefix: 'Hệ quả Thực tiễn',
+      example: 'Đầu tư công sức vào giai đoạn data curation và deduplication mang lại lợi ích phòng thủ bảo mật rất thực chất.',
+    },
+    {
+      title: 'Giả thuyết 2: Sự Nhạy cảm Cực độ với Dịch chuyển Phân phối',
+      tone: 'violet',
+      detail: 'Mô hình OPT thực chất vẫn học vẹt rất nhiều, nhưng chúng học vẹt tập dữ liệu riêng của chúng! Chỉ cần phân phối dữ liệu bị lệch đi một chút, các câu văn mà mô hình đã học sẽ thay đổi hoàn toàn, khiến việc dùng prompt của The Pile không kích hoạt được bộ nhớ của OPT.',
+      examplePrefix: 'Bản chất Toán học',
+      example: 'Hiện tượng học vẹt có tính đặc thù cao đối với tập dữ liệu cụ thể (dataset-specific memorization).',
+    },
+  ]}
+/>
+
+<LessonNote tone="note">
+Nghiên cứu tái lập tại Section 5 đã củng cố vững chắc ba chân lý nền tảng. Quy luật mở rộng quy mô (scaling laws) là phổ quát trên mọi kiến trúc (Causal LM, Masked LM, OPT); tuy nhiên, cấu trúc mục tiêu huấn luyện và phân phối dữ liệu đóng vai trò quyết định đến lượng dữ liệu học vẹt tuyệt đối của mô hình.
+</LessonNote>
+</MdxPage>

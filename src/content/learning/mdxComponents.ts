@@ -115,7 +115,10 @@ export const AI_PROJECTS_MDX_COMPONENT_NAMES = [
   'CogsLeakageVisualizer',
 ] as const;
 
-export const RESEARCH_PAPERS_MDX_COMPONENT_NAMES = ['MatrixTransformStepper'] as const;
+export const RESEARCH_PAPERS_MDX_COMPONENT_NAMES = [
+  'MatrixTransformStepper',
+  'PaperExcerpt',
+] as const;
 
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,

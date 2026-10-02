@@ -254,7 +254,7 @@ function QuizQuestion({
                 key={option.id}
                 type="button"
                 onClick={() => toggleOption(option.id)}
-                className={getQuizOptionClass(quizPalette, false, isSelected)}
+                className={getQuizOptionClass(quizPalette, isSelected)}
                 aria-pressed={isSelected}
               >
                 <span className={getQuizOptionMarkerClass(quizPalette, isSelected)}>
@@ -555,13 +555,11 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
       orderNumber: 'border-[#D7DCE2]/18 bg-[#D7DCE2] text-[#121A24]',
       dragIcon: 'text-[#D7EAFE]/76',
       optionSelected: 'border-[#A8B8C8]/28 bg-[#D7DCE2] text-[#121A24]',
-      optionDisabled: 'border-[#A8B8C8]/12 bg-[#A8B8C8]/6 text-[#F2F6FA]/35',
       optionIdle: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
       optionMarkerSelected: 'text-[#D7DCE2]',
       optionMarkerIdle: 'text-[#D7EAFE]',
       orderRow: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
       orderRowDragging: 'opacity-55',
-      dropLine: 'bg-[#D7DCE2]',
       categoryBank: 'bg-[#121A24]/42',
       categoryCaption: 'text-[#D7EAFE]/70',
       categoryZone: 'border-[#A8B8C8]/18 bg-[#A8B8C8]/6',
@@ -585,13 +583,11 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
     orderNumber: 'border-[#2F6B55]/18 bg-[#DDEFE7] text-[#1F5A46]',
     dragIcon: 'text-[#385F7A]',
     optionSelected: 'border-[#2F6B55]/22 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_6px_16px_rgba(47,107,85,0.08)]',
-    optionDisabled: 'border-[#2F6B55]/10 bg-[#DDEFE7]/30 text-[#1F5A46]/35 shadow-none',
     optionIdle: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)] hover:border-[#2F6B55]/24 hover:bg-[#F6FAF8]',
     optionMarkerSelected: 'text-[#1F5A46]',
     optionMarkerIdle: 'text-[#1F5A46]',
     orderRow: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)] hover:border-[#2F6B55]/28 hover:bg-[#F6FAF8]',
     orderRowDragging: 'opacity-55',
-    dropLine: 'bg-[#6FAF93]',
     categoryBank: 'bg-[#EFF3F8]',
     categoryCaption: 'text-[#205089]/75',
     categoryZone: 'border-[#205089]/16 bg-white/90 shadow-sm hover:border-[#205089]/35 hover:bg-[#F8FAFC]',
@@ -609,14 +605,10 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
   };
 }
 
-function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSelected: boolean): string {
+function getQuizOptionClass(quizPalette: QuizPalette, isSelected: boolean): string {
   return cx(
     'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-normal leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
-    isSelected
-      ? quizPalette.optionSelected
-      : isDisabled
-        ? quizPalette.optionDisabled
-        : quizPalette.optionIdle,
+    isSelected ? quizPalette.optionSelected : quizPalette.optionIdle,
   );
 }
 

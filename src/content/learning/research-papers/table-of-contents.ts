@@ -376,6 +376,120 @@ const chapters: LearningTocTrackSeed[] = [
       },
     ],
   },
+  {
+    id: 'quantifying-memorization-paper',
+    text: {
+      title: {
+        en: 'LLM > Security & Privacy > (ICLR 2023) Quantifying Memorization',
+        vi: 'LLM > Security & Privacy > (ICLR 2023) Quantifying Memorization',
+      },
+      description: {
+        en: 'Quantifying Memorization Across Neural Language Models (Google Research, UPenn, Cornell, ICLR 2023).',
+        vi: 'Định lượng hiện tượng học vẹt trên các mô hình ngôn ngữ lớn (Google Research, UPenn, Cornell, ICLR 2023).',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'quantifying-memorization-title-and-authors',
+        title: {
+          en: 'Title & Authors',
+          vi: 'Tiêu đề & Đội ngũ Tác giả',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-abstract',
+        title: {
+          en: 'Abstract',
+          vi: 'Tóm tắt Bài báo',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-quiz',
+        title: {
+          en: 'Quiz',
+          vi: 'Quiz',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-introduction',
+        title: {
+          en: 'Memorization Is Larger Than We Thought?',
+          vi: 'Mức độ học vẹt lớn hơn chúng ta tưởng?',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-related-work',
+        title: {
+          en: 'Related Work',
+          vi: 'Nghiên cứu Liên quan',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-methodology',
+        title: {
+          en: 'Methodology & Definitions',
+          vi: 'Phương pháp Luận & Định nghĩa Học vẹt',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-experiments-scaling-laws',
+        title: {
+          en: 'Comprehensive Experiments & Three Scaling Laws',
+          vi: 'Thực nghiệm Toàn diện & Ba Quy luật Mở rộng',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-experiments-quiz',
+        title: {
+          en: 'Quiz',
+          vi: 'Quiz',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-replication-and-nuances',
+        title: {
+          en: 'Replication Study across Architectures & Datasets',
+          vi: 'Nghiên cứu Tái lập trên T5, C4 và OPT',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-conclusion',
+        title: {
+          en: 'Conclusion & Broader Impact',
+          vi: 'Kết luận & Tác động Thực tiễn',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'quantifying-memorization-extended-insights',
+        title: {
+          en: 'Extended Insights & Special Phenomena',
+          vi: 'Các Phát hiện Mở rộng Khác',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
 ];
 
 export const learningTableOfContents = {

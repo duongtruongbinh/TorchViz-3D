@@ -1,0 +1,395 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-experiments-scaling-laws',
+  locale: 'vi',
+  title: 'Thực nghiệm Toàn diện & Ba Quy luật Mở rộng',
+  headings: [
+    'Quy luật 1: Quy mô Mô hình Càng Lớn Càng Học Vẹt Nhiều',
+    'Quy luật 2: Tần suất Trùng lặp và Giới hạn Khử Trùng lặp',
+    'Quy luật 3: Chiều dài Ngữ cảnh và Hiện tượng Khám phá',
+    'Cài đặt Mở rộng: Lấy mẫu Đồng đều và Chiến lược Giải mã',
+    'Phân tích Định tính Chi tiết: So sánh Sinh Mẫu từ 125M đến 6B',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Experiments',
+    'Scaling Laws',
+    'GPT-Neo',
+    'The Pile',
+    'Model Scale',
+    'Log-linear Fit',
+    'GPT-2 Baseline',
+    'Data Duplication',
+    'Deduplication Limits',
+    'Context Length',
+    'Discoverability Phenomenon',
+    'Uniform Sampling',
+    'Lower Bound 1 Percent',
+    'Beam Search vs Greedy',
+    'Full Dataset Lookup',
+    'Qualitative Examples',
+  ],
+  conceptIds: [
+    'scaling-law-model-size',
+    'scaling-law-data-duplication',
+    'scaling-law-context-discoverability',
+    'alternate-experimental-settings-uniform-beam',
+    'qualitative-comparison-generation-degradation',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+## Quy luật 1: Quy mô Mô hình Càng Lớn Càng Học Vẹt Nhiều
+
+<LessonNote tone="danger">
+Thực nghiệm tại Section 4.1 trả lời cho câu hỏi: Quy mô tham số mô hình tác động như thế nào đến khả năng ghi nhớ dữ liệu huấn luyện, và liệu tỷ lệ trích xuất cao ở các mô hình lớn là do học vẹt hay do năng lực tổng quát hóa ngôn ngữ đủ tốt?
+</LessonNote>
+
+Bước sang Section 4 (Experiments), bài báo tiến hành các đợt đo lường thực nghiệm quy mô lớn nhằm khám phá các quy luật mở rộng (scaling laws) của hiện tượng học vẹt trong các mô hình ngôn ngữ lớn.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="4 EXPERIMENTS"
+  sectionParagraphs={[
+    "We primarily study the GPT-Neo model family (Black et al., 2021; Wang and Komatsuzaki, 2021) trained on the Pile dataset (Gao et al., 2020). The GPT-Neo models are causal language models trained with the objective of predicting the next token in a sequence given the previous ones. They come in four sizes: 125 million, 1.3 billion, 2.7 billion and 6 billion parameters. The Pile is a dataset of 825GB of text collected from various sources (e.g., books, Web scrapes, open source code)."
+  ]}
+  sectionHighlights={[
+    "GPT-Neo model family",
+    "trained on the Pile dataset",
+    "causal language models",
+    "predicting the next token in a sequence",
+    "four sizes: 125 million, 1.3 billion, 2.7 billion and 6 billion parameters",
+    "825GB of text collected from various sources",
+  ]}
+/>
+
+Để triển khai cuộc đo lường định lượng toàn diện đầu tiên về hiện tượng học vẹt, nhóm tác giả xác lập các thành tố thực nghiệm chuẩn mực:
+* **Họ mô hình mục tiêu:** Sử dụng họ mô hình mã nguồn mở GPT-Neo với kiến trúc mô hình ngôn ngữ nhân quả (Causal Language Model) huấn luyện theo mục tiêu dự đoán token tiếp theo.
+* **Bốn cấp độ quy mô tham số:** Khảo sát đồng thời 4 phiên bản gồm 125 triệu (125M), 1.3 tỷ (1.3B), 2.7 tỷ (2.7B) và 6 tỷ (6B) tham số để theo dõi biến thiên theo cấp số mũ.
+* **Tập dữ liệu huấn luyện The Pile:** Kho dữ liệu văn bản tiếng Anh khổng lồ gồm 825 GB thu thập từ nhiều nguồn đa dạng như sách số hóa, bản cào web công cộng và kho mã nguồn mở GitHub.
+
+#### 4.1 Mô Hình Càng Lớn Càng Học Vẹt Nhiều (Bigger Models Memorize More)
+
+Bước vào nhánh thực nghiệm đầu tiên, bài báo mở rộng các quan sát sơ khởi trước đây lên quy mô một triệu chuỗi sinh thử nghiệm:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="4.1 BIGGER MODELS MEMORIZE MORE"
+  sectionParagraphs={[
+    "We begin by considering the impact of model size on memorization, expanding on prior studies which qualitatively established a relationship between the size of GPT-2 models and their ability to memorize <30 URLs (Carlini et al., 2020). In contrast, we study a million model generations in order to describe how model scale relates to memorization.",
+    "Results. We find that larger models memorize significantly more than smaller models do, with a near-perfect log-linear fit (R2 of 99.8%): a ten fold increase in model size corresponds to an increase in memorization of 19 percentage points."
+  ]}
+  sectionHighlights={[
+    "memorize <30 URLs (Carlini et al., 2020)",
+    "study a million model generations",
+    "larger models memorize significantly more",
+    "near-perfect log-linear fit (R2 of 99.8%)",
+    "ten fold increase in model size corresponds to an increase in memorization of 19 percentage points",
+  ]}
+/>
+
+Trước nghiên cứu này, các công trình đi trước như Carlini et al. (2020) chỉ dừng lại ở các quan sát định tính mang tính thăm dò về khả năng học vẹt chưa đầy 30 đường dẫn URL cụ thể trên GPT-2. Trong nghiên cứu ICLR 2023 này, nhóm tác giả mở rộng quy mô lên tới **một triệu lần sinh mẫu (a million model generations)** để mô tả chính xác mối quan hệ giữa kích thước mô hình và hiện tượng học vẹt.
+
+Kết quả thực nghiệm trên tập mẫu chuẩn hóa (Figure 1a) ghi nhận một quy luật toán học chính xác với hệ số xác định <InlineMath formula="R^2 = 99{,}8\%" />, cho thấy mối tương quan giữa kích thước mô hình (theo thang logarit) và tỷ lệ dữ liệu bị học vẹt gần như là một đường thẳng hoàn hảo. Trên đồ thị, cứ mỗi chu kỳ tăng 10 lần tham số, tỷ lệ trích xuất tăng thêm 19 điểm phần trăm.
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/01-figure-1-log-linear-memorization-trends.png"
+  alt="Figure 1: Ba định luật log-linear định lượng tỷ lệ học vẹt theo quy mô mô hình, tần suất lặp lại và độ dài ngữ cảnh mồi"
+  caption="Figure 1: Tỷ lệ trích xuất dữ liệu học vẹt (Fraction extractable) theo hàm log-linear: (a) Kích thước mô hình (Model Size), (b) Tần suất lặp lại trong tập train (# repetitions), và (c) Chiều dài ngữ cảnh mồi (Prompt length)."
+/>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "To confirm that larger models are indeed memorizing more data, and not simply generalizing better, we repeat the analysis with the GPT-2 model family as a baseline. The GPT-2 models are similarly sized, and also trained on Internet-scraped data. If our “larger models memorize more” result was due to the predictive strength of larger models, and not the memorization of specific training data, we would expect a similar relationship between comparably sized GPT-2 models trained on similar data. Put differently, this baseline allows to establish what fraction of the training data is sufficiently “easy” that any language model can correctly predict the 50-token suffix, even if the example has not been seen during training. For example, a language model trained on multiple examples of number sequences can likely correctly complete some other unseen number sequences. We find that GPT-2 correctly completes approximately 6% of the examples in our evaluation set, compared to 40% for the similarly sized 1.3B parameter GPT-Neo model. A qualitative analysis (see examples in Appendix Figure 15) suggests that examples “memorized” by GPT-2 are largely uninteresting sequences (e.g., number sequences, repetitions of the same few tokens, or common phrases). Therefore, we conclude that larger models have a higher fraction of extractable training data because they have actually memorized the data; it is not simply that the larger models are more accurate."
+  ]}
+  sectionHighlights={[
+    "not simply generalizing better",
+    "GPT-2 model family as a baseline",
+    "fraction of the training data is sufficiently “easy” that any language model can correctly predict",
+    "GPT-2 correctly completes approximately 6%",
+    "compared to 40% for the similarly sized 1.3B parameter GPT-Neo model",
+    "actually memorized the data; it is not simply that the larger models are more accurate",
+  ]}
+/>
+
+Để kiểm chứng giả thuyết trên, nhóm tác giả tiến hành thí nghiệm đối chứng với họ mô hình GPT-2 nhằm xác định tỷ lệ trích xuất tăng theo quy mô là do ghi nhớ dữ liệu huấn luyện cụ thể hay do năng lực mô hình hóa ngôn ngữ tổng quát. Cả hai họ mô hình đều được huấn luyện trên dữ liệu web (WebText đối với GPT-2 và The Pile đối với GPT-Neo). Khi nhận cùng các đoạn prompt mồi từ The Pile, kết quả đối chứng ghi nhận hai khác biệt cốt lõi:
+* **Mức độ hoàn thành:** GPT-2 chỉ hoàn thành chính xác khoảng 6% chuỗi, chủ yếu là các mẫu đếm số, đoạn văn lặp hoặc thành ngữ phổ biến. Ngược lại, GPT-Neo 1.3B cùng kích thước đạt tỷ lệ trích xuất tới 40%.
+* **Độ nhạy theo quy mô:** Tỷ lệ 6% của GPT-2 giữ nguyên trên mọi kích thước (bản 1.5B không cao hơn bản 125M). Ngược lại, tỷ lệ của GPT-Neo tăng tuyến tính theo logarit tham số.
+
+<LessonNote tone="note">
+Kết quả này xác nhận tỷ lệ trích xuất cao ở các mô hình lớn xuất phát từ việc ghi nhớ trực tiếp các chuỗi văn bản cụ thể trong tập huấn luyện, không phải hệ quả của năng lực dự đoán ngôn ngữ thông minh hơn.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+## Quy luật 2: Tần suất Trùng lặp và Giới hạn Khử Trùng lặp
+
+<LessonNote tone="danger">
+Thực nghiệm tại Section 4.2 trả lời cho câu hỏi: Tần suất lặp lại của chuỗi văn bản trong tập huấn luyện tác động như thế nào đến khả năng ghi nhớ của mô hình, và liệu kỹ thuật khử trùng lặp (deduplication) có thể ngăn ngừa rò rỉ dữ liệu triệt để hay không?
+</LessonNote>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="4.2 REPEATED STRINGS ARE MEMORIZED MORE"
+  sectionParagraphs={[
+    "Using our duplication-normalized data sample, we measure the fraction of sequences which are extractable, for buckets of sequences duplicated between 2 and 900 times. Each bucket consists of 1,000 distinct sentences, and we compute the average amount of memorization for each bucket.",
+  ]}
+  sectionHighlights={[
+    "duplication-normalized data sample",
+    "buckets of sequences duplicated between 2 and 900 times",
+    "1,000 distinct sentences",
+  ]}
+/>
+
+Phương pháp kiểm chứng mối quan hệ giữa tần suất lặp lại và khả năng học vẹt đã được thiết lập ở phần trước. Nhắc lại, nhóm nghiên cứu phân chia các chuỗi văn bản thành từng nhóm (bucket) có tần suất lặp từ 2 đến hơn 900 lần trong The Pile, mỗi nhóm chứa 1.000 câu riêng biệt.
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/01-figure-1-log-linear-memorization-trends.png"
+  alt="Figure 1: Mối quan hệ log-linear giữa học vẹt và kích thước mô hình (a), số lần lặp lại (b), và chiều dài ngữ cảnh (c)"
+  caption="Figure 1: Đồ thị (b) minh họa tỷ lệ trích xuất tăng tuyến tính theo logarit của số lần lặp lại dữ liệu huấn luyện trên mọi quy mô mô hình."
+/>
+
+Đồ thị Figure 1(b) phản ánh ba quy luật thực nghiệm:
+
+<ConceptFlow
+  ariaLabel="Ba quy luật thực nghiệm từ đồ thị Figure 1(b)"
+  items={[
+    {
+      title: 'Tăng trưởng Tuyến tính theo Logarit',
+      detail: 'Xác suất trích xuất chuỗi tăng theo hàm tuyến tính so với logarit của số lần lặp lại trên cả bốn kích thước mô hình (6B, 2.7B, 1.3B, 125M).',
+      tone: 'blue',
+    },
+    {
+      title: 'Phân cấp Thứ bậc Tuyệt đối',
+      detail: 'Tại bất kỳ tần suất lặp nào, mô hình lớn hơn luôn có tỷ lệ trích xuất cao hơn mô hình nhỏ hơn (6B vượt trội hơn 2.7B, 2.7B vượt trội hơn 1.3B, và 1.3B vượt trội hơn 125M).',
+      tone: 'teal',
+    },
+    {
+      title: 'Ngưỡng Bùng nổ sau 10 Lần Lặp',
+      detail: 'Khi một chuỗi vượt qua ngưỡng 10 đến 30 lần lặp trong tập huấn luyện, tỷ lệ mô hình đọc lại chính xác 50 token tiếp theo tăng vọt từ mức dưới 20% lên trên 60%.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+Trước nghiên cứu này, khử trùng lặp dữ liệu (deduplication) tiền huấn luyện được xem là giải pháp then chốt để loại bỏ học vẹt (Lee et al., 2021). Tuy nhiên, số liệu thực nghiệm tại Figure 1(b) chỉ ra giới hạn mang tính nguyên lý của phương pháp này:
+* **Học vẹt vẫn diễn ra ở tần suất cực thấp:** Ngay cả với những chuỗi văn bản chỉ xuất hiện 2 đến 3 lần trong toàn bộ kho ngữ liệu 825 GB, mô hình 6B vẫn có thể trích xuất chính xác với tỷ lệ đáng kể.
+* **Không phải lá chắn tuyệt đối:** Khử trùng lặp giúp kéo giảm tỷ lệ học vẹt từ mức nguy hiểm 80% đến 90% xuống mức thấp hơn, nhưng không thể loại trừ hoàn toàn nguy cơ rò rỉ dữ liệu.
+* **Tác động của quy mô tham số:** Khi các mô hình tiếp tục mở rộng kích thước, ngưỡng trùng lặp cần thiết để kích hoạt hiện tượng học vẹt sẽ càng giảm xuống, khiến ngay cả những dữ liệu xuất hiện một vài lần cũng có thể bị trích xuất.
+
+<LessonNote tone="note">
+Dữ liệu thực nghiệm xác nhận khử trùng lặp là biện pháp vệ sinh dữ liệu bắt buộc nhưng không thể ngăn chặn rò rỉ triệt để, vì các mô hình ngôn ngữ lớn vẫn có khả năng ghi nhớ những chuỗi dữ liệu chỉ xuất hiện một vài lần trong tập huấn luyện.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={2}>
+## Quy luật 3: Chiều dài Ngữ cảnh và Hiện tượng Khám phá
+
+<LessonNote tone="danger">
+Thực nghiệm tại Section 4.3 trả lời cho câu hỏi: Chiều dài prefix prompt tác động như thế nào đến khả năng trích xuất dữ liệu, và tại sao nhiều nội dung học vẹt chỉ bộc lộ khi mô hình nhận được ngữ cảnh đủ dài?
+</LessonNote>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "4.3 LONGER CONTEXT DISCOVERS MORE MEMORIZATION",
+    "Results. In Figure 1c, we observe that the fraction of extractable sequences increases log-linearly with the number of tokens of context. For example, 33% of training sequences in our evaluation set are extractable from the 6B model at 50 tokens of context, compared to 65% with 450 tokens of context. We call this the discoverability phenomenon: some memorization only becomes apparent under certain conditions, such as when the model is prompted with a sufficiently long context.",
+  ]}
+  sectionHighlights={[
+    "LONGER CONTEXT DISCOVERS MORE MEMORIZATION",
+    "fraction of extractable sequences increases log-linearly with the number of tokens of context",
+    "33% of training sequences in our evaluation set are extractable from the 6B model at 50 tokens of context, compared to 65% with 450 tokens of context",
+    "discoverability phenomenon",
+    "prompted with a sufficiently long context",
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/01-figure-1-log-linear-memorization-trends.png"
+  alt="Figure 1: Mối quan hệ log-linear giữa học vẹt và kích thước mô hình (a), số lần lặp lại (b), và chiều dài ngữ cảnh (c)"
+  caption="Figure 1: Đồ thị (c) minh họa tỷ lệ trích xuất tăng tuyến tính theo logarit của chiều dài tiền tố mồi từ 50 đến 450 token."
+/>
+
+Trong thực nghiệm này, nhóm nghiên cứu cố định nhiệm vụ dự đoán đúng 50 token tiếp theo nhưng thay đổi chiều dài đoạn tiền tố mồi từ 50 token lên tới 450 token. Đồ thị Figure 1(c) ghi nhận ba đặc trưng then chốt:
+
+<ConceptFlow
+  ariaLabel="Ba đặc trưng then chốt từ đồ thị Figure 1(c)"
+  items={[
+    {
+      title: 'Tăng trưởng Log-linear theo Ngữ cảnh',
+      detail: 'Tỷ lệ trích xuất tăng tuyến tính theo hàm logarit của số lượng token tiền tố mồi trên mọi mô hình GPT-Neo.',
+      tone: 'blue',
+    },
+    {
+      title: 'Tác động Tăng vọt Gấp đôi',
+      detail: 'Trên mô hình 6B, khi chỉ cung cấp tiền tố ngắn 50 token, mô hình chỉ trích xuất được 33% chuỗi. Nhưng khi kéo dài tiền tố mồi lên 450 token, con số này nhảy vọt lên 65%.',
+      tone: 'teal',
+    },
+    {
+      title: 'Đường Đối chứng GPT-2 XL Đi ngang',
+      detail: 'GPT-2 XL tiếp tục giữ nguyên tỷ lệ hoàn thành khoảng 6% bất kể tiền tố mồi dài 50 hay 450 token. Điều này khẳng định ngữ cảnh dài chỉ khai thác những dữ liệu mà mô hình đã thực sự học trong tập huấn luyện, chứ không giúp mô hình đoán mò chính xác những văn bản chưa từng gặp.',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+Nhóm tác giả gọi đây là hiện tượng khả năng khám phá (the discoverability phenomenon). Theo đó, việc ghi nhớ dữ liệu không phải là một công tắc nhị phân mà mang tính tiềm ẩn (latent). Ngữ cảnh ngắn tạo ra không gian xác suất phân tán với nhiều cách tiếp diễn tự nhiên hợp lý, khiến dữ liệu học vẹt bị ẩn đi. Ngược lại, ngữ cảnh dài đóng vai trò như chiếc phễu xác suất thu hẹp, triệt tiêu các nhánh rẽ thay thế và ép phân phối dự đoán rơi trúng vào chuỗi đã ghi nhớ.
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "From one point of view, it is good that some memorization is difficult to discover. This makes it harder for attackers to perform training data extraction attacks (Carlini et al., 2020), or otherwise exploit memorization. Indeed, if an exact 100 token prompt is required to make the model output a given string, then, in practice, an adversary will likely be unable to perform the attack. The difficulty in discovering memorization also reduces the likelihood of non-adversarial training data regurgitation. For example, the GitHub Copilot model (Chen et al., 2021) reportedly rarely emits memorized code in benign situations, and most memorization occurs only when the model has been prompted with long code excerpts that are very similar to the training data (Ziegler, 2021). Practitioners building language generation APIs could (until stronger attacks are developed) significantly reduce extraction risk by restricting the maximum prompt length available to users.",
+    "Viewed differently, however, the difficulty of discovering memorization can also harm our ability to audit privacy in machine learning models. Because provably-correct approaches for privacy-preserving training of machine learning models are applied only rarely in practice (Abadi et al., 2016; Thakkar et al., 2020; Ramaswamy et al., 2020), it is common to attempt post-hoc privacy auditing (Jayaraman and Evans, 2019; Jagielski et al., 2020; Nasr et al., 2021). Our results suggest that correctly auditing large language models likely requires prompting the model with training data, as there are no known techniques to identify the tail of memorized data without conditioning the model with a large context. Improving upon this limitation is an interesting problem for future work.",
+  ]}
+  sectionHighlights={[
+    "makes it harder for attackers to perform training data extraction attacks",
+    "restricting the maximum prompt length available to users",
+    "harm our ability to audit privacy in machine learning models",
+    "prompting the model with training data",
+    "no known techniques to identify the tail of memorized data without conditioning the model with a large context",
+  ]}
+/>
+
+Hiện tượng khám phá dẫn đến hai hệ quả bảo mật có tính chất đối lập:
+* **Lá chắn phòng thủ cho API:** Việc dữ liệu học vẹt đòi hỏi tiền tố mồi dài gây khó khăn cho kẻ tấn công thực tế, vì kẻ tấn công thường không biết trước chuỗi ngữ cảnh hàng trăm token để kích hoạt rò rỉ. Các nhà cung cấp API thương mại có thể giảm thiểu nguy cơ này bằng cách giới hạn độ dài prompt tối đa cho người dùng.
+* **Trở ngại trong kiểm định quyền riêng tư:** Hiện tượng khám phá lại gây trở ngại lớn cho công tác kiểm định an toàn hậu nghiệm (post-hoc privacy auditing). Nếu không sở hữu chính dữ liệu huấn luyện để làm prompt mồi, kiểm toán viên không có công cụ nào phát hiện được phần đuôi dữ liệu nhạy cảm đang ẩn sâu bên trong mô hình.
+
+<LessonNote tone="note">
+Hiện tượng khám phá cho thấy mức độ học vẹt của mô hình ngôn ngữ lớn phụ thuộc chặt chẽ vào độ dài gợi ý lúc suy luận, và việc đánh giá nguy cơ an toàn chỉ qua các prompt ngắn sẽ đánh giá thấp mức độ rò rỉ dữ liệu thực tế.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={3}>
+## Cài đặt Mở rộng: Lấy mẫu Đồng đều và Chiến lược Giải mã
+
+<LessonNote tone="danger">
+Thực nghiệm tại Section 4.4 trả lời cho câu hỏi: Các quy luật mở rộng về học vẹt có giữ vững tính chính xác khi thay đổi phương pháp lấy mẫu dữ liệu, thuật toán giải mã và tiêu chuẩn xác định chuỗi trích xuất hay không?
+</LessonNote>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="4.4 ALTERNATE EXPERIMENTAL SETTINGS"
+  sectionParagraphs={[
+    "In this section, we briefly review other strategies that we could have used to quantify memorization.",
+    "Random dataset sampling. The majority of this paper uses subsets of the training data that were explicitly sampled according to training data duplication frequency. Now, we consider how our results would differ if we chose a truly random subset of the training data, where each sequence is sampled uniformly, instead of sampling a duplicate-normalized dataset. Specifically, we randomly sample 100,000 sequences of varying lengths from The Pile dataset, then prompt the model and test for memorization as before (more details in Appendix C).",
+    "Figure 2a and Figure 2b present the results. We observe similar qualitative trends with model scale and context length as in Figure 1. Larger models memorize more training examples than smaller models—and much more than the GPT-2 models that were not trained on The Pile. Similarly, providing more context to a model increases the likelihood we discover memorization. We can extract the last 50 tokens of a length-1000 sequence with 7% probability for the largest GPT-J 6B model, compared to 4% probability for the smallest 125M GPT-Neo model. (And both of these are much larger than the 2% probability of extraction for the 1.5B parameter GPT2-XL model.) These results, taken together, allow us to estimate a lower bound that there is at least 1% of The Pile dataset that is extractable by the 6B GPT-J model, but not by GPT-2 XL.",
+  ]}
+  sectionHighlights={[
+    "Random dataset sampling",
+    "sampled uniformly, instead of sampling a duplicate-normalized dataset",
+    "randomly sample 100,000 sequences of varying lengths from The Pile dataset",
+    "Larger models memorize more training examples than smaller models",
+    "providing more context to a model increases the likelihood we discover memorization",
+    "at least 1% of The Pile dataset that is extractable by the 6B GPT-J model, but not by GPT-2 XL",
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/02-figure-2-alternate-settings.png"
+  alt="Figure 2: Các cài đặt thực nghiệm mở rộng gồm lấy mẫu đồng đều, kéo dài ngữ cảnh đến 1000 token, beam search và tra cứu toàn bộ tập dữ liệu"
+  caption="Figure 2: (a) Lấy mẫu ngẫu nhiên đồng đều từ The Pile; (b) Kéo dài chuỗi ngữ cảnh mồi tới 1.000 token; (c-trái) Beam search (b=100) so với greedy decoding; (c-phải) Tra cứu toàn bộ tập dữ liệu (Full dataset search) so với kiểm tra sinh tiếp (Continuation)."
+/>
+
+Các tác giả mở rộng kiểm chứng qua ba phương diện kỹ thuật:
+
+* **Lấy mẫu ngẫu nhiên đồng đều (Figure 2a và 2b):** Thay vì cân bằng theo tần suất lặp, nhóm tác giả bốc ngẫu nhiên đồng đều 100.000 chuỗi từ The Pile, nơi tuyệt đại đa số câu chỉ xuất hiện duy nhất một lần. Xu hướng log-linear vẫn giữ nguyên theo kích thước mô hình, và tỷ lệ trích xuất của mô hình 6B GPT-J vượt baseline GPT-2 XL khoảng 1%. Hiệu số này xác lập cận dưới chắc chắn rằng có ít nhất 1% toàn bộ The Pile (hơn 8 GB văn bản thuần) đã bị học vẹt. Khi kéo dài chuỗi kiểm tra lên 1.000 token (tiền tố mồi dài 950 token ở Figure 2b), tỷ lệ trích xuất của mô hình 6B tăng lên gần 7%.
+
+* **Chiến lược giải mã tối ưu (Figure 2c trái):**
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Alternate decoding strategies. We have defined memorization as a model’s ability to generate the true continuation when choosing the most likely token at every step of decoding. Yet, this greedy decoding strategy does not produce the overall most likely sequence. Many language model applications use other decoding strategies, such as beam search to find the generation with highest likelihood. To understand how our choice of decoding strategy affects the amount of memorization we measure, we compare greedy decoding with beam search in Figure 2(c). We find that using beam search with 100 beams results in marginally more extracted memorization. The difference in extractable memorization is just under 2 percentage points on average, with a maximum of 5.6%. Interestingly, beam search and greedy decoding generated the same output 45% of the time.",
+    "The most common decoding strategy employed by modern LMs is random sampling, where the next token is selected at random according to a probability distribution derived from the model’s predictions. McCoy et al. (2021) found that random sampling resulted in generated text with a greater number of novel n-grams. Since the goal of our study is to maximize discoverability—an antithetical goal to maximizing linguistic novelty—we do not present experiments that use random sampling.",
+  ]}
+  sectionHighlights={[
+    "Alternate decoding strategies",
+    "greedy decoding strategy does not produce the overall most likely sequence",
+    "beam search with 100 beams results in marginally more extracted memorization",
+    "difference in extractable memorization is just under 2 percentage points on average, with a maximum of 5.6%",
+    "same output 45% of the time",
+    "goal of our study is to maximize discoverability",
+  ]}
+/>
+
+<LessonNote tone="danger">
+Greedy decoding chỉ là tối ưu cục bộ ở từng từ. Nếu ở bước đầu tiên, từ đúng của tập train chỉ có xác suất đứng thứ hai (ví dụ 40% so với 41%), mô hình sẽ rẽ sang nhánh khác và trượt mất chuỗi học vẹt. Vậy nếu kẻ tấn công dùng thuật toán tìm kiếm toàn cục mạnh hơn như Beam Search (duy trì nhiều nhánh khả dĩ nhất), liệu họ có móc ra được nhiều dữ liệu học vẹt hơn không?
+</LessonNote>
+
+Thực nghiệm so sánh greedy decoding với beam search có độ rộng chùm <InlineMath formula="b = 100" /> cho thấy beam search chỉ giúp trích xuất thêm trung bình dưới 2 điểm phần trăm (tối đa 5.6%), và tạo ra kết quả giống hệt greedy decoding ở 45% số trường hợp. Kết quả này khẳng định các chuỗi học vẹt nằm ở các đỉnh xác suất áp đảo tuyệt đối, chứng minh greedy decoding là phương pháp đo lường đại diện và đáng tin cậy. Lấy mẫu ngẫu nhiên (temperature sampling hoặc top-p) không được sử dụng vì mục tiêu bảo mật đòi hỏi tối đa hóa khả năng phát hiện dữ liệu sao chép thay vì tạo tính mới lạ ngôn ngữ.
+
+* **Tiêu chuẩn trích xuất trên toàn bộ tập dữ liệu (Figure 2c phải):**
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Alternate definition of extractability. Our main experiments report a sequence as “extractable” if the model’s generation is identical to the true suffix of the considered training example. However it is possible this suffix is still present (elsewhere) in the dataset. We now consider a loose lower bound on memorization that considers a sequence memorized if the generation [p||f(p)] from a prompt p is contained anywhere in the training dataset. Searching within the entire dataset finds more memorized content than comparing with the ground truth (Figure 2c). For examples at 100 repetitions, 32.6% of outputs are contained somewhere in the dataset but just 15.8% match the ground truth continuation.",
+  ]}
+  sectionHighlights={[
+    "Alternate definition of extractability",
+    "generation [p||f(p)] from a prompt p is contained anywhere in the training dataset",
+    "Searching within the entire dataset finds more memorized content than comparing with the ground truth",
+    "32.6% of outputs are contained somewhere in the dataset but just 15.8% match the ground truth continuation",
+  ]}
+/>
+
+Trong định nghĩa mặc định, bài báo chỉ so khớp chuỗi sinh ra với đúng đoạn hậu tố của tài liệu mẫu ban đầu (Continuation Matching). Tuy nhiên, trên kho dữ liệu 825 GB như The Pile, một chuỗi hoàn toàn có thể xuất hiện lặp lại ở một tài liệu khác trong tập huấn luyện. Khi mở rộng định nghĩa bằng cách dùng cấu trúc mảng hậu tố (Suffix Array) quét trên toàn bộ The Pile xem chuỗi sinh ra có xuất hiện ở bất kỳ đâu hay không, tỷ lệ trích xuất ở mốc chuỗi lặp 100 lần tăng vọt từ 15.8% lên 32.6% (gấp hơn hai lần). Điều này chứng minh các con số báo cáo trước đó chỉ là cận dưới tối thiểu, và quy mô rò rỉ dữ liệu thực tế trên toàn bộ kho ngữ liệu lớn hơn nhiều.
+
+<LessonNote tone="note">
+Các cài đặt mở rộng chứng minh quy mô dữ liệu thực tế bị rò rỉ trên toàn bộ kho ngữ liệu lớn hơn nhiều so với các ước lượng ban đầu khi chỉ đo lường bằng greedy decoding và so khớp hậu tố.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={4}>
+## Phân tích Định tính Chi tiết: So sánh Sinh Mẫu từ 125M đến 6B
+
+<LessonNote tone="danger">
+Thực nghiệm tại Section 4.5 trả lời cho câu hỏi: Nội dung sinh ra thực tế khác biệt như thế nào giữa các kích thước mô hình từ 125M đến 6B, và ranh giới giữa tái hiện nguyên văn, ảo giác ngữ nghĩa và suy thoái cú pháp được biểu hiện ra sao?
+</LessonNote>
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="4.5 QUALITATIVE EXAMPLES OF MEMORIZATION"
+  sectionParagraphs={[
+    "In Figure 3, we present qualitative examples that are only memorized by the largest (6B) model, but not the smaller ones. We highlight some interesting patterns in these sequences: while the generations from the smaller models do not match the training data, they are generally thematically-relevant and locally consistent. However, a closer inspection reveals that those generations are only syntactically sound, but semantically incorrect.",
+  ]}
+  sectionHighlights={[
+    "only memorized by the largest (6B) model, but not the smaller ones",
+    "thematically-relevant and locally consistent",
+    "syntactically sound, but semantically incorrect",
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/llm/memorization/quantifying-memorization/03-figure-3-qualitative-examples.png"
+  alt="Figure 3: So sánh định tính các chuỗi văn bản được mô hình 6B ghi nhớ nhưng các mô hình nhỏ hơn (2.7B, 1.3B, 125M) đoán sai"
+  caption="Figure 3: Minh họa định tính trên câu trích dẫn triết học và mã nguồn Linux Kernel C. Chữ xanh lá thể hiện trùng khớp chính xác văn bản gốc, chữ đỏ thể hiện mô hình đoán sai hoặc thoái hóa lặp từ."
+/>
+
+Trong Figure 3, các màu sắc thể hiện trực quan mức độ chính xác của chuỗi sinh ra:
+* **Chữ màu xanh lá:** Phần văn bản mô hình sinh ra trùng khớp chính xác từng ký tự với dữ liệu gốc trong tập huấn luyện (ground truth continuation).
+* **Chữ màu hồng:** Phần văn bản mô hình đoán sai, bịa đặt thông tin hoặc suy thoái cú pháp.
+
+Nhận xét theo quy mô mô hình:
+* **Mô hình càng lớn (6B):** Sở hữu dung lượng tham số đủ lớn để tái hiện nguyên văn trọn vẹn chuỗi dài (phủ kín màu xanh), từ trích dẫn triết học phức tạp đến cấu trúc con trỏ trong mã nguồn Linux Kernel C.
+* **Mô hình tầm trung (1.3B và 2.7B):** Vẫn nắm bắt tốt cú pháp bề mặt và chủ đề ngữ cảnh nhưng bắt đầu xuất hiện chữ màu hồng do bịa đặt chi tiết (ghép nhầm tên tác giả hoặc gọi sai tên biến).
+* **Mô hình nhỏ nhất (125M):** Hầu như toàn bộ là chữ màu hồng, hoàn toàn thất bại trong việc ghi nhớ và dễ rơi vào bẫy suy thoái (degeneration) lặp từ vô nghĩa.
+
+Bên cạnh đó, nhóm tác giả ghi nhận hai hiện tượng ngoại lệ: các chuỗi lặp hàng nghìn lần (như giấy phép GPL) được ghi nhớ đồng loạt trên mọi quy mô từ 125M đến 6B; và khi văn bản gốc chứa lỗi chính tả, mô hình 6B có xu hướng tự sửa đúng theo ngữ pháp chung thay vì sao chép máy móc.
+
+<LessonNote tone="note">
+Theo đà tăng trưởng kích thước, mô hình đi từ chỗ suy thoái lặp từ ở mức 125M, tiến lên nắm bắt cú pháp và ngữ cảnh chủ đề ở mức 1.3B và 2.7B, trước khi mở khóa hoàn toàn năng lực tái hiện nguyên văn chuỗi dữ liệu gốc ở quy mô 6B.
+</LessonNote>
+</MdxPage>

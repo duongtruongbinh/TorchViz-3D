@@ -27,7 +27,7 @@ const STRUCTURAL_KEYS = new Set([
   'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
-const CONCEPT_HIERARCHY_TONES = new Set(['blue', 'amber', 'teal', 'violet', 'neutral']);
+const CONCEPT_HIERARCHY_TONES = new Set(['blue', 'amber', 'teal', 'violet', 'neutral', 'rose']);
 
 type Node = { type?: string; name?: string; value?: unknown; depth?: number; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; expressions?: Node[]; quasis?: Array<{ value?: { raw?: string; cooked?: string } }>; argument?: Node; operator?: string; source?: Node };
 

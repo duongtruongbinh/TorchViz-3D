@@ -686,7 +686,7 @@ type ConceptHierarchyNode = {
   problem?: ReactNode;
   example?: ReactNode;
   examplePrefix?: string;
-  tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
+  tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral' | 'rose';
   visual?: ConceptVisual;
   muted?: boolean;
   align?: 'left' | 'center';
@@ -706,12 +706,14 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
     teal: 'text-[#2D7E75]',
     violet: 'text-[#7466A4]',
     neutral: 'text-[#52677F]',
+    rose: 'text-[#C53030]',
   } : {
     blue: 'text-[#9BCDF2]',
     amber: 'text-[#F2CA7B]',
     teal: 'text-[#9EDDD5]',
     violet: 'text-[#C8BCEF]',
     neutral: 'text-[#B8C8DA]',
+    rose: 'text-[#FEB2B2]',
   };
   const termSurface = isLight ? 'border-current/22 bg-white/70' : 'border-current/25 bg-white/5';
   const formulas: Partial<Record<NonNullable<ConceptHierarchyNode['visual']>, string>> = {
@@ -1134,6 +1136,7 @@ const toneHeaderTints: Record<ConceptHierarchyTone, string> = {
   teal: 'border-b border-[#68AAA2]/35 bg-[#F0F8F6] text-[#1C685E]',
   violet: 'border-b border-[#A89CCB]/35 bg-[#F5F2FB] text-[#594883]',
   neutral: 'border-b border-[#B8C8DA]/50 bg-[#F8FAFC] text-[#1E293B]',
+  rose: 'border-b border-[#F8B4B4]/40 bg-[#FDF2F2] text-[#9B1C1C]',
 };
 
 const toneBorderHover: Record<ConceptHierarchyTone, string> = {
@@ -1142,6 +1145,7 @@ const toneBorderHover: Record<ConceptHierarchyTone, string> = {
   teal: 'hover:border-[#68AAA2]/80 hover:shadow-[0_8px_20px_rgba(35,119,108,0.09)]',
   violet: 'hover:border-[#A89CCB]/80 hover:shadow-[0_8px_20px_rgba(102,85,147,0.09)]',
   neutral: 'hover:border-[#205089]/35 hover:shadow-[0_8px_20px_rgba(32,80,137,0.07)]',
+  rose: 'hover:border-[#F98080]/80 hover:shadow-[0_8px_20px_rgba(224,36,36,0.09)]',
 };
 
 const darkHeaderTints: Record<ConceptHierarchyTone, string> = {
@@ -1150,6 +1154,7 @@ const darkHeaderTints: Record<ConceptHierarchyTone, string> = {
   teal: 'border-b border-[#79C5BB]/20 bg-[#79C5BB]/10 text-[#BDEBE5]',
   violet: 'border-b border-[#B9A9E3]/20 bg-[#B9A9E3]/10 text-[#DDD3F7]',
   neutral: 'border-b border-[#A8D4FF]/15 bg-[#172232] text-[#F4EFE6]',
+  rose: 'border-b border-[#F98080]/20 bg-[#F98080]/10 text-[#FFD8D8]',
 };
 
 function ConceptHierarchyNodeCard({
@@ -1430,12 +1435,14 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
     teal: cx('border-[#68AAA2]/60 bg-[#ECF8F6] text-[#216B63]', compact ? 'shadow-[0_2px_8px_rgba(45,126,117,0.06)]' : 'shadow-[0_8px_18px_rgba(45,126,117,0.08)]'),
     violet: cx('border-[#A89CCB]/60 bg-[#F4F1FB] text-[#62558B]', compact ? 'shadow-[0_2px_8px_rgba(98,85,139,0.06)]' : 'shadow-[0_8px_18px_rgba(98,85,139,0.08)]'),
     neutral: cx('border-[#205089]/16 bg-[#F5F8FC] text-[#172A43]', compact ? 'shadow-[0_2px_8px_rgba(32,80,137,0.05)]' : 'shadow-[0_8px_18px_rgba(32,80,137,0.07)]'),
+    rose: cx('border-[#F8B4B4]/60 bg-[#FDF2F2] text-[#9B1C1C]', compact ? 'shadow-[0_2px_8px_rgba(224,36,36,0.06)]' : 'shadow-[0_8px_18px_rgba(224,36,36,0.08)]'),
   } : {
     blue: cx('border-[#7FB4E5]/32 bg-[#7FB4E5]/10 text-[#CBE5FF]', darkShadow),
     amber: cx('border-[#F0BE62]/32 bg-[#F0BE62]/10 text-[#FFE0A0]', darkShadow),
     teal: cx('border-[#79C5BB]/32 bg-[#79C5BB]/10 text-[#BDEBE5]', darkShadow),
     violet: cx('border-[#B9A9E3]/32 bg-[#B9A9E3]/10 text-[#DDD3F7]', darkShadow),
     neutral: cx('border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6]', darkShadow),
+    rose: cx('border-[#F98080]/32 bg-[#F98080]/10 text-[#FBD5D5]', darkShadow),
   };
   const nodesWithChildrenCount = childNodes.filter((node) => (node.children?.length ?? 0) > 0 || (node.nodes?.length ?? 0) > 0).length;
   const isSingleExpandingNode = !connections?.length && nodesWithChildrenCount === 1;

@@ -1,0 +1,228 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-related-work',
+  locale: 'vi',
+  title: 'Nghiên cứu Liên quan',
+  headings: [
+    'Định tính vs Định lượng & Dữ liệu Canary',
+    'Tấn công Trích xuất vs Các Đòn Tấn công Quyền riêng tư Khác',
+    'Giới hạn của Differential Privacy & Nguồn gốc Giả thuyết Scaling',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Related Work',
+    'Extraction Attack',
+    'Canaries',
+    'Qualitative vs Quantitative',
+    'Membership Inference Attack',
+    'Property Inference',
+    'Differential Privacy',
+    'Data Duplication',
+    'Scaling Hypotheses',
+  ],
+  conceptIds: [
+    'qualitative-vs-quantitative-canary',
+    'extraction-vs-privacy-attacks',
+    'differential-privacy-limitations-scaling',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+## Định tính vs Định lượng & Dữ liệu Canary
+
+Bước sang Section 2 (Related Work), nhóm tác giả hệ thống hóa các công trình đi trước và vạch rõ ranh giới phương pháp luận giữa nghiên cứu định tính và định lượng:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="2 RELATED WORK"
+  sectionParagraphs={[
+    "There is extensive prior work that qualitatively studies memorization in neural language models. Prior work has demonstrated extraction attacks that recover memorized data including URLs, phone numbers, and other personal information (Carlini et al., 2020; Ziegler, 2021)—or synthetically injected “canaries” (Carlini et al., 2019; Henderson et al., 2018; Thakkar et al., 2020; Thomas et al., 2020). However most of these works are qualitative and aim to demonstrate the existence of extractable data, rather than precisely quantifying how much models memorize. For example, the unprompted memorization evaluation of Carlini et al. (2020) found just 600 examples of memorization in GPT-2. Our paper aims to establish tighter bounds on the fraction of a dataset that is memorized."
+  ]}
+  sectionHighlights={[
+    "extraction attacks that recover memorized data",
+    "synthetically injected “canaries”",
+    "demonstrate the existence of extractable data, rather than precisely quantifying how much models memorize",
+    "establish tighter bounds",
+  ]}
+/>
+
+<ConceptFlow
+  ariaLabel="Hai kỹ thuật thực nghiệm phát hiện rò rỉ dữ liệu trước đây"
+  items={[
+    {
+      title: 'Trích xuất Dữ liệu Thực tế',
+      subtitle: 'Real-world Data Extraction',
+      detail: 'Thăm dò mô hình để xem liệu nó có vô tình phát sinh lại các thông tin cá nhân (PII) có thật trong tập train như địa chỉ URL, số điện thoại, hoặc danh tính người dùng hay không.',
+      tone: 'blue',
+    },
+    {
+      title: 'Chèn Chuỗi Mồi Nhân tạo',
+      subtitle: 'Synthetically Injected Canaries',
+      detail: 'Lấy cảm hứng từ hình ảnh chú chim hoàng yến được thợ mỏ mang vào hầm để cảnh báo khí độc, các nhà khoa học chủ động cài cắm những chuỗi văn bản ngẫu nhiên độc nhất (như mã UUID hoặc chuỗi số bí mật) vào tập huấn luyện, sau đó đo lường xác suất mô hình làm rò rỉ các chuỗi này khi truy vấn.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+Nhóm tác giả chỉ ra rằng các công trình đi trước mới chỉ dừng lại ở mức độ nghiên cứu định tính (qualitative). Mục tiêu chính của chúng là chứng minh hiện tượng trích xuất dữ liệu có tồn tại (demonstrate the existence of extractable data), chứ chưa hề định lượng chính xác xem mô hình thực sự học vẹt bao nhiêu phần trăm dữ liệu (precisely quantifying how much models memorize).
+</LessonNote>
+
+<LessonNote tone="note">
+Việc Carlini et al. (2020) chỉ tìm thấy thủ công 600 chuỗi trên mô hình GPT-2 đã tạo ra một ảo giác an toàn giả tạo. Mục tiêu cốt lõi của bài báo này là khắc phục hạn chế trên bằng cách thiết lập các cận đo lường chặt chẽ hơn (establish tighter bounds) trên tỷ lệ phần trăm toàn bộ tập huấn luyện.
+</LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+## Tấn công Trích xuất vs Các Đòn Tấn công Quyền riêng tư Khác
+
+Để làm rõ tầm quan trọng của tấn công trích xuất (extraction attack), các tác giả đặt nó vào bức tranh tổng thể của các hình thức tấn công quyền riêng tư trong học máy:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Our analysis is relevant to the broad literature on privacy attacks on machine learning. For example, membership inference attacks (Shokri et al., 2017; Yeom et al., 2018) let an adversary detect the presence of a given example in a model’s training set; other forms of data leakage let an adversary learn dataset properties (Ganju et al., 2018; Fredrikson et al., 2015). We focus on extraction attacks due to their relevance for language modeling—extraction implies significant leakage from a model, and grows with data duplication (Lee et al., 2021), a common feature of large-scale text datasets."
+  ]}
+  sectionHighlights={[
+    "membership inference attacks",
+    "learn dataset properties",
+    "focus on extraction attacks",
+    "grows with data duplication",
+  ]}
+/>
+
+<ConceptHierarchy
+  ariaLabel="Phân loại các hình thức tấn công quyền riêng tư trong học máy"
+  root={{
+    title: 'Các hình thức Tấn công Quyền riêng tư trong Học máy',
+    detail: 'Ba nhánh tấn công chính thăm dò mức độ rò rỉ dữ liệu từ tham số mô hình',
+  }}
+  nodes={[
+    {
+      title: 'Membership Inference (MIA)',
+      tone: 'blue',
+      detail: 'Xác định xem một bản ghi dữ liệu cụ thể có nằm trong tập huấn luyện hay không qua bài toán phân loại nhị phân.',
+      examplePrefix: 'Đặc điểm',
+      example: 'Kẻ tấn công phải có trước mẫu dữ liệu hoàn chỉnh để đối chiếu; chỉ xác nhận sự có mặt chứ không tạo ra dữ liệu mới.',
+    },
+    {
+      title: 'Suy diễn Thuộc tính (Property Inference)',
+      tone: 'amber',
+      detail: 'Khám phá các đặc trưng phân phối vĩ mô của toàn bộ tập dữ liệu thông qua bài toán ước lượng thống kê.',
+      examplePrefix: 'Đặc điểm',
+      example: 'Chỉ cần một số thông tin thống kê mẫu; bộc lộ cơ cấu tập dữ liệu nhưng không làm lộ nội dung chi tiết từng bản ghi.',
+    },
+    {
+      title: 'Tấn công Trích xuất (Extraction Attack)',
+      tone: 'teal',
+      detail: 'Khôi phục nguyên văn từng chuỗi văn bản huấn luyện từ bộ nhớ mô hình thông qua bài toán giải mã và sinh chuỗi.',
+      examplePrefix: 'Nguy hại nhất',
+      example: 'Không cần biết trước nội dung, chỉ cần tiền tố ngắn hoặc truy vấn mù để bộc lộ trực tiếp mã nguồn, bí mật và dữ liệu PII.',
+    },
+  ]}
+/>
+
+#### Vì sao bài báo tập trung vào dạng thứ 3 Extraction Attack thay vì 2 dạng còn lại?
+
+Nhóm tác giả tập trung vào tấn công trích xuất vì 2 lý do kỹ thuật then chốt:
+
+1. Đối với mô hình ngôn ngữ, việc trích xuất được nguyên văn mang lại rủi ro rò rỉ dữ liệu trực tiếp và nghiêm trọng hơn nhiều so với việc chỉ phỏng đoán nhị phân như trong Membership Inference.
+2. Khả năng trích xuất dữ liệu tăng vọt tỉ lệ thuận với mức độ trùng lặp dữ liệu (grows with data duplication), mà đây lại là thuộc tính tự nhiên và phổ biến nhất trong mọi tập dữ liệu văn bản thu thập từ internet quy mô lớn.
+</MdxPage>
+
+<MdxPage page={2}>
+## Giới hạn của Differential Privacy & Nguồn gốc Giả thuyết Scaling
+
+Trước khi đi sâu vào phương pháp lượng hóa riêng, nhóm tác giả đối chiếu với các định nghĩa lý thuyết nền tảng về học vẹt trong học sâu. Trong các cơ chế lý thuyết hiện có, chuẩn mực tiêu biểu và có tầm ảnh hưởng sâu rộng nhất chính là Quyền riêng tư Vi sai (Differential Privacy - DP) do Dwork et al. (2006) đề xuất:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Various definitions of memorization in deep neural networks have been studied in prior work (Carlini et al., 2019; 2020; Feldman and Zhang, 2020; Zhang et al., 2021). A detailed comparison with those existing formulations is presented in Section 3.1. One leading general memorization definition is differential privacy (Dwork et al., 2006), which formalizes the idea that removing any one example from the training set should not change the trained model."
+  ]}
+  sectionHighlights={[
+    "differential privacy",
+    "removing any one example from the training set should not change the trained model",
+  ]}
+/>
+
+#### Chuẩn mực Quyền riêng tư Vi sai (Differential Privacy) là gì?
+
+**Differential Privacy (DP)** là một định nghĩa toán học nghiêm ngặt về quyền riêng tư được đề xuất bởi Dwork et al. (2006). Nguyên lý cốt lõi của DP được hình thức hóa như sau: việc đưa vào hay loại bỏ bất kỳ một mẫu dữ liệu riêng lẻ nào khỏi tập huấn luyện cũng không được làm thay đổi phân phối hành vi của mô hình cuối cùng.
+
+Nói cách khác, dù một mẫu dữ liệu của người dùng có nằm trong tập train hay không thì kết quả sinh ra của mô hình vẫn gần như đồng nhất. Điều này bảo vệ an toàn cho từng người dùng độc lập nhờ nguyên tắc bảo toàn tính ẩn danh toán học.
+
+#### Vì sao Differential Privacy gặp Bế tắc trên Mô hình Ngôn ngữ Lớn?
+
+Dù là tiêu chuẩn vàng trong học máy truyền thống, nhóm tác giả chỉ ra rằng Differential Privacy bộc lộ những hạn chế khi bước vào bài toán mô hình hóa ngôn ngữ quy mô lớn:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "However, while differential privacy protects a single user’s private information, it is ineffective for preventing memorization of highly duplicated data, and does not capture the complexity of social, linguistic data (Brown et al., 2022). Also, differentially private learning algorithms (Abadi et al., 2016) generally suffer from expensive computation, slow convergence, and poor model utility, despite recent advances (Anil et al., 2021). In concurrent work, Kandpal et al. (2022) study how often models emit memorized data as a function of data duplication. Their analysis focuses on evaluating why training data extraction attacks succeed. In contrast, we explicitly prompt models with training data prefixes in order to measure memorization in the worst case, something that a practical attack cannot necessarily do."
+  ]}
+  sectionHighlights={[
+    "ineffective for preventing memorization of highly duplicated data",
+    "poor model utility",
+    "measure memorization in the worst case",
+  ]}
+/>
+
+<ConceptFlow
+  ariaLabel="Ba hạn chế căn bản của Differential Privacy đối với mô hình ngôn ngữ lớn"
+  items={[
+    {
+      title: 'Bất lực trước Dữ liệu Trùng lặp',
+      subtitle: 'Ineffective on duplicated text',
+      detail: 'Differential Privacy chỉ đảm bảo việc thêm hoặc bớt một mẫu duy nhất không làm thay đổi phân phối đầu ra. Khi một chuỗi văn bản bị lặp lại hàng chục lần trên mạng, cơ chế bảo vệ của DP hoàn toàn bị phá vỡ.',
+      tone: 'violet',
+    },
+    {
+      title: 'Không Thể hiện Cấu trúc Ngôn ngữ',
+      subtitle: 'Misses linguistic complexity',
+      detail: 'Định nghĩa gốc của DP vốn giả định các bản ghi độc lập (như từng dòng trong tabular data). Trong khi đó, ngôn ngữ tự nhiên có tính liên kết xã hội phức tạp, thông tin của một người có thể bị rò rỉ qua bài viết của người khác khiến cơ chế che giấu từng mẫu riêng lẻ mất đi ý nghĩa.',
+      tone: 'amber',
+    },
+    {
+      title: 'Đánh đổi Hiệu năng Nặng nề',
+      subtitle: 'Severe utility degradation',
+      detail: 'Các thuật toán như DP-SGD đòi hỏi chi phí tính toán rất lớn, tốc độ hội tụ chậm và khiến chất lượng sinh ngôn ngữ (model utility) của mô hình bị suy giảm nghiêm trọng.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+#### Nguồn gốc Lịch sử của Ba Giả thuyết Mở rộng Quy mô
+
+Các tác giả làm rõ rằng nghiên cứu này không xuất phát từ phỏng đoán ngẫu nhiên, mà kế thừa và hệ thống hóa các bằng chứng rời rạc, chưa được kiểm chứng đầy đủ (anecdotal evidence) từ các nghiên cứu trước:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "Prior scaling hypotheses. Our motivation to study scaling phenomena stems from anecdotal evidence in prior work that memorization ability relates to various aspects of scale. In particular, our analysis on model scale is informed by preliminary experiments in (Zhang et al., 2017; Carlini et al., 2020), our data duplication experiments follow in the line of Lee et al. (2021), and our context length experiments build on hypotheses by Carlini et al. (2020); Ziegler (2021)."
+  ]}
+  sectionHighlights={[
+    "Prior scaling hypotheses",
+    "anecdotal evidence in prior work",
+    "model scale",
+    "data duplication",
+    "context length",
+  ]}
+/>
+
+Ba nhánh giả thuyết lịch sử được nhóm tác giả kết nối và lượng hóa thành quy luật:
+
+* **Quy mô mô hình (Model scale):** Được truyền cảm hứng từ các quan sát sơ bộ của Zhang et al. (2017) và Carlini et al. (2020) khi nhận thấy mô hình lớn hơn có xu hướng ghi nhớ nhiều hơn.
+* **Trùng lặp dữ liệu (Data duplication):** Kế thừa trực tiếp từ phát hiện của Lee et al. (2021) về mối liên hệ mật thiết giữa văn bản lặp lại và rủi ro rò rỉ.
+* **Chiều dài ngữ cảnh (Context length):** Phát triển từ các giả định chưa được kiểm chứng đầy đủ của Carlini et al. (2020) và Ziegler (2021) về sức mạnh của tiền tố mồi dài.
+
+<LessonNote tone="warning">
+Như vậy chúng ta thấy rằng nghiên cứu của Carlini et al. (2023) đóng vai trò như một cầu nối then chốt, chuyển hóa những quan sát định tính ban đầu và các giả thuyết rời rạc, mơ hồ thành những định luật toán học log-linear có khả năng dự báo chính xác trên quy mô lớn.
+</LessonNote>
+</MdxPage>

@@ -33,3 +33,7 @@ docs/reference/building-llms-from-scratch-gist.md
 # Learning image assets — served via Cloudflare R2 CDN on Vercel.
 # Local copies are kept for offline dev but are not committed to git.
 src/assets/learning/
+
+# Private AI skills and rules
+.agents/skills/ai-unslop/
+.agents/rules/ai-unslop.md

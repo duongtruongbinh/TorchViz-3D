@@ -1,0 +1,123 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'quantifying-memorization-conclusion',
+  locale: 'vi',
+  title: 'Kết luận & Tác động Thực tiễn',
+  headings: [
+    'Hai Bài học Cốt lõi: Tổng quát hóa & Quyền riêng tư',
+    'Chiến lược Giảm thiểu & Triển vọng Nghiên cứu',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Conclusion',
+    'Generalization vs Memorization',
+    'Training Distribution Skew',
+    'Privacy Implications',
+    'Model Scaling Risk',
+    'Deduplication Defense',
+    'Future Research',
+  ],
+  conceptIds: [
+    'generalization-vs-privacy-conclusions',
+    'mitigations-future-outlook',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+## Hai Bài học Cốt lõi: Tổng quát hóa & Quyền riêng tư
+
+Khép lại bài báo, Section 6 đúc kết toàn bộ công trình định lượng học vẹt thành hai kết luận vĩ mô mang tính định hình tương lai nghiên cứu mô hình ngôn ngữ lớn:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionHeading="6 CONCLUSION"
+  sectionParagraphs={[
+    "Our paper presents the first comprehensive quantitative analysis of memorization in large language models, by re-processing the training set to find memorized data. Our work has two broad conclusions.",
+    "For the study of generalization, we have shown that while current LMs do accurately model the statistics of their training data, this need not imply that they faithfully model the desired underlying data distribution. In particular, when the training data distribution is skewed (e.g., by containing many duplicates of some sequences) larger models are likely to learn these unintended dataset peculiarities. It is therefore important to carefully analyze the datasets used to train ever larger models, as future (larger) models are likely to remember even more training details than current (smaller) models.",
+    "For the study of privacy, our work indicates that current large language models memorize a significant fraction of their training datasets. Memorization scales log-linear with model size—by doubling the number of parameters in a model we can extract a significantly larger fraction of the dataset. Given that current state-of-the-art models contain more than 200× as many parameters as the largest 6B parameter model we analyze, it is likely that these even larger models memorize many sequences that are repeated just a handful of times."
+  ]}
+  sectionHighlights={[
+    "first comprehensive quantitative analysis of memorization",
+    "two broad conclusions",
+    "study of generalization",
+    "accurately model the statistics of their training data, this need not imply that they faithfully model the desired underlying data distribution",
+    "learn these unintended dataset peculiarities",
+    "study of privacy",
+    "scales log-linear with model size",
+    "contain more than 200× as many parameters",
+  ]}
+/>
+
+#### So sánh Hai Trọng tâm Nghiên cứu
+
+<ConceptFlow
+  ariaLabel="Hai kết luận cốt lõi của bài báo về tổng quát hóa và quyền riêng tư"
+  items={[
+    {
+      title: 'Về Năng lực Tổng quát hóa',
+      subtitle: 'Generalization vs Distribution',
+      detail: 'Mô hình ngôn ngữ học rất giỏi các đặc trưng thống kê bề mặt của dữ liệu huấn luyện, nhưng điều đó không đồng nghĩa với việc chúng học đúng phân phối tri thức mong muốn. Khi dữ liệu bị méo mó do trùng lặp, mô hình càng lớn càng khắc sâu những sai lệch không mong muốn này.',
+      tone: 'amber',
+    },
+    {
+      title: 'Về Rủi ro Quyền riêng tư',
+      subtitle: 'Privacy & Scale Risk',
+      detail: 'Học vẹt tăng trưởng theo hàm log-linear với dung lượng tham số. Với việc các mô hình hiện đại sở hữu số lượng tham số gấp hơn 200 lần mô hình 6B trong bài báo, ranh giới ghi nhớ sẽ bị kéo tụt xuống cả những chuỗi văn bản chỉ xuất hiện một vài lần duy nhất.',
+      tone: 'violet',
+    },
+  ]}
+/>
+</MdxPage>
+
+<MdxPage page={1}>
+## Chiến lược Giảm thiểu & Triển vọng Nghiên cứu
+
+Nhóm tác giả khép lại công trình bằng các khuyến nghị kỹ thuật thiết thực nhằm phòng vệ và định hướng cho cộng đồng nghiên cứu an toàn AI:
+
+<PaperExcerpt
+  venue="Published as a conference paper at ICLR 2023"
+  hideTitle={true}
+  sectionParagraphs={[
+    "At the same time, we have shown that this memorization is often hard to discover, and for an attack to actually extract this data it will be necessary to develop qualitatively new attack strategies. Fortunately, it appears that (for the comparatively small models we study) training data inserted just once is rarely memorized, and so deduplicating training datasets (Lee et al., 2021) is likely a practical technique to mitigate the harms of memorization."
+  ]}
+  sectionHighlights={[
+    "often hard to discover",
+    "qualitatively new attack strategies",
+    "training data inserted just once is rarely memorized",
+    "deduplicating training datasets is likely a practical technique",
+  ]}
+/>
+
+<ConceptHierarchy
+  ariaLabel="Ba trụ cột định hướng thực tiễn từ kết quả nghiên cứu"
+  root={{
+    title: 'Hành động Giảm thiểu & Định hướng Tương lai',
+    detail: 'Các biện pháp kỹ thuật then chốt nhằm ngăn chặn rủi ro học vẹt trên các thế hệ mô hình tiếp theo',
+  }}
+  nodes={[
+    {
+      title: 'Khử Trùng Lặp Triệt Để',
+      tone: 'teal',
+      detail: 'Dữ liệu chỉ xuất hiện 1 lần rất hiếm khi bị ghi nhớ. Do đó, làm sạch và loại bỏ trùng lặp dữ liệu trước khi train là giải pháp phòng vệ thực tiễn và hiệu quả nhất hiện nay.',
+      examplePrefix: 'Khuyến nghị',
+      example: 'Triển khai thuật toán hậu tố (suffix array) hoặc n-gram hash trên toàn bộ corpus trước tiền huấn luyện.',
+    },
+    {
+      title: 'Giới Hạn Ngữ Cảnh Suy Luận',
+      tone: 'blue',
+      detail: 'Vì hiện tượng học vẹt đòi hỏi tiền tố đủ dài mới phát lộ, việc áp đặt ngưỡng trần cho độ dài prompt người dùng tại API là rào cản phòng thủ hữu hiệu.',
+      examplePrefix: 'Thực tiễn',
+      example: 'Hạn chế các đoạn mồi quá dài của người dùng truy cập API để vô hiệu hóa các đòn tấn công trích xuất mù.',
+    },
+    {
+      title: 'Đổi Mới Phương Pháp Kiểm Định',
+      tone: 'violet',
+      detail: 'Các phương pháp kiểm định an toàn truyền thống dựa trên truy vấn mù là không đủ. Cần các kỹ thuật kiểm tra có điều kiện để phát hiện vùng nhớ ẩn.',
+      examplePrefix: 'Hướng nghiên cứu',
+      example: 'Xây dựng các bộ benchmark kiểm thử quyền riêng tư chủ động sử dụng tiền tố dữ liệu thực tế.',
+    },
+  ]}
+/>
+</MdxPage>
