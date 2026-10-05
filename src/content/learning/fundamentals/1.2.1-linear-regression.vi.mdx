@@ -158,6 +158,14 @@ Giả định này cho rằng mọi đặc trưng đầu vào không có quan h�
 
 Ví dụ với giá nhà: giả định rằng “diện tích nhà” và “có nằm mặt tiền hay không” là hai yếu tố hoàn toàn độc lập, tác động riêng lẻ lên giá - trong khi thực tế, nhà mặt tiền thường cũng có xu hướng diện tích lớn hơn (hai đặc trưng có tương quan với nhau). Đây là điểm mô hình “lý tưởng hóa” so với thực tế.
 
+Nếu các feature có quan hệ với nhau thì sao? Khi đó, mô hình khó tách riêng đóng góp của từng feature; hệ số có thể trở nên kém ổn định hoặc khó diễn giải. Ta có thể kiểm tra theo nhiều mức:
+
+- **Tích vô hướng sau khi center/normalize:** đo mức đồng hướng giữa hai vector feature, tương đương một phép sàng lọc quan hệ tuyến tính mạnh.
+- **Distance Correlation:** phát hiện cả quan hệ tuyến tính và phi tuyến; giá trị gần 0 gợi ý độc lập, còn giá trị lớn cho thấy hai feature có phụ thuộc.
+- **Mở rộng:** dùng Mutual Information để đo lượng thông tin một feature chứa về feature khác, hoặc dùng Decision Tree để kiểm tra xem một feature có thể dự đoán feature kia tốt hơn mức ngẫu nhiên hay không.
+
+Các phép đo này là công cụ chẩn đoán, không phải bằng chứng tuyệt đối cho mọi dạng độc lập. Nếu phát hiện phụ thuộc mạnh, ta có thể loại bớt feature trùng thông tin, gộp chúng, hoặc dùng regularization để hệ số ổn định hơn.
+
 </MdxPage>
 
 <MdxPage page={5}>
@@ -167,6 +175,10 @@ Ví dụ với giá nhà: giả định rằng “diện tích nhà” và “c�
 Khi <InlineMath formula="x" /> tăng thêm 1 đơn vị, <InlineMath formula="y" /> cũng tăng (hoặc giảm) một lượng cố định tương ứng - mối quan hệ được biểu diễn bằng một đường thẳng, không phải đường cong.
 
 Ví dụ với giá nhà: giả định rằng cứ thêm 1 phòng ngủ thì giá nhà tăng thêm đúng, ví dụ, 500 triệu - bất kể căn nhà đang có 1 phòng hay đã có 10 phòng. Trong thực tế điều này chưa chắc đúng (thêm phòng thứ 2 có thể giá trị hơn nhiều so với thêm phòng thứ 10), nhưng Linear Regression giả định mối quan hệ là tuyến tính để đơn giản hóa bài toán.
+
+Để kiểm tra quan hệ giữa một feature <InlineMath formula="X" /> và mục tiêu <InlineMath formula="Y" />, ta có thể bắt đầu bằng **hệ số tương quan Pearson**. Pearson gần <InlineMath formula="+1" /> hoặc <InlineMath formula="-1" /> cho thấy xu hướng tuyến tính mạnh; gần <InlineMath formula="0" /> chỉ cho thấy không có quan hệ tuyến tính rõ ràng, chứ chưa chứng minh <InlineMath formula="X" /> và <InlineMath formula="Y" /> độc lập. Vì vậy, nên xem thêm scatter plot hoặc residual plot để nhận ra dạng cong, hình phễu và các outlier.
+
+Nếu quan hệ không tuyến tính, có vài hướng xử lý: biến đổi feature hoặc target (ví dụ log), thêm feature đa thức/interaction, chia miền dữ liệu, hoặc chuyển sang mô hình có khả năng học biên phi tuyến như Decision Tree, Random Forest hay Gradient Boosting. Không nên ép một đường thẳng vào dữ liệu chỉ vì Pearson nhỏ.
 
 </MdxPage>
 
@@ -179,6 +191,33 @@ Ví dụ với giá nhà: giả định rằng cứ thêm 1 phòng ngủ thì gi
 Giá trị đầu ra <InlineMath formula="y" /> có thể được biểu diễn dưới dạng tổng có trọng số của các đặc trưng <InlineMath formula="f(x)" />, cộng thêm một phần sai số <InlineMath formula="\epsilon" /> không thể giải thích được.
 
 Ví dụ với giá nhà: giá bán thực tế của một căn nhà = (tổng có trọng số của diện tích, số phòng, vị trí mặt tiền,…) + một khoản chênh lệch nhỏ do các yếu tố ngẫu nhiên (tâm lý thương lượng, thời điểm rao bán…).
+
+Sơ đồ dưới đây tách hai ý quan trọng: <InlineMath formula="f(x)" /> là phần quy luật mô hình có thể học từ feature, còn <InlineMath formula="\epsilon" /> là phần nhiễu khiến giá quan sát lệch khỏi quy luật đó.
+
+<Mermaid
+  caption="Từ feature đến giá trị theo quy luật: y = f(x)"
+  chart={`flowchart LR
+    X["Feature x<br/>diện tích, số phòng, vị trí"] --> F["Quy luật học được<br/>f(x)"]
+    F --> Y["Giá trị kỳ vọng<br/>y = f(x)"]
+    style X fill:#EFF3F8,stroke:#205089,stroke-width:1.5px
+    style F fill:#EAF4FB,stroke:#3F7DB1,stroke-width:1.5px
+    style Y fill:#F2FAF9,stroke:#2D7E75,stroke-width:1.5px
+  `}
+/>
+
+Trong dữ liệu thực tế, kết quả quan sát không nằm chính xác trên đường quy luật vì còn có những yếu tố chưa đo được:
+
+<Mermaid
+  caption="Giá trị quan sát = phần giải thích được + sai số: y = f(x) + ε"
+  chart={`flowchart LR
+    F["Phần giải thích được<br/>f(x)"] --> ADD{"+"}
+    E["Yếu tố chưa quan sát<br/>ε"] --> ADD
+    ADD --> Y["Giá trị quan sát<br/>y = f(x) + ε"]
+    style F fill:#EAF4FB,stroke:#3F7DB1,stroke-width:1.5px
+    style E fill:#FFF7E6,stroke:#B7791F,stroke-width:1.5px
+    style Y fill:#F2FAF9,stroke:#2D7E75,stroke-width:1.5px
+  `}
+/>
 
 </MdxPage>
 

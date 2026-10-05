@@ -2,7 +2,7 @@
 title: Add Linear Regression lesson to Machine Learning
 status: done
 created: 2026-09-23T05:15:00+07:00
-updated: 2026-10-06T04:05:00+07:00
+updated: 2026-10-06T04:20:00+07:00
 author: Copilot
 task: "Convert the uploaded Linear Regression lesson and images into the Machine Learning 1.2 Linear & Logistic Regression track."
 supersedes: [
@@ -122,3 +122,6 @@ with the Copilot co-author trailer, and push the PR head branch.
   explicit continuity from the earlier assumptions into Homoscedasticity.
 - 2026-10-06 — Broadened the opening beyond real-estate readers and connected
   explainable change attribution directly to the lesson's prediction goal.
+- 2026-10-06 — Added dependence diagnostics for feature independence, Pearson
+  checks and nonlinear-model remedies for the \(X\)-\(Y\) relationship, plus
+  Mermaid diagrams separating \(y=f(x)\) from \(y=f(x)+\epsilon\).
