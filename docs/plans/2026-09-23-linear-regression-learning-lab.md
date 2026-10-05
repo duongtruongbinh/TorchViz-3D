@@ -2,7 +2,7 @@
 title: Add Linear Regression lesson to Machine Learning
 status: done
 created: 2026-09-23T05:15:00+07:00
-updated: 2026-10-05T15:30:00+07:00
+updated: 2026-10-05T19:40:00+07:00
 author: Copilot
 task: "Convert the uploaded Linear Regression lesson and images into the Machine Learning 1.2 Linear & Logistic Regression track."
 supersedes: [
@@ -117,3 +117,6 @@ with the Copilot co-author trailer, and push the PR head branch.
   the introduction, added the core keyword framing “học từ dữ liệu đã biết để
   dự đoán dữ liệu chưa biết”, and inserted a built-in Flowchart visual to
   illustrate slope/intercept effects without adding external assets.
+- 2026-10-05 — Follow-up review requested a rigorous rewrite of the Normal-error
+  assumption, consistent \(\epsilon\) notation, corrected page headings, and
+  explicit continuity from the earlier assumptions into Homoscedasticity.

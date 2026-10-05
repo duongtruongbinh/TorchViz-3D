@@ -11,7 +11,7 @@ export const lessonMetadata = {
     'Tóm tắt',
   ],
   keywords: ['linear regression', 'modeling', 'feature', 'weight', 'bias', 'noise', 'homoscedasticity'],
-  pageCount: 8,
+  pageCount: 10,
 };
 
 <MdxPage page={0}>
@@ -26,7 +26,6 @@ Bạn là một người kinh doanh, làm việc trong lĩnh vực bất động
 - Năm 2025, giá BĐS tại Quận 1, phường Bến Nghé là: 30 triệu USD/m²
 
 Câu hỏi đặt ra: làm sao bạn biết mức tăng giá đó là hợp lý? Có cách nào để đo lường sự tăng giá bất động sản ở khu vực Quận 1 một cách đáng tin cậy, có cơ sở rõ ràng, thay vì chỉ dựa vào cảm tính hay lời đồn của “cò đất”?
-
 Ta gọi đây là bài toán dự đoán giá nhà.
 
 </MdxPage>
@@ -146,6 +145,8 @@ Linear Regression rất đơn giản - nó xuất phát từ một phương trì
 
 <MdxPage page={4}>
 
+## Các giả định của Linear Regression
+
 ### 4.1. Các đặc trưng độc lập với nhau
 
 <BlockMath formula="x_i \text{ độc lập với } x_j,\quad \forall i \ne j" />
@@ -154,13 +155,19 @@ Giả định này cho rằng mọi đặc trưng đầu vào không có quan h�
 
 Ví dụ với giá nhà: giả định rằng “diện tích nhà” và “có nằm mặt tiền hay không” là hai yếu tố hoàn toàn độc lập, tác động riêng lẻ lên giá - trong khi thực tế, nhà mặt tiền thường cũng có xu hướng diện tích lớn hơn (hai đặc trưng có tương quan với nhau). Đây là điểm mô hình “lý tưởng hóa” so với thực tế.
 
-### 4.2. X có quan hệ tuyến tính với Y
+</MdxPage>
 
-<InlineMath formula="X" /> có quan hệ tuyến tính với <InlineMath formula="Y" />.
+<MdxPage page={5}>
+
+### 4.2. <InlineMath formula="X" /> có quan hệ tuyến tính với <InlineMath formula="Y" />
 
 Khi <InlineMath formula="x" /> tăng thêm 1 đơn vị, <InlineMath formula="y" /> cũng tăng (hoặc giảm) một lượng cố định tương ứng - mối quan hệ được biểu diễn bằng một đường thẳng, không phải đường cong.
 
 Ví dụ với giá nhà: giả định rằng cứ thêm 1 phòng ngủ thì giá nhà tăng thêm đúng, ví dụ, 500 triệu - bất kể căn nhà đang có 1 phòng hay đã có 10 phòng. Trong thực tế điều này chưa chắc đúng (thêm phòng thứ 2 có thể giá trị hơn nhiều so với thêm phòng thứ 10), nhưng Linear Regression giả định mối quan hệ là tuyến tính để đơn giản hóa bài toán.
+
+</MdxPage>
+
+<MdxPage page={6}>
 
 ### 4.3. <InlineMath formula="y" /> có thể biểu diễn dưới dạng hàm tuyến tính
 
@@ -172,38 +179,37 @@ Ví dụ với giá nhà: giá bán thực tế của một căn nhà = (tổng 
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={7}>
 
-### 4.4 Sai số tuân theo phân phối chuẩn
+### 4.4. Sai số tuân theo phân phối chuẩn
 
 <BlockMath formula="\epsilon \sim N\left(0,\sigma^2\right)" />
 
-Có hai lý do chính để ta giả định <InlineMath formula="\epsilon \sim N(0,\sigma^2)" />:
+Đây là một giả định về cách các yếu tố không quan sát được gộp lại thành sai số <InlineMath formula="\epsilon" />, chứ không phải kết luận rằng mọi tập dữ liệu đều có sai số chuẩn. Ta dùng nó để đơn giản hóa mô hình và có thể suy luận rõ ràng từ dữ liệu.
 
-- **Kỳ vọng bằng 0** (<InlineMath formula="E[\epsilon]=0" />)
-  - <InlineMath formula="E[\epsilon]=0" />: đảm bảo mô hình không bị thiên lệch (unbiased) - nghĩa là sai số không có xu hướng hệ thống theo hướng dự đoán cao hơn hoặc thấp hơn giá trị thật. Nếu mô hình luôn dự đoán thấp hơn giá thực 200 triệu cho mọi căn nhà, đó là dấu hiệu <InlineMath formula="\epsilon" /> không còn trung bình 0 nữa.
-  - **Kết luận trên được rút ra từ đâu?**
+Có hai lý do bổ sung để giả định <InlineMath formula="\epsilon \sim N(0,\sigma^2)" />:
 
-    Quay lại công thức tính kỳ vọng của 1 biến ngẫu nhiên <InlineMath formula="X" />, ta có:
+- **Định lý giới hạn trung tâm:** sai số thực tế thường là tổng của nhiều tác động nhỏ như thời điểm giao dịch, thương lượng và tâm lý người bán. Khi các tác động này tương đối độc lập và không có tác động nào áp đảo, tổng của chúng thường tiến gần phân phối chuẩn.
+- **Mối liên hệ với MSE và suy luận thống kê:** nếu sai số là Gaussian, việc cực đại hóa likelihood tương đương với tối thiểu hóa tổng bình phương sai số (MSE). Khi đó, ước lượng <InlineMath formula="\theta" /> và các khoảng tin cậy có dạng toán học gọn hơn. MSE vẫn có thể dùng khi sai số không chuẩn, nhưng khi đó các diễn giải xác suất chính xác cần thêm điều kiện hoặc phương pháp khác.
 
-    <BlockMath formula="E(X)=\sum_{i=1}^{n}x_iP(X=x_i)=\sum_{i=1}^{n}x_i\frac{n_x}{n}\tag{1}" />
+Góc nhìn Maximum Entropy cũng cho cùng một trực giác: trong các phân phối có cùng kỳ vọng và phương sai, phân phối chuẩn là phân phối đưa thêm ít giả định nhất về hình dạng của sai số.
 
-    Ta gọi <InlineMath formula="X_{\epsilon}" /> là biến ngẫu nhiên biểu diễn sai số của mô hình. Khi đó, <InlineMath formula="E(X_{\epsilon})" /> cho biết sai số trung bình mà ta có thể kỳ vọng sau nhiều lần dự đoán.
+Một phân phối Uniform hoặc Student cũng có thể có kỳ vọng bằng 0, nên điều kiện <InlineMath formula="E[\epsilon]=0" /> một mình chưa đủ để biện minh cho phân phối chuẩn. Kỳ vọng bằng 0 chỉ kiểm soát độ lệch trung bình; giả định chuẩn bổ sung hình dạng phân phối để mô hình hóa tổng nhiều nhiễu nhỏ và thực hiện suy luận thuận tiện hơn.
 
-    Nếu <InlineMath formula="E[\epsilon]=0" />, tổng các sai số dương và sai số âm sẽ có xu hướng cân bằng nhau. Ví dụ:
+<InlineMath formula="E[\epsilon]=0" /> có nghĩa mô hình không bị thiên lệch theo một hướng: sai số dương và âm có xu hướng cân bằng. Ví dụ:
 
-    - Có căn nhà được dự đoán cao hơn giá thật 200 triệu: <InlineMath formula="\epsilon=-200" /> triệu.
-    - Có căn nhà được dự đoán thấp hơn giá thật 200 triệu: <InlineMath formula="\epsilon=+200" /> triệu.
+- Có căn nhà được dự đoán cao hơn giá thật 200 triệu: <InlineMath formula="\epsilon=-200" /> triệu.
+- Có căn nhà được dự đoán thấp hơn giá thật 200 triệu: <InlineMath formula="\epsilon=+200" /> triệu.
 
-    Trung bình hai sai số bằng 0. Mô hình vẫn có thể dự đoán sai ở từng căn nhà, nhưng không liên tục sai lệch theo cùng một hướng.
-
-    **Insight:** <InlineMath formula="E[\epsilon]=0" /> không có nghĩa là mọi dự đoán đều chính xác. Nó chỉ có nghĩa rằng, xét trên nhiều dự đoán, mô hình không có xu hướng luôn định giá cao hơn hoặc luôn định giá thấp hơn thực tế.
+Mô hình vẫn có thể dự đoán sai ở từng căn nhà, nhưng không liên tục sai lệch theo cùng một hướng. Điều kiện này không có nghĩa mọi dự đoán đều chính xác, cũng không đủ để xác định phân phối là chuẩn.
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={8}>
 
-- Tính chất **Homoscedasticity**
+### 4.5. Phương sai của sai số tương đối ổn định (Homoscedasticity)
+
+Đây là giả định tiếp theo khi áp dụng Linear Regression. Sau khi giả định sai số có trung bình bằng 0 và có thể được mô hình hóa bằng phân phối chuẩn, ta còn cần xem độ phân tán của sai số có giữ ổn định khi <InlineMath formula="x" /> thay đổi hay không.
 
 Phương sai đồng nhất (Homoscedasticity) nghĩa là độ dao động của sai số gần như không đổi tại các mức giá trị khác nhau của <InlineMath formula="x" />. Nói đơn giản: mô hình không được dự đoán khá chính xác với nhà giá rẻ nhưng lại “đoán lụi” hơn nhiều với nhà giá cao.
 
@@ -225,7 +231,7 @@ Ngược lại, nếu nhà 5 tỷ thường sai khoảng 0,2 tỷ nhưng nhà 20
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={9}>
 
 ## Tóm tắt
 
