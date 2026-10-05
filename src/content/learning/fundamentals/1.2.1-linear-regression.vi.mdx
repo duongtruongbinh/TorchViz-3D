@@ -25,7 +25,7 @@ Bạn là một người kinh doanh, làm việc trong lĩnh vực bất động
 - Năm 2020, giá BĐS tại Quận 1, phường Bến Nghé là: 10 triệu USD/m²
 - Năm 2025, giá BĐS tại Quận 1, phường Bến Nghé là: 30 triệu USD/m²
 
-Câu hỏi đặt ra: làm sao bạn biết mức tăng giá đó là hợp lý? Có cách nào để đo lường sự tăng giá bất động sản ở khu vực Quận 1 một cách hợp lý, có cơ sở rõ ràng, thay vì chỉ dựa vào cảm tính hay lời đồn của “cò đất”?
+Câu hỏi đặt ra: làm sao bạn biết mức tăng giá đó là hợp lý? Có cách nào để đo lường sự tăng giá bất động sản ở khu vực Quận 1 một cách đáng tin cậy, có cơ sở rõ ràng, thay vì chỉ dựa vào cảm tính hay lời đồn của “cò đất”?
 
 Ta gọi đây là bài toán dự đoán giá nhà.
 
@@ -45,6 +45,8 @@ Ví dụ về mô hình hóa nói chung:
 - Bài toán “lãi suất kép” được mô hình hóa thành <InlineMath formula="A=P(1+r)^{t}" />
 
 Trong Machine Learning, ta cũng làm điều tương tự: biến một bài toán “mơ hồ” (ví dụ: giá nhà bao nhiêu là hợp lý?) thành một hàm số có thể tính toán được.
+
+Ý tưởng cốt lõi của học có giám sát là: học từ dữ liệu đã biết để dự đoán dữ liệu chưa biết. Ta dùng một tập mẫu đã quan sát (đã biết giá và đặc trưng) để học quy luật, rồi áp dụng quy luật đó cho các căn nhà chưa giao dịch (chưa biết giá) trong cùng bối cảnh.
 
 ### 2.2 Mô hình hóa bài toán dự đoán giá nhà
 
@@ -124,6 +126,17 @@ Trong đó:
 - <InlineMath formula="b" /> được gọi là hệ số gốc (Intercept)
 
 Nói cách khác, Linear Regression với 1 đặc trưng duy nhất chính là đường thẳng <InlineMath formula="y=ax+b" /> mà bạn đã quen thuộc - chỉ khác là giờ đây ta mở rộng nó cho nhiều đặc trưng cùng lúc, và các hệ số <InlineMath formula="a,b" /> (ở đây là <InlineMath formula="\theta" />) sẽ được học tự động từ dữ liệu thay vì cho trước.
+
+<Flowchart
+  nodes={[
+    { step: 'BASE', title: 'Đường tham chiếu', subtitle: 'Giữ nguyên a và b trong y = ax + b' },
+    { step: 'SLOPE ↑', title: 'Điều chỉnh slope (a)', subtitle: 'a tăng → đường dốc hơn, y tăng nhanh hơn theo x' },
+    { step: 'INTERCEPT ↑', title: 'Điều chỉnh intercept (b)', subtitle: 'b tăng → cả đường thẳng tịnh tiến song song lên trên' },
+  ]}
+  caption="Slope (a) đổi độ nghiêng; Intercept (b) dịch chuyển toàn bộ đường thẳng lên/xuống."
+/>
+
+Khi giảm <InlineMath formula="a" />, đường sẽ thoải hơn; khi giảm <InlineMath formula="b" />, toàn bộ đường thẳng sẽ tịnh tiến song song xuống dưới.
 
 ## Các giả định của Linear Regression
 
