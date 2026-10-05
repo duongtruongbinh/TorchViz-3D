@@ -18,15 +18,18 @@ export const lessonMetadata = {
 
 ## Mở đầu
 
-### 1.1 Bối cảnh
+### 1.1 Từ một câu hỏi thực tế đến một mô hình có thể giải thích
 
-Bạn là một người kinh doanh, làm việc trong lĩnh vực bất động sản tại TP.HCM. Bạn biết giá bất động sản sẽ biến động theo từng năm, ví dụ:
+Linear Regression không chỉ dành cho người làm bất động sản. Bất cứ khi nào ta muốn dự đoán một **giá trị liên tục** — chẳng hạn giá nhà, mức tiêu thụ điện, doanh thu tháng tới, thời gian giao hàng hoặc điểm số — ta đều có thể bắt đầu bằng cùng một câu hỏi: những đặc trưng nào đang liên quan đến kết quả, và chúng ảnh hưởng mạnh đến mức nào?
+
+Hãy bắt đầu với một ví dụ quen thuộc về giá bất động sản tại TP.HCM. Bạn biết giá nhà có thể biến động theo từng năm, chẳng hạn:
 
 - Năm 2020, giá BĐS tại Quận 1, phường Bến Nghé là: 10 triệu USD/m²
 - Năm 2025, giá BĐS tại Quận 1, phường Bến Nghé là: 30 triệu USD/m²
 
-Câu hỏi đặt ra: làm sao bạn biết mức tăng giá đó là hợp lý? Có cách nào để đo lường sự tăng giá bất động sản ở khu vực Quận 1 một cách đáng tin cậy, có cơ sở rõ ràng, thay vì chỉ dựa vào cảm tính hay lời đồn của “cò đất”?
-Ta gọi đây là bài toán dự đoán giá nhà.
+Câu hỏi không chỉ là “giá đã tăng bao nhiêu?”. Ta còn muốn biết **vì sao** mô hình đưa ra một mức giá, đặc trưng nào đóng góp nhiều nhất, và liệu quy luật học được có thể dùng để ước lượng giá của những căn nhà chưa quan sát hay không.
+
+Đó là lý do Linear Regression đáng để học: nó biến dữ liệu đã quan sát thành một quy luật đơn giản, có thể giải thích và dùng để dự đoán giá trị chưa biết. Bài toán giá nhà chỉ là một ví dụ trực quan; cùng cách tiếp cận này có thể áp dụng cho nhiều bài toán dự đoán khác.
 
 </MdxPage>
 
