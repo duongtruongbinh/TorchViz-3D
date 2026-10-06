@@ -18,16 +18,26 @@ export const lessonMetadata = {
 
 ## Mở đầu
 
-### 1.1 Từ một câu hỏi thực tế đến một mô hình có thể giải thích
+### 1.1 Từ áp lực mua nhà đến một mô hình có thể giải thích
 
-Linear Regression không chỉ dành cho người làm bất động sản. Bất cứ khi nào ta muốn dự đoán một **giá trị liên tục** — chẳng hạn giá nhà, mức tiêu thụ điện, doanh thu tháng tới, thời gian giao hàng hoặc điểm số — ta đều có thể bắt đầu bằng cùng một câu hỏi: những đặc trưng nào đang liên quan đến kết quả, và chúng ảnh hưởng mạnh đến mức nào?
+Với nhiều người thuộc thế hệ Gen Z, mua một căn nhà ngày càng trở thành một mục tiêu khó đạt được: thu nhập tăng nhưng giá bất động sản, tiền thuê và chi phí sinh hoạt cũng thay đổi. Các tiêu đề dưới đây phản ánh cùng một mối quan tâm đang xuất hiện trong nhiều cuộc thảo luận xã hội.
+
+![Tiêu đề báo về việc Gen Z khó mua nhà vì áp lực giá và nợ](/assets/learning/fundamentals/gen-z-housing-headline-01.png)
+
+![Thảo luận về việc Gen Z khó mua nhà hơn các thế hệ trước](/assets/learning/fundamentals/gen-z-housing-headline-02.png)
+
+![Tiêu đề về việc Gen Z khó mua nhà nếu không đầu tư bất động sản](/assets/learning/fundamentals/gen-z-housing-headline-03.png)
+
+![Bài viết về áp lực sở hữu nhà ngày càng lớn với Gen Z](/assets/learning/fundamentals/gen-z-housing-headline-04.png)
+
+Nhưng từ một vấn đề xã hội, ta muốn đặt một câu hỏi có thể kiểm chứng bằng dữ liệu: giá nhà đã thay đổi như thế nào, những yếu tố nào liên quan đến mức giá, và liệu ta có thể ước lượng giá của một căn nhà chưa quan sát hay không?
 
 Hãy bắt đầu với một ví dụ quen thuộc về giá bất động sản tại TP.HCM. Bạn biết giá nhà có thể biến động theo từng năm, chẳng hạn:
 
 - Năm 2020, giá BĐS tại Quận 1, phường Bến Nghé là: 10 triệu USD/m²
 - Năm 2025, giá BĐS tại Quận 1, phường Bến Nghé là: 30 triệu USD/m²
 
-Câu hỏi không chỉ là “giá đã tăng bao nhiêu?”. Ta còn muốn biết **vì sao** mô hình đưa ra một mức giá, đặc trưng nào đóng góp nhiều nhất, và liệu quy luật học được có thể dùng để ước lượng giá của những căn nhà chưa quan sát hay không.
+Câu hỏi không chỉ là “giá đã tăng bao nhiêu?”. Ta còn muốn biết **vì sao** giá thay đổi, đặc trưng nào của căn nhà đóng góp nhiều nhất, và liệu quy luật học được có thể dùng để ước lượng giá của những căn nhà chưa quan sát hay không.
 
 Đó là lý do Linear Regression đáng để học: nó biến dữ liệu đã quan sát thành một quy luật đơn giản, có thể giải thích và dùng để dự đoán giá trị chưa biết. Bài toán giá nhà chỉ là một ví dụ trực quan; cùng cách tiếp cận này có thể áp dụng cho nhiều bài toán dự đoán khác.
 
@@ -79,7 +89,7 @@ Có rất nhiều cách thiết kế hàm <InlineMath formula="f(x)" />, nhưng 
 
 ### 3.1 Ý tưởng thiết kế <InlineMath formula="f(x)" />
 
-Linear Regression suy nghĩ rất đơn giản: với mỗi đặc trưng dùng để thể hiện giá nhà, nó sẽ gán cho đặc trưng đó một “trọng số” (weight) để thể hiện mức độ quan trọng của đặc trưng đó đối với giá nhà cuối cùng. Kết quả cuối cùng sẽ là tổng có trọng số của tất cả các đặc trưng.
+Linear Regression rất đơn giản: với mỗi đặc trưng dùng để thể hiện giá nhà, nó sẽ gán cho đặc trưng đó một “trọng số” (weight) để thể hiện mức độ quan trọng của đặc trưng đó đối với giá nhà cuối cùng. Kết quả cuối cùng sẽ là tổng có trọng số của tất cả các đặc trưng.
 
 Để hiểu rõ hơn, xét ví dụ sau với 2 đặc trưng:
 
