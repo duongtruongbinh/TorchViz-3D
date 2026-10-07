@@ -1,0 +1,197 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "perceptron-convergence-practice",
+  "locale": "vi",
+  "title": "Bài tập 2 — Hội tụ Perceptron",
+  "headings": [
+    "Hướng dẫn — Hội tụ Perceptron",
+    "Tự luyện — Hội tụ Perceptron"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Perceptron",
+    "Dot product",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Hướng dẫn — Hội tụ Perceptron
+
+Dùng lại bộ dữ liệu của bài tập trước. Lần này, chúng ta cập nhật theo Batch và so sánh số lượt cần để hội tụ với Stochastic.
+
+| Mẫu | Vector dữ liệu | Nhãn thật |
+| --- | --- | --- |
+| <InlineMath formula="1" /> | <InlineMath formula="x^{(1)}=(1,2)" /> | <InlineMath formula="y^{(1)}=+1" /> |
+| <InlineMath formula="2" /> | <InlineMath formula="x^{(2)}=(-1,2)" /> | <InlineMath formula="y^{(2)}=-1" /> |
+| <InlineMath formula="3" /> | <InlineMath formula="x^{(3)}=(-2,3)" /> | <InlineMath formula="y^{(3)}=-1" /> |
+| <InlineMath formula="4" /> | <InlineMath formula="x^{(4)}=(1,-1)" /> | <InlineMath formula="y^{(4)}=+1" /> |
+
+Bắt đầu với:
+
+- <InlineMath formula="w=(0,0)" />.
+- <InlineMath formula="b=0" />, giữ cố định trong toàn bộ bài hướng dẫn.
+- Learning rate bằng <InlineMath formula="1" />.
+
+Với mỗi mẫu, thay tọa độ vào phương trình để tính điểm:
+
+<BlockMath formula="f(x)=w^\top x+b=w_1x_1+w_2x_2+b" />
+
+Nếu <InlineMath formula="f(x)\geq0" />, dự đoán <InlineMath formula="\hat y=+1" />. Nếu <InlineMath formula="f(x)<0" />, dự đoán <InlineMath formula="\hat y=-1" />. So với nhãn thật: nếu trùng thì giữ nguyên trọng số; nếu khác thì cần cập nhật.
+
+Một lượt duyệt đi qua cả bốn mẫu theo thứ tự <InlineMath formula="1\rightarrow2\rightarrow3\rightarrow4" />. Sau mỗi lượt, kiểm tra lại cả bốn mẫu bằng trọng số cuối lượt. Chỉ dừng khi mọi dự đoán đều đúng; lần kiểm tra này không được tính thành một lượt cập nhật mới.
+
+Trong bài tập trước, chúng ta đã dùng **Stochastic** trên bộ dữ liệu này: cập nhật ngay sau mỗi mẫu sai và hội tụ sau <InlineMath formula="2" /> lượt, với <InlineMath formula="w=(2,0)" />. Ở đây, chúng ta sẽ giải theo **Batch** để so sánh.
+
+## Batch setting
+
+Bắt đầu lại từ <InlineMath formula="w=(0,0)" /> và <InlineMath formula="b=0" />. Trong mỗi lượt, giữ nguyên trọng số để dự đoán cả bốn mẫu. Cuối lượt, cộng phần cập nhật của tất cả mẫu sai rồi cập nhật một lần.
+
+Gọi <InlineMath formula="M" /> là tập chỉ số các mẫu bị dự đoán sai:
+
+<BlockMath formula="w_{\mathrm{new}}=w_{\mathrm{old}}+\sum_{i\in M}y^{(i)}x^{(i)}" />
+
+### Lượt thứ nhất
+
+Ta có:
+
+- <InlineMath formula="w=(0,0)" />.
+- <InlineMath formula="b=0" />.
+
+Giữ nguyên trọng số này để tính điểm của cả bốn mẫu:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="0" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="0" /> | <InlineMath formula="+1" /> | <InlineMath formula="-1" /> | Sai |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="0" /> | <InlineMath formula="+1" /> | <InlineMath formula="-1" /> | Sai |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="0" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Các mẫu sai là <InlineMath formula="M=\{2,3\}" />. Cuối lượt, cập nhật:
+
+<BlockMath formula="\begin{aligned}w_{\mathrm{new}}&=w_{\mathrm{old}}+\sum_{i\in M}y^{(i)}x^{(i)}\\&=(0,0)+(-1)\times(-1,2)+(-1)\times(-2,3)\\&=(3,-5)\end{aligned}" />
+
+Kiểm tra lại cả bốn mẫu bằng trọng số mới:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="-7" /> | <InlineMath formula="-1" /> | <InlineMath formula="+1" /> | Sai |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="-13" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="-21" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="8" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Mẫu đầu tiên vẫn bị phân loại sai nên cần tiếp tục lượt tiếp theo.
+
+### Lượt thứ hai
+
+Ta có:
+
+- <InlineMath formula="w=(3,-5)" />.
+- <InlineMath formula="b=0" />.
+
+Giữ nguyên trọng số này để tính điểm của cả bốn mẫu:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="-7" /> | <InlineMath formula="-1" /> | <InlineMath formula="+1" /> | Sai |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="-13" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="-21" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="8" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Các mẫu sai là <InlineMath formula="M=\{1\}" />. Cuối lượt, cập nhật:
+
+<BlockMath formula="\begin{aligned}w_{\mathrm{new}}&=w_{\mathrm{old}}+\sum_{i\in M}y^{(i)}x^{(i)}\\&=(3,-5)+(+1)\times(1,2)\\&=(4,-3)\end{aligned}" />
+
+Kiểm tra lại cả bốn mẫu bằng trọng số mới:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="-2" /> | <InlineMath formula="-1" /> | <InlineMath formula="+1" /> | Sai |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="-10" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="-17" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="7" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Mẫu đầu tiên vẫn bị phân loại sai nên cần tiếp tục lượt tiếp theo.
+
+### Lượt thứ ba
+
+Ta có:
+
+- <InlineMath formula="w=(4,-3)" />.
+- <InlineMath formula="b=0" />.
+
+Giữ nguyên trọng số này để tính điểm của cả bốn mẫu:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="-2" /> | <InlineMath formula="-1" /> | <InlineMath formula="+1" /> | Sai |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="-10" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="-17" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="7" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Các mẫu sai là <InlineMath formula="M=\{1\}" />. Cuối lượt, cập nhật:
+
+<BlockMath formula="\begin{aligned}w_{\mathrm{new}}&=w_{\mathrm{old}}+\sum_{i\in M}y^{(i)}x^{(i)}\\&=(4,-3)+(+1)\times(1,2)\\&=(5,-1)\end{aligned}" />
+
+Kiểm tra lại cả bốn mẫu bằng trọng số mới:
+
+| Mẫu | Dữ liệu | Giá trị score <InlineMath formula="f" /> | Nhãn dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- | --- |
+| 1 | <InlineMath formula="(1,2)" /> | <InlineMath formula="3" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+| 2 | <InlineMath formula="(-1,2)" /> | <InlineMath formula="-7" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 3 | <InlineMath formula="(-2,3)" /> | <InlineMath formula="-13" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| 4 | <InlineMath formula="(1,-1)" /> | <InlineMath formula="6" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Mọi mẫu đều được phân loại đúng. Batch hội tụ sau **3 lượt**, với <InlineMath formula="w=(5,-1)" />.
+
+## So sánh kết quả
+
+| Cách cập nhật | Số lượt duyệt | Trọng số cuối cùng |
+| --- | --- | --- |
+| Stochastic | <InlineMath formula="2" /> | <InlineMath formula="w=(2,0)" /> |
+| Batch | <InlineMath formula="3" /> | <InlineMath formula="w=(5,-1)" /> |
+
+Stochastic cập nhật ngay sau mỗi mẫu sai; Batch gom các phần cập nhật đến cuối lượt. Vì vậy, hai cách đi qua các trọng số khác nhau. Số lượt trên áp dụng cho bộ dữ liệu và thứ tự duyệt này.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tự luyện — Hội tụ Perceptron
+
+Tạo bộ dữ liệu mới và chọn trọng số khởi tạo, rồi tìm số lượt duyệt để hội tụ theo từng cách cập nhật. Trong bài tự luyện này, chúng ta dùng và cập nhật cả bias <InlineMath formula="b" />.
+
+<PerceptronExercise mode="convergence" labels={{
+  randomize: 'Tạo dữ liệu ngẫu nhiên',
+  initialWeight: 'Trọng số khởi tạo', randomWeight: 'Tạo trọng số ngẫu nhiên',
+  invalidWeight: 'Điền số nguyên vào hai thành phần của vector và bias khởi tạo.',
+  sample: 'Mẫu', vector: 'Vector dữ liệu', label: 'Nhãn thật',
+  step: 'Bước', score: 'Score', prediction: 'Class dự đoán', weight: 'Vector khi hội tụ', bias: 'Bias khi hội tụ',
+  method: 'Cách cập nhật', passes: 'Số lượt duyệt', stochastic: 'Stochastic', batch: 'Batch',
+  check: 'Kiểm tra kết quả', clear: 'Xóa câu trả lời',
+  correct: 'Đúng', incorrect: 'Chưa đúng', missing: 'Chưa điền', expected: 'Kết quả đúng',
+  complete: 'Đúng cả hai cách cập nhật!',
+  convergenceLimit: 'Chưa hội tụ trong giới hạn 5000 lượt. Hãy chọn trọng số khởi tạo nhỏ hơn hoặc tạo bộ dữ liệu mới.'
+}}>
+
+Bắt đầu mỗi cách từ cùng <InlineMath formula="w" /> và <InlineMath formula="b" /> đã chọn ở trên, dùng learning rate <InlineMath formula="1" />. Trong mỗi lượt, duyệt theo thứ tự <InlineMath formula="1\rightarrow2\rightarrow3\rightarrow4" />.
+
+<BlockMath formula="f(x)=w^\top x+b,\qquad\hat{y}=\begin{cases}+1,&f(x)\geq0\\-1,&f(x)<0\end{cases}" />
+
+Với **Stochastic**, nếu một mẫu bị dự đoán sai, cập nhật ngay cả vector và bias, rồi dùng chúng cho mẫu tiếp theo.
+
+<BlockMath formula="w_{\mathrm{new}}=w_{\mathrm{old}}+y^{(i)}x^{(i)},\qquad b_{\mathrm{new}}=b_{\mathrm{old}}+y^{(i)}" />
+
+Với **Batch**, giữ nguyên trọng số đầu lượt để xác định tập mẫu sai <InlineMath formula="M" />. Cuối lượt, cập nhật một lần bằng tổng các phần cập nhật.
+
+<BlockMath formula="w_{\mathrm{new}}=w_{\mathrm{old}}+\sum_{i\in M}y^{(i)}x^{(i)},\qquad b_{\mathrm{new}}=b_{\mathrm{old}}+\sum_{i\in M}y^{(i)}" />
+
+## Câu hỏi
+
+Điền số lượt duyệt, vector và bias khi hội tụ cho mỗi cách. Sau mỗi lượt, kiểm tra lại toàn bộ dữ liệu bằng trọng số cuối lượt; dừng khi mọi dự đoán đều đúng. Không tính lần kiểm tra thành một lượt cập nhật mới. Nếu trọng số khởi tạo đã phân loại đúng mọi mẫu, số lượt cần thiết là <InlineMath formula="0" />.
+
+</PerceptronExercise>
+
+</MdxPage>

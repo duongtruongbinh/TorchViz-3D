@@ -1,0 +1,337 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-2",
+  "locale": "vi",
+  "title": "Support Vector Machine (2)",
+  "headings": [
+    "Understanding the mathematics behind Support Vector Machines",
+    "Các khái niệm cơ bản",
+    "3. Dot product",
+    "Linear separability, Hyperplane và Classifier"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine",
+    "Optimization"
+  ],
+  "conceptIds": [
+    "svm2-vector-components",
+    "svm2-vector-length",
+    "svm2-unit-vector",
+    "svm2-dot-calculation",
+    "svm2-dot-purpose",
+    "svm2-dot-positive",
+    "svm2-dot-negative",
+    "svm2-dot-zero",
+    "svm2-dot-ranking",
+    "svm2-dot-equivalence",
+    "svm2-line-equation",
+    "svm2-plane-equation",
+    "svm2-hyperplane-zero",
+    "svm2-linear-classifier",
+    "svm2-hyperplane-sides",
+    "svm2-normal-meaning",
+    "svm2-plane-normal",
+    "svm2-plane-point-on",
+    "svm2-plane-point-below",
+    "svm2-plane-point-above"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Understanding the mathematics behind Support Vector Machines
+
+Ở phần trước, chúng ta đã đi qua **intuition về SVM**, từ chọn threshold, maximum margin và soft margin đến hyperplane và kernel. Phần này sẽ tìm hiểu toán học đằng sau những ý tưởng đó.
+
+Khi đọc về SVM, chúng ta sẽ gặp những công thức trông khá “kinh dị”, chẳng hạn bài toán tìm hyperplane với soft margin.
+
+<BlockMath formula="\begin{aligned}\min_{w,b,\xi}\quad &\frac{1}{2}\lVert w\rVert^2+C\sum_{i=1}^{n}\xi_i\\\text{subject to}\quad &y_i(w^\top x_i+b)\geq 1-\xi_i,\quad \xi_i\geq 0\end{aligned}" />
+
+Hoặc một cách viết khác của bài toán tối ưu, sử dụng kernel.
+
+<BlockMath formula="\begin{aligned}\max_{\alpha}\quad &\sum_{i=1}^{n}\alpha_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}\alpha_i\alpha_j y_i y_j K(x_i,x_j)\\\text{subject to}\quad &0\leq\alpha_i\leq C,\quad \sum_{i=1}^{n}\alpha_i y_i=0\end{aligned}" />
+
+Ngay cả dự đoán class của một mẫu mới cũng có thể được viết như thế này.
+
+<BlockMath formula="\hat{y}=\operatorname{sign}\left(\sum_{i=1}^{n}\alpha_i y_i K(x_i,x)+b\right)" />
+
+<LessonNote>
+Để hiểu các công thức này và nối chúng với những hình minh họa ở phần trước, chúng ta sẽ bắt đầu bằng việc ôn lại một số khái niệm cơ bản.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Các khái niệm cơ bản
+
+<LessonNote>
+Một vector khác vector <InlineMath formula="\mathbf{0}" /> được mô tả bởi hai yếu tố:
+
+1. Length (độ dài)
+2. Direction (hướng).
+
+</LessonNote>
+
+## 1. Length of a vector
+
+Vector <InlineMath formula="x=(3,4)" /> trong không gian hai chiều được vẽ thành mũi tên từ gốc tọa độ tới điểm <InlineMath formula="(3,4)" />.
+
+<VectorPlane
+  x={3}
+  y={4}
+  label="x"
+  interactive={false}
+  showFooter={false}
+  ariaLabel="Vector x đi từ gốc tọa độ tới điểm (3, 4). Hai đoạn nét đứt thể hiện các thành phần 3 và 4, tạo tam giác vuông với vector."
+/>
+
+Ta sẽ gọi độ dài của vector là **Euclidean norm**, ký hiệu <InlineMath formula="\lVert x\rVert" />.
+
+Từ hình vẽ trên, dễ dàng dùng định lý Pythagoras, chúng ta có độ dài bằng <InlineMath formula="5" />.
+
+<BlockMath formula="\lVert x\rVert=\sqrt{3^2+4^2}=5" />
+
+Tương tự suy ra công thức tính độ dài tổng quát của vector có <InlineMath formula="d" /> thành phần là cộng bình phương tất cả các thành phần rồi lấy căn bậc hai.
+
+<BlockMath formula="x\in\mathbb{R}^d,\qquad\lVert x\rVert=\sqrt{\sum_{j=1}^{d}x_j^2}" />
+
+## 2. Direction of a vector
+
+Trong toán học ký hiệu vector là <InlineMath formula="\vec x=(3,4)" />. Tuy nhiên trong AI chỉ cần ghi <InlineMath formula=" x=(3,4)" />. Mình không thích cách ký hiệu này lắm vì nó dễ khiến ta quên đi đại lượng thứ 2 là direction (hướng).
+
+Nhưng từ đây chúng ta sẽ ngầm hiểu cách biểu diễn vector <InlineMath formula="x" /> đã chứa cả thông tin về độ dài và hướng. Đây là hai thông tin khác nhau. Để biểu diễn riêng hướng của vector, chúng ta lấy <InlineMath formula="x" /> chia cho độ dài <InlineMath formula="\lVert x\rVert" />, tức chia từng thành phần cho cùng độ dài đó.
+
+Khi đó, chúng ta thu được **unit vector** <InlineMath formula="u" /> có cùng hướng với <InlineMath formula="x" /> và độ dài bằng <InlineMath formula="1" />. Phép chia này áp dụng khi <InlineMath formula="x\ne\mathbf{0}" />.
+
+<BlockMath formula="\lVert x\rVert=\sqrt{3^2+4^2}=5" />
+
+<BlockMath formula="u=\frac{x}{\lVert x\rVert}=\left(\frac{3}{5},\frac{4}{5}\right)=(0.6,0.8)" />
+
+<VectorPlane
+  x={0.6}
+  y={0.8}
+  label="u"
+  interactive={false}
+/>
+
+Kiểm tra độ dài của <InlineMath formula="u" />.
+
+<BlockMath formula="\lVert u\rVert=\sqrt{0.6^2+0.8^2}=1" />
+
+<LessonNote>
+Chia vector cho độ dài của nó, ta được unit vector có cùng hướng và độ dài bằng 1. Vector này giúp biểu diễn riêng hướng của vector ban đầu.
+</LessonNote>
+
+Trong AI/ML, dữ liệu và trọng số thường được biểu diễn bằng vector.
+
+Hiểu rõ về **hướng** giúp ta so sánh mức độ cùng hướng của hai vector. Chẳng hạn, khi so sánh vector biểu diễn hai câu văn, ta có thể chuẩn hóa về unit vector để xét riêng góc giữa chúng, không bị ảnh hưởng bởi độ dài.
+
+Hiểu rõ về **độ lớn** giúp ta hiểu bước cập nhật trọng số dài hay ngắn trong gradient descent. Với cùng learning rate, gradient lớn tạo bước cập nhật dài hơn, gradient nhỏ tạo bước ngắn hơn. Kết hợp độ lớn gradient với learning rate giúp ta điều chỉnh bước cập nhật để giảm loss mà tránh bước quá lớn vượt qua vùng có loss thấp.
+
+<LessonImage
+  assetPath="fundamentals/svm_vector_direction_magnitude.png"
+  alt="Hai khung minh họa vai trò của hướng và độ lớn. Bên trái, chuẩn hóa vector giúp so sánh riêng hướng. Bên phải, với cùng learning rate, gradient nhỏ tạo bước cập nhật ngắn và gradient lớn tạo bước dài theo hướng ngược gradient."
+  aspectRatio="16 / 9"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3. Dot product
+
+Ở trang trước, chúng ta xét riêng độ lớn và hướng của vector. **Dot product** kết hợp thông tin về hai đại lượng này vào một con số duy nhất. Con số này phụ thuộc vào cả độ dài của hai vector lẫn góc giữa chúng.
+
+Chúng ta dùng dot product khi cần gộp thông tin từ hai vector để tính toán hoặc so sánh.
+
+- Muốn tìm câu có nghĩa gần với câu hỏi → so sánh các vector câu bằng dot product.
+- Muốn gợi ý bộ phim hợp sở thích người dùng → dùng dot product giữa vector người dùng và vector phim.
+- Muốn biết hai vector vuông góc hay không → kiểm tra dot product có bằng 0 không.
+
+<LessonImage
+  assetPath="fundamentals/svm_dot_product_applications.png"
+  alt="Ba ứng dụng của dot product: tìm câu gần nghĩa với câu hỏi, gợi ý phim phù hợp với người dùng và kiểm tra hai vector vuông góc khi dot product bằng 0."
+  aspectRatio="16 / 9"
+/>
+
+---
+
+Cách làm như sau, xét hai vector khác vector <InlineMath formula="\mathbf{0}" />, <InlineMath formula="a=(3,0)" /> và <InlineMath formula="b=(2,2)" />. Chúng tạo với nhau một góc <InlineMath formula="\theta" />.
+
+<DotProductPlane
+  a={[3, 0]}
+  b={[2, 2]}
+  interactive={false}
+  showFooter={false}
+  ariaLabel="Hai vector a = (3, 0) và b = (2, 2) tạo góc 45 độ. Dot product của chúng bằng 6."
+/>
+
+Để kết hợp độ dài và góc, chúng ta lấy tích hai norm rồi nhân với <InlineMath formula="\cos\theta" />, biểu diễn mức độ cùng hướng của hai vector, như sau:
+
+<BlockMath formula="\lVert a\rVert\,\lVert b\rVert\cos\theta" />
+
+Phép tính này được gọi là **Dot product**, ký hiệu <InlineMath formula="a\cdot b" />.
+
+<BlockMath formula="a\cdot b=\lVert a\rVert\,\lVert b\rVert\cos\theta" />
+
+Dot product có thể nhận bất kỳ giá trị thực nào. Với hai vector khác vector <InlineMath formula="\mathbf{0}" />, dựa trên dấu, ta biết chúng thiên về cùng hướng (dương), vuông góc (bằng 0) hay thiên về ngược hướng (âm).
+
+<LessonImage
+  assetPath="fundamentals/svm_dot_product_signs.png"
+  alt="Ba trường hợp của dot product với hai vector khác vector không: góc nhọn cho kết quả dương, góc vuông cho kết quả bằng 0, góc tù cho kết quả âm."
+  aspectRatio="16 / 9"
+/>
+
+Dựa trên độ lớn của dot product, ta có thể xếp hạng mức độ cùng hướng hoặc ngược hướng khi giữ độ dài các vector bằng nhau. Trong nhóm dương, giá trị càng lớn thì càng cùng hướng. Trong nhóm âm, trị tuyệt đối càng lớn thì càng ngược hướng. Hình dưới dùng unit vector để so sánh riêng hướng.
+
+<LessonImage
+  assetPath="fundamentals/svm_dot_product_ranking.png"
+  alt="Xếp hạng unit vector theo dot product. Nhóm cùng hướng có điểm giảm từ 0.87, 0.71 đến 0.50. Nhóm ngược hướng có điểm âm từ âm 0.87, âm 0.71 đến âm 0.50; điểm càng âm thì càng ngược hướng."
+  aspectRatio="16 / 9"
+/>
+
+## Từ hình học đến công thức theo tọa độ
+
+<LessonNote tone="danger">
+Bạn đã bao giờ thắc mắc vì sao trong ML, chúng ta thường dùng <InlineMath formula="a^\top b" /> thay vì <InlineMath formula="\lVert a\rVert\,\lVert b\rVert\cos\theta" /> chưa?
+</LessonNote>
+
+<LessonNote>
+Thực ra, ta không cần tính riêng độ dài và góc giữa hai vector. Công thức <InlineMath formula="a^\top b" /> đã kết hợp cả thông tin về độ dài lẫn góc giữa chúng.
+</LessonNote>
+
+Cách chứng minh như sau:
+
+Trong không gian hai chiều, gọi <InlineMath formula="\alpha" /> là góc của vector <InlineMath formula="a" /> với chiều dương của trục ngang, và <InlineMath formula="\beta" /> là góc tương ứng của vector <InlineMath formula="b" />.
+
+<DotProductCoordinateDiagram
+  ariaLabel="Hai vector a và b cùng xuất phát từ gốc tọa độ. Vector a nghiêng ít hơn, tạo góc alpha với trục ngang. Vector b nghiêng nhiều hơn, tạo góc beta với trục ngang. Góc theta giữa hai vector bằng beta trừ alpha. Ba cung góc có bán kính khác nhau để dễ phân biệt."
+/>
+
+Trong hình, góc giữa hai vector là hiệu của hai góc đo từ cùng một trục.
+
+<BlockMath formula="\theta=\beta-\alpha" />
+
+Dùng công thức cosine của hiệu hai góc, rồi thay cosine và sine bằng tỉ số giữa các thành phần vector và độ dài.
+
+<BlockMath formula="\begin{aligned}\cos\theta&=\cos(\beta-\alpha)\\&=\cos\beta\cos\alpha+\sin\beta\sin\alpha\\&=\frac{b_1}{\lVert b\rVert}\frac{a_1}{\lVert a\rVert}+\frac{b_2}{\lVert b\rVert}\frac{a_2}{\lVert a\rVert}\\&=\frac{a_1b_1+a_2b_2}{\lVert a\rVert\,\lVert b\rVert}\end{aligned}" />
+
+Thay vào công thức Dot product, tích hai độ dài ở tử và mẫu triệt tiêu.
+
+<BlockMath formula="a\cdot b=\lVert a\rVert\,\lVert b\rVert\frac{a_1b_1+a_2b_2}{\lVert a\rVert\,\lVert b\rVert}=a_1b_1+a_2b_2" />
+
+Vậy để tính Dot product, chúng ta chỉ cần nhân các thành phần tương ứng rồi cộng lại. Quay lại ví dụ ban đầu với <InlineMath formula="a=(3,0)" /> và <InlineMath formula="b=(2,2)" />, kết quả là <InlineMath formula="6" />.
+
+<BlockMath formula="a\cdot b=3\times2+0\times2=6" />
+
+Công thức tổng quát cho hai vector có <InlineMath formula="d" /> thành phần cũng được viết bằng ký hiệu chuyển vị.
+
+<BlockMath formula="a,b\in\mathbb{R}^d,\qquad a\cdot b=a^\top b=\sum_{j=1}^{d}a_jb_j" />
+
+Đây là một lý do các phép tính vector, ma trận trong Machine Learning và AI có thể được thực hiện rất nhanh. Thay vì tính riêng độ dài, góc rồi cosine cho từng cặp vector, chúng ta chỉ cần nhân các thành phần tương ứng rồi cộng lại. Nhiều dot product còn có thể được gom thành phép nhân ma trận để tính song song trên GPU.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Linear separability, Hyperplane và Classifier
+
+Sau khi ôn lại vector và Dot product, chúng ta có thể viết ranh giới phân loại bằng công thức. Bắt đầu với hai class có nhãn <InlineMath formula="+1" /> và <InlineMath formula="-1" />.
+
+### 1. Hyperplane và Linear separability
+
+Chúng ta biết phương trình đường thẳng trong **2D** có dạng
+
+<BlockMath formula="ax+by+c=0" />
+
+<SvmHyperplaneMathIllustration
+  lineOnly={true}
+  axisLabels={['x', 'y']}
+  lineLabel="ax+by+c=0"
+  description="Đường thẳng trong 2D trên hai trục x và y, có nhãn ax + by + c = 0."
+/>
+
+Viết các tọa độ thành <InlineMath formula="x_1,x_2" />, gọi các hệ số là <InlineMath formula="w_1,w_2" /> và hằng số là bias, ta có
+
+<BlockMath formula="w_1x_1+w_2x_2+\mathrm{bias}=0" />
+
+<SvmHyperplaneMathIllustration
+  lineOnly={true}
+  lineLabel="w_1x_1+w_2x_2+\mathrm{bias}=0"
+  description="Cùng đường thẳng trong 2D, đổi tên hai trục thành x₁ và x₂, với nhãn w₁x₁ + w₂x₂ + bias = 0."
+/>
+
+Tương tự, phương trình mặt phẳng trong **3D** có dạng
+
+<BlockMath formula="Ax+By+Cz+d=0" />
+
+<SvmThreeDimensionalBoundary
+  showPlane={true}
+  planeOnly={true}
+  equationLabel="Ax+By+Cz+d=0"
+  description="Mặt phẳng trong 3D trên các trục x, y và z, có nhãn Ax + By + Cz + d = 0."
+  labels={{ mass: 'x', height: 'y', length: 'z', classA: '', classB: '' }}
+/>
+
+Đổi ký hiệu như trên, ta viết
+
+<BlockMath formula="w_1x_1+w_2x_2+w_3x_3+\mathrm{bias}=0" />
+
+<SvmThreeDimensionalBoundary
+  showPlane={true}
+  planeOnly={true}
+  equationLabel="w_1x_1+w_2x_2+w_3x_3+\mathrm{bias}=0"
+  description="Cùng mặt phẳng trong 3D với các trục x₁, x₂ và x₃, có nhãn w₁x₁ + w₂x₂ + w₃x₃ + bias = 0."
+  labels={{ mass: 'x₁', height: 'x₂', length: 'x₃', classA: '', classB: '' }}
+/>
+
+Tổng quát, với <InlineMath formula="d" /> tọa độ, gom các hệ số thành vector <InlineMath formula="w=(w_1,\ldots,w_d)" />, các tọa độ thành <InlineMath formula="x=(x_1,\ldots,x_d)" /> và ký hiệu bias là <InlineMath formula="b" />.
+
+<BlockMath formula="w_1x_1+\cdots+w_dx_d+b=\sum_{j=1}^{d}w_jx_j+b=w^\top x+b=0" />
+
+Trong đó, <InlineMath formula="w\ne\mathbf{0}" /> chính là **vector pháp tuyến**, vuông góc với đường thẳng trong 2D hoặc mặt phẳng trong 3D.
+
+<SvmHyperplaneMathIllustration
+  lineOnly={true}
+  showNormal={true}
+  lineLabel="w^\top x+b=0"
+  description="Vector pháp tuyến w = (1, −1) được vẽ thành mũi tên vuông góc với đường thẳng x₁ − x₂ − 1 = 0. Ký hiệu góc vuông đánh dấu quan hệ vuông góc."
+/>
+
+Đường thẳng và mặt phẳng là hai trường hợp của **hyperplane**. Trong không gian <InlineMath formula="d" /> chiều, hyperplane có <InlineMath formula="d-1" /> chiều.
+
+Các điểm nằm trên hyperplane thỏa mãn <InlineMath formula="w^\top x+b=0" />, còn các điểm nằm ngoài hyperplane cho kết quả khác <InlineMath formula="0" />. Các điểm cùng phía cho kết quả cùng dấu; các điểm ở hai phía đối diện cho kết quả trái dấu.
+
+### 2. Classifier
+
+Chúng ta lợi dụng tính chất này để dùng hyperplane làm **decision plane**. Với mỗi mẫu mới, ta tính
+
+<BlockMath formula="f(x)=w^\top x+b" />
+
+Giá trị dương và âm tương ứng với hai phía khác nhau của hyperplane. **Classifier** dùng dấu của giá trị này để dự đoán class. Trong ví dụ này, chúng ta quy ước
+
+<BlockMath formula="\hat{y}=h(x)=\begin{cases}+1,&f(x)\geq0\\-1,&f(x)<0\end{cases}" />
+
+<SvmHyperplaneMathIllustration
+  showEquation={true}
+  showClassRule={true}
+  description="Hyperplane f(x) = 0 chia không gian thành hai phía. Phía xanh có f(x) ≥ 0 và được dự đoán class +1; phía đỏ có f(x) < 0 và được dự đoán class −1."
+/>
+
+Điểm nằm đúng trên hyperplane có <InlineMath formula="f(x)=0" />. Quy tắc trên gán nó vào class <InlineMath formula="+1" /> theo quy ước.
+
+Với <InlineMath formula="w=(1,-1)" /> và <InlineMath formula="b=-1" />, hai mẫu dưới đây cho hai dự đoán khác nhau.
+
+<BlockMath formula="\begin{aligned}x=(3,1):\quad f(x)&=3-1-1=1\quad\Rightarrow\quad\hat{y}=+1\\x=(1,2):\quad f(x)&=1-2-1=-2\quad\Rightarrow\quad\hat{y}=-1\end{aligned}" />
+
+<SvmHyperplaneMathIllustration
+  showScores={true}
+  description="Hai mẫu mới được highlight. Mẫu (3, 1) nằm phía xanh, có score 1 nên dự đoán class cộng 1. Mẫu (1, 2) nằm phía đỏ, có score âm 2 nên dự đoán class âm 1."
+/>
+
+Nếu có một hyperplane tách đúng toàn bộ hai class về hai phía, dữ liệu được gọi là **linearly separable**. Câu hỏi tiếp theo là chọn <InlineMath formula="w" /> và <InlineMath formula="b" /> như thế nào khi có nhiều hyperplane cùng phân loại đúng training data.
+
+</MdxPage>

@@ -176,8 +176,30 @@ export const machineLearningLessonPair: readonly MachineLearningLessonPair[] = [
   lessonPair({
     trackId: 'logistic-classification',
     id: 'support-vector-machines',
-    titleEn: 'Support Vector Machine',
-    titleVi: 'Support Vector Machine',
+    titleEn: 'Support Vector Machine (1)',
+    titleVi: 'Support Vector Machine (1)',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'support-vector-machines-2',
+    titleEn: 'Support Vector Machine (2)',
+    titleVi: 'Support Vector Machine (2)',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'support-vector-machines-3',
+    titleEn: 'Support Vector Machine (3)',
+    titleVi: 'Support Vector Machine (3)',
+    quizStatus: 'available',
+    quizContentStatus: 'published',
+  }),
+  lessonPair({
+    trackId: 'logistic-classification',
+    id: 'support-vector-machines-4',
+    titleEn: 'Support Vector Machine (4)',
+    titleVi: 'Support Vector Machine (4)',
+    quizStatus: 'locked',
+    quizContentStatus: 'missing',
   }),
   lessonPair({
     trackId: 'logistic-classification',
@@ -342,10 +364,28 @@ const machineLearningSynthesisLesson = {
   contentStatus: 'published',
 } satisfies Exclude<LearningTocLessonSeed, string>;
 
+const perceptronPracticeLesson = {
+  id: 'perceptron-practice',
+  title: { en: 'Exercise 1 — Perceptron Updates', vi: 'Bài tập 1 — Cập nhật Perceptron' },
+  status: 'available',
+  contentStatus: 'published',
+  tags: ['exercise'],
+} satisfies Exclude<LearningTocLessonSeed, string>;
+
+const perceptronConvergencePracticeLesson = {
+  id: 'perceptron-convergence-practice',
+  title: { en: 'Exercise 2 — Perceptron Convergence', vi: 'Bài tập 2 — Hội tụ Perceptron' },
+  status: 'available',
+  contentStatus: 'published',
+  tags: ['exercise'],
+} satisfies Exclude<LearningTocLessonSeed, string>;
+
 function lessonIdsForTrack(trackId: string): LearningTocLessonSeed[] {
   return machineLearningLessonPair
     .filter((pair) => pair.trackId === trackId)
-    .flatMap((pair) => [pair.theory, pair.quiz]);
+    .flatMap((pair) => pair.theory.id === 'support-vector-machines-2'
+      ? [pair.theory, pair.quiz, perceptronPracticeLesson, perceptronConvergencePracticeLesson]
+      : [pair.theory, pair.quiz]);
 }
 
 const chapters: LearningTocTrackSeed[] = [

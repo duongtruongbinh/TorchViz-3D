@@ -1,0 +1,659 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-2-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Độ lớn và hướng",
+    "Tính norm",
+    "Tính vector chỉ hướng",
+    "Tính dot product",
+    "Mục đích của dot product",
+    "Hai kết quả dương",
+    "Hai kết quả âm",
+    "Kết quả bằng 0",
+    "Xếp hạng unit vector",
+    "Tính trực tiếp theo tọa độ",
+    "Phương trình đường thẳng",
+    "Phương trình mặt phẳng",
+    "Điểm nằm trên hyperplane",
+    "Ý tưởng của linear classifier",
+    "Cùng phía và khác phía",
+    "Vector pháp tuyến",
+    "Xác định vector pháp tuyến",
+    "Điểm ngay trên mặt phẳng",
+    "Điểm ở phía dưới",
+    "Điểm ở phía trên"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine (2)",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "svm2-vector-components",
+    "svm2-vector-length",
+    "svm2-unit-vector",
+    "svm2-dot-calculation",
+    "svm2-dot-purpose",
+    "svm2-dot-positive",
+    "svm2-dot-negative",
+    "svm2-dot-zero",
+    "svm2-dot-ranking",
+    "svm2-dot-equivalence",
+    "svm2-line-equation",
+    "svm2-plane-equation",
+    "svm2-hyperplane-zero",
+    "svm2-linear-classifier",
+    "svm2-hyperplane-sides",
+    "svm2-normal-meaning",
+    "svm2-plane-normal",
+    "svm2-plane-point-on",
+    "svm2-plane-point-below",
+    "svm2-plane-point-above"
+  ],
+  "pageCount": 20
+}
+
+<MdxQuiz id="support-vector-machines-2-quiz" questions={[
+  {
+    "id": "svm2-vector-components",
+    "title": "Độ lớn và hướng",
+    "prompt": "Khi mô tả một vector, ta cần quan tâm đến hai đại lượng nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Độ dài và số lượng tọa độ.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Độ lớn và hướng.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Hướng và dấu của từng tọa độ.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Điểm đầu và tên của vector.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Một vector có độ lớn và hướng; hai thông tin này có vai trò khác nhau.",
+    "error": "Hãy hình dung hai mũi tên cùng hướng nhưng dài khác nhau, hoặc dài bằng nhau nhưng khác hướng."
+  },
+  {
+    "id": "svm2-vector-length",
+    "title": "Tính norm",
+    "prompt": "Vector $x = (3, 4)$ có Euclidean norm bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$7$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$25$",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$\\sqrt7$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$5$",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. $\\lVert x\\rVert=\\sqrt{3^2+4^2}=\\sqrt{25}=5$.",
+    "error": "Cộng bình phương các thành phần rồi lấy căn bậc hai."
+  },
+  {
+    "id": "svm2-unit-vector",
+    "title": "Tính vector chỉ hướng",
+    "prompt": "Unit vector biểu diễn hướng của $x = (6, 8)$ là vector nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$(0.6, 0.8)$",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "$(0.8, 0.6)$",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$(-0.6, -0.8)$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$(6, 8)$",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Norm bằng $10$; chia từng thành phần cho $10$ được $(0.6, 0.8)$, có độ dài $1$ và cùng hướng.",
+    "error": "Chia vector cho norm của nó. Đổi chỗ thành phần hoặc đổi dấu cả vector sẽ làm đổi hướng."
+  },
+  {
+    "id": "svm2-dot-calculation",
+    "title": "Tính dot product",
+    "prompt": "Với $a = (2, -1)$ và $b = (3, 4)$, $a^\\top b$ bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$10$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$(6, -4)$",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$2$",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "$-2$",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $a^\\top b=2\\times3+(-1)\\times4=2$.",
+    "error": "Nhân các thành phần tương ứng rồi cộng lại; kết quả là một con số."
+  },
+  {
+    "id": "svm2-dot-purpose",
+    "title": "Mục đích của dot product",
+    "prompt": "Vì sao dùng dot product để so sánh các vector trong tìm kiếm hoặc gợi ý phim?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Để lấy riêng hướng của từng vector mà không cần chuẩn hóa.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Để chuyển hai vector thành một vector có nhiều tọa độ hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Để xác định ngay nhãn đúng của mọi câu hỏi hoặc bộ phim.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Vì ta kỳ vọng câu gần nghĩa hoặc phim hợp sở thích có vector gần hướng với vector câu hỏi hoặc người dùng.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Ta học cách biểu diễn để các cặp phù hợp có dot product cao hơn. Độ dài không bắt buộc giống nhau; nếu muốn so sánh riêng hướng, ta chuẩn hóa về unit vector.",
+    "error": "Ý chính là dùng sự phù hợp giữa các vector biểu diễn để tìm câu gần nghĩa hoặc phim hợp sở thích. Dot product cung cấp điểm để xếp hạng các cặp đó."
+  },
+  {
+    "id": "svm2-dot-positive",
+    "title": "Hai kết quả dương",
+    "prompt": "Các vector $a$, $b$, $c$ đều khác vector không. Biết $a^\\top b=0.4$ và $a^\\top c=0.8$, chưa biết norm của chúng. Kết luận nào chắc chắn đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Cả góc giữa $a$ và $b$, giữa $a$ và $c$ đều là góc nhọn.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Góc giữa $a$ và $c$ chắc chắn nhỏ hơn góc giữa $a$ và $b$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vector $c$ chắc chắn dài gấp đôi vector $b$.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Cả $b$ và $c$ đều có hướng giống hệt vector $a$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Cả hai kết quả dương nên cả hai góc đều nhỏ hơn $90^\\circ$.",
+    "error": "Chưa biết độ dài thì không thể xếp hạng góc chỉ từ hai giá trị dot product. Dấu dương vẫn cho biết góc nhọn."
+  },
+  {
+    "id": "svm2-dot-negative",
+    "title": "Hai kết quả âm",
+    "prompt": "Các vector $a$, $b$, $c$ đều khác vector không. Biết $a^\\top b=-2$ và $a^\\top c=-5$, chưa biết norm của chúng. Kết luận nào chắc chắn đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Vector $c$ chắc chắn ngược hướng với $a$ hơn vector $b$.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Hai vector $b$ và $c$ chắc chắn ngược hướng hoàn toàn với $a$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Cả góc giữa $a$ và $b$, giữa $a$ và $c$ đều là góc tù.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Vector $c$ chắc chắn dài hơn vector $b$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Cả hai kết quả âm nên cả hai góc đều lớn hơn $90^\\circ$.",
+    "error": "Kết quả âm cho biết góc tù, không bắt buộc góc bằng $180^\\circ$. Chưa biết norm thì chưa thể xếp hạng mức độ ngược hướng."
+  },
+  {
+    "id": "svm2-dot-zero",
+    "title": "Kết quả bằng 0",
+    "prompt": "Các vector $a$, $b$, $c$ đều khác vector không. Biết $a^\\top b=0$ và $a^\\top c=3$. Phát biểu nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$b$ cùng hướng với $a$, còn $c$ vuông góc với $a$.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$b$ vuông góc với $a$, còn $c$ tạo góc nhọn với $a$.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "$b$ ngược hướng với $a$, còn $c$ cùng hướng hoàn toàn với $a$.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$b$ vuông góc với $a$, còn $c$ tạo góc tù với $a$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Dot product bằng $0$ cho biết vuông góc; kết quả dương cho biết góc nhọn.",
+    "error": "Hai norm đều dương, nên dấu của kết quả do cosine góc giữa hai vector quyết định."
+  },
+  {
+    "id": "svm2-dot-ranking",
+    "title": "Xếp hạng unit vector",
+    "prompt": "$a$, $b$, $c$, $d$, $e$ đều là unit vector. Biết $a^\\top b=0.9$, $a^\\top c=0.3$, $a^\\top d=-0.2$ và $a^\\top e=-0.8$. Chọn tất cả nhận xét đúng.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "$b$ cùng hướng với $a$ hơn $c$.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "$d$ ngược hướng với $a$ hơn $e$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$e$ ngược hướng với $a$ hơn $d$.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "$b$ dài hơn $c$ vì dot product lớn hơn.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Các norm đều bằng $1$: $0.9$ cho góc nhỏ hơn $0.3$; $-0.8$ cho góc lớn hơn $-0.2$.",
+    "error": "Trong nhóm dương, giá trị lớn hơn nghĩa là cùng hướng hơn. Trong nhóm âm, giá trị càng âm nghĩa là ngược hướng hơn. Mọi vector ở đây đều dài bằng $1$."
+  },
+  {
+    "id": "svm2-dot-equivalence",
+    "title": "Tính trực tiếp theo tọa độ",
+    "prompt": "Khi tính dot product trong AI/ML, vì sao không cần tính riêng norm và cosine góc giữa hai vector?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Vì các vector trong AI/ML luôn có norm bằng $1$.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Vì góc giữa các vector đã được lưu sẵn trong từng tọa độ.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vì công thức $a^\\top b$ bỏ qua thông tin về norm và góc.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Vì nhân rồi cộng các thành phần cho cùng kết quả với $\\lVert a\\rVert\\lVert b\\rVert\\cos\\theta$.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. $a^\\top b=\\sum_j a_jb_j=\\lVert a\\rVert\\lVert b\\rVert\\cos\\theta$. Ta tính trực tiếp bằng phép nhân và cộng.",
+    "error": "Hai cách viết tương đương; công thức theo tọa độ vẫn kết hợp thông tin về độ dài và góc."
+  },
+  {
+    "id": "svm2-line-equation",
+    "title": "Phương trình đường thẳng",
+    "prompt": "Dạng nào là phương trình đường thẳng tổng quát trong 2D, với $a$ và $b$ không đồng thời bằng $0$?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$ax^2+by^2+c=0$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$axy+c=0$",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$ax+by+c=0$",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "$y=ax^2+b$",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Phương trình tuyến tính $ax+by+c=0$ mô tả đường thẳng trong 2D.",
+    "error": "Trong phương trình đường thẳng, các tọa độ xuất hiện ở bậc nhất và không nhân với nhau."
+  },
+  {
+    "id": "svm2-plane-equation",
+    "title": "Phương trình mặt phẳng",
+    "prompt": "Dạng nào là phương trình mặt phẳng tổng quát trong 3D, với $A$, $B$, $C$ không đồng thời bằng $0$?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$Ax+By+Cz+d=0$",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "$Ax^2+By^2+Cz^2+d=0$",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$Axy+Byz+Czx+d=0$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$z=Ax^2+By^2+d$",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Mặt phẳng trong 3D có dạng tuyến tính $Ax+By+Cz+d=0$.",
+    "error": "Các tọa độ $x$, $y$, $z$ đều ở bậc nhất; không có bình phương hoặc tích giữa hai tọa độ."
+  },
+  {
+    "id": "svm2-hyperplane-zero",
+    "title": "Điểm nằm trên hyperplane",
+    "prompt": "Nếu một điểm $x$ nằm ngay trên hyperplane thì giá trị $w^\\top x+b$ tại điểm đó bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$1$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$0$",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "$-1$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Bằng norm của $w$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Hyperplane gồm chính các điểm làm biểu thức $w^\\top x+b$ bằng $0$.",
+    "error": "Phân biệt phương trình ranh giới bằng $0$ với nhãn class $+1$ hoặc $-1$."
+  },
+  {
+    "id": "svm2-linear-classifier",
+    "title": "Ý tưởng của linear classifier",
+    "prompt": "Ý tưởng dùng hyperplane để phân loại điểm thành hai class là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Dùng norm của điểm để chọn class gần gốc tọa độ hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Dùng số tọa độ khác $0$ của điểm để quyết định class.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Dùng dấu của $w^\\top x+b$ để xác định phía rồi gán class.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Dùng giá trị $w^\\top x+b$ làm nhãn mà không cần quy tắc gán class.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Hyperplane chia không gian thành hai phía. Classifier dùng dấu của kết quả để gán class cho mỗi phía.",
+    "error": "Biểu thức cho biết điểm ở phía nào; quy tắc phân loại ánh xạ phía đó sang class $+1$ hoặc $-1$."
+  },
+  {
+    "id": "svm2-hyperplane-sides",
+    "title": "Cùng phía và khác phía",
+    "prompt": "Với hai điểm không nằm trên hyperplane, dấu của $f(x)=w^\\top x+b$ liên hệ thế nào với vị trí của chúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Cùng phía thì cùng dấu; hai phía đối diện thì trái dấu.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Cùng phía thì trái dấu; hai phía đối diện thì cùng dấu.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Cùng phía thì có cùng giá trị; hai phía đối diện thì có cùng norm.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Dấu chỉ phụ thuộc norm của điểm, không phụ thuộc phía.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Cùng phía có cùng dấu, nhưng không nhất thiết có cùng giá trị $f(x)$.",
+    "error": "Dấu xác định phía; nó không nói rằng các điểm cùng phía có giá trị hoặc khoảng cách bằng nhau."
+  },
+  {
+    "id": "svm2-normal-meaning",
+    "title": "Vector pháp tuyến",
+    "prompt": "Trong $w^\\top x+b=0$, vector $w$ được gọi là gì và có tính chất nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Vector tọa độ, nằm dọc theo hyperplane.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Unit vector, luôn có norm bằng $1$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vector chỉ phương, song song với hyperplane.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Vector pháp tuyến, vuông góc với hyperplane.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. $w$ gom các hệ số của phương trình và vuông góc với hyperplane.",
+    "error": "Vector pháp tuyến vuông góc với ranh giới; không bắt buộc có độ dài bằng $1$."
+  },
+  {
+    "id": "svm2-plane-normal",
+    "title": "Xác định vector pháp tuyến",
+    "prompt": "Một vector pháp tuyến của mặt phẳng $2x_1-x_2+3x_3-4=0$ là vector nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$(2, 1, 3)$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$(2, -1, 3)$",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "$(2, -1, -4)$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$(2, -1, 3, -4)$",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Lấy các hệ số nhân với $x_1,x_2,x_3$ được $w = (2, -1, 3)$. Hằng số $-4$ là bias.",
+    "error": "Giữ đúng dấu của từng hệ số. Vector pháp tuyến trong 3D có ba thành phần; bias không thuộc vector này."
+  },
+  {
+    "id": "svm2-plane-point-on",
+    "title": "Điểm ngay trên mặt phẳng",
+    "prompt": "Xét mặt phẳng $x_3-1=0$ và $f(x)=x_3-1$. Thay điểm $x = (2, 3, 1)$ vào, kết quả và vị trí nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$f(x)=0$; điểm nằm ngay trên mặt phẳng.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "$f(x)=1$; điểm ở phía trên mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$f(x)=-1$; điểm ở phía dưới mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$f(x)=0$; điểm ở phía trên mặt phẳng.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $f(x)=1-1=0$, nên điểm nằm ngay trên mặt phẳng $x_3=1$.",
+    "error": "Chỉ dùng tọa độ $x_3$ vì hệ số của $x_1$ và $x_2$ đều bằng $0$. Kết quả bằng $0$ nghĩa là nằm trên ranh giới."
+  },
+  {
+    "id": "svm2-plane-point-below",
+    "title": "Điểm ở phía dưới",
+    "prompt": "Xét mặt phẳng $x_3-1=0$ và $f(x)=x_3-1$. Thay điểm $x = (2, 3, 0)$ vào, kết quả và vị trí nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$f(x)=1$; điểm ở phía trên mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$f(x)=0$; điểm nằm ngay trên mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$f(x)=-1$; điểm ở phía trên mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$f(x)=-1$; điểm ở phía dưới mặt phẳng.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. $f(x)=0-1=-1$. Tọa độ $x_3$ nhỏ hơn $1$ nên điểm ở phía dưới mặt phẳng.",
+    "error": "Với mặt phẳng và cách viết này, $x_3<1$ cho kết quả âm và tương ứng phía dưới."
+  },
+  {
+    "id": "svm2-plane-point-above",
+    "title": "Điểm ở phía trên",
+    "prompt": "Xét mặt phẳng $x_3-1=0$ và $f(x)=x_3-1$. Thay điểm $x = (2, 3, 2)$ vào, kết quả và vị trí nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$f(x)=-1$; điểm ở phía dưới mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$f(x)=1$; điểm ở phía trên mặt phẳng.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "$f(x)=0$; điểm nằm ngay trên mặt phẳng.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$f(x)=1$; điểm ở phía dưới mặt phẳng.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $f(x)=2-1=1$. Tọa độ $x_3$ lớn hơn $1$ nên điểm ở phía trên mặt phẳng.",
+    "error": "Với mặt phẳng và cách viết này, $x_3>1$ cho kết quả dương và tương ứng phía trên."
+  }
+]} />

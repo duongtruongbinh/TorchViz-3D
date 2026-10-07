@@ -41,7 +41,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 18);
   assert.equal(learningCatalog.domains.length, 18);
   assert.equal(learningCatalog.tracks.length, 116);
-  assert.equal(learningCatalog.lessons.length, 955);
+  assert.equal(learningCatalog.lessons.length, 963);
   assert.equal(learningCatalog.routeAliases?.length, 15);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -365,7 +365,7 @@ test('Machine Learning integrates core concepts into regression and ends each mo
     ],
     'logistic-classification': [
       'logistic-regression', 'linear-activation', 'one-vs-rest', 'k-nearest-neighbors',
-      'naive-bayes', 'support-vector-machines', 'mixed-classification-code-lab',
+      'naive-bayes', 'support-vector-machines', 'support-vector-machines-2', 'support-vector-machines-3', 'support-vector-machines-4', 'mixed-classification-code-lab',
       'classification-metrics',
     ],
     'decision-trees-ensembles': [
@@ -385,7 +385,9 @@ test('Machine Learning integrates core concepts into regression and ends each mo
     assert.equal(getLearningTrack(catalog, 'fundamentals', 'core-ml-concepts'), null);
     for (const [trackId, ids] of Object.entries(expected)) {
       assert.deepEqual(getLearningTrack(catalog, 'fundamentals', trackId)?.lessonIds,
-        ids.flatMap((id) => [id, `${id}-quiz`]));
+        ids.flatMap((id) => id === 'support-vector-machines-2'
+          ? [id, `${id}-quiz`, 'perceptron-practice', 'perceptron-convergence-practice']
+          : [id, `${id}-quiz`]));
     }
     for (const [trackId, lessonId, newTrackId, newLessonId] of [
       ['core-ml-concepts', 'train-validation-test', 'linear-regression-foundations', 'train-validation-test'],
@@ -434,13 +436,13 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 461);
+  assert.equal(missingLessons.length, 462);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'fundamentals').length, 81);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'fundamentals').length, 88);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'ai-projects').length, 8);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
@@ -457,6 +459,8 @@ test('only active authored domains and tagged CV exercise lessons carry authored
     ['sales-forecasting-conformal-prediction-intervals-code-lab', 'sales-forecasting-quiz'],
   );
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
+    'perceptron-practice',
+    'perceptron-convergence-practice',
     'conv2d-shape-exercise',
     'conv2d-value-exercise',
     'pooling-shape-exercise',

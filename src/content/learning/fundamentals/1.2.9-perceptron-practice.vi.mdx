@@ -1,0 +1,208 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "perceptron-practice",
+  "locale": "vi",
+  "title": "Bài tập 1 — Cập nhật Perceptron",
+  "headings": [
+    "Hướng dẫn — Cập nhật Perceptron",
+    "Tự luyện — Cập nhật Perceptron"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Perceptron",
+    "Dot product",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Hướng dẫn — Cập nhật Perceptron
+
+Chúng ta dùng một bài tập Perceptron để luyện tính Dot product và dự đoán class. Cho bốn mẫu dữ liệu dưới đây.
+
+| Mẫu | Vector dữ liệu | Nhãn thật |
+| --- | --- | --- |
+| <InlineMath formula="1" /> | <InlineMath formula="x^{(1)}=(1,2)" /> | <InlineMath formula="y^{(1)}=+1" /> |
+| <InlineMath formula="2" /> | <InlineMath formula="x^{(2)}=(-1,2)" /> | <InlineMath formula="y^{(2)}=-1" /> |
+| <InlineMath formula="3" /> | <InlineMath formula="x^{(3)}=(-2,3)" /> | <InlineMath formula="y^{(3)}=-1" /> |
+| <InlineMath formula="4" /> | <InlineMath formula="x^{(4)}=(1,-1)" /> | <InlineMath formula="y^{(4)}=+1" /> |
+
+Bắt đầu với <InlineMath formula="w=(0,0)" />, không dùng bias nên <InlineMath formula="b=0" />. Duyệt dữ liệu theo thứ tự <InlineMath formula="1\rightarrow2\rightarrow3\rightarrow4" /> và kiểm tra lại sau mỗi lượt.
+
+<PerceptronStateIllustration
+  samples={[[1, 2], [-1, 2], [-2, 3], [1, -1]]}
+  sampleLabels={[1, -1, -1, 1]}
+  weight={[0, 0]}
+  bias={0}
+  description="Bốn điểm dữ liệu đánh số từ 1 đến 4 theo thứ tự duyệt. Mẫu 1 và 4 có nhãn thật +1 được tô xanh; mẫu 2 và 3 có nhãn thật −1 được tô đỏ. Với w = (0, 0) và b = 0, chưa xác định được đường phân chia."
+/>
+
+### Quy tắc thực hiện
+
+Với mỗi mẫu, ta thay tọa độ vào phương trình để tính điểm.
+
+<BlockMath formula="f(x)=w^\top x+b=w_1x_1+w_2x_2+b" />
+
+Nếu <InlineMath formula="f(x)\geq0" />, ta dự đoán nhãn <InlineMath formula="+1" />. Nếu <InlineMath formula="f(x)<0" />, ta dự đoán nhãn <InlineMath formula="-1" />.
+
+Sau đó so với nhãn thật. Nếu trùng, các hệ số hiện tại phân loại đúng mẫu này nên giữ nguyên <InlineMath formula="w" />. Nếu khác, ta cần điều chỉnh các hệ số theo quy tắc Perceptron.
+
+<BlockMath formula="w_{\mathrm{new}}=w_{\mathrm{old}}+yx" />
+
+### Bước 1
+
+Ta có
+
+- <InlineMath formula="x^{(1)}=(1,2)" />
+- <InlineMath formula="w=(0,0)" />
+- <InlineMath formula="b=0" />
+- <InlineMath formula="y^{(1)}=+1" />
+
+Thay vào phương trình để tính điểm.
+
+<BlockMath formula="\begin{aligned}f(x^{(1)})&=w_1x_1+w_2x_2+b\\&=0\times1+0\times2+0\\&=0\end{aligned}" />
+
+Do <InlineMath formula="f(x^{(1)})\geq0" />, ta dự đoán <InlineMath formula="\hat y^{(1)}=+1" />. Dự đoán giống nhãn thật nên giữ nguyên <InlineMath formula="w=(0,0)" />.
+
+### Bước 2
+
+Ta có
+
+- <InlineMath formula="x^{(2)}=(-1,2)" />
+- <InlineMath formula="w=(0,0)" />
+- <InlineMath formula="b=0" />
+- <InlineMath formula="y^{(2)}=-1" />
+
+Thay vào phương trình để tính điểm.
+
+<BlockMath formula="\begin{aligned}f(x^{(2)})&=w_1x_1+w_2x_2+b\\&=0\times(-1)+0\times2+0\\&=0\end{aligned}" />
+
+Do <InlineMath formula="f(x^{(2)})\geq0" />, ta dự đoán <InlineMath formula="\hat y^{(2)}=+1" />. Dự đoán khác nhãn thật nên cần cập nhật.
+
+<BlockMath formula="\begin{aligned}w_{\mathrm{new}}&=w_{\mathrm{old}}+yx\\&=(0,0)+(-1)\times(-1,2)\\&=(1,-2)\end{aligned}" />
+
+<PerceptronStateIllustration
+  samples={[[1, 2], [-1, 2], [-2, 3], [1, -1]]}
+  sampleLabels={[1, -1, -1, 1]}
+  weight={[1, -2]}
+  bias={0}
+  description="Sau cập nhật ở Bước 2, các điểm có nhãn thật +1 được tô xanh, nhãn thật −1 được tô đỏ. Đường phân chia x₁ − 2x₂ = 0 đi qua gốc tọa độ, ứng với w = (1, −2) và b = 0."
+/>
+
+### Bước 3
+
+Ta có
+
+- <InlineMath formula="x^{(3)}=(-2,3)" />
+- <InlineMath formula="w=(1,-2)" />
+- <InlineMath formula="b=0" />
+- <InlineMath formula="y^{(3)}=-1" />
+
+Thay vào phương trình để tính điểm.
+
+<BlockMath formula="\begin{aligned}f(x^{(3)})&=w_1x_1+w_2x_2+b\\&=1\times(-2)+(-2)\times3+0\\&=-8\end{aligned}" />
+
+Do <InlineMath formula="f(x^{(3)})<0" />, ta dự đoán <InlineMath formula="\hat y^{(3)}=-1" />. Dự đoán giống nhãn thật nên giữ nguyên <InlineMath formula="w=(1,-2)" />.
+
+### Bước 4
+
+Ta có
+
+- <InlineMath formula="x^{(4)}=(1,-1)" />
+- <InlineMath formula="w=(1,-2)" />
+- <InlineMath formula="b=0" />
+- <InlineMath formula="y^{(4)}=+1" />
+
+Thay vào phương trình để tính điểm.
+
+<BlockMath formula="\begin{aligned}f(x^{(4)})&=w_1x_1+w_2x_2+b\\&=1\times1+(-2)\times(-1)+0\\&=3\end{aligned}" />
+
+Do <InlineMath formula="f(x^{(4)})\geq0" />, ta dự đoán <InlineMath formula="\hat y^{(4)}=+1" />. Dự đoán giống nhãn thật nên giữ nguyên <InlineMath formula="w=(1,-2)" />.
+
+Sau một lượt qua dữ liệu, vector trọng số là
+
+<BlockMath formula="w=(1,-2)" />
+
+Ta cần kiểm tra lại cả bốn mẫu bằng vector này, vì cập nhật ở Bước 2 có thể làm thay đổi dự đoán của mẫu đã xét trước đó.
+
+| Mẫu | Điểm <InlineMath formula="f(x)=x_1-2x_2" /> | Dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- |
+| <InlineMath formula="1" /> | <InlineMath formula="1-2\times2=-3" /> | <InlineMath formula="-1" /> | <InlineMath formula="+1" /> | Sai |
+| <InlineMath formula="2" /> | <InlineMath formula="-1-2\times2=-5" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| <InlineMath formula="3" /> | <InlineMath formula="-2-2\times3=-8" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| <InlineMath formula="4" /> | <InlineMath formula="1-2\times(-1)=3" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Mẫu <InlineMath formula="1" /> từng được dự đoán đúng ở Bước 1, nhưng giờ bị phân loại sai. Ta tiếp tục duyệt dữ liệu một lượt nữa.
+
+### Lượt thứ hai
+
+Bắt đầu lại từ mẫu <InlineMath formula="1" />. Ta có
+
+- <InlineMath formula="x^{(1)}=(1,2)" />
+- <InlineMath formula="w=(1,-2)" />
+- <InlineMath formula="b=0" />
+- <InlineMath formula="y^{(1)}=+1" />
+
+<BlockMath formula="\begin{aligned}f(x^{(1)})&=w_1x_1+w_2x_2+b\\&=1\times1+(-2)\times2+0\\&=-3\end{aligned}" />
+
+Do điểm âm, ta dự đoán <InlineMath formula="-1" />, khác nhãn thật <InlineMath formula="+1" /> nên cập nhật.
+
+<BlockMath formula="\begin{aligned}w_{\mathrm{new}}&=w_{\mathrm{old}}+yx\\&=(1,-2)+(+1)\times(1,2)\\&=(2,0)\end{aligned}" />
+
+<PerceptronStateIllustration
+  samples={[[1, 2], [-1, 2], [-2, 3], [1, -1]]}
+  sampleLabels={[1, -1, -1, 1]}
+  weight={[2, 0]}
+  bias={0}
+  description="Sau cập nhật ở lượt thứ hai, đường phân chia là x₁ = 0. Các điểm nhãn +1 màu xanh nằm bên phải, các điểm nhãn −1 màu đỏ nằm bên trái."
+/>
+
+Tiếp tục duyệt các mẫu <InlineMath formula="2\rightarrow3\rightarrow4" />. Cả ba đều được phân loại đúng nên không cần cập nhật thêm. Kiểm tra lại cả bốn mẫu với <InlineMath formula="w=(2,0)" />.
+
+| Mẫu | Điểm <InlineMath formula="f(x)=2x_1" /> | Dự đoán | Nhãn thật | Kết quả |
+| --- | --- | --- | --- | --- |
+| <InlineMath formula="1" /> | <InlineMath formula="2\times1=2" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+| <InlineMath formula="2" /> | <InlineMath formula="2\times(-1)=-2" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| <InlineMath formula="3" /> | <InlineMath formula="2\times(-2)=-4" /> | <InlineMath formula="-1" /> | <InlineMath formula="-1" /> | Đúng |
+| <InlineMath formula="4" /> | <InlineMath formula="2\times1=2" /> | <InlineMath formula="+1" /> | <InlineMath formula="+1" /> | Đúng |
+
+Mọi mẫu đều được phân loại đúng. Perceptron hội tụ sau hai lượt với <InlineMath formula="w=(2,0)" /> và <InlineMath formula="b=0" />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tự luyện — Cập nhật Perceptron
+
+Áp dụng cách làm ở bài tập mẫu cho bộ dữ liệu mới dưới đây.
+
+<PerceptronExercise labels={{
+  randomize: 'Tạo dữ liệu ngẫu nhiên',
+  initialWeight: 'Trọng số khởi tạo', randomWeight: 'Tạo trọng số ngẫu nhiên', bias: 'Bias sau bước này',
+  invalidWeight: 'Điền số nguyên vào hai thành phần của vector và bias khởi tạo.',
+  sample: 'Mẫu', vector: 'Dữ liệu', label: 'Nhãn thật',
+  step: 'Bước', score: 'Giá trị score', prediction: 'Class dự đoán', weight: 'Vector sau bước này',
+  check: 'Kiểm tra kết quả', clear: 'Xóa câu trả lời',
+  correct: 'Đúng', incorrect: 'Chưa đúng', missing: 'Chưa điền', expected: 'Kết quả đúng',
+  complete: 'Đúng cả bốn bước!'
+}}>
+
+Bắt đầu với <InlineMath formula="w" /> và <InlineMath formula="b" /> đã chọn ở trên. Duyệt đúng một lần theo thứ tự <InlineMath formula="1\rightarrow2\rightarrow3\rightarrow4" />.
+
+Nhắc lại quy tắc dự đoán
+
+<BlockMath formula="f(x)=w^\top x+b,\qquad\hat{y}=\begin{cases}+1,&f(x)\geq0\\-1,&f(x)<0\end{cases}" />
+
+Chỉ khi <InlineMath formula="\hat{y}\ne y" />, cập nhật
+
+<BlockMath formula="w_{\mathrm{new}}=w_{\mathrm{old}}+yx,\qquad b_{\mathrm{new}}=b_{\mathrm{old}}+y" />
+
+## Câu hỏi
+
+Vector <InlineMath formula="w" /> và bias <InlineMath formula="b" /> sau khi duyệt cả bốn mẫu bằng bao nhiêu? Hãy điền kết quả từng bước dưới đây. Ở mỗi bước, dùng vector và bias đã cập nhật từ bước trước.
+
+</PerceptronExercise>
+
+</MdxPage>

@@ -23,6 +23,7 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
   const isQuiz = lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-');
+  const isExercise = lesson.tags.includes('exercise');
   const isLab = !isQuiz && (lesson.id.endsWith('-code-lab') || lesson.id.endsWith('-lab'));
   const isDimmedQuiz = isQuiz && !isCompleted && !isSelected;
 
@@ -34,7 +35,9 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
       className={cx(
         'group relative grid min-h-10 w-full grid-cols-[30px_minmax(0,1fr)] items-center gap-2.5 border px-1 py-1 text-left transition duration-200',
         themeClasses.radius.button,
-        themeClasses.rail.lessonRowSurface(tone),
+        isExercise && isSelected
+          ? 'border-[#C4B5FD] bg-[#7C3AED] text-white shadow-[0_4px_10px_rgba(124,58,237,0.14)]'
+          : themeClasses.rail.lessonRowSurface(tone),
         themeClasses.focusRing,
       )}
     >
@@ -47,8 +50,10 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
             'relative z-10 flex h-7 w-7 items-center justify-center text-xs font-black',
             !isSelected && (isCompleted || !isQuiz) ? 'rounded-full border' : undefined,
             isSelected && (isCompleted || !isQuiz) ? 'learning-lab-lesson-node-current' : undefined,
-            isLab ? getLabNumberStyle(themeClasses.isLight, isSelected) : themeClasses.rail.lessonNumber(tone, isCompleted),
-            !isCompleted && !isQuiz && !isLab ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
+            isExercise
+              ? getExerciseNumberStyle(isSelected)
+              : isLab ? getLabNumberStyle(themeClasses.isLight, isSelected) : themeClasses.rail.lessonNumber(tone, isCompleted),
+            !isCompleted && !isQuiz && !isLab && !isExercise ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
             !isCompleted && isQuiz ? getQuizIconStyle(themeClasses.isLight, isSelected) : undefined,
           )}
         >
@@ -63,7 +68,9 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
         <span className={cx(
           'line-clamp-2 block text-sm leading-5',
           isSelected ? 'font-semibold' : 'font-normal',
-          isLab
+          isExercise
+            ? isSelected ? 'text-white group-hover:text-white' : 'text-[#6D28D9] group-hover:text-[#5B21B6]'
+            : isLab
             ? getLabTitleStyle(themeClasses.isLight, isSelected)
             : getLessonTitleStyle(themeClasses.isLight, tone === 'quiet', isDimmedQuiz, isSelected),
         )}>
@@ -72,6 +79,12 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
       </span>
     </button>
   );
+}
+
+function getExerciseNumberStyle(isSelected: boolean): string {
+  return isSelected
+    ? 'bg-transparent text-white shadow-none'
+    : 'border-[#C4B5FD] bg-[#F3E8FF] text-[#6D28D9]';
 }
 
 function getLabNumberStyle(isLight: boolean, isSelected: boolean): string {

@@ -2,86 +2,635 @@ export const lessonMetadata = {
   "domainId": "fundamentals",
   "id": "support-vector-machines",
   "locale": "vi",
-  "title": "Support Vector Machine",
+  "title": "Support Vector Machine (1)",
   "headings": [
-    "Ranh giới và margin",
-    "Soft margin và tham số C",
-    "Kernel và gamma",
-    "Score, xác suất và biến thể hồi quy"
+    "Chuột bình thường hay béo phì?",
+    "Hạn chế khi có outlier",
+    "Chọn soft margin bằng cross-validation",
+    "Từ threshold đến đường thẳng phân loại",
+    "Từ mặt phẳng 3D đến hyperplane",
+    "Khi một threshold không đủ",
+    "Kernel Functions",
+    "Tổng kết SVM"
   ],
   "keywords": [
     "Machine Learning",
     "Support Vector Machine"
   ],
   "conceptIds": [
+    "svm-supervised",
+    "svm-threshold-generalization",
     "svm-margin",
+    "svm-support-vectors",
+    "svm-outside-margin",
+    "svm-outlier",
     "svm-soft-margin-c",
+    "svm-bias-variance",
+    "svm-feature-mapping",
     "svm-kernel-gamma",
+    "svm-kernel-options",
+    "svm-hyperplane",
     "svm-workflow"
   ],
-  "pageCount": 4
+  "pageCount": 8
 }
 
 <MdxPage page={0}>
 
-## Ranh giới và margin
+## Chuột bình thường hay béo phì?
 
-**Support Vector Machine** (SVM) tìm ranh giới phân chia các lớp với margin lớn. Hình dung hai nhóm điểm trên mặt phẳng: nhiều đường thẳng có thể tách chúng đúng, nhưng đường nằm cách xa các điểm sát ranh giới nhất thường có vùng đệm lớn hơn.
+Giả sử chúng ta đo khối lượng của một số con chuột và muốn dùng thông tin này để phân loại chúng có béo phì hay không. Mỗi chấm tròn màu xám trong hình đại diện cho một con chuột đã được cân. Chuột càng nặng thì chấm nằm càng xa về bên phải.
 
-Với x có d feature, w có d trọng số và b là một số, score tuyến tính là f(x) = w^T x + b. Dấu của score quyết định phía của ranh giới. Khoảng cách hình học tới siêu phẳng là |f(x)|/||w||, vì score thô còn phụ thuộc thang của w.
+<SvmThresholdMotivation
+  stage={0}
+  description="Các chấm tròn màu xám biểu diễn khối lượng của những con chuột trên cùng một trục. Chưa hiển thị nhãn bình thường hay béo phì."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng' }}
+/>
 
-Ví dụ w = [1, 0], b = -2 tạo ranh giới x1 = 2. Hai điểm [1, 0] và [3, 0] cách ranh giới 1 đơn vị ở hai phía. Với cách chuẩn hóa kinh điển f(x) = -1 và f(x) = 1 tại hai đường biên, bề rộng margin là 2/||w|| = 2.
+Những con chuột nhẹ hơn ở bên trái là **chuột bình thường**, ta sẽ mô tả bằng các chấm này màu xanh.
 
-Các điểm có ràng buộc hoạt động và quyết định nghiệm được gọi là support vectors. Trong soft-margin SVM, chúng có thể nằm trên biên hoặc trong vùng vi phạm margin, chứ không chỉ là các điểm được phân loại sai.
+<SvmThresholdMotivation
+  stage={1}
+  description="Các chấm bên trái chuyển sang màu xanh, đại diện cho chuột bình thường. Các chấm bên phải vẫn màu xám. Vị trí của mọi chấm giữ nguyên."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng' }}
+/>
+
+Những con chuột nặng hơn ở bên phải được xác định là **chuột béo phì**. Tô các chấm này màu đỏ, chúng ta có hai nhóm tách biệt trên trục khối lượng.
+
+<SvmThresholdMotivation
+  stage={2}
+  description="Các chấm bên trái màu xanh đại diện cho chuột bình thường. Các chấm bên phải chuyển sang màu đỏ, đại diện cho chuột béo phì. Hai nhóm tách biệt trên trục khối lượng."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng' }}
+/>
+
+Để phân loại, chúng ta có thể chọn một **threshold**, tức một ngưỡng khối lượng. Chuột nhẹ hơn ngưỡng được dự đoán là bình thường; chuột nặng hơn ngưỡng được dự đoán là béo phì. Những con chuột đã biết nhãn trong hình chính là **training data**.
+
+Chúng ta có thể chọn vô số threshold trong khoảng trống giữa con chuột bình thường nặng nhất và con chuột béo phì nhẹ nhất. Tất cả các ngưỡng đó đều phân loại đúng toàn bộ training data. Các đường nét đứt bên dưới minh họa cho một vài lựa chọn.
+
+<SvmThresholdMotivation
+  stage={3}
+  description="Năm threshold minh họa nằm trong khoảng trống giữa hai nhóm chuột. Với bất kỳ ngưỡng nào trong số này, tất cả chấm xanh nằm bên trái và tất cả chấm đỏ nằm bên phải, nên toàn bộ training data đều được phân loại đúng."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold' }}
+/>
+
+Giả sử chúng ta chọn một threshold nằm gần nhóm chuột bình thường. Bây giờ đưa vào một con chuột mới, gọi là **test sample**. Nếu khối lượng của nó nằm bên trái threshold, theo quy ước nó sẽ được phân loại là chuột bình thường.
+
+<SvmThresholdMotivation
+  stage={4}
+  description="Một threshold được chọn gần nhóm chuột bình thường. Test sample có viền đen nằm bên trái threshold nên được dự đoán là bình thường."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán bình thường' }}
+/>
+
+Tương tự nếu test sample nằm bên phải threshold, chúng ta dự đoán nó là chuột béo phì.
+
+<SvmThresholdMotivation
+  stage={5}
+  description="Giữ nguyên threshold. Test sample có viền đen nằm bên phải threshold nên được dự đoán là béo phì."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán béo phì' }}
+/>
+
+Tuy nhiên, một cách trực giác, chúng ta thấy test sample này nằm gần nhóm chuột bình thường hơn nhóm chuột béo phì nên câu hỏi đặt ra là
+
+<LessonNote tone="danger">
+Liệu threshold chúng ta chọn đã hợp lý chưa?
+</LessonNote>
+
+<SvmThresholdMotivation
+  stage={6}
+  description="Cùng test sample bên phải threshold vẫn được dự đoán là béo phì. Đoạn khoảng cách màu xanh đến con chuột bình thường gần nhất ngắn hơn đoạn màu đỏ đến con chuột béo phì gần nhất, cho thấy sample gần nhóm bình thường hơn."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán béo phì' }}
+/>
+
+Vấn đề nằm ở cách chúng ta chọn **threshold**. Ngưỡng này phân loại đúng toàn bộ training data, nhưng vị trí quá sát nhóm bình thường khiến dự đoán cho con chuột mới trở nên thiếu thuyết phục.
+
+<SvmThresholdMotivation
+  stage={7}
+  description="Threshold đã chọn được làm nổi bật bằng nét xanh đậm. Các điểm training data, test sample, nhãn và đoạn khoảng cách đều được làm mờ để tập trung vào vị trí của threshold."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán béo phì' }}
+/>
+
+<LessonNote tone="danger">
+Làm thế nào để chọn một threshold hợp lý hơn, giúp phân loại tốt hơn những con chuột mới?
+</LessonNote>
+
+Một ý tưởng tự nhiên là nhìn vào hai điểm nằm sát khoảng trống giữa hai nhóm. Đó là con chuột bình thường nặng nhất và con chuột béo phì nhẹ nhất. Chúng ta đặt threshold ở **chính giữa** hai điểm này, để khoảng cách từ threshold tới mỗi điểm bằng nhau.
+
+<SvmThresholdMotivation
+  stage={8}
+  description="Hai điểm sát khoảng trống giữa hai nhóm được khoanh lại. Threshold nằm chính giữa con chuột bình thường nặng nhất và con chuột béo phì nhẹ nhất. Hai đoạn khoảng cách từ threshold đến hai điểm bằng nhau."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', equalDistance: 'Khoảng cách bằng nhau' }}
+/>
+
+Xét lại test sample ở hình trước. Với threshold mới, nó nằm bên trái và được dự đoán là bình thường. Trong khoảng trống giữa hai nhóm, một sample nằm bên trái điểm chính giữa cũng gần nhóm bình thường hơn nhóm béo phì.
+
+<SvmThresholdMotivation
+  stage={9}
+  description="Test sample từng bị dự đoán là béo phì giờ nằm bên trái threshold mới và được dự đoán là bình thường. Đoạn xanh đến điểm bình thường gần nhất ngắn hơn đoạn đỏ đến điểm béo phì gần nhất."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán bình thường' }}
+/>
+
+Tương tự, một test sample nằm bên phải threshold mới sẽ gần nhóm béo phì hơn và được dự đoán là béo phì. Với hai nhóm tách biệt trên trục khối lượng này, vị trí threshold đã phù hợp với trực giác về khoảng cách tới nhóm gần nhất.
+
+<SvmThresholdMotivation
+  stage={10}
+  description="Một test sample bên phải threshold mới được dự đoán là béo phì. Đoạn đỏ đến điểm béo phì gần nhất ngắn hơn đoạn xanh đến điểm bình thường gần nhất."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample', prediction: 'Dự đoán béo phì' }}
+/>
+
+Khoảng cách từ threshold đến điểm training data gần nhất được gọi là **margin**. Vì threshold đang nằm chính giữa hai điểm sát khoảng trống, khoảng cách tới điểm gần nhất của nhóm bình thường và nhóm béo phì bằng nhau.
+
+<SvmThresholdMotivation
+  stage={11}
+  description="Hai khoảng cách từ threshold chính giữa đến điểm training data gần nhất ở mỗi nhóm được làm nổi bật và cùng gắn nhãn Margin. Các điểm xa hơn, nhãn nhóm và trục khối lượng được làm mờ. Hai khoảng cách bằng nhau."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Margin' }}
+/>
+
+Nếu dịch threshold sang trái, nó tiến gần điểm cuối của nhóm bình thường. Khoảng cách bên trái nhỏ đi, còn khoảng cách bên phải lớn lên. Margin được xác định bởi điểm training data gần nhất, nên margin lúc này là đoạn bên trái và nhỏ hơn khi threshold nằm chính giữa.
+
+<SvmThresholdMotivation
+  stage={12}
+  description="Threshold dịch sang trái so với vị trí chính giữa được giữ lại bằng nét mờ. Đoạn khoảng cách bên trái ngắn hơn được highlight và gắn nhãn Margin; đoạn bên phải dài hơn được làm mờ. Margin giảm."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Margin' }}
+/>
+
+Tương tự, nếu dịch threshold sang phải, khoảng cách đến điểm đầu của nhóm béo phì nhỏ đi. Bên phải trở thành phía có điểm gần threshold nhất, nên margin cũng nhỏ hơn khi threshold nằm chính giữa.
+
+<SvmThresholdMotivation
+  stage={13}
+  description="Threshold dịch sang phải so với vị trí chính giữa được giữ lại bằng nét mờ. Đoạn khoảng cách bên phải ngắn hơn được highlight và gắn nhãn Margin; đoạn bên trái dài hơn được làm mờ. Margin giảm."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Margin' }}
+/>
+
+Vì vậy, trong trường hợp hai nhóm tách biệt trên trục số này, chúng ta chọn threshold làm khoảng cách tới điểm training data gần nhất lớn nhất. Dịch sang bên nào cũng làm margin giảm, nên vị trí chính giữa cho **maximum margin**. Bộ phân loại chọn ranh giới theo tiêu chí này được gọi là **maximal margin classifier**.
+
+<SvmThresholdMotivation
+  stage={14}
+  description="Threshold nằm chính giữa hai điểm training data sát khoảng trống. Hai đoạn khoảng cách bằng nhau được highlight, minh họa maximum margin."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Maximum margin' }}
+/>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Soft margin và tham số C
+## Hạn chế khi có outlier
 
-Dữ liệu thực tế có nhiễu hoặc lớp chồng lấn, nên ép mọi điểm đều được phân loại đúng có thể tạo ranh giới kém tổng quát hóa. Soft margin cho phép vi phạm nhưng phạt chúng trong mục tiêu tối ưu.
+Bộ phân loại ở trang trước được gọi là **hard margin**. Nó yêu cầu mọi điểm training data được phân loại đúng và nằm trên hoặc ngoài biên margin, không chấp nhận điểm vi phạm. Khi dữ liệu tách biệt, chúng ta chọn ranh giới có margin lớn nhất dưới yêu cầu này.
 
-Với nhãn y_i là -1 hoặc +1, một dạng mục tiêu là:
+Nhưng nó có một hạn chế lớn. Giả sử training data của chúng ta có thêm một con chuột bình thường nhưng nặng hơn hẳn những con chuột bình thường còn lại. Điểm màu xanh này nằm sát cụm chuột béo phì. Đây là một **outlier**, một điểm khác biệt rõ rệt so với cụm chính của nhóm mà nó thuộc về.
 
-<BlockMath formula="\min_{w,b}\frac{1}{2}\lVert w\rVert^2+C\sum_i\max(0,1-y_i(w^Tx_i+b))" />
+<SvmThresholdMotivation
+  stage={15}
+  description="Training data có cụm chuột bình thường màu xanh bên trái và cụm chuột béo phì màu đỏ bên phải. Một outlier màu xanh, vẫn thuộc nhóm bình thường, nằm sát cụm béo phì."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', outlier: 'Outlier' }}
+/>
 
-Phần max là hinge loss. Nếu y_i f(x_i) = 1.5, loss bằng 0; bằng 0.4 thì loss là 0.6 dù điểm vẫn đúng phía; bằng -0.5 thì loss là 1.5 vì đã sai phía. Như vậy đúng nhãn nhưng quá gần ranh giới vẫn có thể bị phạt.
+Áp dụng maximal margin classifier, chúng ta vẫn phải phân loại đúng toàn bộ training data. Vì vậy, threshold phải nằm giữa outlier màu xanh và con chuột béo phì nhẹ nhất. Vị trí cho maximum margin là chính giữa hai điểm này. Chỉ một outlier đã kéo threshold từ khoảng trống giữa hai cụm chính sang sát cụm béo phì, đồng thời làm margin thu hẹp mạnh.
 
-C lớn làm vi phạm train đắt hơn tương đối với phần phạt trọng số, nên model có xu hướng cố khớp dữ liệu hơn. C nhỏ cho regularization mạnh hơn tương đối, chấp nhận nhiều vi phạm hơn. Đây là xu hướng khi giữ các điều kiện khác cố định, không phải bảo đảm C lớn luôn cho validation tốt hơn.
+<SvmThresholdMotivation
+  stage={16}
+  description="Threshold cho maximum margin nằm chính giữa outlier bình thường và điểm béo phì gần nhất. Threshold cũ ở giữa hai cụm chính được giữ bằng nét mờ để so sánh. Threshold mới lệch sát cụm béo phì và margin rất nhỏ."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', outlier: 'Outlier', thresholds: 'Threshold', margin: 'Maximum margin' }}
+/>
 
-Chọn C qua validation/CV với preprocessing nhất quán. Ý nghĩa số cụ thể của C còn phụ thuộc cách chuẩn hóa objective của implementation; không so trực tiếp với lambda của mọi estimator.
+Bây giờ đưa vào một **test sample** mà nhãn thật là béo phì. Nó gần cụm chính của nhóm béo phì hơn cụm chính của nhóm bình thường, nhưng vẫn nằm bên trái threshold mới. Bộ phân loại vì thế dự đoán nó là bình thường và phân loại sai.
 
+<SvmThresholdMotivation
+  stage={17}
+  description="Test sample có nhãn thật là béo phì, được tô đỏ và có viền đen. Nó gần cụm chính béo phì hơn cụm chính bình thường nhưng nằm bên trái threshold mới, nên bị dự đoán sai là bình thường. Outlier bình thường vẫn nằm sát cụm béo phì."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample · béo phì', prediction: 'Dự đoán bình thường' }}
+/>
+
+Đây là hạn chế của maximal margin classifier. Việc buộc mọi điểm training data phải nằm đúng phía khiến ranh giới **nhạy cảm với outlier**. Chỉ một điểm khác biệt cũng có thể làm threshold thay đổi mạnh, dù vị trí của hai cụm chính không đổi.
+
+Để cải thiện, chúng ta có thể chấp nhận một số **misclassification**, tức phân loại sai một số điểm training data. Hãy tạm hình dung chúng ta không để outlier quyết định threshold, mà lại tập trung vào hai điểm sát khoảng trống của hai cụm chính. Threshold trở về chính giữa, dù lúc này con chuột bình thường ở vị trí outlier nằm bên phải và bị dự đoán là béo phì.
+
+<SvmThresholdMotivation
+  stage={18}
+  description="Threshold trở về chính giữa hai cụm chính. Outlier có nhãn thật bình thường được tô xanh nhưng nằm bên phải threshold, nên bị dự đoán sai là béo phì và được đánh dấu chéo đỏ."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Threshold', outlier: 'Outlier · bình thường', outlierPrediction: 'Dự đoán béo phì' }}
+/>
+
+Đổi lại, test sample béo phì vừa bị phân loại sai giờ nằm bên phải threshold và được dự đoán đúng. Chúng ta chấp nhận sai một điểm train để có ranh giới ít bị outlier chi phối và có thể phân loại tốt hơn trên dữ liệu mới. Điều này không bảo đảm mọi test sample đều đúng.
+
+<SvmThresholdMotivation
+  stage={19}
+  description="Với threshold giữa hai cụm chính, cùng test sample béo phì ở hình trước giờ nằm bên phải và được dự đoán đúng là béo phì. Outlier bình thường vẫn bị phân loại sai, đánh dấu bằng dấu chéo đỏ."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Threshold', sample: 'Test sample · béo phì', prediction: 'Dự đoán béo phì' }}
+/>
+
+Cách lựa chọn này minh họa **bias–variance trade-off**. Bias là sai lệch do cách mô hình xấp xỉ quy luật dữ liệu; variance là mức độ mô hình thay đổi khi tập train thay đổi.
+
+Cố khớp mọi điểm, kể cả outlier, thường có xu hướng **bias thấp hơn**, **variance cao hơn**. Trong ví dụ này, chỉ thêm một outlier đã kéo threshold lệch hẳn sang phải. Các nét mờ dưới đây minh họa threshold khi tập train thay đổi.
+
+<SvmThresholdMotivation
+  stage={20}
+  description="Cố khớp mọi điểm training data thể hiện xu hướng bias thấp hơn nhưng variance cao hơn. Các threshold minh họa từ những tập train khác nhau trải rộng: ở giữa hai cụm khi không có outlier, và lệch sát cụm béo phì khi có outlier."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Threshold', tradeoff: 'Bias thấp hơn · Variance cao hơn', variation: 'Threshold thay đổi mạnh' }}
+/>
+
+Chấp nhận sai outlier để bám theo hai cụm chính thường có xu hướng **bias cao hơn**, **variance thấp hơn**. Threshold ít thay đổi hơn, nhưng chấp nhận quá nhiều sai lệch có thể khiến mô hình underfit.
+
+<SvmThresholdMotivation
+  stage={21}
+  description="Chấp nhận một số sai lệch training data thể hiện xu hướng bias cao hơn nhưng variance thấp hơn. Các threshold minh họa từ những tập train khác nhau nằm gần nhau giữa hai cụm chính. Outlier bị phân loại sai nhưng không kéo lệch ranh giới."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Threshold', tradeoff: 'Bias cao hơn · Variance thấp hơn', variation: 'Threshold ổn định hơn' }}
+/>
+
+**Soft margin** cho phép một số điểm nằm trong vùng margin hoặc bị phân loại sai, nhưng vẫn phạt các vi phạm này.
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Kernel và gamma
+## Chọn soft margin bằng cross-validation
 
-Nếu một đường thẳng không đủ, kernel cho phép tính độ tương đồng trong một không gian biểu diễn khác mà không cần tạo tường minh mọi feature mới. Kernel phải có tính chất toán học phù hợp; không phải bất kỳ hàm distance nào cũng dùng thay thế được.
+Chúng ta đã chấp nhận một số điểm vi phạm để ranh giới ít bị outlier chi phối. Nhưng chấp nhận đến mức nào? Nếu phạt mọi vi phạm quá nặng, mô hình có thể lại cố khớp outlier. Nếu phạt quá nhẹ, nó có thể bỏ qua cả những điểm mang thông tin thật.
 
-Một lựa chọn phổ biến là Radial Basis Function (RBF):
+Làm sao biết một mức soft margin này…
 
-<BlockMath formula="K(x,q)=\exp(-\gamma\lVert x-q\rVert^2)" />
+<SvmThresholdMotivation
+  stage={18}
+  threshold={5.5}
+  marginHalfWidth={1.5}
+  showOutlierError={false}
+  description="Phương án soft margin A minh họa một threshold và vùng margin trên training data có outlier. Outlier bình thường bị dự đoán là béo phì."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Soft margin A' }}
+/>
 
-Với khoảng cách bình phương bằng 4, gamma = 0.5 cho similarity exp(-2), khoảng 0.135. Nếu gamma = 0.1 thì exp(-0.4), khoảng 0.670. Gamma lớn làm ảnh hưởng của mỗi điểm cục bộ hơn; gamma nhỏ tạo ảnh hưởng rộng hơn.
+…tốt hơn một mức soft margin khác?
 
-C và gamma cần được xem cùng nhau. Gamma rất lớn kết hợp C lớn có thể bám sát các điểm riêng lẻ; gamma quá nhỏ có thể không biểu diễn đủ cấu trúc. Không chọn hai tham số bằng train accuracy.
+<SvmThresholdMotivation
+  stage={18}
+  threshold={6.5}
+  marginHalfWidth={1.5}
+  showOutlierError={false}
+  description="Phương án soft margin B dùng cùng training data nhưng có threshold và vùng margin khác phương án A. Outlier bình thường vẫn bị dự đoán là béo phì."
+  labels={{ normal: 'Cụm bình thường', obese: 'Cụm béo phì', axis: 'Khối lượng', thresholds: 'Soft margin B' }}
+/>
 
-Scaling đặc biệt quan trọng với RBF vì khoảng cách đi vào số mũ. Fit scaler chỉ trên train của mỗi fold. Feature có đơn vị lớn hoặc nhiều chiều nhiễu có thể làm similarity mất ý nghĩa; kernel không tự sửa chất lượng feature.
+Câu trả lời là đánh giá trên dữ liệu không dùng để fit mô hình. **Cross-validation** giúp chúng ta so sánh các mức đánh đổi qua nhiều lần chia train và validation, thay vì chỉ nhìn training accuracy hoặc một hình ranh giới có vẻ đẹp.
+
+Với mỗi mức soft margin, chúng ta train và đánh giá trên cùng các fold, rồi so sánh điểm validation trung bình để chọn mức phù hợp. Phần code sẽ đi chi tiết cách thử các giá trị C và thực hiện cross-validation.
+
+<LessonNote>
+  Khi sử dụng soft margin để xác định threshold, chúng ta đang dùng soft-margin classifier, còn được gọi là support vector classifier. Với ranh giới tuyến tính như trong ví dụ này, đây là một dạng Support Vector Machine (SVM).
+</LessonNote>
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Score, xác suất và biến thể hồi quy
+## Từ threshold đến đường thẳng phân loại
 
-Score SVM cho biết phía và mức độ nghiêng về ranh giới, không tự là xác suất. Không diễn giải score 2 thành xác suất 200%, cũng không mặc định sigmoid của score là xác suất đã calibration tốt. Nếu cần xác suất, calibration phải dùng dữ liệu phù hợp trong quy trình phát triển, không dùng test.
+Cho đến đây, mỗi con chuột chỉ được biểu diễn bằng khối lượng nên các điểm nằm trên một trục số. Nếu đo thêm chiều cao, mỗi con chuột có hai feature và được biểu diễn bằng một điểm trong mặt phẳng **2D**. Trục ngang là khối lượng, trục dọc là chiều cao.
 
-Trong Scikit-Learn, SVC hỗ trợ kernel; LinearSVC chuyên cho mô hình tuyến tính. SVC huấn luyện nhiều lớp theo one-vs-one, khác với bài OvR vừa học; tùy chọn định dạng decision score không đồng nghĩa thay đổi chiến lược train thành OvR. Xem chi tiết trong [tài liệu SVM](https://scikit-learn.org/stable/modules/svm.html).
+<SvmTwoDimensionalBoundary
+  description="Các con chuột được biểu diễn trên mặt phẳng 2D theo khối lượng và chiều cao, với bố cục minh họa tương tự hình tham khảo. Chuột bình thường màu xanh, chuột béo phì màu đỏ. Chưa vẽ đường phân loại."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì' }}
+/>
 
-Kernel SVM có thể tốn nhiều thời gian và bộ nhớ khi số mẫu lớn. So sánh với baseline tuyến tính và đánh giá cả latency, chi phí fit, metric ở threshold vận hành. Với feature thưa nhiều chiều, SVM tuyến tính là một ứng viên cần kiểm chứng.
+Trên trục số, threshold là một vị trí chia dữ liệu thành hai phía. Khi dữ liệu được vẽ dưới dạng 2D, ranh giới phân loại tuyến tính trở thành một **đường thẳng**. Điểm ở một phía được dự đoán là bình thường; điểm ở phía còn lại được dự đoán là béo phì. Đường thẳng này dùng cả khối lượng và chiều cao để phân loại.
 
-Support Vector Regression (SVR) dùng ý tưởng vùng sai số chấp nhận được quanh target liên tục. Với epsilon = 0.2 và sai số tuyệt đối 0.1, phần epsilon-insensitive loss bằng 0; sai số 0.5 thì phần vượt là 0.3. SVR dùng Regression Metrics, không dùng accuracy. Sau cặp bài này, Classification Metrics sẽ giúp so sánh các classifier theo nhãn, score và xác suất.
+<SvmTwoDimensionalBoundary
+  showBoundary={true}
+  description="Cùng các điểm 2D, thêm một đường thẳng nghiêng phân chia hai nhóm. Các điểm bình thường màu xanh nằm dưới đường, các điểm béo phì màu đỏ nằm trên đường."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại' }}
+/>
+
+Với soft margin, chúng ta cho phép một số điểm vi phạm thay vì buộc đường phân loại tách đúng mọi điểm. Trong các hình tiếp theo, dữ liệu có thêm hai điểm ngoại lệ. Các điểm được đánh dấu dưới đây nằm trên biên margin; khoảng cách từ chúng đến đường phân loại được đo **vuông góc** với đường, không đo theo trục khối lượng hay chiều cao.
+
+<SvmTwoDimensionalBoundary
+  mode="margin-points"
+  description="Hai điểm trên biên margin ở hai phía được làm nổi bật. Hai đoạn ngắn vuông góc nối chúng tới đường phân loại minh họa cách đo margin. Các điểm khác, bao gồm hai ngoại lệ mới, được làm mờ."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại', margin: 'Margin' }}
+/>
+
+Qua các điểm này, chúng ta vẽ hai đường biên song song với đường phân loại. Mỗi đường cách đường phân loại một khoảng bằng margin. Vùng nằm giữa hai đường biên là **vùng margin**; trong soft-margin classifier, các điểm được phép nằm trong vùng này, nhưng bị phạt khi tối ưu.
+
+<SvmTwoDimensionalBoundary
+  mode="margin-band"
+  description="Hai đường nét đứt song song với đường phân loại đi qua các điểm trên biên margin. Vùng giữa hai đường được tô nhạt để minh họa vùng margin."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại' }}
+/>
+
+Những điểm được highlight dưới đây nằm ngoài vùng margin và ở đúng phía của đường phân loại. Chúng được phân loại đúng và không vi phạm margin. Thay đổi vị trí các điểm này, miễn là chúng vẫn nằm ngoài margin và ở đúng phía, không làm thay đổi margin hay đường phân loại. Vì vậy, chúng không phải là support vector.
+
+<SvmTwoDimensionalBoundary
+  mode="outside-margin"
+  description="Các điểm nằm ngoài vùng margin và ở đúng phía phân loại được làm nổi bật. Các điểm trên biên và trong vùng margin được làm mờ."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại' }}
+/>
+
+Còn hai điểm được highlight trong hình này nằm trong vùng margin và ở sai phía của đường phân loại. Điểm xanh bị dự đoán là béo phì, điểm đỏ bị dự đoán là bình thường. Đây là các điểm **bị phân loại sai** mà soft margin cho phép. Một điểm nằm trong vùng margin nhưng vẫn ở đúng phía chỉ vi phạm margin, chưa bị phân loại sai.
+
+<SvmTwoDimensionalBoundary
+  mode="inside-margin"
+  description="Hai điểm ngoại lệ trong vùng margin được highlight và đánh dấu chéo. Điểm bình thường màu xanh nằm ở phía dự đoán béo phì; điểm béo phì màu đỏ nằm ở phía dự đoán bình thường. Cả hai bị phân loại sai."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại' }}
+/>
+
+Cũng như với dữ liệu 1D, chúng ta dùng **cross-validation** để so sánh các mức soft margin và chọn mức phù hợp nhất theo metric validation, thay vì chỉ dựa vào hình vẽ hay training accuracy.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Từ mặt phẳng 3D đến hyperplane
+
+Nếu đo thêm chiều dài của mỗi con chuột, chúng ta có ba feature là khối lượng, chiều cao và chiều dài. Mỗi con chuột được biểu diễn bằng một điểm trong không gian **3D**. Trong hình minh họa, hai lớp được đặt tên là class A và class B.
+
+<SvmThreeDimensionalBoundary
+  description="Các điểm được biểu diễn trong không gian 3D với ba trục khối lượng, chiều cao và chiều dài. Class A màu xanh, class B màu đỏ. Chưa vẽ mặt phẳng phân loại."
+  labels={{ mass: 'Khối lượng', height: 'Chiều cao', length: 'Chiều dài', classA: 'Class A', classB: 'Class B' }}
+/>
+
+Trong 2D, ranh giới tuyến tính là một đường thẳng. Sang 3D, nó trở thành một **mặt phẳng** phân loại. Trong ví dụ này, các điểm ở phía trên mặt phẳng được dự đoán thuộc class A; các điểm ở phía dưới được dự đoán thuộc class B. Điểm nằm đúng trên mặt phẳng nằm trên ranh giới giữa hai lớp.
+
+<SvmThreeDimensionalBoundary
+  showPlane={true}
+  description="Cùng các điểm 3D, thêm một mặt phẳng phân loại. Các điểm xanh của class A nằm phía trên mặt phẳng; các điểm đỏ của class B nằm phía dưới. Các đoạn nét đứt nối điểm tới mặt phẳng giúp nhận biết hai phía."
+  labels={{ mass: 'Khối lượng', height: 'Chiều cao', length: 'Chiều dài', classA: 'Class A', classB: 'Class B', plane: 'Mặt phẳng phân loại' }}
+/>
+
+Nếu dữ liệu có nhiều hơn ba feature, cách hiểu vẫn tương tự. Chúng ta vẫn tìm một ranh giới tuyến tính chia không gian feature thành hai phía, dù không còn vẽ trực tiếp được toàn bộ không gian đó. Tên gọi chung của ranh giới này là **hyperplane**. Trong không gian d chiều, hyperplane có d − 1 chiều; đường thẳng trong 2D và mặt phẳng trong 3D đều là các trường hợp của hyperplane.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Khi một threshold không đủ
+
+Giả sử chúng ta thử nghiệm một loại thuốc ở nhiều liều lượng khác nhau và muốn dự đoán một liều mới có **hiệu quả** hay không. Trong ví dụ giả định này, liều quá thấp chưa đủ tạo tác dụng, còn liều quá cao cũng không hiệu quả. Chỉ các liều trong khoảng giữa cho kết quả tốt.
+
+Mỗi chấm là một lần thử nghiệm đã biết kết quả. Trục **Dosage** biểu diễn liều lượng thuốc được dùng. Các chấm đỏ là những lần thuốc không hiệu quả, nằm ở hai đầu trục; các chấm xanh là những lần thuốc có hiệu quả, nằm ở giữa. Đây là training data để học cách phân loại một liều mới.
+
+<SvmKernelMotivation
+  description="Các lần thử thuốc với liều thấp và cao có màu đỏ, biểu diễn thuốc không hiệu quả. Các lần thử ở khoảng liều giữa có màu xanh, biểu diễn thuốc có hiệu quả. Không có một threshold duy nhất chia đúng hai nhóm."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage' }}
+/>
+
+Chúng ta không thể dùng một threshold duy nhất để phân loại đúng hai class này. Nếu đặt ngưỡng giữa nhóm đỏ bên trái và nhóm xanh, nhóm đỏ bên phải vẫn nằm cùng phía với nhóm xanh. Nếu đặt ngưỡng giữa nhóm xanh và nhóm đỏ bên phải, nhóm đỏ bên trái lại nằm cùng phía với nhóm xanh.
+
+Vấn đề không còn chỉ là chọn threshold ở đâu. Một ranh giới tuyến tính trong không gian 1D này không thể biểu diễn cách hai class được sắp xếp. Làm sao để xử lý dữ liệu như vậy?
+
+Một cách giải quyết là đưa dữ liệu sang một không gian có thêm chiều. Giữ trục x là Dosage và thêm trục y là **Dosage²**. Mỗi điểm có giá trị Dosage bằng d giờ được biểu diễn bằng cặp tọa độ (d, d²). Ví dụ, Dosage bằng 2 cho điểm (2, 4), Dosage bằng 5 cho điểm (5, 25).
+
+<SvmKernelMotivation
+  mapped={true}
+  description="Cùng các lần thử thuốc được ánh xạ sang mặt phẳng Dosage và Dosage bình phương. Các điểm nằm trên nhánh parabol đi lên. Những lần thuốc không hiệu quả màu đỏ nằm ở hai đầu, còn những lần có hiệu quả màu xanh nằm ở giữa."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', squaredAxis: 'Dosage²' }}
+/>
+
+Chúng ta không đổi nhãn hay thêm mẫu dữ liệu; chỉ thêm một feature được tính từ Dosage ban đầu. Với biểu diễn 2D này, chúng ta có thể tìm một đường thẳng tách hai class thay vì cố chọn một threshold trên trục Dosage.
+
+Đường thẳng dưới đây phân loại đúng toàn bộ training data. Các điểm xanh nằm phía dưới đường thẳng được dự đoán là thuốc có hiệu quả; các điểm đỏ ở cả hai đầu đều nằm phía trên và được dự đoán là thuốc không hiệu quả.
+
+<SvmKernelMotivation
+  mapped={true}
+  showBoundary={true}
+  description="Trong không gian Dosage và Dosage bình phương, một đường thẳng nghiêng tách toàn bộ các điểm xanh có hiệu quả ở phía dưới khỏi các điểm đỏ không hiệu quả ở phía trên."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', squaredAxis: 'Dosage²', boundary: 'Đường phân loại' }}
+/>
+
+Bây giờ, giả sử chúng ta có một **test sample** với Dosage bằng 6 và chưa biết thuốc có hiệu quả ở liều này hay không.
+
+<SvmKernelMotivation
+  sampleDosage={6}
+  description="Test sample chưa biết nhãn có Dosage bằng 6 được highlight trên trục liều lượng. Các điểm training data được làm mờ."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', sample: 'Test sample' }}
+/>
+
+Áp dụng cùng phép biến đổi, Dosage² bằng 6² = 36. Mẫu mới trở thành điểm **(6, 36)** trong không gian 2D.
+
+<SvmKernelMotivation
+  mapped={true}
+  showBoundary={true}
+  sampleDosage={6}
+  description="Test sample được ánh xạ thành điểm có Dosage bằng 6 và Dosage bình phương bằng 36. Hai đường nét đứt chỉ tọa độ trên hai trục. Điểm nằm dưới đường phân loại, về phía nhóm thuốc có hiệu quả."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', squaredAxis: 'Dosage²', boundary: 'Đường phân loại', sample: 'Test sample' }}
+/>
+
+Điểm này nằm phía dưới đường phân loại, cùng phía với các điểm xanh. Vì vậy, mô hình dự đoán mẫu mới thuộc class **có hiệu quả**.
+
+<LessonNote>
+Nhưng tại sao chúng ta chọn Dosage² để tạo chiều mới? Tại sao không phải Dosage³, Dosage⁴ hay một hàm khác? Làm sao biết phép biến đổi nào phù hợp với dữ liệu đang có?
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kernel Functions
+
+Làm sao biết phép biến đổi nào phù hợp với dữ liệu đang có? Hiện tại, chúng ta chưa đi sâu vào cách tính của từng kernel. SVM có sẵn một số lựa chọn như **Linear**, **Polynomial**, **RBF** và **Sigmoid (tanh)** để thử.
+
+Linear phù hợp để bắt đầu khi hai nhóm có thể tách bằng một đường thẳng.
+
+<SvmKernelChoiceIllustration
+  kernel="linear"
+  description="Hai nhóm điểm xanh và đỏ nằm ở hai phía của một đường thẳng phân loại. Minh họa dữ liệu có thể thử Linear kernel."
+/>
+
+Polynomial là một lựa chọn khi cần ranh giới cong dạng đa thức bậc thấp, như trong bài toán Dosage vừa rồi.
+
+<SvmKernelChoiceIllustration
+  kernel="poly"
+  description="Hai nhóm điểm được tách bởi một đường cong parabol. Minh họa dạng ranh giới có thể thử Polynomial kernel bậc 2."
+/>
+
+RBF có thể thử khi ranh giới cần linh hoạt hơn, chẳng hạn một nhóm nằm giữa và nhóm kia bao quanh.
+
+<SvmKernelChoiceIllustration
+  kernel="rbf"
+  description="Các điểm xanh nằm trong một vùng tròn và các điểm đỏ bao quanh bên ngoài. Minh họa dạng dữ liệu có thể thử RBF kernel."
+/>
+
+Sigmoid dùng hàm tanh và là một lựa chọn thử thêm. Không có một hình dạng dữ liệu riêng để mặc định chọn kernel này.
+
+Các hình chỉ gợi ý lựa chọn để thử. Chúng ta vẫn dùng **cross-validation** để so sánh kernel và tune tham số. Phần code sẽ hướng dẫn cụ thể.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Tổng kết SVM
+
+## 1. SVM thuộc Supervised Learning
+
+**SVM** là thuật toán **Supervised Learning**, cụ thể được dùng cho bài toán **Classification** trong bài học này. Mô hình học từ dữ liệu đã biết nhãn để phân loại mẫu mới.
+
+<SvmTwoDimensionalBoundary
+  mode="margin-band"
+  description="SVM phân loại chuột bình thường và béo phì dựa trên khối lượng và chiều cao. Đường đen là đường phân loại, hai đường nét đứt là biên margin."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Đường phân loại' }}
+/>
+
+## 2. Hyperplane trong 1D
+
+Ranh giới phân loại được gọi chung là **hyperplane**. Hình dạng của nó phụ thuộc vào số chiều của không gian feature.
+
+Trong **1D**, hyperplane là một điểm trên trục số, chính là **threshold**.
+
+<SvmThresholdMotivation
+  stage={14}
+  description="Trong không gian 1D, ranh giới phân loại là một điểm threshold trên trục khối lượng, chia hai nhóm chuột về hai phía."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold' }}
+/>
+
+## 3. Hyperplane trong 2D
+
+Trong **2D**, hyperplane là một **đường thẳng** chia mặt phẳng thành hai phía.
+
+<SvmTwoDimensionalBoundary
+  showBoundary={true}
+  description="Trong không gian 2D với khối lượng và chiều cao, hyperplane là một đường thẳng phân loại."
+  labels={{ mass: 'Khối lượng (g)', height: 'Chiều cao (cm)', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Hyperplane trong 2D' }}
+/>
+
+## 4. Hyperplane trong 3D
+
+Trong **3D**, hyperplane là một **mặt phẳng** chia không gian thành hai phía.
+
+<SvmThreeDimensionalBoundary
+  showPlane={true}
+  description="Trong không gian 3D, hyperplane là một mặt phẳng phân loại. Các điểm class A nằm phía trên và các điểm class B nằm phía dưới mặt phẳng."
+  labels={{ mass: 'Khối lượng', height: 'Chiều cao', length: 'Chiều dài', classA: 'Class A', classB: 'Class B', plane: 'Hyperplane trong 3D' }}
+/>
+
+## 5. Hyperplane trong nhiều chiều
+
+Với nhiều hơn ba chiều, chúng ta không còn vẽ trực tiếp được ranh giới này, nhưng vẫn gọi nó là hyperplane. Trong không gian d chiều, hyperplane có d − 1 chiều.
+
+## 6. Quy trình thực hiện SVM
+
+Với ví dụ Dosage, chúng ta đã đi qua ba bước dưới đây.
+
+### Bước 1 — Dữ liệu ban đầu
+
+Bắt đầu với dữ liệu có một feature Dosage, nằm trong không gian **1D**.
+
+<SvmKernelMotivation
+  description="Bước 1. Training data trên trục Dosage 1D, với nhóm không hiệu quả màu đỏ ở hai đầu và nhóm có hiệu quả màu xanh ở giữa."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage' }}
+/>
+
+### Bước 2 — Biểu diễn trong nhiều chiều hơn
+
+Khi một threshold không đủ, xét không gian nhiều chiều hơn. Giữ Dosage và thêm Dosage² để biểu diễn mỗi mẫu bằng điểm (Dosage, Dosage²) trong **2D**.
+
+<SvmKernelMotivation
+  mapped={true}
+  description="Bước 2. Cùng training data được biểu diễn trong không gian 2D với hai tọa độ Dosage và Dosage bình phương. Chưa vẽ ranh giới phân loại."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', squaredAxis: 'Dosage²' }}
+/>
+
+### Bước 3 — Tìm ranh giới phân loại
+
+Tìm một **support vector classifier** để phân loại trong không gian đó. Đường thẳng dưới đây là **hyperplane** trong 2D.
+
+<SvmKernelMotivation
+  mapped={true}
+  showBoundary={true}
+  description="Bước 3. Một hyperplane, ở đây là đường thẳng trong 2D, tách nhóm không hiệu quả phía trên khỏi nhóm có hiệu quả phía dưới."
+  labels={{ classA: 'Không hiệu quả', classB: 'Có hiệu quả', axis: 'Dosage', squaredAxis: 'Dosage²', boundary: 'Hyperplane trong 2D' }}
+/>
+
+## 7. Hard margin
+
+Với **hard margin**, SVM chọn ranh giới có margin lớn nhất mà không cho phép training data vi phạm margin hoặc bị phân loại sai.
+
+<SvmThresholdMotivation
+  stage={14}
+  description="Hai nhóm chuột tách biệt hoàn toàn. Threshold ở giữa hai điểm gần nhất của hai nhóm, tạo margin lớn nhất về cả hai phía."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Maximum margin' }}
+/>
+
+## 8. Soft margin và tham số C
+
+Với **soft margin**, SVM cân bằng giữa margin rộng và mức phạt cho các điểm vi phạm. Tham số **C** điều chỉnh mức đánh đổi này.
+
+```python
+from sklearn.svm import SVC
+
+# C nhỏ: phạt nhẹ hơn các điểm vi phạm margin
+svm_small_c = SVC(kernel="linear", C=0.1)
+
+# C lớn: phạt mạnh hơn các điểm vi phạm margin
+svm_large_c = SVC(kernel="linear", C=10)
+```
+
+<SvmThresholdMotivation
+  stage={18}
+  threshold={6}
+  marginHalfWidth={1.5}
+  description="Soft margin cho phép một điểm outlier bình thường nằm sai phía của threshold, để giữ margin rộng giữa hai nhóm chính."
+  labels={{ normal: 'Bình thường', obese: 'Béo phì', axis: 'Khối lượng', thresholds: 'Threshold', margin: 'Soft margin', outlier: 'Outlier', outlierPrediction: 'Dự đoán béo phì' }}
+/>
+
+## 9. Support vectors
+
+Các điểm nằm trên biên margin hoặc vi phạm margin là **support vectors**. Chúng quyết định vị trí của hyperplane.
+
+<SvmTwoDimensionalBoundary
+  mode="summary"
+  description="Đường đen là hyperplane trong 2D, hai đường nét đứt là biên margin. Các support vectors trên biên hoặc bên trong vùng margin được khoanh tròn; các điểm còn lại được làm mờ."
+  labels={{ mass: 'Khối lượng', height: 'Chiều cao', normal: 'Bình thường', obese: 'Béo phì', boundary: 'Hyperplane', margin: 'Margin', supportVectors: 'Support vectors' }}
+/>
+
+## 10. Kernel functions
+
+**Kernel functions** tính tích vô hướng giữa các mẫu trong không gian feature tương ứng, mà không cần tạo tường minh toàn bộ tọa độ mới.
+
+Thay đổi tham số `kernel` khi khai báo SVC để thử các lựa chọn khác nhau.
+
+```python
+from sklearn.svm import SVC
+
+# Linear: thử khi hai class tách được bằng đường thẳng hoặc hyperplane
+svm_linear = SVC(kernel="linear", C=1)
+
+# Polynomial: thử ranh giới cong dạng đa thức, như bài toán Dosage
+svm_poly = SVC(kernel="poly", degree=2, coef0=1, C=1)
+
+# RBF: thử khi cần ranh giới cong linh hoạt hơn
+svm_rbf = SVC(kernel="rbf", gamma="scale", C=1)
+
+# Sigmoid (tanh): lựa chọn thử thêm để so sánh bằng cross-validation
+svm_sigmoid = SVC(kernel="sigmoid", gamma="scale", coef0=0, C=1)
+```
+
+Đây là các cấu hình để bắt đầu thử. Kernel và tham số phù hợp được chọn bằng cross-validation.
+
+## 11. Chọn hyperparameter bằng cross-validation
+
+**Cross-validation** giúp chọn kernel và các hyperparameter như C, gamma, degree. Giả sử X_train và y_train là dữ liệu đã tách riêng khỏi test set, chúng ta dùng GridSearchCV để so sánh các cấu hình.
+
+```python
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+
+model = Pipeline([
+    ("scale", StandardScaler()),
+    ("svm", SVC()),
+])
+
+options = [
+    {"svm__kernel": ["linear"], "svm__C": [0.1, 1, 10]},
+    {"svm__kernel": ["poly"], "svm__C": [0.1, 1, 10],
+     "svm__degree": [2, 3], "svm__coef0": [1]},
+    {"svm__kernel": ["rbf", "sigmoid"], "svm__C": [0.1, 1, 10],
+     "svm__gamma": [0.1, 1, 10]},
+]
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+search = GridSearchCV(model, options, cv=cv, scoring="accuracy")
+search.fit(X_train, y_train)
+
+print(search.best_params_)  # Cấu hình được chọn
+best_model = search.best_estimator_
+```
+
+Mỗi cấu hình được đánh giá qua ba lần chia train và validation. GridSearchCV chọn cấu hình có accuracy validation trung bình cao nhất, rồi fit lại trên toàn bộ X_train và y_train. Pipeline giúp scaler chỉ được fit trên phần train của mỗi lần chia.
 
 </MdxPage>

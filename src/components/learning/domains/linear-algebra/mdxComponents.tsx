@@ -55,6 +55,7 @@ export const linearAlgebraMdxComponents = {
   DistancePlane: lazyNamed(loadVector, 'DistancePlane'),
   DotProductAngleExplorer: lazyNamed(loadVector, 'DotProductAngleExplorer'),
   DotProductPlane: lazyNamed(loadVector, 'DotProductPlane'),
+  DotProductCoordinateDiagram: lazyNamed(loadVector, 'DotProductCoordinateDiagram'),
   EmbeddingCosineDiagram: lazyNamed(loadVector, 'EmbeddingCosineDiagram'),
   HadamardProductGrid: lazyNamed(loadMatrix, 'HadamardProductGrid'),
   L2NormTriangle: lazyNamed(loadVector, 'L2NormTriangle'),
