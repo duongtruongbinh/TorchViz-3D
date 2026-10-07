@@ -269,3 +269,10 @@ Status: done — requested content and code cleanup completed; local commit auth
   from the decorative SVG group in the SVM threshold illustration. The
   figure retains its accessible description. `npm run lint` now exits 0;
   two existing Research Papers `PaperExcerpt` warnings remain.
+- 2026-10-07 — Fixed full-suite test failures after the SVM expansion:
+  updated expected quiz sizes and the 48-component Linear Algebra allowlist,
+  added SVM (2/3) to theory/quiz concept alignment checks, and supplied SVM (3)
+  concept IDs. Converted dosage powers and plane-axis labels to KaTeX and
+  used plain-language accessible figure descriptions. All 175 tests pass;
+  typecheck and lint pass (the two existing PaperExcerpt warnings remain).
+  No production build.

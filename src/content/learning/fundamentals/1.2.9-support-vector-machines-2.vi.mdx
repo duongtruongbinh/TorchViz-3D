@@ -261,7 +261,7 @@ Viết các tọa độ thành <InlineMath formula="x_1,x_2" />, gọi các hệ
 <SvmHyperplaneMathIllustration
   lineOnly={true}
   lineLabel="w_1x_1+w_2x_2+\mathrm{bias}=0"
-  description="Cùng đường thẳng trong 2D, đổi tên hai trục thành x₁ và x₂, với nhãn w₁x₁ + w₂x₂ + bias = 0."
+  description="Cùng đường thẳng trong 2D, đổi ký hiệu tọa độ và các hệ số sang dạng vector trọng số."
 />
 
 Tương tự, phương trình mặt phẳng trong **3D** có dạng
@@ -284,8 +284,8 @@ Tương tự, phương trình mặt phẳng trong **3D** có dạng
   showPlane={true}
   planeOnly={true}
   equationLabel="w_1x_1+w_2x_2+w_3x_3+\mathrm{bias}=0"
-  description="Cùng mặt phẳng trong 3D với các trục x₁, x₂ và x₃, có nhãn w₁x₁ + w₂x₂ + w₃x₃ + bias = 0."
-  labels={{ mass: 'x₁', height: 'x₂', length: 'x₃', classA: '', classB: '' }}
+  description="Cùng mặt phẳng trong 3D, đổi ký hiệu tọa độ và các hệ số sang dạng vector trọng số."
+  labels={{ mass: 'x_1', height: 'x_2', length: 'x_3', classA: '', classB: '' }}
 />
 
 Tổng quát, với <InlineMath formula="d" /> tọa độ, gom các hệ số thành vector <InlineMath formula="w=(w_1,\ldots,w_d)" />, các tọa độ thành <InlineMath formula="x=(x_1,\ldots,x_d)" /> và ký hiệu bias là <InlineMath formula="b" />.
@@ -298,7 +298,7 @@ Trong đó, <InlineMath formula="w\ne\mathbf{0}" /> chính là **vector pháp tu
   lineOnly={true}
   showNormal={true}
   lineLabel="w^\top x+b=0"
-  description="Vector pháp tuyến w = (1, −1) được vẽ thành mũi tên vuông góc với đường thẳng x₁ − x₂ − 1 = 0. Ký hiệu góc vuông đánh dấu quan hệ vuông góc."
+  description="Vector pháp tuyến w = (1, −1) được vẽ thành mũi tên vuông góc với đường phân chia. Ký hiệu góc vuông đánh dấu quan hệ vuông góc."
 />
 
 Đường thẳng và mặt phẳng là hai trường hợp của **hyperplane**. Trong không gian <InlineMath formula="d" /> chiều, hyperplane có <InlineMath formula="d-1" /> chiều.
@@ -318,7 +318,7 @@ Giá trị dương và âm tương ứng với hai phía khác nhau của hyperp
 <SvmHyperplaneMathIllustration
   showEquation={true}
   showClassRule={true}
-  description="Hyperplane f(x) = 0 chia không gian thành hai phía. Phía xanh có f(x) ≥ 0 và được dự đoán class +1; phía đỏ có f(x) < 0 và được dự đoán class −1."
+  description="Hyperplane f(x) = 0 chia không gian thành hai phía. Phía xanh có score không âm và được dự đoán class cộng 1; phía đỏ có score âm và được dự đoán class âm 1."
 />
 
 Điểm nằm đúng trên hyperplane có <InlineMath formula="f(x)=0" />. Quy tắc trên gán nó vào class <InlineMath formula="+1" /> theo quy ước.

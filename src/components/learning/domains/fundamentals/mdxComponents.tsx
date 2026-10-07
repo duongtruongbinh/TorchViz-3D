@@ -284,9 +284,15 @@ export function SvmThreeDimensionalBoundary({
         {!planeOnly && points(classB, red)}
         {showPlane && <path d={`${path(planeCorners)}Z`} fill="#B8C8DA" fillOpacity="0.5" stroke="#205089" strokeWidth="1.5" />}
         {!planeOnly && points(classA, blue)}
-        <text x="376" y="303" textAnchor="middle" fill="#334155" fontSize="15">{labels.mass}</text>
-        <text x="175" y="126" textAnchor="middle" fill="#334155" fontSize="15">{labels.height}</text>
-        <text x="68" y="200" transform="rotate(-90 68 200)" textAnchor="middle" fill="#334155" fontSize="15">{labels.length}</text>
+        {planeOnly ? <>
+          <foreignObject x="351" y="286" width="50" height="35"><div className="text-center text-sm text-[#334155]"><InlineMath formula={labels.mass} /></div></foreignObject>
+          <foreignObject x="150" y="109" width="50" height="35"><div className="text-center text-sm text-[#334155]"><InlineMath formula={labels.height} /></div></foreignObject>
+          <foreignObject x="43" y="183" width="50" height="35" transform="rotate(-90 68 200)"><div className="text-center text-sm text-[#334155]"><InlineMath formula={labels.length} /></div></foreignObject>
+        </> : <>
+          <text x="376" y="303" textAnchor="middle" fill="#334155" fontSize="15">{labels.mass}</text>
+          <text x="175" y="126" textAnchor="middle" fill="#334155" fontSize="15">{labels.height}</text>
+          <text x="68" y="200" transform="rotate(-90 68 200)" textAnchor="middle" fill="#334155" fontSize="15">{labels.length}</text>
+        </>}
         {planeOnly && equationLabel && <foreignObject x="180" y="345" width="330" height="35"><div className="text-sm text-[#172A43]"><InlineMath formula={equationLabel} /></div></foreignObject>}
         {showPlane && !planeOnly && <>
           <text x="320" y="365" textAnchor="middle" fill="#172A43" fontSize="15" fontWeight="600">{labels.plane}</text>
