@@ -265,3 +265,7 @@ Status: done — requested content and code cleanup completed; local commit auth
   whitespace. Full verify/production build and browser checks were skipped
   in this follow-up per the user's preference. Branch changes staged for
   the requested local commit; no push or deployment.
+- 2026-10-07 — Fixed the GitHub lint failure by removing `aria-hidden`
+  from the decorative SVG group in the SVM threshold illustration. The
+  figure retains its accessible description. `npm run lint` now exits 0;
+  two existing Research Papers `PaperExcerpt` warnings remain.

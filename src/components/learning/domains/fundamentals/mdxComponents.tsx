@@ -47,7 +47,7 @@ export function SvmThresholdMotivation({ stage, description, labels, threshold, 
       <svg viewBox={`88 0 416 ${showThreshold ? 230 : 180}`} className="mx-auto w-full max-w-[560px]" role="img" aria-label={description}>
         <g opacity={stage === 7 || (stage >= 11 && stage <= 14) ? 0.22 : 1}>
         {/* A mouse silhouette introduces the animal represented by each dot. */}
-        {!showThreshold && stage < 4 && <g transform="translate(42 0)" fill="#D5DCE5" stroke="#64748B" strokeWidth="1.5" aria-hidden="true">
+        {!showThreshold && stage < 4 && <g transform="translate(42 0)" fill="#D5DCE5" stroke="#64748B" strokeWidth="1.5">
           <path d="M270,44 Q302,24 307,43 Q310,58 294,60" fill="none" strokeLinecap="round" />
           <ellipse cx="247" cy="42" rx="27" ry="17" />
           <ellipse cx="222" cy="40" rx="13" ry="11" />
