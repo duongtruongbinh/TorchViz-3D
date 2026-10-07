@@ -108,8 +108,8 @@ test('verifies LegacyMathQuiz has zero callers and is removed from allowlist', (
   assert.equal((LINEAR_ALGEBRA_MDX_COMPONENT_NAMES as readonly string[]).includes('LegacyMathQuiz'), false);
 });
 
-test('registers all 47 linear algebra visual components in allowlist', () => {
-  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 47);
+test('registers all 48 linear algebra visual components in allowlist', () => {
+  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 48);
 
   const requiredComponents = [
     // Chapter 3

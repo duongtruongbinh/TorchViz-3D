@@ -4,153 +4,432 @@ export const lessonMetadata = {
   "locale": "vi",
   "title": "Quiz",
   "headings": [
-    "Khoảng cách tới ranh giới",
-    "Hinge loss và C",
-    "Ảnh hưởng của gamma",
-    "Score, regression và calibration"
+    "Supervised Learning và Classification",
+    "Có bao nhiêu threshold?",
+    "Ý tưởng của maximum margin",
+    "Support vectors là gì?",
+    "Các điểm nằm ngoài margin",
+    "Hạn chế của hard margin",
+    "Soft margin là gì?",
+    "Bias–variance trade-off",
+    "Khi dữ liệu không linearly separable",
+    "Kernel functions là gì?",
+    "Khi nào thử RBF hoặc Polynomial?",
+    "Hyperplane là gì?",
+    "So sánh các lựa chọn soft margin"
   ],
   "keywords": [
     "Machine Learning",
-    "Support Vector Machine",
+    "Support Vector Machine (1)",
     "Quiz"
   ],
   "conceptIds": [
+    "svm-supervised",
+    "svm-threshold-generalization",
     "svm-margin",
+    "svm-support-vectors",
+    "svm-outside-margin",
+    "svm-outlier",
     "svm-soft-margin-c",
+    "svm-bias-variance",
+    "svm-feature-mapping",
     "svm-kernel-gamma",
+    "svm-kernel-options",
+    "svm-hyperplane",
     "svm-workflow"
   ],
-  "pageCount": 4
+  "pageCount": 13
 }
 
 <MdxQuiz id="support-vector-machines-quiz" questions={[
   {
-    "id": "svm-margin",
-    "title": "Khoảng cách tới ranh giới",
-    "prompt": "Với w = [1, 0], b = -2 và điểm x = [3, 0], score và khoảng cách tới ranh giới là gì?",
+    "id": "svm-supervised",
+    "title": "Supervised Learning và Classification",
+    "prompt": "Trong bài học này, SVM học và dự đoán như thế nào?",
     "mode": "single",
     "options": [
       {
         "id": "a",
-        "label": "Score 1, khoảng cách 1.",
+        "label": "Học từ các mẫu đã biết nhãn để dự đoán class của mẫu mới.",
         "isCorrect": true
       },
       {
         "id": "b",
-        "label": "Score 3, khoảng cách 3.",
+        "label": "Tự tạo các nhãn mà không cần training data đã biết nhãn.",
         "isCorrect": false
       },
       {
         "id": "c",
-        "label": "Score -1, khoảng cách 1.",
+        "label": "Chỉ ghi nhớ khối lượng mà không tạo ranh giới phân loại.",
         "isCorrect": false
       },
       {
         "id": "d",
-        "label": "Score 1, khoảng cách 2.",
+        "label": "Luôn trả về xác suất chính xác của từng class.",
         "isCorrect": false
       }
     ],
-    "success": "Đúng. f(x) = 3 - 2 = 1 và ||w|| = 1 nên khoảng cách bằng 1.",
-    "error": "Khoảng cách là |f(x)|/||w||, không phải giá trị feature đầu tiên."
+    "success": "Đúng. Đây là Supervised Learning cho Classification, với training data đã biết nhãn.",
+    "error": "SVM học ranh giới từ các nhãn có sẵn, rồi dùng ranh giới đó để phân loại mẫu mới."
+  },
+  {
+    "id": "svm-threshold-generalization",
+    "title": "Có bao nhiêu threshold?",
+    "prompt": "Giả sử hai class trong training data nằm tách biệt trên trục 1D (linearly separable). Có bao nhiêu threshold có thể phân loại đúng toàn bộ training data?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Chỉ một threshold duy nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Đúng hai threshold.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vô số threshold trong khoảng trống giữa hai class.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Mọi threshold trên trục số đều được.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Mọi threshold nằm trong khoảng trống giữa hai class đều phân loại đúng toàn bộ training data.",
+    "error": "Hai class tách biệt để lại một khoảng trống. Threshold có thể nằm ở bất kỳ vị trí nào bên trong khoảng đó, không chỉ ở chính giữa."
+  },
+  {
+    "id": "svm-margin",
+    "title": "Ý tưởng của maximum margin",
+    "prompt": "Ý tưởng của maximum margin là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Chọn một ranh giới bất kỳ, miễn phân loại đúng training data.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Chọn ranh giới phân loại đúng training data và làm khoảng cách tới điểm gần nhất lớn nhất có thể.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Đặt ranh giới sát một class để ưu tiên class đó.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Làm khoảng cách giữa các điểm trong cùng một class lớn nhất có thể.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Trong các ranh giới phân loại đúng training data, ta ưu tiên ranh giới có margin lớn nhất.",
+    "error": "Margin xét khoảng cách từ ranh giới tới các điểm gần nhất, không phải khoảng cách giữa mọi cặp điểm."
+  },
+  {
+    "id": "svm-support-vectors",
+    "title": "Support vectors là gì?",
+    "prompt": "Support vectors trong SVM chỉ những điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Các điểm nằm xa ranh giới nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Các mẫu mới chưa biết nhãn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Các điểm trên biên margin hoặc vi phạm margin, góp phần quyết định hyperplane.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Chỉ các điểm bị phân loại sai.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Support vectors quyết định ranh giới; chúng có thể được phân loại đúng hoặc sai.",
+    "error": "Điểm trên biên margin cũng là support vector, không chỉ điểm bị phân loại sai."
+  },
+  {
+    "id": "svm-outside-margin",
+    "title": "Các điểm nằm ngoài margin",
+    "prompt": "Trong SVM, các điểm được phân loại đúng và nằm hoàn toàn ngoài vùng margin có trực tiếp quyết định vị trí hyperplane không?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Có. Mọi điểm đều quyết định hyperplane theo cùng một cách.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Không. Hyperplane được quyết định bởi các support vectors trên biên margin hoặc vi phạm margin.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Có. Điểm càng xa margin thì ảnh hưởng càng mạnh.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Không. Chỉ các test sample mới quyết định hyperplane.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Các điểm đúng phía và nằm hoàn toàn ngoài margin không phải support vectors, nên không trực tiếp quyết định hyperplane đã học. Nếu một điểm nằm ngoài margin nhưng ở sai phía hyperplane, nó vẫn bị phân loại sai và ảnh hưởng đến mô hình.",
+    "error": "Phân biệt điểm đúng phía ngoài margin với điểm sai phía hyperplane. Các support vectors mới là những điểm trực tiếp quyết định ranh giới."
+  },
+  {
+    "id": "svm-outlier",
+    "title": "Hạn chế của hard margin",
+    "prompt": "Hạn chế của hard margin được minh họa trong bài là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Nhạy cảm với outlier vì buộc mọi điểm training data không vi phạm margin.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Không thể dùng với dữ liệu đã biết nhãn.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Luôn bỏ qua những điểm nằm gần ranh giới.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Chỉ hoạt động trong không gian 1D.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Chỉ một outlier cũng có thể kéo lệch ranh giới và làm margin nhỏ đi.",
+    "error": "Hard margin không chấp nhận vi phạm; cố khớp một điểm bất thường có thể làm ranh giới thay đổi mạnh."
   },
   {
     "id": "svm-soft-margin-c",
-    "title": "Hinge loss và C",
-    "prompt": "Một điểm có y × f(x) = 0.4. Chọn tất cả phát biểu đúng.",
+    "title": "Soft margin là gì?",
+    "prompt": "Chọn tất cả phát biểu đúng về soft margin.",
     "mode": "multi",
     "options": [
       {
         "id": "a",
-        "label": "Hinge loss bằng 0 vì nhãn đã đúng.",
-        "isCorrect": false
-      },
-      {
-        "id": "b",
-        "label": "Hinge loss bằng 0.6 vì điểm vẫn vi phạm margin.",
+        "label": "Cho phép một số điểm nằm trong margin hoặc bị phân loại sai để đánh đổi với độ rộng margin.",
         "isCorrect": true
       },
       {
+        "id": "b",
+        "label": "Loại hoàn toàn các điểm vi phạm khỏi bài toán tối ưu.",
+        "isCorrect": false
+      },
+      {
         "id": "c",
-        "label": "C lớn hơn làm vi phạm train đắt hơn tương đối trong objective đã học.",
+        "label": "Tham số C điều chỉnh mức phạt cho các điểm vi phạm margin.",
         "isCorrect": true
       },
       {
         "id": "d",
-        "label": "C nhỏ hơn thường làm regularization mạnh hơn tương đối.",
-        "isCorrect": true
+        "label": "Bảo đảm mọi test sample đều được phân loại đúng.",
+        "isCorrect": false
       }
     ],
-    "success": "Đúng. Đúng phía chưa đủ để loss bằng 0; C cân bằng độ rộng margin và vi phạm.",
-    "error": "Hinge loss = max(0, 1 - 0.4); không đồng nhất lỗi margin với sai nhãn."
+    "success": "Đúng. Soft margin cho phép vi phạm nhưng vẫn phạt chúng; C điều chỉnh mức đánh đổi.",
+    "error": "Chấp nhận vi phạm không có nghĩa bỏ các điểm đó khỏi tối ưu, và không bảo đảm mọi dự đoán mới đều đúng."
   },
   {
-    "id": "svm-kernel-gamma",
-    "title": "Ảnh hưởng của gamma",
-    "prompt": "Với ||x-q||² = 4, tăng gamma của RBF từ 0.1 lên 0.5 làm similarity đổi thế nào?",
+    "id": "svm-bias-variance",
+    "title": "Bias–variance trade-off",
+    "prompt": "Trong ví dụ outlier, bias–variance trade-off được hiểu như thế nào?",
     "mode": "single",
     "options": [
       {
         "id": "a",
-        "label": "Tăng từ khoảng 0.135 lên 0.670.",
+        "label": "Cố khớp mọi điểm làm ranh giới ổn định hơn; chấp nhận sai outlier làm ranh giới nhạy hơn.",
         "isCorrect": false
       },
       {
         "id": "b",
-        "label": "Giữ nguyên vì khoảng cách không đổi.",
+        "label": "Cố khớp cả outlier minh họa bias thấp hơn, variance cao hơn; chấp nhận một số sai lệch minh họa xu hướng ngược lại.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Bias là độ rộng margin, còn variance là số chiều dữ liệu.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Chấp nhận phân loại sai một điểm luôn làm bias và variance bằng 0.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Trong ví dụ này, chấp nhận một số sai lệch giúp ranh giới ít thay đổi khi tập train có hoặc không có outlier.",
+    "error": "Bias là sai lệch có hệ thống; variance là mức mô hình thay đổi giữa các tập train. Đây là xu hướng tương đối của ví dụ."
+  },
+  {
+    "id": "svm-feature-mapping",
+    "title": "Khi dữ liệu không linearly separable",
+    "prompt": "Nếu hai class không thể tách bằng một ranh giới tuyến tính trong không gian ban đầu, SVM có thể làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Đổi nhãn training data cho đến khi hai class tách được.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Luôn chọn một threshold ở chính giữa, dù dữ liệu phân bố thế nào.",
         "isCorrect": false
       },
       {
         "id": "c",
-        "label": "Giảm từ khoảng 0.670 xuống 0.135.",
+        "label": "Thử kernel phi tuyến để xét một không gian feature khác, rồi tìm hyperplane trong không gian đó.",
         "isCorrect": true
       },
       {
         "id": "d",
-        "label": "Trở thành số âm.",
+        "label": "Tự động chuyển bài toán thành Unsupervised Learning.",
         "isCorrect": false
       }
     ],
-    "success": "Đúng. exp(-0.4) khoảng 0.670; exp(-2) khoảng 0.135. Gamma lớn làm ảnh hưởng cục bộ hơn.",
-    "error": "Thay gamma vào exp(-gamma × 4)."
+    "success": "Đúng. Biểu diễn trong không gian feature khác có thể giúp tạo ranh giới phù hợp hơn; soft margin cho phép xử lý các vi phạm còn lại.",
+    "error": "Phép biến đổi thay biểu diễn dữ liệu, không thay nhãn. Nó không bảo đảm mọi dữ liệu sẽ được tách hoàn hảo."
+  },
+  {
+    "id": "svm-kernel-gamma",
+    "title": "Kernel functions là gì?",
+    "prompt": "Kernel functions trong SVM giúp tính gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Xác suất hai mẫu chắc chắn thuộc cùng class.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Tích vô hướng giữa hai mẫu trong không gian feature tương ứng, không cần tạo tường minh toàn bộ tọa độ mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Nhãn thật của một test sample trước khi mô hình dự đoán.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Số điểm cần xóa để training data không còn outlier.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Kernel hỗ trợ tính mối quan hệ giữa các mẫu trong không gian feature tương ứng.",
+    "error": "Giá trị kernel là kết quả tính giữa các mẫu, không phải xác suất cùng class hoặc nhãn thật của mẫu."
+  },
+  {
+    "id": "svm-kernel-options",
+    "title": "Khi nào thử RBF hoặc Polynomial?",
+    "prompt": "Chọn tất cả gợi ý phù hợp khi thử RBF và Polynomial.",
+    "mode": "multi",
+    "options": [
+      {
+        "id": "a",
+        "label": "Thử Polynomial khi muốn ranh giới dạng đa thức bậc thấp.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Thử RBF khi cần ranh giới phi tuyến linh hoạt hơn, chẳng hạn một nhóm bao quanh nhóm kia.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Polynomial luôn tốt hơn RBF nếu training accuracy cao hơn.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Các gợi ý về hình dạng dữ liệu vẫn cần được kiểm tra bằng cross-validation.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Hình dạng dữ liệu gợi ý kernel để thử, còn validation giúp so sánh chất lượng.",
+    "error": "Không có kernel luôn tốt nhất. Training accuracy không đủ để quyết định lựa chọn."
+  },
+  {
+    "id": "svm-hyperplane",
+    "title": "Hyperplane là gì?",
+    "prompt": "Trong SVM, hyperplane là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Ranh giới tuyến tính phân chia không gian feature; trong 1D là điểm, 2D là đường thẳng, 3D là mặt phẳng.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Một tên gọi chỉ dùng cho ranh giới trong không gian trên ba chiều.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Một điểm training data nằm gần ranh giới nhất.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Bất kỳ đường cong nào trong không gian feature ban đầu.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Hyperplane là tên gọi chung. Trong không gian d chiều, nó có d − 1 chiều.",
+    "error": "Điểm, đường thẳng và mặt phẳng đều là các trường hợp của hyperplane, tùy số chiều không gian feature."
   },
   {
     "id": "svm-workflow",
-    "title": "Score, regression và calibration",
-    "prompt": "Ghép tình huống với cách xử lý.",
-    "mode": "categorize",
-    "categories": [
-      {
-        "id": "calibration",
-        "label": "Kiểm tra/hiệu chỉnh xác suất"
-      },
-      {
-        "id": "regression",
-        "label": "Đánh giá hồi quy"
-      },
-      {
-        "id": "validation",
-        "label": "Chọn cấu hình bằng validation"
-      }
-    ],
+    "title": "So sánh các lựa chọn soft margin",
+    "prompt": "Dùng kỹ thuật nào để biết một lựa chọn soft margin phân loại dữ liệu mới tốt hơn lựa chọn khác?",
+    "mode": "single",
     "options": [
       {
-        "id": "score",
-        "label": "Cần xác suất từ score SVM để định giá rủi ro.",
-        "categoryId": "calibration"
+        "id": "a",
+        "label": "Chọn lựa chọn có training accuracy cao nhất.",
+        "isCorrect": false
       },
       {
-        "id": "svr",
-        "label": "Dùng SVR dự đoán giá nhà.",
-        "categoryId": "regression"
+        "id": "b",
+        "label": "Chọn ranh giới trông cân đối nhất trong hình.",
+        "isCorrect": false
       },
       {
-        "id": "tune",
-        "label": "So C và gamma với scaler trong pipeline.",
-        "categoryId": "validation"
+        "id": "c",
+        "label": "Dùng cross-validation để so sánh kết quả trên phần validation qua nhiều lần chia dữ liệu.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Dùng test set để thử liên tục cho đến khi tìm được tham số tốt nhất.",
+        "isCorrect": false
       }
     ],
-    "success": "Đúng. Score không tự là xác suất; SVR có target liên tục; hyperparameter không chọn bằng test.",
-    "error": "Xác định đầu ra và vai trò dữ liệu trước khi chọn metric hoặc cách fit."
+    "success": "Đúng. Cross-validation đánh giá trên dữ liệu không dùng để fit trong từng lần chia, giúp chọn mức đánh đổi phù hợp.",
+    "error": "Không chọn chỉ bằng training accuracy hoặc hình vẽ. Test set giữ riêng để đánh giá sau khi chọn cấu hình."
   }
 ]} />

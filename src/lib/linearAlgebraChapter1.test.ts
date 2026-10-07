@@ -125,6 +125,7 @@ test('Linear Algebra component allowlist includes all required Chapter 1 visual 
     'DistancePlane',
     'DotProductAngleExplorer',
     'DotProductPlane',
+    'DotProductCoordinateDiagram',
     'EmbeddingCosineDiagram',
     'GaussianEliminationStepper',
     'GaussJordanInverseStepper',
@@ -149,7 +150,7 @@ test('Linear Algebra component allowlist includes all required Chapter 1 visual 
     'VectorSubtractionPlane',
   ];
 
-  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 47);
+  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 48);
   for (const name of expectedComponents) {
     assert.ok(
       LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.includes(name as any),
