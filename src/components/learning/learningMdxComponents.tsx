@@ -424,9 +424,11 @@ const LESSON_NOTE_TONES = {
 export function LessonNote({
   children,
   tone = 'default',
+  title,
 }: {
   children?: ReactNode;
   tone?: keyof typeof LESSON_NOTE_TONES;
+  title?: string;
 }) {
   const presentation = LESSON_NOTE_TONES[tone] ?? defaultNoteTone;
   const { Icon } = presentation;
@@ -440,7 +442,7 @@ export function LessonNote({
     >
       <header className={cx('flex items-center gap-1.5 px-3 py-1.5 text-[0.8125rem] font-black leading-5', presentation.header)}>
         <Icon className="h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
-        {presentation.label}
+        {title ?? presentation.label}
       </header>
       <div className="px-3 py-2.5 [&_p]:!text-inherit [&_li]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5">
         {children}
@@ -476,28 +478,39 @@ export function LessonImage({
 
   useEffect(() => {
     let isActive = true;
+    const images: HTMLImageElement[] = [];
     setLoadState({ key: requestKey, status: 'loading' });
 
-    if (!CDN_BASE_URL) {
-      console.error(`Learning Lab image CDN is not configured: ${cleanPath}`);
-      setLoadState({ key: requestKey, status: 'error' });
-      return;
+    const cdnUrl = CDN_BASE_URL ? `${CDN_BASE_URL}/assets/learning/${cleanPath}` : null;
+    const localUrl = import.meta.env.DEV
+      ? `/__local-learning-assets/${cleanPath.split('/').map(encodeURIComponent).join('/')}`
+      : null;
+    const sources = [cdnUrl, localUrl].filter((url): url is string => Boolean(url));
+
+    function trySource(index: number) {
+      const url = sources[index];
+      if (!url) {
+        if (isActive) setLoadState({ key: requestKey, status: 'error' });
+        return;
+      }
+      const img = new Image();
+      images.push(img);
+      img.onload = () => {
+        if (isActive) setLoadState({ key: requestKey, status: 'success', src: url });
+      };
+      img.onerror = () => {
+        if (isActive) trySource(index + 1);
+      };
+      img.src = url;
     }
 
-    const cdnUrl = `${CDN_BASE_URL}/assets/learning/${cleanPath}`;
-    const img = new Image();
-    img.onload = () => {
-      if (isActive) setLoadState({ key: requestKey, status: 'success', src: cdnUrl });
-    };
-    img.onerror = () => {
-      console.error(`Learning Lab image failed to load from CDN: ${cdnUrl}`);
-      if (isActive) setLoadState({ key: requestKey, status: 'error' });
-    };
-    img.src = cdnUrl;
+    trySource(0);
     return () => {
       isActive = false;
-      img.onload = null;
-      img.onerror = null;
+      for (const img of images) {
+        img.onload = null;
+        img.onerror = null;
+      }
     };
   }, [cleanPath, requestKey]);
 

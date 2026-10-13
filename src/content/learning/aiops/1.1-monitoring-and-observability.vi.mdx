@@ -13,10 +13,18 @@ Một ứng dụng vẫn có thể tiếp tục phục vụ người dùng ngay 
 
 Vì vậy, khi hệ thống được đưa vào vận hành, kỹ sư cần theo dõi một số tín hiệu quan trọng theo thời gian để sớm nhận ra khi trạng thái hệ thống lệch khỏi mức bình thường.
 
+<LessonImage
+  assetPath="aiops/one_request_distributed_system.webp"
+  alt="Một request đi từ client qua API Gateway, Checkout Service và các dịch vụ phụ thuộc trước khi hoàn tất."
+  caption="Một request đi qua nhiều thành phần, sự cố có thể xảy ra ở bất kì đâu."
+  aspectRatio="1173 / 376"
+  maxWidth="52rem"
+/>
+
 ### Monitoring là gì?
 
-<LessonNote tone="info">
-  **Monitoring:** Là quá trình theo dõi liên tục những tín hiệu và điều kiện đã được xác định trước để đánh giá tình trạng của hệ thống.
+<LessonNote tone="info" title="Monitoring">
+  Quá trình theo dõi liên tục những tín hiệu và điều kiện đã được xác định trước để đánh giá tình trạng của hệ thống.
 </LessonNote>
 
 Kỹ sư thường bắt đầu bằng những câu hỏi đã biết cần quan tâm, chẳng hạn:
@@ -46,6 +54,8 @@ Một yêu cầu có thể đi qua nhiều lớp trước khi được xử lý 
 <LessonImage
   assetPath="aiops/monitoring_across_system.webp"
   alt="Monitoring theo dõi hệ thống từ hành vi người dùng đến ứng dụng, network và infrastructure."
+  caption="Monitoring theo dõi hệ thống từ hành vi người dùng đến ứng dụng, network và infrastructure."
+  aspectRatio="4929 / 1221"
   maxWidth="52rem"
 />
 
@@ -64,8 +74,8 @@ Tuy nhiên, phát hiện rằng hệ thống đang có vấn đề mới chỉ l
 
 Những câu hỏi trên không phải lúc nào cũng có thể xác định trước từ đầu. Trong quá trình điều tra, mỗi thông tin mới có thể dẫn đến một câu hỏi khác. Khả năng sử dụng dữ liệu của hệ thống để tiếp tục khám phá theo cách này chính là Observability.
 
-<LessonNote tone="info">
-  **Observability:** Là khả năng sử dụng dữ liệu mà hệ thống tạo ra để hiểu những gì đang xảy ra bên trong, đặc biệt khi nguyên nhân của vấn đề chưa được biết trước.
+<LessonNote tone="info" title="Observability">
+  Khả năng sử dụng dữ liệu mà hệ thống tạo ra để hiểu những gì đang xảy ra bên trong, đặc biệt khi nguyên nhân của vấn đề chưa được biết trước.
 </LessonNote>
 
 Điểm quan trọng là quá trình điều tra không nhất thiết chỉ dựa trên những câu hỏi đã được xác định từ đầu. Mỗi thông tin mới có thể dẫn đến một câu hỏi khác, giúp kỹ sư từng bước thu hẹp phạm vi cần kiểm tra.
@@ -77,6 +87,8 @@ Monitoring và Observability được sử dụng cùng nhau trong quá trình v
 <LessonImage
   assetPath="aiops/monitoring_observability.webp"
   alt="Từ monitoring alert đến quá trình điều tra bằng observability."
+  caption="Từ cảnh báo monitoring đến quá trình điều tra bằng observability."
+  aspectRatio="4921 / 1858"
   maxWidth="52rem"
 />
 

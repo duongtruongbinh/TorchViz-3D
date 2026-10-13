@@ -107,6 +107,6 @@ node scripts/syncR2Assets.ts --force
 
 Trong `LessonImage` component (`src/components/learning/learningMdxComponents.tsx`):
 - `ASSETS_CDN_URL` được `vite.config.ts` đọc lúc build và inject thành hằng `__ASSETS_CDN_URL__` vào bundle.
-- Component chỉ tải ảnh từ Cloudflare CDN; không bundle hoặc fallback về asset cục bộ.
-- Nếu CDN chưa được cấu hình hoặc request thất bại, component hiển thị trạng thái lỗi có nút thử lại.
+- Component ưu tiên tải ảnh từ Cloudflare CDN. Khi chạy Vite dev, nếu CDN chưa được cấu hình hoặc ảnh không tải được, component thử file tương ứng trong `src/assets/learning/` qua route dev nội bộ.
+- Bản production không bundle và không phục vụ ảnh local. Nếu cả nguồn phù hợp đều không tải được, component hiển thị trạng thái lỗi có nút thử lại. Ảnh cần được tải lên R2 trước khi deploy.
 - Khi chạy local, Vite nạp `ASSETS_CDN_URL` từ file `.env` bằng `loadEnv`; trên Vercel/CI, biến môi trường của tiến trình được ưu tiên.

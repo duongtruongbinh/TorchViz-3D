@@ -184,9 +184,11 @@ test('Learning Home stays outside Workspace and full-catalog dependency graphs',
   assert.doesNotMatch(
     learningMdxComponents,
     /import\.meta\.glob\([^)]*assets\/learning/,
-    'Learning Lab images should load exclusively from the configured CDN',
+    'Learning Lab images should not be bundled from the local asset directory',
   );
-  assert.match(learningMdxComponents, /Learning Lab image failed to load from CDN/);
+  assert.match(learningMdxComponents, /const sources = \[cdnUrl, localUrl\]/);
+  assert.match(learningMdxComponents, /import\.meta\.env\.DEV/);
+  assert.match(learningMdxComponents, /__local-learning-assets/);
   assert.match(llmConceptRenderers, /import\s+\{[^}]*LessonImage[^}]*\}\s+from\s+['"]\.\.\/\.\.\/learningMdxComponents['"]/);
   assert.doesNotMatch(llmConceptRenderers, /__ASSETS_CDN_URL__|getLlmLearningAssetUrl|<img\b/);
   assert.doesNotMatch(cvMdxComponents, /content\/learning\/index/);

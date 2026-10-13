@@ -335,6 +335,12 @@ exactly; generic MDX validation fails on missing, renamed, or reordered
 headings. Existing lessons remain on the legacy metadata contract until they are
 audited, so enabling the flag is an explicit content-migration step.
 
+The lesson header uses a page's authored heading only when that heading is the
+first content on the page. When introductory prose or a visual appears first,
+the header keeps the catalog-validated lesson title and later headings remain
+subsections inside the page. This avoids promoting a subsection over its
+opening context.
+
 The Continual Learning domain applies the prefix consistently to every authored
 file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
 number mirror the domain TOC exactly, including adjacent Quiz nodes; Chapter 7
@@ -588,10 +594,12 @@ without horizontal overflow.
 
 `LessonDetail` owns one outer panel. Markdown, formulas, visual components, and
 quizzes use spacing and dividers rather than nested decorative panels. Runtime
-lesson media is served exclusively from the configured Cloudflare R2 CDN under
-`assets/learning/<domain>/`; it is not bundled from a local
-`src/assets/learning/` fallback. `docs/assets/` is only for documentation
-artifacts.
+lesson media uses the configured Cloudflare R2 CDN under
+`assets/learning/<domain>/` first. In Vite development only, `LessonImage`
+falls back to the matching file in `src/assets/learning/` if the CDN image
+cannot load or the CDN URL is unset. Production builds do not include or serve
+this local fallback; assets must be uploaded to R2. `docs/assets/` is only for
+documentation artifacts.
 
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
 ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
@@ -607,9 +615,12 @@ in `learningMdxComponents.tsx`,
 are registered in the global MDX allowlist, and accept only static MDX data.
 Domain lessons must reuse these grammars instead of shipping look-alike local
 card grids. `LessonImage` resolves a relative `assets/learning/` path against
-the build-time CDN base URL and owns the common loading, error, and retry states.
+the build-time CDN base URL, optionally retries the local dev image, and owns
+the common loading, error, and retry states.
 Domain renderers that need authored raster media reuse `LessonImage` rather than
 constructing CDN URLs or raw image loading behavior locally.
+`LessonNote` accepts an optional plain-text `title` to replace the tone's
+default header label; existing notes keep their current labels when omitted.
 
 System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow

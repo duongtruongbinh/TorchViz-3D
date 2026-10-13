@@ -16,6 +16,7 @@ import { llmUnlearningLessonReferenceCoverage } from './src/content/learning/llm
 const require = createRequire(import.meta.url);
 const configDir = path.dirname(fileURLToPath(import.meta.url));
 const learningContentRoot = path.join(configDir, 'src/content/learning');
+const localLearningAssetsRoot = path.join(configDir, 'src/assets/learning');
 const referenceLessonKeys = new Set([
   ...continualLearningLessonReferenceCoverage.map(({ lessonId }) => `continual-learning-llm/${lessonId}`),
   ...llmUnlearningLessonReferenceCoverage.map(({ lessonId }) => `llm-unlearning/${lessonId}`),
@@ -111,6 +112,43 @@ function resolveServedFile(rootDir: string, requestPath: string, prefix: string)
   if (!filePath.startsWith(`${rootDir}${path.sep}`)) return null;
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return null;
   return filePath;
+}
+
+function localLearningAssetsPlugin(): Plugin {
+  const prefix = '/__local-learning-assets/';
+  const imageTypes: Record<string, string> = {
+    '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp', '.svg': 'image/svg+xml', '.gif': 'image/gif',
+    '.avif': 'image/avif', '.ico': 'image/x-icon',
+  };
+
+  return {
+    name: 'torchviz-local-learning-assets',
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const requestPath = request.url?.split('?')[0] ?? '';
+        if (!requestPath.startsWith(prefix)) return next();
+
+        try {
+          const relativePath = decodeURIComponent(requestPath.slice(prefix.length));
+          const candidate = path.resolve(localLearningAssetsRoot, relativePath);
+          const root = fs.realpathSync(localLearningAssetsRoot);
+          const file = fs.realpathSync(candidate);
+          const mime = imageTypes[path.extname(file).toLowerCase()];
+          if (!file.startsWith(`${root}${path.sep}`) || !fs.statSync(file).isFile() || !mime) {
+            response.statusCode = 404;
+            response.end('Learning image not found');
+            return;
+          }
+          response.setHeader('Content-Type', mime);
+          fs.createReadStream(file).pipe(response);
+        } catch {
+          response.statusCode = 404;
+          response.end('Learning image not found');
+        }
+      });
+    },
+  };
 }
 
 function pyodideAssetsPlugin(): Plugin {
@@ -210,6 +248,7 @@ export default defineConfig(({ mode }) => {
     mdx({ remarkPlugins: [remarkGfm] }),
     tailwindcss(),
     react(),
+    localLearningAssetsPlugin(),
     pyodideAssetsPlugin(),
   ],
   resolve: {

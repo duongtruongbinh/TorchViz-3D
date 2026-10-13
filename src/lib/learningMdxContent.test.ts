@@ -588,6 +588,18 @@ test('MDX inspection derives each page title from its first section or subsectio
   assert.deepEqual(inspection.pageHeadings, ['First', 'Second', null]);
 });
 
+test('MDX inspection keeps the lesson title when introductory content precedes the first subsection', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'Lesson title', headings: ['Details'], keywords: ['x'] }";
+  const inspection = await inspectLearningMdx(`export const lessonMetadata = ${metadata}
+
+Introductory context.
+
+### Details
+
+Text`, 'fixture.mdx', 'cv');
+  assert.deepEqual(inspection.pageHeadings, [null]);
+});
+
 test('generic MDX contract rejects metadata heading drift', async () => {
   const catalogText = { title: { en: 'CV', vi: 'CV' }, description: { en: '', vi: '' } };
   const catalog: LearningCatalog = {

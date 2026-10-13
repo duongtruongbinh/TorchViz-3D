@@ -163,13 +163,15 @@ function getMdxPageIndex(node: Node): number | null {
   return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : null;
 }
 
-function findFirstPageHeading(node: Node): string | null {
-  if (node.type === 'heading' && typeof node.depth === 'number' && node.depth >= 2 && node.depth <= 6) {
-    return mdastText(node).trim() || null;
-  }
-  for (const child of node.children ?? []) {
-    const heading = findFirstPageHeading(child);
-    if (heading) return heading;
+function findLeadingPageHeading(node: Node): string | null {
+  const firstContentNode = (node.children ?? []).find((child) => child.type !== 'mdxjsEsm');
+  if (
+    firstContentNode?.type === 'heading'
+    && typeof firstContentNode.depth === 'number'
+    && firstContentNode.depth >= 2
+    && firstContentNode.depth <= 6
+  ) {
+    return mdastText(firstContentNode).trim() || null;
   }
   return null;
 }
@@ -179,9 +181,9 @@ function getPageHeadings(tree: Node): Array<string | null> {
   walk(tree, (node) => {
     if (node.type !== 'mdxJsxFlowElement' || node.name !== 'MdxPage') return;
     const index = getMdxPageIndex(node);
-    if (index !== null) pages.push({ index, heading: findFirstPageHeading(node) });
+    if (index !== null) pages.push({ index, heading: findLeadingPageHeading(node) });
   });
-  if (!pages.length) return [findFirstPageHeading(tree)];
+  if (!pages.length) return [findLeadingPageHeading(tree)];
   const headings = Array<string | null>(Math.max(...pages.map((page) => page.index)) + 1).fill(null);
   for (const page of pages) headings[page.index] = page.heading;
   return headings;

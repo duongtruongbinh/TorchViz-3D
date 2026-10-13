@@ -9,39 +9,43 @@ export const lessonMetadata = {
 }
 
 
-Một giá trị riêng lẻ chỉ mô tả service tại một thời điểm. Muốn phát hiện traffic, lỗi, latency hoặc mức sử dụng tài nguyên đang thay đổi, engineer cần thu thập và so sánh metrics theo thời gian. Prometheus thực hiện công việc đó qua một pipeline: lấy metrics từ các nguồn đã cấu hình, lưu các sample theo thời gian và cung cấp dữ liệu cho truy vấn.
+Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipeline để thu thập, lưu trữ và truy vấn chúng theo thời gian. Prometheus đảm nhiệm pipeline này bằng cách lấy metrics từ các target, tức các application hoặc exporter cung cấp dữ liệu, rồi lưu những sample thu được vào TSDB (Time-Series Database).
 
-<LessonNote tone="info">
-  **Prometheus:** Là hệ thống monitoring được thiết kế cho dữ liệu time series.
-</LessonNote>
+<LessonImage
+  assetPath="aiops/prometheus_architecture.webp"
+  alt="Prometheus thu thập metrics từ application, exporter và Pushgateway, lưu dữ liệu trong TSDB rồi cung cấp dữ liệu cho truy vấn, dashboard và alerting."
+  caption="Prometheus Server kết nối các nguồn metrics với truy vấn, trực quan hóa và alerting."
+  aspectRatio="1067 / 477"
+  maxWidth="62rem"
+/>
 
-<LessonNote tone="warning">
-  TODO(image): `images/prometheus_architecture.png`
-
-  Alt: Prometheus thu thập metrics từ các target, lưu dữ liệu dưới dạng time series và cung cấp chúng cho truy vấn, trực quan hóa và alerting.
-</LessonNote>
-
-Prometheus Server quyết định nguồn nào cần được thu thập và thời điểm thực hiện. Grafana và alerting rules sử dụng dữ liệu sau khi Prometheus đã lưu và xử lý.
+Như minh họa trong sơ đồ, Prometheus Server là thành phần trung tâm kết nối nguồn metrics với các công cụ sử dụng dữ liệu. PromQL cho phép truy vấn dữ liệu đã lưu, còn Grafana sử dụng Prometheus làm data source để trực quan hóa kết quả. Tùy theo môi trường triển khai, Prometheus có thể dùng danh sách target được cấu hình trực tiếp hoặc cập nhật danh sách này qua Service Discovery. Prometheus cũng có thể đánh giá alerting rules và chuyển alert được kích hoạt đến Alertmanager, còn cơ chế alerting sẽ được trình bày ở chương sau.
 
 ### Pull-based Metrics Collection
 
-Giả sử một web service cung cấp trạng thái metrics tại:
+Để theo dõi metrics theo thời gian, Prometheus cần lấy các giá trị mới từ dịch vụ. Nó chủ động truy cập nơi cung cấp metrics theo chu kỳ đã cấu hình. Cách thu thập này được gọi là *pull-based collection*.
 
-```text
-http://web-service:8000/metrics
-```
-
-Prometheus gửi HTTP request đến endpoint này theo chu kỳ và nhận về các giá trị hiện tại.
-
-<LessonNote tone="info">
-  **Scrape và target:** Mỗi lần Prometheus lấy metrics từ một endpoint được gọi là một scrape. Endpoint được scrape được gọi là một target.
+<LessonNote tone="info" title="Target">
+  Endpoint mà Prometheus truy cập để thu thập metrics.
 </LessonNote>
 
-Application hoặc exporter chịu trách nhiệm tạo nội dung tại `/metrics`. Bài tiếp theo sẽ giải thích hai cách tạo dữ liệu này.
+Ví dụ, `demo-app` cung cấp metrics tại:
+
+```text
+http://demo-app:8000/metrics
+```
+
+Prometheus gửi HTTP request đến endpoint này để lấy các giá trị hiện tại. Mỗi lần thu thập như vậy được gọi là một *scrape*.
+
+<LessonNote tone="info" title="Scrape">
+  Một lần Prometheus lấy metrics từ một target.
+</LessonNote>
+
+Ở đây, `/metrics` là nơi Prometheus lấy dữ liệu. Cách ứng dụng hoặc exporter (thành phần cung cấp metrics thay cho hệ thống khác) tạo ra dữ liệu tại endpoint này sẽ được trình bày ở phần tiếp theo.
 
 ### Targets, `scrape_interval` và trạng thái scrape
 
-Prometheus cần biết địa chỉ của từng target trước khi có thể thu thập dữ liệu. Trong môi trường lab, target có thể được khai báo trực tiếp:
+Trước khi thu thập metrics, Prometheus cần biết phải truy cập những target nào. Nó đọc thông tin này từ tệp cấu hình `prometheus.yml`. Ví dụ, để khai báo `demo-app`:
 
 ```yaml
 scrape_configs:
@@ -51,52 +55,52 @@ scrape_configs:
           - "demo-app:8000"
 ```
 
-`job_name` nhóm các target có cùng vai trò. Địa chỉ `demo-app:8000` nhận diện target cụ thể trong nhóm đó.
+Trong cấu hình này, `demo-app:8000` xác định target mà Prometheus sẽ scrape. `job_name` đặt tên cho nhóm target, còn `static_configs` chứa các địa chỉ được khai báo trực tiếp.
 
-Sau khi có danh sách target, Prometheus cần biết bao lâu sẽ scrape một lần:
-
-```yaml
-global:
-  scrape_interval: 15s
-```
-
-Trong lab này, Prometheus cố gắng lấy metrics khoảng 15 giây một lần. `15s` là lựa chọn cấu hình của môi trường thực hành, không phải chu kỳ chung cho mọi hệ thống. Interval ngắn ghi nhận biến động chi tiết hơn nhưng tạo nhiều sample và tăng chi phí xử lý. Interval dài giảm lượng dữ liệu nhưng có thể bỏ qua những biến động ngắn.
-
-Khi lưu sample, Prometheus thường bổ sung hai labels nhận diện nguồn:
+Khi thu thập từ nhiều target, Prometheus cần phân biệt dữ liệu đến từ đâu. Giá trị của `job_name` được dùng làm nhãn `job`, còn địa chỉ target thường được dùng làm nhãn `instance`:
 
 ```text
 job="demo-app"
 instance="demo-app:8000"
 ```
 
-Prometheus cũng tạo metric `up` để ghi lại kết quả của lần scrape gần nhất:
+Prometheus cũng cần biết khoảng thời gian giữa các lần thu thập. Trong cấu hình sau, `scrape_interval: 15s` đặt khoảng thời gian giữa các lần scrape là 15 giây:
 
-```text
-up{job="demo-app", instance="demo-app:8000"}
+```yaml
+global:
+  scrape_interval: 15s
 ```
 
-Giá trị `1` nghĩa là lần scrape gần nhất thành công. Giá trị `0` nghĩa là Prometheus không lấy được metrics từ target. Tín hiệu này chỉ xác nhận đường thu thập metrics còn hoạt động. Service vẫn có thể trả `/metrics` trong khi database hoặc dependency của nó đang gặp sự cố.
+Mỗi lần scrape thành công, Prometheus lưu các giá trị thu được cùng thời điểm của lần thu thập đó. Những lần thu thập liên tiếp cho thấy metrics thay đổi theo thời gian. Thu thập thường xuyên hơn giúp ghi nhận biến động chi tiết hơn nhưng tạo ra nhiều dữ liệu hơn. Thu thập thưa hơn làm giảm lượng dữ liệu nhưng có thể bỏ qua biến động ngắn.
 
-<LessonNote tone="warning">
-  TODO(image): `images/practice/prometheus_up.png`
+Để biết lần scrape gần nhất có thành công hay không, Prometheus tạo metric `up` cho từng target.
 
-  Alt: Trạng thái scrape của các target trong Prometheus.
+<LessonNote tone="info" title="up">
+  Giá trị `1` cho biết lần scrape gần nhất thành công, còn `0` cho biết lần đó thất bại.
 </LessonNote>
+
+<LessonImage
+  assetPath="aiops/prometheus_up.webp"
+  alt="Kết quả truy vấn up trong Prometheus cho bốn target, mỗi target có giá trị 1."
+  caption="Kết quả truy vấn metric up cho các target trong Prometheus."
+  aspectRatio="2546 / 1145"
+  maxWidth="62rem"
+/>
+
+Trong hình, cả bốn target đều có `up=1`, nghĩa là Prometheus đã scrape thành công cả bốn target ở lần gần nhất. `up` chỉ cho biết việc thu thập metrics có thành công hay không, không bảo đảm logic bên trong dịch vụ hoạt động bình thường.
 
 ### Service Discovery
 
-Khai báo tĩnh phù hợp với lab hoặc hệ thống có ít target ổn định. Trong môi trường động, instance có thể được tạo, thay địa chỉ hoặc bị loại bỏ thường xuyên. Danh sách viết tay khi đó dễ trở nên lỗi thời.
+Danh sách target được khai báo tĩnh trong `prometheus.yml` chỉ phù hợp khi các instance (bản chạy của dịch vụ) có địa chỉ ổn định. Trong thực tế, số lượng và địa chỉ instance có thể thay đổi khi hệ thống scale, triển khai phiên bản mới, thay thế instance lỗi hoặc khởi chạy lại dịch vụ. Nếu danh sách không được cập nhật, Prometheus có thể bỏ sót địa chỉ mới hoặc tiếp tục truy cập địa chỉ cũ.
 
-<LessonNote tone="info">
-  **Service Discovery:** Giúp Prometheus lấy và cập nhật danh sách target từ Kubernetes, Consul hoặc nền tảng cloud.
-</LessonNote>
-
-Service Discovery thay đổi cách Prometheus tìm target. Sau khi tìm thấy target, Prometheus vẫn thu thập metrics bằng cơ chế pull.
+Service Discovery giúp Prometheus tự động phát hiện và cập nhật danh sách target khi các instance thay đổi. Sau đó, Prometheus vẫn scrape từng target theo chu kỳ như bình thường.
 
 ### Short-lived Jobs và Pushgateway
 
-Cơ chế scrape theo chu kỳ giả định target tồn tại đủ lâu để Prometheus kịp truy cập. Một batch job chạy trong 5 giây có thể kết thúc trước lần scrape tiếp theo nếu lab đang dùng `scrape_interval: 15s`.
+Prometheus thu thập metrics theo chu kỳ, nên một tác vụ có thể bắt đầu và kết thúc giữa hai lần scrape. Chẳng hạn, tác vụ xử lý dữ liệu theo đợt (*batch job*) chỉ chạy trong 5 giây, còn khoảng thời gian giữa các lần scrape là 15 giây. Prometheus có thể không kịp truy cập trước khi tác vụ kết thúc. Những tác vụ như vậy được gọi là *short-lived jobs* (tác vụ chạy ngắn).
 
-Với một số batch job ngắn, job có thể gửi metrics đến Pushgateway trước khi kết thúc. Prometheus sau đó scrape Pushgateway như một target tồn tại lâu hơn.
+<LessonNote tone="info" title="Pushgateway">
+  Thành phần trung gian nhận và giữ metrics do một số tác vụ chạy ngắn gửi đến để Prometheus thu thập sau.
+</LessonNote>
 
-Pushgateway có phạm vi sử dụng hẹp cho các workload kiểu này. Team cần quản lý vòng đời metrics để dữ liệu của job đã kết thúc không tiếp tục xuất hiện như dữ liệu hiện tại.
+Với tác vụ phù hợp, metrics được gửi đến Pushgateway trước khi tác vụ kết thúc. Prometheus sau đó scrape Pushgateway theo chu kỳ như một target thông thường.

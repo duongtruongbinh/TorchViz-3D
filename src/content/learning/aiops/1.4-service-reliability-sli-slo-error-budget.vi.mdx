@@ -16,6 +16,8 @@ Ba khái niệm tương ứng là SLI, SLO và Error Budget. SLI phản ánh k�
 <LessonImage
   assetPath="aiops/sli_slo_eb.webp"
   alt="Từ chỉ số, SLI được tính và so sánh với SLO để xác định Error Budget còn lại."
+  caption="Từ chỉ số, SLI được tính và so sánh với SLO để xác định Error Budget còn lại."
+  aspectRatio="4375 / 1196"
   maxWidth="52rem"
 />
 
@@ -23,8 +25,8 @@ Ba khái niệm tương ứng là SLI, SLO và Error Budget. SLI phản ánh k�
 
 Các chỉ số ban đầu cung cấp dữ liệu như số yêu cầu thành công và tổng số yêu cầu. Từ những giá trị này, kỹ sư có thể xây dựng một chỉ số đại diện cho chất lượng mà người dùng thực sự nhận được.
 
-<LessonNote tone="info">
-  **SLI (Service Level Indicator – chỉ số mức dịch vụ)** là phép đo phản ánh một khía cạnh cụ thể về chất lượng hoạt động của dịch vụ.
+<LessonNote tone="info" title="SLI (Service Level Indicator)">
+  Phép đo phản ánh một khía cạnh cụ thể về chất lượng hoạt động của dịch vụ.
 </LessonNote>
 
 Ví dụ, nếu muốn đo tỷ lệ yêu cầu được xử lý thành công:
@@ -45,8 +47,8 @@ Kết quả này phản ánh tỷ lệ yêu cầu thành công thực tế của
 
 Biết SLI bằng 99,92% vẫn chưa đủ để kết luận dịch vụ đang hoạt động tốt hay chưa. Kỹ sư cần một mức mục tiêu để so sánh với kết quả thực tế đó.
 
-<LessonNote tone="info">
-  **SLO (Service Level Objective – mục tiêu mức dịch vụ)** là mục tiêu được đặt cho một SLI trong một khoảng thời gian xác định.
+<LessonNote tone="info" title="SLO (Service Level Objective)">
+  Mục tiêu được đặt cho một SLI trong một khoảng thời gian xác định.
 </LessonNote>
 
 Ví dụ:
@@ -59,8 +61,8 @@ SLO này sử dụng tỷ lệ thành công của yêu cầu làm SLI và đặt
 
 SLO 99,9% không có nghĩa mọi yêu cầu đều phải thành công. Nó cho phép một phần nhỏ yêu cầu không đạt yêu cầu mà dịch vụ vẫn được xem là đáp ứng mục tiêu.
 
-<LessonNote tone="info">
-  **Error Budget** là mức sai lệch được phép mà dịch vụ vẫn đáp ứng SLO.
+<LessonNote tone="info" title="Error Budget">
+  Mức sai lệch được phép mà dịch vụ vẫn đáp ứng SLO.
 </LessonNote>
 
 Với SLO 99,9%:
