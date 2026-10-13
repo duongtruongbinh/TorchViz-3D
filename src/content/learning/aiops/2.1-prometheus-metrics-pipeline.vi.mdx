@@ -9,7 +9,7 @@ export const lessonMetadata = {
 }
 
 
-Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipeline để thu thập, lưu trữ và truy vấn chúng theo thời gian. Prometheus đảm nhiệm pipeline này bằng cách lấy metrics từ các target, tức các application hoặc exporter cung cấp dữ liệu, rồi lưu những sample thu được vào TSDB (Time-Series Database).
+Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipeline để lưu dữ liệu theo thời gian và cung cấp chúng cho truy vấn, dashboard và cảnh báo.
 
 <LessonImage
   assetPath="aiops/prometheus_architecture.webp"
@@ -19,7 +19,7 @@ Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipe
   maxWidth="62rem"
 />
 
-Như minh họa trong sơ đồ, Prometheus Server là thành phần trung tâm kết nối nguồn metrics với các công cụ sử dụng dữ liệu. PromQL cho phép truy vấn dữ liệu đã lưu, còn Grafana sử dụng Prometheus làm data source để trực quan hóa kết quả. Tùy theo môi trường triển khai, Prometheus có thể dùng danh sách target được cấu hình trực tiếp hoặc cập nhật danh sách này qua Service Discovery. Prometheus cũng có thể đánh giá alerting rules và chuyển alert được kích hoạt đến Alertmanager, còn cơ chế alerting sẽ được trình bày ở chương sau.
+Prometheus Server nằm ở trung tâm pipeline này. Dữ liệu từ hệ thống được tập trung và lưu theo thời gian, sau đó có thể được truy vấn trực tiếp hoặc sử dụng để tạo dashboard và cảnh báo. Nhờ đó, kỹ sư có thể theo dõi trạng thái hệ thống, quan sát sự thay đổi và nhận thông báo khi xuất hiện điều kiện cần chú ý. Kiến trúc cũng hỗ trợ môi trường có dịch vụ thay đổi thường xuyên và những nguồn dữ liệu chỉ tồn tại trong thời gian ngắn.
 
 ### Pull-based Metrics Collection
 
