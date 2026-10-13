@@ -9,7 +9,7 @@ export const lessonMetadata = {
 }
 
 
-Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipeline để lưu dữ liệu theo thời gian và cung cấp chúng cho truy vấn, dashboard và cảnh báo.
+Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipeline để thu thập và lưu dữ liệu theo thời gian, từ đó phục vụ truy vấn, trực quan hóa và cảnh báo.
 
 <LessonImage
   assetPath="aiops/prometheus_architecture.webp"
@@ -19,7 +19,7 @@ Sau khi xác định các metrics cần theo dõi, hệ thống cần một pipe
   maxWidth="62rem"
 />
 
-Prometheus Server nằm ở trung tâm pipeline này. Dữ liệu từ hệ thống được tập trung và lưu theo thời gian, sau đó có thể được truy vấn trực tiếp hoặc sử dụng để tạo dashboard và cảnh báo. Nhờ đó, kỹ sư có thể theo dõi trạng thái hệ thống, quan sát sự thay đổi và nhận thông báo khi xuất hiện điều kiện cần chú ý. Kiến trúc cũng hỗ trợ môi trường có dịch vụ thay đổi thường xuyên và những nguồn dữ liệu chỉ tồn tại trong thời gian ngắn.
+Prometheus Server nằm ở trung tâm pipeline này và lưu metrics dưới dạng dữ liệu chuỗi thời gian. Nhờ đó, kỹ sư có thể xem trạng thái hiện tại, theo dõi sự thay đổi của hệ thống và nhận thông báo khi xuất hiện dấu hiệu cần chú ý. Vai trò của từng thành phần sẽ được làm rõ trong các phần sau.
 
 ### Pull-based Metrics Collection
 
