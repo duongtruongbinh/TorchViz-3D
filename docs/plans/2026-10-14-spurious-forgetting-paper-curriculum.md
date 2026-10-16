@@ -94,6 +94,10 @@ Research Papers has 53 published nodes. Existing count assertions/statistics mat
 
 # Execution record
 
+- 2026-10-16 follow-up: fix the reported Research Papers entry redirect within
+  this branch's existing plan. Allow the route selector to skip first-lesson
+  fallback for bare hierarchical domains; keep explicit track/lesson links and
+  ordinary domain defaults. Add regression coverage and run `npm run verify`.
 - 2026-10-14: approved track/feature branch; added initial lessons and catalog entry.
 - 2026-10-15: incorporated user edits, completed source audit, published original
   media/illustration, retired Flowchart, added math/text emphasis, expanded quizzes

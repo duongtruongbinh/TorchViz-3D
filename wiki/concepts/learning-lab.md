@@ -19,6 +19,11 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
+Bare Research Papers and AI Projects domain URLs open their topic selectors.
+The shell disables first-lesson route fallback for these hierarchical domains;
+explicit track/lesson links still resolve normally. Other domains retain their
+first-lesson default.
+
 The catalog contains 18 domains, 117 tracks, and 972 lesson nodes. Five hundred
 ten Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in

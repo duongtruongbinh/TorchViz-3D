@@ -175,12 +175,15 @@ export function resolveLearningLessonRoute(
     domainId,
     trackId,
     lessonId,
+    allowDomainFallback = true,
   }: {
     domainId: LearningDomainId;
     trackId?: string | null;
     lessonId?: string | null;
+    allowDomainFallback?: boolean;
   },
 ): LearningRouteResolution | null {
+  if (!trackId && !lessonId && !allowDomainFallback) return null;
   const trackAlias = trackId ? findTrackAlias(catalog, domainId, trackId) : null;
   const canonicalTrackId = trackAlias?.toTrackId ?? trackId ?? undefined;
   const lessonAlias = lessonId ? findLessonAlias(catalog, domainId, lessonId) : null;
