@@ -54,9 +54,10 @@ test('registry maps supported operation families to exercise ids', () => {
   }
 });
 
-test('every reviewable Learning lesson points at a registered exercise surface', () => {
+test('reviewable Learning lesson entry points reference registered exercise surfaces', () => {
   for (const lesson of getReviewableLearningLessons(learningCatalog)) {
-    assert.equal(lesson.entryPoints.length, 1);
-    assert.ok(getExerciseById(lesson.entryPoints[0].exerciseId as ExerciseId), `missing exercise ${lesson.entryPoints[0].exerciseId}`);
+    for (const entryPoint of lesson.entryPoints) {
+      assert.ok(getExerciseById(entryPoint.exerciseId as ExerciseId), `missing exercise ${entryPoint.exerciseId}`);
+    }
   }
 });

@@ -1,0 +1,467 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-3-quiz",
+  "locale": "vi",
+  "title": "Quiz",
+  "headings": [
+    "Chọn mức score cố định",
+    "Ý nghĩa của dải margin",
+    "Hai biên khi chọn c bằng 1",
+    "Cách tính width",
+    "Công thức width",
+    "Đổi mục tiêu tối ưu",
+    "Gom hai điều kiện",
+    "Nới điều kiện bằng slack",
+    "Vai trò của C",
+    "C lớn và overfitting",
+    "C nhỏ và underfitting",
+    "Ý nghĩa của slack variable",
+    "Có cần tuning slack?",
+    "Tuning C"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine (3)",
+    "Quiz"
+  ],
+  "conceptIds": [
+    "svm3-margin-scale",
+    "svm3-margin-meaning",
+    "svm3-margin-boundaries",
+    "svm3-margin-width-method",
+    "svm3-margin-width-value",
+    "svm3-margin-objective",
+    "svm3-margin-combined-constraint",
+    "svm3-soft-constraint",
+    "svm3-soft-c",
+    "svm3-c-large-overfit",
+    "svm3-c-small-underfit",
+    "svm3-soft-slack",
+    "svm3-soft-slack-tuning",
+    "svm3-soft-c-tuning"
+  ],
+  "pageCount": 14
+}
+
+<MdxQuiz id="support-vector-machines-3-quiz" questions={[
+  {
+    "id": "svm3-margin-scale",
+    "title": "Chọn mức score cố định",
+    "prompt": "Với hard margin, vì sao ta chọn hai mức score cố định $-c$ và $+c$, với $c>0$, để định nghĩa hai biên?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Để bắt mọi điểm training nằm bên trong dải margin.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Để cố định scale khi viết bài toán tối ưu, tránh chỉ tăng score bằng cách nhân trọng số.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Để cố định khoảng cách hình học giữa hai biên bằng $2c$.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Để buộc mọi điểm có khoảng cách bằng nhau đến hyperplane.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Nhân cả $w,b$ với cùng hệ số dương không đổi hyperplane. Cố định mức score của hai biên giúp viết mục tiêu mở rộng margin với ràng buộc cụ thể.",
+    "error": "Ta cố định mức score của biên, không cố định khoảng cách hình học và không bắt dữ liệu nằm trong margin."
+  },
+  {
+    "id": "svm3-margin-meaning",
+    "title": "Ý nghĩa của dải margin",
+    "prompt": "Dải $-c\\leq f(x)\\leq c$ có ý nghĩa gì trong hard margin?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Mọi mẫu training phải nằm trong dải này.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Dải này luôn có độ rộng bằng $2c$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Đây là vùng giữa hai biên; các mẫu training phải ở đúng phía và không lọt vào bên trong dải.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Mọi điểm trong dải đều có score bằng $0$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Class $+1$ cần $f(x_i)\\geq c$; class $-1$ cần $f(x_i)\\leq-c$. Điểm được chạm biên, nhưng không được nằm trong $-c<f(x)<c$.",
+    "error": "Phân biệt vùng dùng để định nghĩa margin với vị trí các mẫu training phải thỏa trong hard margin."
+  },
+  {
+    "id": "svm3-margin-boundaries",
+    "title": "Hai biên khi chọn c bằng 1",
+    "prompt": "Chọn $c=1$. Hai biên margin có phương trình nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$w^\\top x+b=+1$ và $w^\\top x+b=-1$.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "$w^\\top x+b=0$ và $w^\\top x+b=1$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "$w^\\top x+b=+2$ và $w^\\top x+b=-2$.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$\\lVert w\\rVert=+1$ và $\\lVert w\\rVert=-1$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Hai biên ở hai mức score $+1$ và $-1$; hyperplane phân loại ở mức $0$.",
+    "error": "Thay $c=1$ vào hai mức score $+c$ và $-c$."
+  },
+  {
+    "id": "svm3-margin-width-method",
+    "title": "Cách tính width",
+    "prompt": "Chọn $x_+$ và $x_-$ trên hai biên, nằm trên cùng một đường vuông góc với chúng. Cách nào tính đúng width?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Lấy dot product của $x_++x_-$ với $w$.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Lấy hiệu score hai biên, không cần xét độ dài $w$.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Lấy dot product của $x_+-x_-$ với $w$, không cần chuẩn hóa.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Lấy dot product của $x_+-x_-$ với unit vector pháp tuyến $w/\\lVert w\\rVert$.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Vector nối hai điểm cùng hướng với unit vector pháp tuyến. Dot product bằng độ dài đoạn nối, chính là width.",
+    "error": "Vector nối hai điểm là hiệu tọa độ; vector dùng để lấy độ dài theo hướng pháp tuyến phải có norm bằng $1$."
+  },
+  {
+    "id": "svm3-margin-width-value",
+    "title": "Công thức width",
+    "prompt": "Với hai biên $\\pm1$, ta có $w^\\top(x_+-x_-)=2$. Width bằng bao nhiêu sau khi lấy dot product với unit vector pháp tuyến?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "$2\\lVert w\\rVert$",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "$2/\\lVert w\\rVert$",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "$1/\\lVert w\\rVert$",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "$2$ với mọi $w$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Chia $w^\\top(x_+-x_-)=2$ cho $\\lVert w\\rVert$ được width. Với hai biên $\\pm c$, tử số là $2c$.",
+    "error": "$1/\\lVert w\\rVert$ là khoảng cách từ hyperplane đến một biên; width là khoảng cách giữa cả hai biên."
+  },
+  {
+    "id": "svm3-margin-objective",
+    "title": "Đổi mục tiêu tối ưu",
+    "prompt": "Với hai biên $\\pm1$, bài toán tìm hyperplane có margin rộng nhất được đổi thành bài toán nào, với điều kiện gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Tối thiểu hóa $\\lVert w\\rVert$, với $y_i(w^\\top x_i+b)\\geq1$ cho mọi mẫu.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Tối đa hóa $\\lVert w\\rVert$, với $y_i(w^\\top x_i+b)\\geq1$ cho mọi mẫu.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Tối thiểu hóa $\\lVert w\\rVert$ mà không cần điều kiện trên dữ liệu.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Tối thiểu hóa $b$, với mọi mẫu nằm trong dải margin.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Width bằng $2/\\lVert w\\rVert$, nên giảm norm làm tăng width. Điều kiện giữ mọi mẫu đúng phía và trên hoặc ngoài biên.",
+    "error": "Giảm norm phải đi cùng ràng buộc; bỏ ràng buộc sẽ cho phép chọn $w=0$."
+  },
+  {
+    "id": "svm3-margin-combined-constraint",
+    "title": "Gom hai điều kiện",
+    "prompt": "Vì sao hai điều kiện $f(x_i)\\geq1$ khi $y_i=+1$ và $f(x_i)\\leq-1$ khi $y_i=-1$ được gom thành $y_if(x_i)\\geq1$?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Vì cả hai class đều có score dương.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Vì nhãn thật được bỏ khỏi bài toán tối ưu.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vì nhân điều kiện của class $-1$ với $-1$ đảo chiều bất đẳng thức; cả hai class cùng có dạng $y_if(x_i)\\geq1$.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Vì chỉ cần kiểm tra điều kiện của một class.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Class $+1$ giữ nguyên score. Class $-1$ biến $f(x_i)\\leq-1$ thành $-f(x_i)\\geq1$.",
+    "error": "Nhân hai vế của bất đẳng thức với số âm phải đảo chiều dấu."
+  },
+  {
+    "id": "svm3-soft-constraint",
+    "title": "Nới điều kiện bằng slack",
+    "prompt": "Để chuyển sang soft margin, ta thêm gì vào điều kiện hard margin?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Một bias riêng $b_i$ cho mỗi mẫu.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Một vector trọng số riêng $w_i$ cho mỗi mẫu.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Tham số $C$ để đổi điều kiện thành $y_if(x_i)\\geq C$.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Slack $\\xi_i\\geq0$ cho từng mẫu, đổi điều kiện thành $y_if(x_i)\\geq1-\\xi_i$.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Slack nới mức score tối thiểu cho từng mẫu, cho phép vi phạm margin. Các mẫu vẫn dùng chung $w,b$.",
+    "error": "Soft margin nới ràng buộc bằng slack; $C$ là hệ số phạt trong objective."
+  },
+  {
+    "id": "svm3-soft-c",
+    "title": "Vai trò của C",
+    "prompt": "Trong objective $\\frac12\\lVert w\\rVert^2+C\\sum_i\\xi_i$, $C>0$ có vai trò gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Là độ rộng margin cố định của mô hình.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Là hyperparameter quyết định mức phạt vi phạm margin; $C$ lớn phạt cùng một lượng slack nặng hơn.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Là slack dùng chung cho mọi mẫu.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Là số mẫu bị phân loại sai.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $C$ điều chỉnh đánh đổi giữa margin rộng và mức vi phạm. Nó nhân với tổng slack trong objective.",
+    "error": "$C$ là hệ số phạt, không phải khoảng cách hoặc slack của một mẫu."
+  },
+  {
+    "id": "svm3-c-large-overfit",
+    "title": "C lớn và overfitting",
+    "prompt": "Giữ nguyên dữ liệu và kernel. Chọn $C$ quá lớn có thể dẫn đến nguy cơ nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Mô hình phạt vi phạm quá nhẹ, bỏ qua nhiều mẫu và dễ underfit.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Mô hình cố giảm vi phạm trên training data, kể cả nhiễu, nên có thể overfit.",
+        "isCorrect": true
+      },
+      {
+        "id": "c",
+        "label": "Mô hình luôn dự đoán tốt hơn trên dữ liệu mới.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Mọi slack bắt buộc bằng $0$, kể cả khi dữ liệu không linearly separable.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $C$ lớn phạt slack mạnh hơn, khiến mô hình ưu tiên khớp training data. Nếu cố khớp nhiễu, khả năng dự đoán trên dữ liệu mới có thể giảm.",
+    "error": "Overfitting là nguy cơ, không phải kết quả chắc chắn. $C$ lớn tăng mức phạt slack nhưng không bắt mọi slack bằng $0$."
+  },
+  {
+    "id": "svm3-c-small-underfit",
+    "title": "C nhỏ và underfitting",
+    "prompt": "Giữ nguyên dữ liệu và kernel. Vì sao chọn $C$ quá nhỏ có thể khiến SVM underfit?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Vì mô hình buộc phải phân loại đúng mọi mẫu training.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Vì tổng slack bị phạt mạnh hơn khi $C$ giảm.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Vì mức phạt slack nhẹ, mô hình có thể ưu tiên margin rộng và chấp nhận quá nhiều vi phạm.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Vì mô hình chỉ quan tâm các điểm nhiễu và chắc chắn overfit.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. $C$ quá nhỏ có thể khiến mô hình chấp nhận nhiều vi phạm để giảm norm của $w$, bỏ qua cấu trúc cần học.",
+    "error": "Nhỏ hơn không luôn tốt hơn. $C$ nhỏ giảm mức phạt vi phạm, có thể tăng nguy cơ underfitting."
+  },
+  {
+    "id": "svm3-soft-slack",
+    "title": "Ý nghĩa của slack variable",
+    "prompt": "Slack variable $\\xi_i$ biểu thị điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Là khoảng cách từ hyperplane đến biên margin.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Là độ rộng margin của riêng mẫu đó.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Là lượng nới điều kiện cho mẫu $i$; slack nhỏ nhất bằng $\\max(0,1-y_if(x_i))$.",
+        "isCorrect": true
+      },
+      {
+        "id": "d",
+        "label": "Là nhãn dự đoán của mẫu đó.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Slack đo thiếu hụt theo score nhân với nhãn, không phải khoảng cách. Mẫu đúng phía nhưng trong margin vẫn cần slack dương.",
+    "error": "Hai biên vẫn ở mức $\\pm1$; slack nới điều kiện của mẫu, không di chuyển biên."
+  },
+  {
+    "id": "svm3-soft-slack-tuning",
+    "title": "Có cần tuning slack?",
+    "prompt": "Chúng ta có cần chọn hoặc tuning $\\xi_i$ thủ công cho từng mẫu không?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Không. Thuật toán xác định slack cùng với $w,b$ khi giải bài toán tối ưu.",
+        "isCorrect": true
+      },
+      {
+        "id": "b",
+        "label": "Có. Mỗi mẫu cần một vòng cross-validation riêng để chọn slack.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Có. Phải đặt mọi slack bằng cùng một giá trị trước khi training.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Không. Mọi slack luôn bằng $C$.",
+        "isCorrect": false
+      }
+    ],
+    "success": "Đúng. Slack là biến của bài toán tối ưu. Khi đã có $w,b$, tính được slack nhỏ nhất từ $\\max(0,1-y_if(x_i))$.",
+    "error": "Phân biệt biến thuật toán tìm với hyperparameter chúng ta chọn."
+  },
+  {
+    "id": "svm3-soft-c-tuning",
+    "title": "Tuning C",
+    "prompt": "Nên chọn hyperparameter $C$ bằng cách nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "a",
+        "label": "Chọn giá trị làm training score lớn nhất, bỏ qua validation.",
+        "isCorrect": false
+      },
+      {
+        "id": "b",
+        "label": "Đặt bằng số mẫu có slack dương.",
+        "isCorrect": false
+      },
+      {
+        "id": "c",
+        "label": "Để mỗi mẫu tự chọn một giá trị riêng.",
+        "isCorrect": false
+      },
+      {
+        "id": "d",
+        "label": "Thử các giá trị bằng cross-validation và chọn theo chất lượng dự đoán trên validation.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đúng. Cross-validation so sánh khả năng dự đoán trên dữ liệu không dùng để fit ở mỗi fold; giữ test set cho đánh giá cuối.",
+    "error": "$C$ cần được chọn theo chất lượng trên validation, không chỉ theo kết quả training."
+  }
+]} />

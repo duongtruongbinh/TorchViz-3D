@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-4",
+  "locale": "vi",
+  "title": "Support Vector Machine (4)",
+  "headings": [
+    "Tìm nghiệm SVM"
+  ],
+  "keywords": [
+    "Machine Learning",
+    "Support Vector Machine",
+    "Optimization",
+    "Lagrangian",
+    "Duality",
+    "Support vectors",
+    "Kernel"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Tìm nghiệm SVM
+
+SVM (3) đã đưa việc tìm hyperplane tốt nhất thành một bài toán tối ưu. Bước tiếp theo là tìm nghiệm <InlineMath formula="w,b" /> và các slack <InlineMath formula="\xi_i" /> nếu dùng soft margin. Solver trong thư viện sẽ thực hiện việc này khi chúng ta gọi hàm training.
+
+Phần giải thích cách tìm nghiệm sẽ được bổ sung sau. Bạn có thể bỏ qua phần này và chuyển sang chạy code SVM với Scikit-learn.
+
+Các khái niệm cần giải thích:
+
+- **Lagrangian và Lagrange multipliers**. Cách đưa các điều kiện vào bài toán tối ưu.
+- **Primal và dual**. Chuyển từ tìm <InlineMath formula="w,b" /> sang tìm hệ số <InlineMath formula="\alpha_i" /> cho từng mẫu.
+- **Khôi phục classifier**. Tính lại <InlineMath formula="w,b" /> từ nghiệm dual.
+- **KKT và support vectors**. Vì sao chỉ một số mẫu đóng góp vào classifier.
+- **Soft margin dual**. Vì sao hệ số thỏa <InlineMath formula="0\leq\alpha_i\leq C" />.
+- **Kernel trick**. Tính dot product trong không gian feature biến đổi.
+- **Dự đoán mẫu mới**. Dùng support vectors và kernel để tính score.
+
+</MdxPage>

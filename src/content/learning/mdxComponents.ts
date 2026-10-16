@@ -5,6 +5,8 @@ import {
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
+export const FUNDAMENTALS_MDX_COMPONENT_NAMES = ['SvmThresholdMotivation', 'SvmTwoDimensionalBoundary', 'SvmThreeDimensionalBoundary', 'SvmKernelMotivation', 'SvmKernelChoiceIllustration', 'SvmHyperplaneMathIllustration', 'SvmOptimizationIllustration', 'VectorPlane', 'DotProductPlane', 'DotProductCoordinateDiagram', 'PerceptronExercise', 'PerceptronStateIllustration'] as const;
+
 export const CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES = ['StageContinuityMap'] as const;
 
 export const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = [
@@ -21,6 +23,7 @@ export const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = [
   'DistancePlane',
   'DotProductAngleExplorer',
   'DotProductPlane',
+  'DotProductCoordinateDiagram',
   'EigenvectorExplorer',
   'EmbeddingCosineDiagram',
   'GaussianEliminationStepper',
@@ -121,6 +124,7 @@ export const RESEARCH_PAPERS_MDX_COMPONENT_NAMES = [
 ] as const;
 
 const domainMdxComponentNames = {
+  fundamentals: FUNDAMENTALS_MDX_COMPONENT_NAMES,
   cv: CV_MDX_COMPONENT_NAMES,
   'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,

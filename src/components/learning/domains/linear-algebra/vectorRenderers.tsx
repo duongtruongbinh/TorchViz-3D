@@ -1,11 +1,13 @@
 import { useState, type ReactNode } from 'react';
 import {
+  Coordinates,
   Vector,
   Point,
   Line,
   Circle,
   Polygon,
   Text,
+  LaTeX,
   useMovablePoint,
   vec,
 } from 'mafs';
@@ -354,11 +356,13 @@ function InteractiveVectorPlaneMovable({
   initial,
   label,
   showComponents,
+  showFooter,
 }: {
   ariaLabel: string;
   initial: Vector2D;
   label: string;
   showComponents: boolean;
+  showFooter: boolean;
 }) {
   const theme = useVectorVisualTheme();
   const point = useMovablePoint(initial, {
@@ -369,7 +373,7 @@ function InteractiveVectorPlaneMovable({
   return (
     <MathVisualCard
       ariaLabel={ariaLabel}
-      footer={<VectorPlaneFooter label={label} position={currentPos} />}
+      footer={showFooter ? <VectorPlaneFooter label={label} position={currentPos} /> : undefined}
     >
       <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
         <VectorPlanePlot
@@ -389,18 +393,20 @@ function StaticVectorPlane({
   position,
   label,
   showComponents,
+  showFooter,
 }: {
   ariaLabel: string;
   position: Vector2D;
   label: string;
   showComponents: boolean;
+  showFooter: boolean;
 }) {
   const theme = useVectorVisualTheme();
 
   return (
     <MathVisualCard
       ariaLabel={ariaLabel}
-      footer={<VectorPlaneFooter label={label} position={position} />}
+      footer={showFooter ? <VectorPlaneFooter label={label} position={position} /> : undefined}
     >
       <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
         <VectorPlanePlot
@@ -420,6 +426,7 @@ export function VectorPlane({
   y = 2,
   label = 'v',
   showComponents = true,
+  showFooter = true,
   interactive = true,
 }: VectorPlaneProps) {
   const position: Vector2D = [x, y];
@@ -430,6 +437,7 @@ export function VectorPlane({
       initial={position}
       label={label}
       showComponents={showComponents}
+      showFooter={showFooter}
     />
   ) : (
     <StaticVectorPlane
@@ -437,6 +445,7 @@ export function VectorPlane({
       position={position}
       label={label}
       showComponents={showComponents}
+      showFooter={showFooter}
     />
   );
 }
@@ -1209,20 +1218,24 @@ function InteractiveDotProductPlaneMovable({
   ariaLabel,
   a,
   b,
+  showFooter,
+  bounds,
 }: {
   ariaLabel: string;
   a: Vector2D;
   b: Vector2D;
+  showFooter: boolean;
+  bounds: NonNullable<DotProductPlaneProps['bounds']>;
 }) {
   const theme = useVectorVisualTheme();
   const pointB = useMovablePoint(b, {
-    constrain: halfGridConstraint(-1, 5, -1, 4),
+    constrain: halfGridConstraint(bounds.minX, bounds.maxX, bounds.minY, bounds.maxY),
   });
   const liveB: Vector2D = [pointB.x, pointB.y];
 
   return (
-    <MathVisualCard ariaLabel={ariaLabel} footer={<DotProductFooter a={a} b={liveB} />}>
-      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={4}>
+    <MathVisualCard ariaLabel={ariaLabel} footer={showFooter ? <DotProductFooter a={a} b={liveB} /> : undefined}>
+      <MathCanvas ariaLabel={ariaLabel} {...bounds}>
         <DotProductPlot a={a} b={liveB} theme={theme} handle={pointB.element} />
       </MathCanvas>
     </MathVisualCard>
@@ -1233,16 +1246,23 @@ function StaticDotProductPlane({
   ariaLabel,
   a,
   b,
+  showFooter,
+  bounds,
 }: {
   ariaLabel: string;
   a: Vector2D;
   b: Vector2D;
+  showFooter: boolean;
+  bounds: NonNullable<DotProductPlaneProps['bounds']>;
 }) {
   const theme = useVectorVisualTheme();
+  const labelStep = Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY) > 10 ? 3 : 1;
+  const axisLabel = (value: number) => value % labelStep === 0 ? value : null;
 
   return (
-    <MathVisualCard ariaLabel={ariaLabel} footer={<DotProductFooter a={a} b={b} />}>
-      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={4}>
+    <MathVisualCard ariaLabel={ariaLabel} footer={showFooter ? <DotProductFooter a={a} b={b} /> : undefined}>
+      <MathCanvas ariaLabel={ariaLabel} {...bounds} showGrid={false}>
+        <Coordinates.Cartesian subdivisions={1} xAxis={{ labels: axisLabel }} yAxis={{ labels: axisLabel }} />
         <DotProductPlot a={a} b={b} theme={theme} />
       </MathCanvas>
     </MathVisualCard>
@@ -1254,11 +1274,36 @@ export function DotProductPlane({
   a = [3, 0],
   b = [2, 2],
   interactive = true,
+  showFooter = true,
+  bounds = { minX: -1, maxX: 5, minY: -1, maxY: 4 },
 }: DotProductPlaneProps) {
   return interactive ? (
-    <InteractiveDotProductPlaneMovable ariaLabel={ariaLabel} a={a} b={b} />
+    <InteractiveDotProductPlaneMovable ariaLabel={ariaLabel} a={a} b={b} showFooter={showFooter} bounds={bounds} />
   ) : (
-    <StaticDotProductPlane ariaLabel={ariaLabel} a={a} b={b} />
+    <StaticDotProductPlane ariaLabel={ariaLabel} a={a} b={b} showFooter={showFooter} bounds={bounds} />
+  );
+}
+
+export function DotProductCoordinateDiagram({ ariaLabel }: { ariaLabel: string }) {
+  const theme = useVectorVisualTheme();
+  const a: Vector2D = [4, 1];
+  const b: Vector2D = [2, 3];
+
+  return (
+    <MathVisualCard ariaLabel={ariaLabel}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-0.5} maxX={5} minY={-0.5} maxY={4} height={360}>
+        <Vector tail={[0, 0]} tip={a} color={theme.vectorU} weight={3} />
+        <Vector tail={[0, 0]} tip={b} color={theme.vectorV} weight={3} />
+        <LaTeX at={[4.25, 1.05]} tex="a" color={theme.vectorU} />
+        <LaTeX at={[2.2, 3.2]} tex="b" color={theme.vectorV} />
+        <AngleArc v1={[1, 0]} v2={a} radius={0.6} color={theme.vectorU} />
+        <AngleArc v1={[1, 0]} v2={b} radius={1.8} color={theme.vectorV} />
+        <AngleArc v1={a} v2={b} radius={1.05} color={GEOMETRY_NEUTRAL} />
+        <LaTeX at={[0.95, 0.08]} tex="\alpha" color={theme.vectorU} />
+        <LaTeX at={[2.05, 0.95]} tex="\beta" color={theme.vectorV} />
+        <LaTeX at={[1.12, 0.98]} tex="\theta" color={GEOMETRY_NEUTRAL} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 

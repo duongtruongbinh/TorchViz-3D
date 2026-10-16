@@ -19,13 +19,13 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 18 domains, 116 tracks, and 955 lesson nodes. Four hundred
-ninety-four Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 18 domains, 116 tracks, and 963 lesson nodes. Five hundred
+one Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), forty-four in `research-papers`, fifteen in `evolutionary-algorithms`,
-eight in `ai-projects`, eighty-one in `fundamentals`, sixty-six in
+eight in `ai-projects`, eighty-eight in `fundamentals`, sixty-six in
 `llm-unlearning`, fourteen in `cv` (eight focused Chapter 1 nodes, an Image
 Classification theory/quiz opening for Chapter 2, plus four tagged exercise
 lessons), and ten in `aiops`.
@@ -34,7 +34,7 @@ track, with nine reading lessons and two quizzes. Its `PaperExcerpt` component
 is owned by the domain adapter and registered through the MDX allowlist.
 The title-and-authors lesson has one page; the method-comparison and ICLR
 impact sections were removed in the approved follow-up.
-The other 461 nodes are navigable placeholders and render one shared localized
+The other 462 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see
@@ -68,6 +68,12 @@ evaluation links back to the shared resampling principles. The chapter ends
 with the `regression-metrics` theory/quiz pair. The second,
 `logistic-classification`, contains Logistic Regression, Value flow/activation,
 One-vs-Rest, k-NN, Naive Bayes, SVM, then the `classification-metrics` pair.
+SVM opens with a five-stage number-line visualization in the lazy `fundamentals`
+domain adapter (`domains/fundamentals/mdxComponents.tsx`). It reveals separated
+training groups, a threshold close to group A, a new sample predicted B despite
+being closer to A, the nearest-group distances, and a centered maximal-margin
+threshold. Authored stage text and labels belong to the Vietnamese lesson MDX;
+the renderer reuses `InteractiveStepper`. The sample's true label remains unknown.
 The unsupervised chapter places Gaussian Mixture Models directly after K-Means
 and before DBSCAN. Each new algorithm has four theory pages and a four-question
 mixed-mode assessment with matching concept IDs. Activation remains directly
@@ -194,6 +200,49 @@ lazy-loads the shared Shape, Value, or convolution interaction. Published
 lessons tagged `exercise` automatically populate Review mode. Applicable
 Conv2d and pooling nodes in the Workspace Forward Pass controls resolve through
 catalog entry-point metadata and open the canonical lesson route.
+
+Support Vector Machine (3) follows the standalone Perceptron exercise nodes.
+Its three authored pages start with score boundaries at `±c`, choose `c=1`,
+derive full margin width `2c/||w||`, and formulate hard and soft margin
+optimization. The Fundamentals `SvmOptimizationIllustration` adapter uses
+staged margin diagrams and individual slack examples with contextual elements
+dimmed. The published Vietnamese quiz has 14 questions covering score scale,
+margin constraints and width, the optimization objective, slack, and tuning
+the hyperparameter `C`, including overfitting and underfitting risks. Mathematical quiz text uses the shared KaTeX renderer.
+
+Support Vector Machine (4) currently has one placeholder page introducing
+solver-based optimization and allowing learners to skip to Scikit-learn code.
+Its pending topics are Lagrangian and multipliers, primal and dual, classifier
+recovery, KKT and support vectors, soft-margin dual, kernel trick, and
+prediction. Its quiz stays locked until authored.
+
+Machine Learning has two standalone authored exercise nodes after SVM (2),
+`perceptron-practice` and `perceptron-convergence-practice`. Each owns two pages
+in its canonical Vietnamese MDX: a worked guide followed by automatic practice.
+Both carry the `exercise` tag and appear in Review. SVM (2) contains only theory;
+exercise pages are neither duplicated nor embedded in the theory node. The
+shared lesson rail uses purple badges and titles for exercise-tagged nodes and
+a purple selected row, distinct from theory, quiz and code lab styling.
+
+The worked Perceptron example uses `PerceptronStateIllustration` in the
+Fundamentals adapter for numbered points colored by their true labels and the
+current decision line. Coordinates, labels, weights, and bias come from MDX.
+Zero weights produce no decision
+line; the authored explanation identifies the all-zero-score initial state.
+
+Both exercises reuse the Fundamentals `PerceptronExercise` surface. It generates
+small linearly separable integer datasets, provides editable/random initial
+weights and bias, and clears answers and feedback when the problem changes.
+The generation buttons sit above their respective data table and weight inputs.
+The first exercise checks score, prediction, updated vector and bias for each
+step of one sequential pass. The second checks pass counts and final weights
+and bias for stochastic and batch convergence. Batch collects all mistakes
+using the weights at the start of the pass before updating. Both use a positive
+prediction at zero score. Convergence checks the whole dataset after each pass;
+already-correct initial parameters take zero passes. Interactive convergence
+is bounded at 5000 passes. The worked convergence example fixes bias to zero
+and converges in two stochastic passes or three batch passes. Authored exercises
+do not need a TorchViz Workspace entry point.
 
 Learning Lab has no catalog practice contract, practice filter/query, or
 Review-specific content list. The Review surface is only a derived catalog view
@@ -649,7 +698,7 @@ To maintain architectural clarity and prevent component sprawl, Learning Lab def
 | :--- | :--- | :--- | :--- |
 | **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `shell/InteractiveStepper.tsx`, `code/CodeLabStep.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
 | **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
-| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`fundamentals`, `linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`SvmThresholdMotivation`, `StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
 | **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
 
 #### Component Reuse Guidelines for Coding Agents

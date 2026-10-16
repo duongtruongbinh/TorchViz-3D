@@ -77,6 +77,7 @@ const domainComponentPromises = new Map<LearningDomainId, Promise<Record<string,
 let referenceComponentsPromise: Promise<Record<string, LearningMdxComponent>> | null = null;
 
 const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<Record<string, LearningMdxComponent>>>> = {
+  fundamentals: () => import('./domains/fundamentals/mdxComponents').then(({ fundamentalsMdxComponents }) => fundamentalsMdxComponents),
   cv: () => import('./domains/cv/mdxComponents').then(({ cvMdxComponents }) => cvMdxComponents),
   'continual-learning-llm': () => import('./domains/continual-learning-llm/mdxComponents').then(({ continualLearningLlmMdxComponents }) => continualLearningLlmMdxComponents),
   'llm-ai-engineering': () => import('./domains/llm-ai-engineering/mdxComponents').then(({ llmMdxComponents }) => llmMdxComponents),

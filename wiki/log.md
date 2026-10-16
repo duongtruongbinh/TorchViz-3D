@@ -3,6 +3,27 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-10-07 — SVM branch finalized.** Expanded SVM (1–3) lessons and
+  quizzes, added Perceptron update/convergence exercises, and made SVM (4)
+  a one-page solver placeholder. Removed unused illustration modes and
+  overlays. Synced catalog counts (963 nodes, 501 published) and updated
+  [the curriculum plan](../docs/plans/2026-09-24-machine-learning-curriculum.md).
+  Typecheck, 23 focused tests, MDX/KaTeX checks, catalog stats, and whitespace
+  checks passed; full verify/build were skipped at user request.
+
+- **2026-10-07 — SVM (2) quiz.** Added twenty Vietnamese questions covering
+  vector length and direction, dot product signs and ranking, line/plane
+  equations, normal vectors, and point classification. Published the existing
+  adjacent quiz node and aligned
+  theory/quiz concept IDs. Verification and build were skipped at user request.
+
+- **2026-10-04 — SVM threshold motivation.** Replaced the abstract opening
+  with a five-stage number-line example showing a misplaced threshold, a
+  questionable prediction, and maximal margin. Added a lazy `fundamentals`
+  visualization adapter that reuses the shared stepper, with stage copy in MDX.
+  SVM stays in chapter 2. See
+  [the curriculum plan](../docs/plans/2026-09-24-machine-learning-curriculum.md).
+
 - **2026-10-02 — Quantifying Memorization paper track.** Published eleven
   research-papers nodes, including two audited quizzes; registered a domain
   paper excerpt renderer, synchronized catalog counts, and compacted the

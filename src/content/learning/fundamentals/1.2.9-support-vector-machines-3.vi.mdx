@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  "domainId": "fundamentals",
+  "id": "support-vector-machines-3",
+  "locale": "vi",
+  "title": "Support Vector Machine (3)",
+  "headings": [
+    "Margin và độ rộng",
+    "Hard margin optimization problem",
+    "Soft margin optimization problem"
+  ],
+  "keywords": ["Machine Learning", "Support Vector Machine", "Optimization", "Margin", "Hard margin", "Soft margin"],
+  "conceptIds": [
+    "svm3-margin-scale",
+    "svm3-margin-meaning",
+    "svm3-margin-boundaries",
+    "svm3-margin-width-method",
+    "svm3-margin-width-value",
+    "svm3-margin-objective",
+    "svm3-margin-combined-constraint",
+    "svm3-soft-constraint",
+    "svm3-soft-c",
+    "svm3-c-large-overfit",
+    "svm3-c-small-underfit",
+    "svm3-soft-slack",
+    "svm3-soft-slack-tuning",
+    "svm3-soft-c-tuning"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Margin và độ rộng
+
+Để xác định dải margin quanh hyperplane <InlineMath formula="f(x)=w^\top x+b=0" />, ta chọn hai mức score cố định <InlineMath formula="-c" /> và <InlineMath formula="+c" />, với <InlineMath formula="c>0" />.
+
+<BlockMath formula="-c\leq f(x)\leq c" />
+
+Ta chọn <InlineMath formula="c=1" /> cho thuận tiện. Chọn giá trị dương khác cũng được, vì có thể đổi scale của <InlineMath formula="w,b" /> để đưa hai mức về <InlineMath formula="\pm1" />. Dải margin được viết thành:
+
+<BlockMath formula="-1\leq w^\top x+b\leq1" />
+
+Với **hard margin SVM**, không có điểm training nào được lọt vào bên trong dải <InlineMath formula="-1<f(x)<1" />; điểm nằm trên hai biên vẫn được phép. Mỗi class phải nằm về đúng phía:
+
+- Class <InlineMath formula="+1" /> thỏa <InlineMath formula="f(x_i)\geq1" />.
+- Class <InlineMath formula="-1" /> thỏa <InlineMath formula="f(x_i)\leq-1" />.
+
+<SvmOptimizationIllustration mode="margin-boundaries" marginStage="constraints" description="Các điểm class cộng 1 nằm trên hoặc phía ngoài biên cộng 1; class âm 1 nằm trên hoặc phía ngoài biên âm 1. Bên trong dải margin không có điểm training." />
+
+Hai biên có phương trình:
+
+<BlockMath formula="\begin{aligned}w^\top x_+ + b&=+1\\w^\top x_- + b&=-1\end{aligned}" />
+
+<SvmOptimizationIllustration mode="margin-boundaries" description="Hai biên margin ở mức score cộng 1 và âm 1, với hyperplane score 0 ở giữa." />
+
+Chọn hai điểm <InlineMath formula="x_+" /> và <InlineMath formula="x_-" /> nằm đối diện nhau như trong hình. Đoạn nối chúng vuông góc với hai biên, nên **độ dài đoạn nối** chính là width.
+
+<SvmOptimizationIllustration mode="margin-boundaries" marginStage="segment" description="Hai điểm x cộng và x trừ trên hai biên được nối bằng đoạn vuông góc. Độ dài đoạn nối là width." />
+
+Vector <InlineMath formula="x_+-x_-" /> đi từ điểm dưới lên điểm trên, cùng hướng với <InlineMath formula="w" />. Chia <InlineMath formula="w" /> cho độ dài của nó, ta được unit vector vẫn hướng lên nhưng có độ dài bằng <InlineMath formula="1" />.
+
+<SvmOptimizationIllustration mode="margin-boundaries" marginStage="direction" description="Vector từ x trừ đến x cộng và unit vector w chia norm w đều hướng lên, nên góc giữa chúng bằng 0." />
+
+Hai vector cùng hướng nên góc giữa chúng bằng <InlineMath formula="0" />. Dot product lúc này trả về đúng độ dài đoạn nối:
+
+<BlockMath formula="\begin{aligned}(x_+-x_-)^\top\frac{w}{\lVert w\rVert}&=\lVert x_+-x_-\rVert\times1\times\cos0\\&=\lVert x_+-x_-\rVert\\&=\text{width}\end{aligned}" />
+
+Trừ hai phương trình biên, bias triệt tiêu:
+
+<BlockMath formula="\begin{aligned}w^\top(x_+-x_-)&=(+1-b)-(-1-b)\\&=2\end{aligned}" />
+
+Thay vào công thức width:
+
+<BlockMath formula="\text{width}=\frac{w^\top(x_+-x_-)}{\lVert w\rVert}=\frac{2}{\lVert w\rVert}" />
+
+Nếu ban đầu chọn <InlineMath formula="c" /> khác <InlineMath formula="1" />, hai mức biên là <InlineMath formula="+c" /> và <InlineMath formula="-c" />. Hiệu của chúng là <InlineMath formula="c-(-c)=2c" />, nên công thức trở thành:
+
+<BlockMath formula="\text{width}=\frac{2c}{\lVert w\rVert}" />
+
+Với <InlineMath formula="c" /> cố định, tử số <InlineMath formula="2c" /> không đổi. Vì vậy, **tối đa hóa margin** tương đương với **tối thiểu hóa độ dài** <InlineMath formula="w" />:
+
+<BlockMath formula="\max_{w,b}\ \text{width}=\max_{w,b}\frac{2c}{\lVert w\rVert}\quad\Longleftrightarrow\quad\min_{w,b}\lVert w\rVert" />
+
+Mục tiêu ban đầu là tìm hyperplane có margin rộng nhất. Bây giờ, ta tìm <InlineMath formula="w,b" /> sao cho <InlineMath formula="\lVert w\rVert" /> nhỏ nhất, đồng thời mọi điểm vẫn nằm đúng phía và không lọt vào dải margin. Trang tiếp theo sẽ viết mục tiêu và các điều kiện này thành bài toán tối ưu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hard margin optimization problem
+
+Bài toán tìm hyperplane có margin rộng nhất trở thành tìm <InlineMath formula="w,b" /> sao cho <InlineMath formula="\lVert w\rVert" /> nhỏ nhất. Ta dùng objective <InlineMath formula="\frac12\lVert w\rVert^2" /> để dễ lấy đạo hàm; nghiệm tối ưu không đổi.
+
+Ban đầu, viết riêng điều kiện cho hai class:
+
+<BlockMath formula="\begin{aligned}\min_{w,b}\quad &\frac12\lVert w\rVert^2\\\text{subject to}\quad &w^\top x_i+b\geq+1,\quad\text{nếu }y_i=+1\\&w^\top x_i+b\leq-1,\quad\text{nếu }y_i=-1\end{aligned}" />
+
+Với class <InlineMath formula="+1" />, nhân score với nhãn không làm thay đổi điều kiện. Với class <InlineMath formula="-1" />, nhân hai vế với <InlineMath formula="-1" /> làm đảo chiều bất đẳng thức:
+
+<BlockMath formula="w^\top x_i+b\leq-1\quad\Longleftrightarrow\quad(-1)(w^\top x_i+b)\geq1" />
+
+Vậy cả hai trường hợp đều viết được thành <InlineMath formula="y_i(w^\top x_i+b)\geq1" />. Bài toán **hard margin SVM** có dạng gọn:
+
+<BlockMath formula="\begin{aligned}\min_{w,b}\quad &\frac12\lVert w\rVert^2\\\text{subject to}\quad &y_i(w^\top x_i+b)\geq1,\quad i=1,\ldots,n\end{aligned}" />
+
+Nếu bỏ điều kiện, chỉ cần chọn <InlineMath formula="w=0" /> để đạt mục tiêu nhỏ nhất, nhưng không phân loại được dữ liệu. Hard margin chỉ khả thi khi dữ liệu linearly separable; nếu không, ta cần cho phép vi phạm margin.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Soft margin optimization problem
+
+**Soft margin** cho phép mẫu nằm trong margin hoặc ở sai phía. Mỗi mẫu có một **slack variable** <InlineMath formula="\xi_i\geq0" /> biểu thị lượng vi phạm được cho phép.
+
+<BlockMath formula="y_i(w^\top x_i+b)\geq1-\xi_i,\qquad i=1,\ldots,n" />
+
+Mỗi mẫu có slack riêng; tất cả dùng chung <InlineMath formula="w,b" />. Giá trị <InlineMath formula="1-\xi_i" /> là mức tối thiểu của score nhân với nhãn. Nó nới điều kiện cho mẫu đó, còn hai biên margin vẫn ở mức <InlineMath formula="\pm1" />.
+
+Xét mẫu có nhãn thật <InlineMath formula="y_i=+1" /> trong từng trường hợp dưới đây. Đường nét đứt đậm là mức score tối thiểu được phép; các đường mờ giữ vị trí hai biên và hyperplane.
+
+Với <InlineMath formula="\xi_i=0" />, điều kiện là <InlineMath formula="f(x_i)\geq1" />. Mẫu phải nằm trên hoặc ngoài biên; điểm có score <InlineMath formula="1.5" /> không vi phạm margin.
+
+<SvmOptimizationIllustration mode="soft-case" slack={0} description="Slack bằng 0 yêu cầu score ít nhất 1. Điểm class cộng 1 có score 1.5 nằm ngoài margin; biên cộng 1 được làm nổi." />
+
+Với <InlineMath formula="\xi_i=0.5" />, điều kiện được nới thành <InlineMath formula="f(x_i)\geq0.5" />. Điểm có score <InlineMath formula="0.5" /> nằm trong margin nhưng vẫn được phân loại đúng.
+
+<SvmOptimizationIllustration mode="soft-case" slack={0.5} description="Slack bằng 0.5 cho phép score thấp đến 0.5. Điểm class cộng 1 nằm trong margin nhưng vẫn ở phía dương; hai biên margin giữ nguyên và được làm mờ." />
+
+Với <InlineMath formula="\xi_i=1.5" />, điều kiện là <InlineMath formula="f(x_i)\geq-0.5" />. Điểm có score <InlineMath formula="-0.5" /> nằm sai phía nhưng vẫn thỏa điều kiện đã nới.
+
+<SvmOptimizationIllustration mode="soft-case" slack={1.5} description="Slack bằng 1.5 cho phép score thấp đến âm 0.5. Điểm có nhãn thật cộng 1 nằm phía âm nên bị phân loại sai; mức cho phép và điểm được làm nổi." />
+
+Với <InlineMath formula="w,b" /> cố định, slack nhỏ nhất cần dùng cho từng mẫu là:
+
+<BlockMath formula="\xi_i=\max\big(0,1-y_i(w^\top x_i+b)\big)" />
+
+Mẫu dự đoán đúng vẫn có thể bị phạt nếu nằm trong margin. Ta thêm tổng slack vào mục tiêu, với hệ số <InlineMath formula="C>0" />:
+
+<BlockMath formula="\begin{aligned}\min_{w,b,\xi}\quad &\frac12\lVert w\rVert^2+C\sum_{i=1}^{n}\xi_i\\\text{subject to}\quad &y_i(w^\top x_i+b)\geq1-\xi_i,\quad i=1,\ldots,n\\&\xi_i\geq0,\quad i=1,\ldots,n\end{aligned}" />
+
+- <InlineMath formula="\frac12\lVert w\rVert^2" /> khuyến khích margin rộng.
+- <InlineMath formula="C\sum_i\xi_i" /> phạt vi phạm margin. <InlineMath formula="C" /> lớn ưu tiên giảm vi phạm; <InlineMath formula="C" /> nhỏ chấp nhận nhiều vi phạm hơn để mở rộng margin.
+
+Khi giữ nguyên dữ liệu và kernel, chọn <InlineMath formula="C" /> quá lớn hoặc quá nhỏ có thể dẫn đến:
+
+- **Overfitting** khi <InlineMath formula="C" /> quá lớn. Mô hình cố giảm vi phạm trên training data, kể cả các điểm nhiễu, nên có thể dự đoán kém trên dữ liệu mới.
+- **Underfitting** khi <InlineMath formula="C" /> quá nhỏ. Mô hình ưu tiên margin rộng và chấp nhận quá nhiều vi phạm, nên có thể bỏ qua cấu trúc cần học.
+
+<LessonNote>
+Thuật toán tự tìm <InlineMath formula="w,b" /> và slack <InlineMath formula="\xi_i" /> cho từng mẫu khi giải bài toán tối ưu. Chúng ta không cần đặt slack thủ công. Còn <InlineMath formula="C" /> là hyperparameter do chúng ta chọn để quyết định mức phạt vi phạm margin.
+</LessonNote>
+
+Chọn <InlineMath formula="C" /> bằng cross-validation để tìm mức đánh đổi phù hợp với dữ liệu.
+
+</MdxPage>

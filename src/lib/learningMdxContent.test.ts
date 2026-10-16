@@ -33,7 +33,8 @@ const publishedLessonIds = learningCatalog.lessons
 test('Machine Learning metric, algorithm and uncertainty pairs assess their own concepts', async () => {
   for (const id of [
     'regression-metrics', 'classification-metrics', 'k-nearest-neighbors',
-    'naive-bayes', 'support-vector-machines', 'gaussian-mixture-models',
+    'naive-bayes', 'support-vector-machines', 'support-vector-machines-2',
+    'support-vector-machines-3', 'gaussian-mixture-models',
     'variability-splits-seeds', 'bootstrap-confidence-intervals', 'prediction-intervals',
   ]) {
     const files = [id, `${id}-quiz`].map((lessonId) => lessonFiles.find((file) => {
@@ -46,7 +47,13 @@ test('Machine Learning metric, algorithm and uncertainty pairs assess their own 
     const quiz = await inspectLearningMdx(readFileSync(files[1], 'utf8'), files[1]);
     assert.deepEqual(quiz.metadata.conceptIds, theory.metadata.conceptIds);
     assert.deepEqual(quiz.quizQuestions.map((question) => question.id), theory.metadata.conceptIds);
-    assert.equal(quiz.quizQuestions.length, id === 'classification-metrics' ? 5 : 4);
+    const questionCounts: Record<string, number> = {
+      'classification-metrics': 5,
+      'support-vector-machines': 13,
+      'support-vector-machines-2': 20,
+      'support-vector-machines-3': 14,
+    };
+    assert.equal(quiz.quizQuestions.length, questionCounts[id] ?? 4);
   }
 });
 

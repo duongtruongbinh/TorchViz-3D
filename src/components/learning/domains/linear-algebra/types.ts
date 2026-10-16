@@ -7,6 +7,7 @@ export interface VectorPlaneProps {
   y?: number;
   label?: string;
   showComponents?: boolean;
+  showFooter?: boolean;
   interactive?: boolean;
 }
 
@@ -80,7 +81,9 @@ export interface DotProductPlaneProps {
   ariaLabel: string;
   a?: Vector2D;
   b?: Vector2D;
+  showFooter?: boolean;
   interactive?: boolean;
+  bounds?: { minX: number; maxX: number; minY: number; maxY: number };
 }
 
 export interface DotProductAngleExplorerProps {
