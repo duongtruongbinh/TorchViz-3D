@@ -1,0 +1,217 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-introduction',
+  locale: 'vi',
+  title: 'Introduction & Ba pha Forgetting',
+  headings: [
+    '1 INTRODUCTION',
+    '1 INTRODUCTION',
+    '1 INTRODUCTION',
+    '2 FORGETTING THAT UNDOES ITSELF',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Introduction',
+    'Synthetic Biographies',
+    'Collapse',
+    'Recovery',
+    'Erosion',
+    'Answer Space',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### 1 INTRODUCTION
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    'Continually training a neural network on new data can severely damage the knowledge and skills it previously acquired, a phenomenon known as catastrophic forgetting (McCloskey & Cohen, 1989; Ratcliff, 1990; French, 1999). It has been reported across many settings, from image classification (Goodfellow et al., 2014; Zenke et al., 2017; Ramasesh et al., 2021) to deep reinforcement learning (Kirkpatrick et al., 2017; Rolnick et al., 2019), and large language models are no exception (Luo et al., 2025; Zucchet et al., 2025; Marek et al., 2026). Yet, a loss of performance need not be a loss of knowledge: a different prompt can restore lost capabilities (Kotha et al., 2024), and brief training on a few old examples can undo forgetting that reflects a loss of task alignment rather than of knowledge, named spurious forgetting (Zheng et al., 2025).',
+  ]}
+  sectionHighlights={[]}
+/>
+
+Trước đó, đã có nhiều cách setup thí nghiệm để kiểm tra liệu kiến thức hoặc năng lực tưởng như đã quên có còn trong mô hình hay không, chẳng hạn:
+
+1. **Đổi prompt:** [Kotha và cộng sự (2024)](https://proceedings.iclr.cc/paper_files/paper/2024/hash/692ae28fda9bfbde7c01b13bf5a03395-Abstract-Conference.html) khôi phục được một số năng lực sau finetuning bằng cách thay đổi prompt, ví dụ chuyển câu hỏi sang ngôn ngữ khác.
+2. **Huấn luyện ngắn:** [Zheng và cộng sự (2025)](https://arxiv.org/abs/2501.13453) cho mô hình train lại bằng một phần dữ liệu của nhiệm vụ cũ, rồi kiểm tra trên phần dữ liệu còn lại và quan sát thấy hiệu suất phục hồi.
+3. **Đọc lại thông tin:** Trong bài toán phân loại ảnh, [Davari và cộng sự (2022)](https://arxiv.org/pdf/2203.13381#page=3) giữ nguyên phần mạng tạo ra các biểu diễn bên trong, rồi chỉ huấn luyện một bộ phân loại tuyến tính mới để đọc những biểu diễn đó. Cách này kiểm tra xem thông tin phục vụ nhiệm vụ cũ còn sử dụng được hay không, dù đầu ra ban đầu của mô hình đã kém đi.
+
+   Ví dụ minh họa, một mô hình từng phân biệt mèo và chó nhưng làm kém đi sau khi học thêm các loài vật khác. Nếu giữ nguyên phần mạng đã học mà một bộ phân loại mới vẫn phân biệt được mèo và chó, ta có bằng chứng rằng thông tin cần cho nhiệm vụ cũ chưa mất hết.
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/linear_probe_cat_dog.png"
+  alt="Ba cảnh minh họa: mô hình phân biệt đúng mèo và chó, làm kém đi sau khi học thêm loài mới, rồi phân biệt đúng trở lại khi giữ nguyên phần mạng và huấn luyện bộ phân loại mới."
+  caption="Ví dụ minh họa: giữ nguyên phần mạng sau khi học loài mới, chỉ huấn luyện bộ phân loại mới để kiểm tra thông tin mèo/chó còn sử dụng được hay không."
+  aspectRatio="16 / 9"
+/>
+
+Tuy nhiên, khi chỉ đo accuracy tại một thời điểm sau finetuning, ta chỉ biết mô hình đang trả lời đúng ít hơn trước. Kết quả đó chưa cho biết nó đã thực sự mất kiến thức hay vẫn giữ kiến thức nhưng không sử dụng được để trả lời.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    'Accuracy measured at a single point in training therefore cannot tell whether knowledge was erased or only hidden.',
+  ]}
+  sectionHighlights={[
+    'single point in training',
+    'erased or only hidden',
+  ]}
+/>
+
+“Single point in training” nghĩa là chỉ kiểm tra mô hình tại một thời điểm trong quá trình train. Chẳng hạn, ta dừng đúng lúc đường biểu diễn trong GIF đang ở đáy và thấy mô hình trả lời sai nhiều câu hỏi cũ. Nhưng cùng một kết quả trả lời sai có thể tương ứng với hai tình huống:
+
+- **Erased:** Thông tin cần để trả lời câu hỏi cũ đã bị mất.
+- **Hidden:** Thông tin vẫn còn, nhưng mô hình tạm thời không sử dụng được nó để đưa ra câu trả lời đúng.
+
+Ví dụ, trước đó mô hình trả lời đúng “An sống ở đâu?” là “Hà Nội”. Sau khi train thêm, nó trả lời sai. Chỉ nhìn câu trả lời sai đó, ta chưa biết mô hình đã mất thông tin về An hay vẫn giữ thông tin nhưng không truy xuất được.
+
+Vậy có khả thi không khi muốn tách hai trường hợp: mô hình đã mất thông tin, hay vẫn giữ thông tin nhưng không trả lời được?
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    'We study this question for factual knowledge, as forgetting and loss of access can be cleanly disentangled. How language models store and retrieve facts is well understood (Geva et al., 2021; Meng et al., 2022; Geva et al., 2023; Nanda et al., 2023), and synthetic biographies (Allen-Zhu & Li, 2024; Zucchet et al., 2025) let us specify exactly which facts the model knows, guarantee that the new facts were never seen before, and control how the two relate. We can then ask not only whether the model still outputs an old fact, but also whether the fact is still stored.',
+  ]}
+  sectionHighlights={[
+    'We study this question for factual knowledge, as forgetting and loss of access can be cleanly disentangled.',
+  ]}
+/>
+
+Nhóm chọn nghiên cứu **factual knowledge**, vì với những thông tin cụ thể như “An sống ở Hà Nội”, họ có thể thiết kế thí nghiệm để phân biệt việc mô hình đã mất thông tin với việc thông tin vẫn còn nhưng không truy xuất được để trả lời.
+
+Motivation bắt nguồn từ hai cơ sở từ các công trình trước:
+
+1. Geva và cộng sự (2021, 2023), Meng và cộng sự (2022), Nanda và cộng sự (2023) đã nghiên cứu cách LLM lưu và truy xuất facts. Những công trình này cung cấp cơ sở để tìm hiểu thông tin được lưu bên trong mô hình, bên cạnh việc kiểm tra câu trả lời cuối cùng.
+2. Các nghiên cứu về **synthetic biographies** của Allen-Zhu & Li (2024), Zucchet và cộng sự (2025) cung cấp cách kiểm soát dữ liệu bằng tiểu sử được tạo ra với nhân vật và thông tin xác định sẵn. Nhóm có thể kiểm soát facts nào được đưa vào để mô hình học, kiểm tra nó đã trả lời đúng những facts nào, bảo đảm facts mới chưa xuất hiện trước đó, và chủ động chọn quan hệ giữa dữ liệu cũ với dữ liệu mới.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 1 INTRODUCTION
+
+Figure 1 có một điểm mới cần xem kỹ: cùng một mô hình đã học <InlineMath formula="A" /> và <InlineMath formula="B" />, nhưng chỉ thay tập dữ liệu finetuning đã làm khả năng trả lời về <InlineMath formula="A" /> diễn biến rất khác nhau.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    'In this setting, finetuning on new facts alone produces spurious forgetting in a particularly clear form (Figure 1): recall of the old facts collapses, then recovers as training continues on the same new facts, before a slower decline sets in. Since there is no replay of the old facts, the recovery can only come from knowledge that survived the collapse.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_1.png"
+  alt="Figure 1 của paper: bên trái accuracy trên facts cũ giảm dần; bên phải đường A giảm mạnh, phục hồi một phần rồi suy giảm, dù mô hình chỉ học facts mới."
+  caption="Figure 1 — Hai diễn biến forgetting khi thay đổi dữ liệu finetuning. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 760"
+/>
+
+Nhóm pretrain mô hình trên hai tập facts <InlineMath formula="A" /> và <InlineMath formula="B" />, rồi so sánh hai nhánh finetuning:
+
+- **Tập <InlineMath formula="C" />:** Các facts mới có đáp án thuộc cả vùng đáp án của <InlineMath formula="A" /> lẫn vùng đáp án của <InlineMath formula="B" />.
+- **Tập <InlineMath formula="B'" />:** Các facts mới chỉ có đáp án thuộc vùng đáp án của <InlineMath formula="B" />.
+
+“Overlap” ở đây là dùng chung vùng đáp án. Cả <InlineMath formula="C" /> lẫn <InlineMath formula="B'" /> đều nói về nhân vật mới, không đưa lại facts cũ của <InlineMath formula="A" /> hoặc <InlineMath formula="B" />. Chẳng hạn, nếu <InlineMath formula="A" /> có các đáp án Boston, Lagos và <InlineMath formula="B" /> có Antwerp, Nagoya, thì <InlineMath formula="C" /> dùng đáp án từ cả hai nhóm, còn <InlineMath formula="B'" /> chỉ dùng Antwerp, Nagoya cho những người mới.
+
+Ta có thể đọc hai biểu đồ theo ba ý:
+
+1. **Đường <InlineMath formula="B" />:** Cả hai nhánh đều tiếp tục học facts mới có đáp án thuộc vùng của <InlineMath formula="B" />. Đường <InlineMath formula="B" /> đều giảm chậm, không xuất hiện cú collapse như <InlineMath formula="A" /> ở biểu đồ bên phải. Hai đường có diễn biến tương tự; riêng quan sát này chưa giải thích được nguyên nhân.
+2. **Đường <InlineMath formula="C" /> và <InlineMath formula="B'" />:** Đều tăng dần khi mô hình học tập facts mới tương ứng. Đây là phần dễ hiểu: mô hình trả lời tốt hơn trên dữ liệu đang được finetune.
+3. **Đường <InlineMath formula="A" />:** Ở nhánh <InlineMath formula="C" />, khả năng trả lời về <InlineMath formula="A" /> giảm từ từ. Ở nhánh <InlineMath formula="B'" />, dữ liệu mới không còn dùng vùng đáp án của <InlineMath formula="A" />, nên việc <InlineMath formula="A" /> làm kém đi có thể không gây bất ngờ. Điều cần giải thích là vì sao <InlineMath formula="A" /> lại collapse rất nhanh, rồi recovery dù vẫn chỉ học <InlineMath formula="B'" />, trước khi erosion diễn ra. Không có facts cũ nào của <InlineMath formula="A" /> được đưa lại trong giai đoạn phục hồi.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### 1 INTRODUCTION
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="1 INTRODUCTION"
+  sectionParagraphs={[
+    'Our contributions are as follows:',
+    '– A clean case of spurious forgetting. In a controlled factual-recall setting, finetuning on new facts alone makes recall of the old facts collapse and then return, without any replay, and changing only where the new answers lie turns the same finetuning into steady forgetting.',
+    '– A minimal mechanism. A minimal associative memory reproduces the phenomenon once three ingredients are present: keys with shared structure, new answers concentrated in one region, and normalization. Finetuning then moves all old representations together, which hides the old facts without erasing them, and normalization undoes this shift once the new facts are learned. Changes specific to each fact accumulate and cause a slower, lasting forgetting.',
+    '– Causal evidence in trained models. In Transformers trained from scratch on synthetic data, removing the common shift eliminates the collapse, whose end is set by the learning of the new facts, not by the number of training steps. In a pretrained language model, recall of the old facts recovers only when the subjects of the new facts reveal nothing about their answers, and removing one direction of each weight update restores it beyond the trained model’s recall at equal new-fact accuracy.',
+    'Together, our results show that forgetting is not catastrophic when the update moves old memories together rather than apart: the knowledge is then hidden rather than erased, and can be recovered, sometimes by just continuing finetuning for longer.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+Nhóm tác giả tóm tắt ba đóng góp của paper:
+
+1. **Ghi nhận hiện tượng:** Thí nghiệm ở Figure 1 cho thấy mô hình có thể trả lời sai rồi đúng trở lại dù chỉ học facts mới. Chỉ thay vùng đáp án của dữ liệu mới cũng đủ làm diễn biến chuyển từ giảm dần sang ba pha collapse, recovery và erosion.
+2. **Đề xuất cơ chế:** Nhóm xây dựng một associative memory đơn giản có thể tái hiện hiện tượng này. Trong mô hình đó, việc học mới làm các biểu diễn của facts cũ cùng dịch chuyển, khiến mô hình khó đọc ra đáp án cũ. Normalization có thể đảo ngược sự dịch chuyển chung này khi facts mới được học, giúp khả năng trả lời phục hồi. Trong khi đó, những thay đổi riêng ở từng fact vẫn tích lũy và gây suy giảm lâu dài.
+3. **Kiểm chứng bằng can thiệp:** Nhóm thử loại bỏ sự dịch chuyển chung trong Transformer được train từ đầu và quan sát thấy collapse biến mất. Với LLM đã pretrained, họ kiểm tra điều kiện để recovery xuất hiện và thử chỉnh các bước cập nhật trọng số để cải thiện khả năng trả lời facts cũ. Kết quả được so sánh ở cùng mức accuracy trên facts mới, để kiểm tra khả năng phục hồi mà vẫn học được thông tin mới.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### 2 FORGETTING THAT UNDOES ITSELF
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="2 FORGETTING THAT UNDOES ITSELF"
+  sectionParagraphs={[
+    'To understand when forgetting is not catastrophic, we first need a setting in which it clearly is not: one in which performance collapses, yet the knowledge demonstrably survives (Appendix C.1). We use synthetic biographies (Allen-Zhu & Li, 2024), on which spurious forgetting was identified (Zheng et al., 2025), as they let us control what the model knows before finetuning and what it learns during it. A transformer is pretrained on two non-overlapping sets of biographies, A and B, in a single stage rather than one per set (Zheng et al., 2025), until it recalls all of their facts, and is then finetuned on biographies of new individuals, without any replay. We compare two sets of new biographies, C and B′, which differ only in how they overlap with the old ones. We describe how they are built, and what overlapping means precisely, in Section 4; for now, the only relevant property is that C overlaps with both A and B, while B′ overlaps only with B (Figure 1, middle).',
+  ]}
+  sectionHighlights={[
+    'We use synthetic biographies',
+    'on which spurious forgetting was identified',
+  ]}
+/>
+
+Để nghiên cứu khi nào forgetting không phải là mất kiến thức, trước hết nhóm cần một thí nghiệm cho thấy rõ hai việc: khả năng trả lời giảm mạnh, nhưng thông tin cũ vẫn còn. Đây là lý do họ chọn synthetic biographies: tự tạo tiểu sử giúp kiểm soát những facts mô hình được học trước và những facts được đưa vào khi finetuning.
+
+Setup này được kế thừa từ các nghiên cứu trước. [Allen-Zhu & Li (2024)](https://proceedings.mlr.press/v235/allen-zhu24a.html) đã dùng dữ liệu tiểu sử được kiểm soát để nghiên cứu cách LLM lưu và truy xuất kiến thức. Sau đó, [Zheng và cộng sự (2025)](https://arxiv.org/abs/2501.13453) đã ghi nhận spurious forgetting trên dữ liệu tiểu sử tổng hợp. Như vậy, nhóm chọn một setup đã có tiền lệ và đã được dùng để quan sát hiện tượng họ muốn giải thích.
+
+Ta theo dõi setup, kết quả và câu hỏi nghiên cứu theo ba bước:
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_1.png"
+  alt="Figure 1: cùng mô hình pretrained trên A và B được finetune theo hai nhánh C hoặc B′, cho hai diễn biến forgetting khác nhau."
+  caption="Figure 1 — Setup pretrain chung A/B rồi so sánh hai nhánh finetuning C và B′. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 760"
+/>
+
+1. **Học kiến thức ban đầu:** Nhìn phần “pretraining” ở giữa Figure 1: hai cụm <InlineMath formula="A" /> màu xanh đậm và <InlineMath formula="B" /> màu hồng biểu thị hai tập facts ban đầu. Nhóm pretrain Transformer trên cả <InlineMath formula="A" /> và <InlineMath formula="B" /> trong cùng một giai đoạn, đến khi mô hình trả lời đúng toàn bộ facts của hai tập. <InlineMath formula="A" /> và <InlineMath formula="B" /> chứa những nhân vật khác nhau; mô hình không học xong <InlineMath formula="A" /> rồi mới chuyển sang <InlineMath formula="B" />.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="2 FORGETTING THAT UNDOES ITSELF"
+  sectionParagraphs={[
+    'Finetuning on C yields classical catastrophic forgetting behavior (Figure 1, left): as the new facts are learned, recall of both A and B declines slowly and steadily. Finetuning on B′ barely affects recall of B, but recall of A follows a strikingly different trajectory (Figure 1, right), in three phases that we refer to throughout the paper:',
+    '– Collapse: recall of A quickly drops, well before the new facts are learned.',
+    '– Recovery: recall of A then partially returns as the new facts are acquired, although A never reappears in training.',
+    '– Erosion: finally, recall of A declines slowly and persistently, as in catastrophic forgetting.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+2. **Finetuning và kết quả:** Từ phần giữa hình, hai mũi tên “finetuning” dẫn sang hai nhánh thí nghiệm: nhánh <InlineMath formula="C" /> màu xám tương ứng với biểu đồ bên trái; nhánh <InlineMath formula="B'" /> màu hồng nhạt tương ứng với biểu đồ bên phải. Cả hai đều bắt đầu từ mô hình đã học <InlineMath formula="A" /> và <InlineMath formula="B" />, rồi chỉ học tiểu sử của nhân vật mới, không đưa lại facts cũ để ôn tập. Ở nhánh <InlineMath formula="C" /> bên trái, facts mới dùng vùng đáp án của cả <InlineMath formula="A" /> lẫn <InlineMath formula="B" />, và recall của cả hai tập giảm dần. Ở nhánh <InlineMath formula="B'" /> bên phải, facts mới chỉ dùng vùng đáp án của <InlineMath formula="B" />; recall của <InlineMath formula="B" /> ít bị ảnh hưởng ở giai đoạn collapse, còn <InlineMath formula="A" /> giảm mạnh trước khi facts mới được học, phục hồi một phần dù không được ôn lại, rồi suy giảm chậm và kéo dài.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="2 FORGETTING THAT UNDOES ITSELF"
+  sectionParagraphs={[
+    'This trajectory raises two questions: why finetuning on B′ hides the facts of A while sparing those of B, and why the collapse reverses on its own. Section 3 answers both in a minimal model. Section 4 then returns to Transformers, and to the biography structure needed for the phenomenon to appear.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+3. **Câu hỏi cần giải thích:** Nhìn biểu đồ bên phải, vì sao cùng finetune trên <InlineMath formula="B'" /> mà <InlineMath formula="A" /> collapse còn <InlineMath formula="B" /> được giữ tương đối tốt? Và vì sao <InlineMath formula="A" /> có thể tự recovery khi đường <InlineMath formula="B'" /> tăng lên, dù <InlineMath formula="A" /> không trở lại dữ liệu train? Section 3 dùng mô hình tối giản để tìm cơ chế trả lời hai câu hỏi này; Section 4 quay lại kiểm chứng trên Transformer và phân tích cấu trúc dữ liệu tiểu sử cần cho hiện tượng xuất hiện.
+
+“Overlap” không có nghĩa là nhân vật mới trùng nhân vật cũ hay mô hình được học lại fact cũ. Chẳng hạn, người mới cũng sống ở Huế chỉ là dùng chung đáp án “Huế”, không phải ôn lại thông tin về một người cũ. Section 4 sẽ mô tả chi tiết cách tạo các tập và chia vùng đáp án.
+
+Việc cho mô hình học được facts của cả <InlineMath formula="A" /> và <InlineMath formula="B" /> trước khi finetuning cũng giúp xác nhận rằng các câu hỏi cũ từng được trả lời đúng. Nếu khả năng trả lời về <InlineMath formula="A" /> sau đó giảm mạnh rồi phục hồi khi chỉ học <InlineMath formula="B'" />, sự phục hồi không đến từ việc được đưa lại facts của <InlineMath formula="A" /> để học lại.
+
+</MdxPage>

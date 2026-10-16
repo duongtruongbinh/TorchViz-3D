@@ -490,6 +490,102 @@ const chapters: LearningTocTrackSeed[] = [
       },
     ],
   },
+  {
+    id: 'spurious-forgetting-paper',
+    text: {
+      title: {
+        en: 'LLM > Continual Learning > (arXiv 2026) Spurious Forgetting',
+        vi: 'LLM > Continual Learning > (arXiv 2026) Spurious Forgetting',
+      },
+      description: {
+        en: 'When Forgetting is not Catastrophic: On the Mechanics of Spurious Forgetting (Palit et al., arXiv 2026).',
+        vi: 'Phân tích common shift, normalization và sự phục hồi factual recall trong finetuning (Palit et al., arXiv 2026).',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'spurious-forgetting-title-and-authors',
+        title: {
+          en: 'Title & Authors',
+          vi: 'Tiêu đề & Đội ngũ Tác giả',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-abstract',
+        title: {
+          en: 'Abstract',
+          vi: 'Tóm tắt Bài báo',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-overview-quiz',
+        title: {
+          en: 'Quiz',
+          vi: 'Quiz',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-introduction',
+        title: {
+          en: 'Introduction & Three Phases of Forgetting',
+          vi: 'Introduction & Ba pha Forgetting',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-associative-memory',
+        title: {
+          en: 'Chapter 3: The Mechanism of Spurious Forgetting',
+          vi: 'Chương 3: Cơ chế Spurious Forgetting',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-mechanism-quiz',
+        title: {
+          en: 'Quiz',
+          vi: 'Quiz',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-controlled-transformer',
+        title: {
+          en: 'Evidence in a Controlled Transformer',
+          vi: 'Kiểm chứng trên Controlled Transformer',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-pretrained-model',
+        title: {
+          en: 'OLMo 2 1B & SVD Intervention',
+          vi: 'OLMo 2 1B & Can thiệp bằng SVD',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'spurious-forgetting-discussion',
+        title: {
+          en: 'Discussion, Limitations & Extended Analyses',
+          vi: 'Discussion, Giới hạn & Phân tích Mở rộng',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
 ];
 
 export const learningTableOfContents = {

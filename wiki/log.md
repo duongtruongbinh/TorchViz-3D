@@ -3,6 +3,31 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-10-15 — Consolidated Spurious Forgetting Chapter 3.** Merged its three
+  theory nodes into one eleven-page chapter with the original page content
+  preserved. The track now has nine nodes (seven theory, two quiz); catalog
+  totals are 964 nodes and 503 published lessons. Updated the canonical wiki,
+  generated statistics and existing catalog count assertions.
+
+- **2026-10-15 — Spurious Forgetting source coverage audit.** Reconciled the six
+  reading lessons for Sections 3–6 against the original main text; restored
+  paragraph context, Section 4/5 openings, controls, results and limitations.
+  Added original Figures 2/4/5 and Table 1 through the CDN, retained equations
+  and existing examples, and recorded the source coverage ledger in the existing
+  curriculum plan. Updated the canonical Learning Lab scope description.
+
+- **2026-10-14 — Spurious Forgetting paper track.** Added eleven published
+  Research Papers nodes, including two quizzes, for arXiv:2610.08718v1. Reused
+  the existing MDX runtime and synchronized catalog counts. Explanations separate
+  common access loss from fact-specific erosion and include the measured
+  old/new accuracy trade-off of SVD checkpoint edits. See the
+  [curriculum plan](../docs/plans/2026-10-14-spurious-forgetting-paper-curriculum.md).
+
+- **2026-10-15 — Retired Flowchart card-and-arrow design.** Removed the shared
+  renderer and MDX allowlist entry, dropped the Abstract diagram, and migrated
+  the other six consumers to numbered prose. Authoring instructions prohibit
+  recreating the design; a regression check rejects future authored use.
+
 - **2026-10-07 — SVM branch finalized.** Expanded SVM (1–3) lessons and
   quizzes, added Perceptron update/convergence exercises, and made SVM (4)
   a one-page solver placeholder. Removed unused illustration modes and

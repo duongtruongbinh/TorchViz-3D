@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-title-and-authors',
+  locale: 'vi',
+  title: 'Tiêu đề & Đội ngũ Tác giả',
+  headings: [
+    'Paper Snippet & Giải mã Tiêu đề',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Spurious Forgetting',
+    'Vedant Palit',
+    'Nicolas Zucchet',
+    'OLMo 2 1B',
+    'Preprint',
+  ],
+  pageCount: 1,
+};
+
+<MdxPage page={0}>
+
+**Paper gốc:** [Link to Paper (arXiv:2610.08718v1)](https://arxiv.org/abs/2610.08718v1)
+
+**Code:** [GitHub của nghiên cứu](https://github.com/vedantpalit/spurious-forgetting-mechanics)
+
+**Trạng thái:** arXiv preprint
+
+**Ngày công bố:** 6 tháng 10 năm 2026
+
+---
+
+Với những ai đang quan tâm đến **Continual Learning**, cụ thể là việc LLM quên kiến thức cũ sau khi được huấn luyện thêm trên dữ liệu mới, thì đây là một paper đáng đọc. Bài báo tìm hiểu liệu mô hình đã thực sự mất kiến thức đó hay chỉ tạm thời không truy xuất được, và trong điều kiện nào kiến thức cũ có thể được khôi phục.
+
+Paper được viết bởi nhóm tác giả đến từ **Viện Max Planck**, **Đại học Stanford** và **Đại học Toronto**. Trong đó, first author **Vedant Palit** là [nhà nghiên cứu tại Max Planck](https://vedantpalit.github.io/), tập trung vào việc giải thích cách các mô hình AI hoạt động bên trong. Anh cộng tác với **Bernhard Schölkopf**, [giám đốc một bộ phận nghiên cứu về học máy tại Max Planck](https://www.mpg.de/19142520/artifical-intelligence), và **Zhijing Jin** tại Jinesis Lab, Đại học Toronto. Hướng nghiên cứu này phù hợp với mục tiêu của paper là giải thích nguyên nhân khiến mô hình quên và kiểm tra cách khôi phục kiến thức bằng thí nghiệm.
+
+### Paper Snippet & Giải mã Tiêu đề
+
+<PaperExcerpt
+  venue="Preprint · arXiv:2610.08718v1 · 6 October 2026"
+  titleLines={['WHEN FORGETTING IS NOT CATASTROPHIC:', 'ON THE MECHANICS OF SPURIOUS FORGETTING']}
+  authorColumns={[
+    [{ name: 'Vedant Palit', affiliationIndexes: ['1', '2', '3'] }, { name: 'Florent Draye', affiliationIndexes: ['1', '4'] }],
+    [{ name: 'Nicolas Zucchet', affiliationIndexes: ['5'] }, { name: 'Zhijing Jin', affiliationIndexes: ['1', '2', '3'] }],
+    [{ name: 'Bernhard Schölkopf', affiliationIndexes: ['1', '6'] }],
+  ]}
+  affiliations={[
+    { index: '1', name: 'MPI for Intelligent Systems, Tübingen' },
+    { index: '2', name: 'Jinesis Lab, University of Toronto & Vector Institute' },
+    { index: '3', name: 'EuroSafeAI' },
+    { index: '4', name: 'Hector Foundation' },
+    { index: '5', name: 'Stanford University' },
+    { index: '6', name: 'ELLIS Institute Tübingen' },
+  ]}
+/>
+
+Ta bắt đầu với hai khái niệm cơ bản trong Continual Learning (CL), **Catastrophic Forgetting** và **Spurious Forgetting**.
+
+<PaperExcerpt
+  titleLines={['WHEN FORGETTING IS NOT CATASTROPHIC:', 'ON THE MECHANICS OF SPURIOUS FORGETTING']}
+  titleHighlights={['CATASTROPHIC', 'SPURIOUS FORGETTING']}
+/>
+
+Catastrophic Forgetting là hiện tượng mô hình suy giảm mạnh khả năng thực hiện các nhiệm vụ cũ khi học nhiệm vụ mới. Chẳng hạn, sau khi được huấn luyện thêm trên dữ liệu mới, một LLM có thể trả lời sai nhiều câu hỏi mà trước đó nó trả lời đúng.
+
+Tuy nhiên, các nghiên cứu về mô hình ngôn ngữ từ năm 2024 đã cho thấy sự suy giảm này không phải lúc nào cũng đồng nghĩa với việc kiến thức bị mất hoàn toàn. [Kotha và cộng sự (ICLR 2024)](https://proceedings.iclr.cc/paper_files/paper/2024/hash/692ae28fda9bfbde7c01b13bf5a03395-Abstract-Conference.html) khôi phục được một số năng lực tưởng như đã mất bằng cách thay đổi prompt, chẳng hạn chuyển câu hỏi sang ngôn ngữ khác. Sau đó, [Zheng và cộng sự (ICLR 2025)](https://arxiv.org/abs/2501.13453) cho thấy hiệu suất trên nhiệm vụ cũ có thể phục hồi sau một đợt huấn luyện ngắn bằng một phần dữ liệu của nhiệm vụ đó.
+
+<LessonNote>
+Những kết quả này cho thấy một phần kiến thức hoặc năng lực cũ vẫn còn trong mô hình, nhưng cách mô hình sử dụng chúng đã bị thay đổi khi học nhiệm vụ mới. Zheng và cộng sự gọi hiện tượng suy giảm hiệu suất dù kiến thức vẫn còn này là Spurious Forgetting.
+</LessonNote>
+
+Trong thí nghiệm của mình, các tác giả cho mô hình học thêm thông tin mới, rồi theo dõi khả năng trả lời những câu hỏi về kiến thức cũ. Họ quan sát thấy ba giai đoạn như biểu đồ bên phải trong GIF dưới đây.
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/spurious-forgetting/post1_no_title.gif"
+  alt="Hai lần huấn luyện cùng mô hình trên hai tập dữ liệu mới khác nhau. Biểu đồ bên phải cho thấy khả năng trả lời về kiến thức cũ giảm mạnh, phục hồi một phần rồi suy giảm dần."
+  caption="Đường xanh thể hiện khả năng trả lời về kiến thức cũ; đường hồng nét đứt thể hiện khả năng trả lời về thông tin mới."
+  aspectRatio="16 / 9"
+/>
+
+<ConceptFlow
+  ariaLabel="Ba giai đoạn quên và phục hồi kiến thức cũ"
+  items={[
+    {
+      title: 'Giảm mạnh (Collapse)',
+      detail: 'Mô hình nhanh chóng trả lời sai nhiều câu hỏi mà trước đó trả lời đúng.',
+      tone: 'rose',
+    },
+    {
+      title: 'Phục hồi (Recovery)',
+      detail: 'Khi tiếp tục học, mô hình lại trả lời đúng một phần những câu hỏi đó, dù không được ôn lại kiến thức cũ.',
+      tone: 'emerald',
+    },
+    {
+      title: 'Suy giảm (Erosion)',
+      detail: 'Nếu quá trình học tiếp tục kéo dài, khả năng trả lời về kiến thức cũ lại giảm dần.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+1. **Nếu đây là Catastrophic Forgetting, tại sao mô hình vẫn có thể phục hồi dù không được ôn lại kiến thức cũ?**
+2. **When is forgetting not catastrophic?**
+3. **Nếu hiện tượng suy giảm hiệu suất dù kiến thức vẫn còn được gọi là Spurious Forgetting, thì có thể dựa vào cơ chế nào để phân biệt nó với trường hợp kiến thức cũ thực sự bị mất?**
+
+</MdxPage>

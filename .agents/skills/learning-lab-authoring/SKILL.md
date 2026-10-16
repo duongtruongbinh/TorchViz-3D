@@ -129,7 +129,7 @@ While general algebraic formulas ensure rigor, **always assume abstract formulas
 For any section containing extended theoretical prose, multi-step proofs, or abstract reasoning:
 - **Mandate a Summary Illustration (Visual Anchor)** at the top of the section to crystallize the core mental model.
 - **80/20 Rule:** The illustration must enable readers to grasp **80% of the underlying mechanism and narrative flow** at a glance. The accompanying text serves as concise supplementary commentary rather than repetitive prose.
-- **Placement:** Position visual blocks (`<LessonImage ... />` or `<Flowchart />`) immediately after the high-level overview and before component breakdown — establishes a mental model before readers process granular formulas.
+- **Placement:** Position visual blocks (`<LessonImage ... />` or an existing appropriate concept visual) immediately after the high-level overview and before component breakdown — establishes a mental model before readers process granular formulas.
 
 ### B. Visual Replacement Matrix
 
@@ -139,7 +139,7 @@ For any section containing extended theoretical prose, multi-step proofs, or abs
 | **Core Concept / Keyword** | Lengthy definition text | **Spotlight Concept Card:** Pastel bordered card with bold keyword and a **visual metaphor** (Lock = Frozen Weights, Funnel = Bottleneck, Magnet = Attention). |
 | **Taxonomy / Hierarchies** | Deep nested bullet lists | **Hierarchy Tree / Branching Cards (`<ConceptHierarchy />`):** Hierarchical tree. **Rules:** Root node has a **concise keyword**, Leaf nodes **must have ordered numbering in the keyword** (`1. ...`, `2. ...`) with crisp `detail` and distinct `tone` colors. |
 | **Comparative Analysis** | Text table of pros/cons | **Dual Side-by-Side Panels:** Two parallel cards (*Before vs After*, *Standard vs Proposed*) with soft contrasting background tones. |
-| **Workflow / Pipelines** | Step 1, Step 2, Step 3 text | **Sequential Conveyor / Pipeline Flow (`<Flowchart />`):** Horizontal process cards connected by flow arrows. |
+| **Workflow / Pipelines** | Dense procedural prose | Plain numbered steps with concise descriptions. The numbered card-and-arrow `Flowchart` design is retired and must not be recreated. |
 | **Energy & Distribution** | Verbal percentages | **Stacked Energy Bar / Balance Scale:** Segmented bar charts ($99\%$ vs $1\%$) or balance scale depicting weight shifts. |
 | **Cause & Effect** | Descriptive error text | **Cause-and-Effect Card / Mermaid:** Cause node $\xrightarrow{\text{triggers}}$ Effect node with visual flow. |
 
@@ -225,7 +225,7 @@ Before placing any UI component, answer these decision questions. Use the table 
 
 | Trigger Question | Best Component | Avoid |
 | :--- | :--- | :--- |
-| Is this a **sequential, step-by-step process** (pipeline, data flow, training loop)? | `<Flowchart />` (horizontal conveyor cards + arrows) | Numbered prose list |
+| Is this a **sequential, step-by-step process** (pipeline, data flow, training loop)? | Plain numbered steps | Retired `Flowchart` numbered card-and-arrow design |
 | Is this a **taxonomy or multi-level classification** (architecture families, loss function types, PEFT variants)? | `<ConceptHierarchy />` (tree, root → branches → leaves) | Deep nested bullet lists |
 | Is this a **navigational overview** of lessons or topic clusters within a domain? | `<CourseCards />` | Inline links or flat list |
 | Does the content spotlight a **single concept with a visual metaphor** (one keyword + image)? | Spotlight Concept Card (pastel border, icon, 1-sentence definition) | Plain bold text heading |
@@ -237,6 +237,6 @@ Before placing any UI component, answer these decision questions. Use the table 
 **Hard rules for component restraint:**
 - Never place two `<ConceptHierarchy />` trees within the same lesson section — merge or flatten.
 - `<CourseCards />` belongs at lesson-end or domain-overview pages only; never mid-lesson.
-- `<ConceptFlow />` is for concept bridging (abstract → concrete), not for step sequences; use `<Flowchart />` for steps.
+- The user has permanently retired the numbered card-and-arrow `Flowchart` design. Never use or recreate it under another name. Use plain numbered steps for process sequences; preserve the separately approved `<ConceptFlow />` design for concept cards when requested.
 - If in doubt between two components, choose the simpler one. Complexity must earn its place.
 - Always ask: *"Does adding this component replace a weaker prose explanation, or is it decorative?"* — only add if it replaces.

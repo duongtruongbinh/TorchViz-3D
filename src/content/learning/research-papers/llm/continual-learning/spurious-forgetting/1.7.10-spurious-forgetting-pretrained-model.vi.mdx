@@ -1,0 +1,314 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-pretrained-model',
+  locale: 'vi',
+  title: 'OLMo 2 1B & Can thiệp bằng SVD',
+  headings: [
+    '5 THE COLLAPSE IN A PRETRAINED LANGUAGE MODEL',
+    '5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY',
+    '5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY',
+    '5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS',
+    '5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'OLMo 2 1B',
+    'CounterFact',
+    'EntityQuestions',
+    'SVD',
+    'Cumulative Weight Update',
+    'Table 3',
+    'Matched Accuracy',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### 5 THE COLLAPSE IN A PRETRAINED LANGUAGE MODEL
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="5 THE COLLAPSE IN A PRETRAINED LANGUAGE MODEL"
+  sectionParagraphs={[
+  "The controlled transformer meets the conditions of the minimal model by construction while a pretrained language model does not. We can still choose new facts whose answers the old facts never use, but the structure its keys share was set by pretraining on real text, so nothing guarantees that finetuning writes a common shift, or that it later withdraws it. The minimal model makes a prediction for each. The shift should be withdrawn only once the new facts have nothing left in common that helps predict their answers, so that each must be learned on its own; we test this with two kinds of new facts, one that meets this condition and one that does not. And since the shift of the hidden states is written by a single direction of the weight update, the one along which all new facts write together (Section 3.3), removing the top direction of each weight update should bring the old facts back."
+]}
+  sectionHighlights={[]}
+/>
+
+Transformer ở Section 4 được thiết kế để có các điều kiện mà mô hình tối giản cần. Với LLM đã pretrained trên văn bản thật, nhóm không kiểm soát cấu trúc key đã học, nên không thể mặc định cùng cơ chế sẽ xuất hiện.
+
+Từ cơ chế trước đó, họ đưa ra hai dự đoán để kiểm tra:
+
+1. Recovery sẽ xuất hiện khi phần cấu trúc chung không còn giúp chọn đáp án cụ thể của facts mới; mô hình phải học từng liên kết riêng. Hai loại dữ liệu mới ở Section 5.1 được dùng để thử dự đoán này.
+2. Nếu một thành phần cập nhật chi phối gây che khuất facts cũ, loại thành phần đó có thể phục hồi recall. Section 5.2 thử hướng singular lớn nhất của cập nhật trọng số, thay vì mặc định đây là cùng một phép trừ logits như trước.
+
+Đây là dự đoán cần kiểm chứng trên pretrained model. Việc chọn được vùng đáp án mới khác vùng cũ mới đáp ứng một phần của setup; nó chưa bảo đảm mô hình sẽ tự recovery.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY"
+  sectionParagraphs={[
+  "OLMo 2 1B (Team OLMo et al., 2025) knows far more facts than we can track, so we take as old facts the CounterFact facts (Meng et al., 2022) it answers correctly before finetuning; they play the role of A (Appendix A.2). We then finetune it without replay on documents stating new facts about people or products, in two separate runs with two kinds of new facts. In both, no new answer shares its first token with the answer of a tracked old fact, so the new answers occupy a region of the output space those old facts do not use, as the answers of B′ do for A. The two kinds differ in what their subjects say about their answers (Section 3.3). Synthetic individuals, invented names that receive real companies, cities, countries and languages at random, say nothing: as in the minimal model, the shared direction helps them reach the region of their answers, but not choose within it. Real entities, products from EntityQuestions (Sciavolino et al., 2021) whose manufacturer the model does not know, say something: the kind of product hints at the kind of manufacturer, as a car model hints at a carmaker, so the shared direction keeps helping within the region."
+]}
+  sectionHighlights={[]}
+/>
+
+Controlled Transformer được thiết kế để có các điều kiện của minimal model. Liệu một model đã học từ natural text cũng cho kết quả tương tự? Tác giả thử OLMo 2 1B, chọn những old facts để theo dõi và hai loại new data để kiểm tra khi nào recovery xuất hiện.
+
+Ở đây họ không điều khiển toàn bộ pretraining, nhưng vẫn chọn new answers tránh first tokens của tracked old answers.
+
+Old facts được lấy từ CounterFact. Appendix A.2 chọn 1,106 facts model biết trước finetuning, rồi dùng 422 facts có answer không xuất hiện trong prompt để đánh giá recall thay vì copying. Metric vẫn là top-1 của first answer token trên full vocabulary.
+
+New data có hai loại. Synthetic individuals dùng tên bịa và gán employer, birth city, citizenship, language ngẫu nhiên. Real entities là products trong EntityQuestions với manufacturer mà model chưa biết. Loại product có thể gợi ý loại manufacturer, trong khi tên bịa không cung cấp loại tín hiệu đó.
+
+<ComparisonMatrix ariaLabel="Hai bộ new facts dùng với OLMo 2 1B" columns={[
+  "Synthetic individuals",
+  "Real entities"
+]} rows={[
+  {
+    "label": "Subjects",
+    "values": [
+      "Tên nhân vật hư cấu",
+      "Products từ EntityQuestions"
+    ]
+  },
+  {
+    "label": "Answers",
+    "values": [
+      "Gán ngẫu nhiên từ các answer pools",
+      "Manufacturer của product"
+    ]
+  },
+  {
+    "label": "Quy mô Appendix A.2",
+    "values": [
+      "250 hoặc 1,000 người; 4 attributes",
+      "1,415 facts; 407 manufacturers"
+    ]
+  },
+  {
+    "label": "Phrasings",
+    "values": [
+      "12 train và 3 held-out cho mỗi fact",
+      "12 train và 3 held-out cho mỗi fact"
+    ]
+  },
+  {
+    "label": "Tín hiệu shared",
+    "values": [
+      "Tên không dự đoán answer được gán",
+      "Loại product có thể gợi ý manufacturer"
+    ]
+  }
+]} />
+
+Training dùng 32,768 tokens mỗi step, sequence length 512, AdamW với learning rate <InlineMath formula="10^{-5}" /> sau warmup 100 steps, không replay; kết quả được lấy trung bình trên ba seeds. New answers của cả hai loại không trùng first token với tracked old answers.
+
+[Section 5.1 và Appendix A.2](https://arxiv.org/pdf/2610.08718v1#page=15) chỉ kiểm tra một pretrained model. Những điều kiện được chọn giúp thử cơ chế, chưa đại diện toàn bộ finetuning trên dữ liệu tự nhiên.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### 5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="5.1 THE COLLAPSE PERSISTS, AND REVERSES WHEN THE NEW FACTS ARE ARBITRARY"
+  sectionParagraphs={[
+  "With both kinds of new facts, recall of the old facts first rises slightly, although none of them is replayed: finetuning on documents that state facts makes the model favor answers over other continuations, which fixes old facts it already ranked correctly among the possible answers (Appendix D.1).",
+  "With synthetic individuals, the trajectory of the controlled settings then reappears (Figure 5, left): recall of the old facts collapses before almost any new fact is recalled, recovers as the new facts are learned, and then erodes. More new facts delay the recovery, as each drives its own association with weight 1/nB (Section 3.3): with a four times larger set of individuals, the collapse lasts longer and goes deeper (Figure 5, right). With real entities, the old facts never recover and keep declining even after every new fact is recalled: the shared direction keeps helping the new facts choose their answers within the region, so the shift is never withdrawn."
+]}
+  sectionHighlights={[]}
+/>
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_5.png"
+  alt="Figure 5: old/new recall với hai loại dữ liệu, kết quả bỏ top direction hoặc random direction và ảnh hưởng của số facts mới."
+  caption="Figure 5 — Recovery, can thiệp và quy mô tập facts mới trên OLMo 2 1B. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 872"
+/>
+
+Từ minimal model, tác giả dự đoán recovery sẽ dễ xảy ra hơn khi model phải học answer riêng của từng subject, thay vì tiếp tục dựa vào một tín hiệu chung hữu ích. Họ so nhân vật hư cấu được gán answers ngẫu nhiên với products thật, nơi loại product có thể gợi ý manufacturer.
+
+Figure 5 cho thấy old recall ban đầu tăng nhẹ rồi giảm ở cả hai loại dữ liệu. Sau đó, synthetic individuals có recovery, còn real entities tiếp tục làm old recall giảm trong khoảng training được khảo sát.
+
+Recovery ở synthetic individuals phù hợp với dự đoán. Trong cách giải thích của tác giả, shared component giúp chọn vùng answers nhưng không giúp chọn answer riêng của từng tên; khi model học từng association, shift có thể rút lại.
+
+Với real entities, kiểu product vẫn có thông tin về manufacturer. Shared direction có thể tiếp tục hỗ trợ phân biệt trong new answer region, nên tác giả diễn giải rằng shift vẫn hữu ích và không tự rút lại. Section 6 thừa nhận hai datasets còn khác nhau ở những điểm khác, nên so sánh này chưa cô lập hoàn toàn một yếu tố duy nhất.
+
+Dùng 1,000 synthetic individuals thay vì 250 làm collapse kéo dài và sâu hơn trong Figure 5. Learning từng individual association chậm hơn khi có nhiều facts, dù common push vẫn được chia sẻ.
+
+Appendix D.1 giải thích initial rise bằng answer alignment. Finetuning bằng fact documents giúp answer tokens thắng các continuations không phải answers. Old facts có correct answer vốn đã đứng đầu trong các candidate answers có thể nhờ đó trở lại top-1 của full vocabulary, dù chưa replay.
+
+[Figure 5 và Appendix D.1](https://arxiv.org/pdf/2610.08718v1#page=35) cho thấy một đường recall có thể chứa nhiều hiệu ứng nối tiếp nhau. Initial rise, collapse và recovery không nên được gộp thành một chỉ số monotonic forgetting.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### 5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS"
+  sectionParagraphs={[
+  "In the controlled Transformer, we removed the common shift from the hidden states and logits of the old facts, which were all queried in the same way. In a pretrained model, the old facts are queried through varied prompts, at varied positions, so there is no single set of states over which to average, whereas the weights write the shift whatever the prompt. We therefore act on the weights. In the minimal model, the part of the update that all new facts share is rank-one, written along the shared key direction (Equation 3), and it initially dominates the update, while the errors of the new facts are aligned. In a deep network it need not be rank-one at any single layer, but it should still initially dominate each weight update, and thus concentrate in its top singular direction. In the minimal model and in both controlled Transformers, removing this direction indeed restores the old facts at the bottom of the collapse, and what it removes is aligned with the common shift (Appendices B.10 and D.3). We therefore subtract the top singular component of the update of every weight matrix in the Transformer blocks of the language model, or, as a control, a random rank-one matrix of the same norm, and evaluate the edited model (Appendix D.2)."
+]}
+  sectionHighlights={[]}
+/>
+
+Real-entity run không tự recovery. Điều đó đặt ra một khả năng cần phân biệt là old knowledge đã mất hay vẫn bị che khuất. Tác giả thử loại phần thay đổi bị nghi là gây che khuất để xem old recall có trở lại không.
+
+Old facts ở pretrained model được hỏi bằng nhiều prompts và vị trí khác nhau, nên cách lấy mean logits như trước không chuyển sang trực tiếp. Paper thử một chỉnh sửa ở weight updates.
+
+Giả thuyết ở đây là phần thay đổi chung đóng góp lớn vào weight updates và có thể tập trung trong top singular component. Nếu đúng, bỏ component này nên phục hồi old recall tốt hơn việc bỏ một component ngẫu nhiên có cùng norm. Tác giả cần cả hai phép thử để phân biệt vai trò của hướng được chọn với ảnh hưởng của việc chỉnh weights nói chung.
+
+**Singular Value Decomposition (SVD)** biểu diễn matrix update thành tổng các rank-one components. Top component có singular value lớn nhất và mô tả hướng đóng góp nhiều nhất theo phép phân rã đó.
+
+<BlockMath formula="\underbrace{\Delta W(t)}_{m\times n}=W(t)-W(0)=\sum_j\sigma_j\underbrace{u_j}_{m\times1}\underbrace{v_j^\top}_{1\times n},\qquad\sigma_1\geq\sigma_2\geq\cdots" />
+
+<BlockMath formula="W_{\mathrm{edited}}(t)=W(t)-\sigma_1u_1v_1^\top=W(0)+\Delta W(t)-\sigma_1u_1v_1^\top" />
+
+Delta W là thay đổi tích lũy từ checkpoint trước finetuning. Tác giả phân rã delta của từng weight matrix; W(0) và W(t) không phải matrices được lấy top component để loại bỏ trực tiếp.
+
+Ví dụ minh họa có delta W bằng diagonal matrix với entries 3 và 1. Bỏ top component để lại diagonal entries 0 và 1. Update riêng nhỏ hơn vẫn còn, nên đây không phải rewind về checkpoint trước training.
+
+<BlockMath formula="\Delta W=\begin{bmatrix}3&0\\0&1\end{bmatrix},\quad\sigma_1u_1v_1^\top=\begin{bmatrix}3&0\\0&0\end{bmatrix},\quad\Delta W_{\mathrm{edited}}=\begin{bmatrix}0&0\\0&1\end{bmatrix}" />
+
+Ở OLMo 2 1B, Appendix D.2 chỉnh 112 matrices trong 16 Transformer layers. Mỗi layer có bốn attention matrices và ba MLP matrices. Embedding và unembedding được giữ nguyên; original weights được phục hồi sau evaluation để training trajectory không bị đổi.
+
+1. **Lấy delta W:** Trừ checkpoint trước finetuning cho từng matrix.
+2. **Bỏ top component:** Chỉnh 112 matrices trong Transformer blocks.
+3. **Đánh giá old và new:** So với trained model và random control cùng norm.
+4. **Khôi phục weights:** Tiếp tục run gốc với weights chưa chỉnh.
+
+[Appendix D.2](https://arxiv.org/pdf/2610.08718v1#page=35) báo cáo top component chứa khoảng 15% squared norm của một typical update. Con số 90% trong ví dụ diagonal 3 và 1 là phép tính minh họa khác, không phải thống kê của OLMo.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### 5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="5.2 REMOVING ONE DIRECTION OF THE UPDATE RESTORES THE OLD FACTS"
+  sectionParagraphs={[
+  "The edit largely removes the collapse (Figure 5, middle), whereas the random control leaves recall exactly where training left it (Appendix D.2). With synthetic individuals, only the slow erosion remains. With real entities, the edit restores most of the old facts that training never brought back: their steady decline was mostly a shift that was never withdrawn, not erasure. The removed direction also lowers recall of the new facts, but the edit does not rewind finetuning: once the new facts are partly learned, the edited model recalls more old facts than the trained model did at the same accuracy on the new facts (Appendix D.2)."
+]}
+  sectionHighlights={[]}
+/>
+
+Table 3 cho phép so ba models ở cùng checkpoint. Ta cần xem top-component edit có phục hồi old recall, random control có làm được tương tự, và việc phục hồi có ảnh hưởng new recall không. Vì vậy mỗi kết quả old accuracy phải được đọc cùng new accuracy.
+
+<ComparisonMatrix ariaLabel="Table 3 · OLMo 2 1B, accuracy theo phần trăm" columns={[
+  "Old trained",
+  "Old top removed",
+  "Old random removed",
+  "New trained",
+  "New top removed"
+]} rows={[
+  {
+    "label": "Synthetic · step 80",
+    "values": [
+      "28%",
+      "77%",
+      "28%",
+      "3%",
+      "1%"
+    ]
+  },
+  {
+    "label": "Synthetic · step 400",
+    "values": [
+      "38%",
+      "70%",
+      "38%",
+      "90%",
+      "40%"
+    ]
+  },
+  {
+    "label": "Real · step 80",
+    "values": [
+      "73%",
+      "88%",
+      "73%",
+      "46%",
+      "25%"
+    ]
+  },
+  {
+    "label": "Real · step 400",
+    "values": [
+      "55%",
+      "79%",
+      "55%",
+      "100%",
+      "66%"
+    ]
+  }
+]} />
+
+Bảng dùng small synthetic set và trung bình ba seeds. Old accuracy trước finetuning được báo cáo là 87%. Vì số trong bảng là averages đã làm tròn, không thể đổi chúng thành số facts chính xác bằng cách nhân với 422 rồi làm tròn tùy ý.
+
+Ở synthetic step 80, old accuracy tăng từ 28% lên 77%, tức 49 percentage points. Ở real step 400, tăng từ 55% lên 79%, tức 24 percentage points; new accuracy đồng thời giảm từ 100% xuống 66%. Random rank-one control cùng norm không phục hồi old recall trong bảng.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="D.2 REMOVING ONE DIRECTION OF THE UPDATE"
+  sectionParagraphs={[
+  "For real entities, at new-fact accuracies of 21%, 34% and 66%, the edited model recalls 88%, 88% and 79% of the old facts, against 81%, 73% and 72% for the trained model."
+]}
+  sectionHighlights={[
+  "88%, 88% and 79%",
+  "81%, 73% and 72%"
+]}
+/>
+
+<ComparisonMatrix ariaLabel="Appendix D.2 · So ở cùng new-fact accuracy" columns={[
+  "Old edited",
+  "Old trained tại mức new accuracy tương ứng",
+  "Chênh lệch"
+]} rows={[
+  {
+    "label": "New accuracy 21%",
+    "values": [
+      "88%",
+      "81%",
+      "+7 percentage points"
+    ]
+  },
+  {
+    "label": "New accuracy 34%",
+    "values": [
+      "88%",
+      "73%",
+      "+15 percentage points"
+    ]
+  },
+  {
+    "label": "New accuracy 66%",
+    "values": [
+      "79%",
+      "72%",
+      "+7 percentage points"
+    ]
+  }
+]} />
+
+Trained comparator được lấy ở thời điểm run lần đầu đạt cùng new accuracy, nội suy giữa các evaluations. Đây là comparison khác với so hai models ở cùng step trong Table 3.
+
+Kết quả matched accuracy cho thấy ở các mức new recall được báo cáo, edited model giữ nhiều old facts hơn trained comparator. Điều đó làm yếu đi cách giải thích rằng edit chỉ quay về một điểm cũ trên cùng training trajectory. Tuy vậy, ở cùng checkpoint, new recall vẫn giảm sau edit. Kết quả hỗ trợ khả năng phục hồi old facts, đồng thời chỉ ra cái giá của cách chỉnh sửa; nó không cho phép kết luận rằng mọi old và new knowledge đều được bảo toàn.
+
+[Table 3 và Appendix D.2](https://arxiv.org/pdf/2610.08718v1#page=35) hỗ trợ intervention như bằng chứng cơ chế. Chúng chưa xác lập một phương pháp online miễn phí về tính toán hoặc bảo đảm giữ toàn bộ old facts.
+
+</MdxPage>

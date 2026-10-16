@@ -1,0 +1,235 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-abstract',
+  locale: 'vi',
+  title: 'Tóm tắt Bài báo',
+  headings: [
+    'Tóm tắt Bài báo',
+    'Tóm tắt Bài báo',
+    'Tóm tắt Bài báo',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Abstract',
+    'Recall',
+    'Replay',
+    'Common Shift',
+    'Fact-specific Drift',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Tóm tắt Bài báo
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    "Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good.",
+  ]}
+  sectionHighlights={[
+    'forget during finetuning often remains stored and can be recovered',
+    'called spurious forgetting',
+  ]}
+/>
+
+Hiện tượng quên giả đã được ghi nhận trong các nghiên cứu trước về Continual Learning. [Kotha và cộng sự (2024)](https://proceedings.iclr.cc/paper_files/paper/2024/hash/692ae28fda9bfbde7c01b13bf5a03395-Abstract-Conference.html) khôi phục được một số năng lực bằng cách đổi prompt. [Zheng và cộng sự (2025)](https://arxiv.org/abs/2501.13453) cũng cho thấy hiệu suất trên nhiệm vụ cũ có thể phục hồi qua một đợt huấn luyện ngắn. Những kết quả này hỗ trợ việc một phần kiến thức hoặc năng lực vẫn còn, dù mô hình không thể hiện được qua câu trả lời hiện tại.
+
+<LessonNote tone="warning">
+Finetuning on new facts ở đây là cho mô hình học thêm thông tin mới, rồi kiểm tra khả năng trả lời về thông tin cũ. Đây không phải thí nghiệm lần lượt finetune mô hình trên một chuỗi task benchmark khác nhau.
+</LessonNote>
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    "Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good.",
+  ]}
+  sectionHighlights={[
+    'undoes itself',
+    'recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good',
+  ]}
+/>
+
+Paper này ghi nhận cụ thể ba pha nối tiếp nhau trong khi mô hình chỉ tiếp tục train trên mẫu mới, không được ôn lại mẫu cũ:
+
+1. **Collapse:** Quên tạm thời, thể hiện qua việc mô hình nhanh chóng trả lời sai nhiều câu hỏi về kiến thức cũ.
+2. **Recovery:** Bất ngờ phục hồi một phần khả năng trả lời về mẫu cũ khi tiếp tục train trên mẫu mới.
+3. **Erosion:** Khả năng trả lời về mẫu cũ lại suy giảm dần khi quá trình train tiếp tục kéo dài.
+
+<LessonNote tone="danger">
+Nếu đưa mẫu cũ trở lại để train, việc phục hồi có thể đến từ việc mô hình học lại. Ở đây, mô hình hoàn toàn không được xem lại mẫu cũ, chỉ train trên mẫu mới mà vẫn phục hồi. Vậy điều gì giúp nó trả lời đúng trở lại? Kết quả này là bằng chứng mạnh rằng một phần kiến thức cũ vẫn còn sau lần suy giảm.
+</LessonNote>
+
+<LessonNote tone="danger">
+Sau giai đoạn phục hồi, mô hình lại suy giảm; các tác giả cho rằng lúc này có phần kiến thức thực sự bị mất. Vậy họ dựa vào đâu để phân biệt quên giả với quên thật? Ta cần theo dõi cách nhóm tác giả đo đạc và kiểm chứng để biết khi nào có thể đưa ra kết luận đó.
+</LessonNote>
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    "Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic.",
+  ]}
+  sectionHighlights={[
+    'We seek to understand when such forgetting is not catastrophic.',
+  ]}
+/>
+
+Từ quan sát này, các tác giả tìm hiểu, phân tích và đưa ra một số giả thuyết để giải thích hiện tượng quên rồi phục hồi kiến thức cũ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tóm tắt Bài báo
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    "Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network.",
+  ]}
+  sectionHighlights={[
+  "A minimal associative memory reproduces these dynamics"
+]}
+/>
+
+**Associative memory** là mô hình học cách liên kết một đầu vào với một đáp án. Ví dụ:
+
+- “<TextHighlight tone="ochre">An</TextHighlight> <TextHighlight tone="blue">sống ở đâu?</TextHighlight>” → “Hà Nội”
+- “<TextHighlight tone="ochre">Bình</TextHighlight> <TextHighlight tone="blue">sống ở đâu?</TextHighlight>” → “Huế”
+
+**Minimal** nghĩa là mô hình được thiết kế đơn giản, chỉ giữ những thành phần cần cho việc học và trả lời các liên kết này. Tác giả dùng mô hình đó để tái hiện ba pha Collapse, Recovery và Erosion, rồi thay từng yếu tố để xem điều gì khiến hiện tượng xuất hiện hoặc biến mất.
+
+Mô hình nhỏ giúp kiểm tra các giả thuyết dễ hơn, vì có ít thành phần cùng thay đổi khi train. Sau đó, tác giả còn phải kiểm tra lại lời giải thích trên Transformer.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    "Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network.",
+  ]}
+  sectionHighlights={[
+  "three ingredients",
+  "keys with shared structure",
+  "concentrated new values",
+  "normalization in the network"
+]}
+/>
+
+Để tái hiện được ba pha trong mô hình đơn giản này, tác giả đưa vào ba thành phần và kiểm tra vai trò của từng thành phần:
+
+1. **Keys with shared structure:** Các đầu vào có một phần cấu trúc chung. Trong ví dụ trên, “<TextHighlight tone="ochre">An</TextHighlight> <TextHighlight tone="blue">sống ở đâu?</TextHighlight>” và “<TextHighlight tone="ochre">Bình</TextHighlight> <TextHighlight tone="blue">sống ở đâu?</TextHighlight>” khác tên người nhưng cùng hỏi nơi ở. Trong mô hình tối giản, tác giả biểu diễn mỗi đầu vào bằng một phần chung và một phần riêng, rồi thay mức độ giống nhau để xem collapse thay đổi thế nào.
+
+2. **Concentrated new values:** Các đáp án mới chỉ tập trung trong một nhóm đáp án đã chọn. Ví dụ minh họa, trước đó các đáp án có thể là Hà Nội, Hải Phòng, Huế hoặc Đà Nẵng; khi học các nhân vật mới, đáp án chỉ dùng Huế hoặc Đà Nẵng. Tác giả so trường hợp này với việc dùng đáp án ở cả hai nhóm để xem cách chọn đáp án ảnh hưởng thế nào đến forgetting.
+
+3. **Normalization:** Mô hình dùng các vector số để biểu diễn thông tin bên trong. Normalization đưa độ lớn của các vector này về một mức cố định. Tác giả thử bỏ hoặc thay phép này và thấy mô hình vẫn có thể collapse nhưng không tự recovery như trước, nên cần phân tích vì sao nó liên quan đến khả năng phục hồi.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tóm tắt Bài báo
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    'Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network. Finetuning moves all old representations along a common direction, hiding the old facts while preserving their relative geometry; normalization withdraws this shift once the new facts are learned, whereas fact-specific changes accumulate and cause the erosion. Moreover, subtracting the common shift eliminates the collapse in a Transformer trained on synthetic data, and removing a single direction from each weight update restores old facts in a pretrained language model. Forgetting thus combines a shared, reversible loss of access with a slow erosion of individual facts, and only the second is catastrophic. Which one dominates depends on whether the new data move old memories together or apart.',
+  ]}
+  sectionHighlights={[
+    'Finetuning moves all old representations along a common direction, hiding the old facts',
+    'preserving their relative geometry',
+  ]}
+/>
+
+Trong mô hình associative memory, các tác giả nhận thấy rằng finetuning trên facts mới kéo các biểu diễn tri thức cũ cùng lệch theo một hướng chung — **common direction**. Sự dịch chuyển này khiến mô hình khó đọc ra đáp án cũ, nhưng vẫn giữ vị trí tương đối giữa các biểu diễn (relative geometry) nếu chỉ xét phần dịch chuyển chung. Nói cách khác, mô hình có thể trả lời sai dù thông tin cũ vẫn còn.
+
+Ta có thể xem minh họa ở Figure 3 bên dưới, đặc biệt là cụm điểm biểu diễn tri thức cũ ở hình bên trái: cả cụm bị kéo lệch rồi dịch chuyển trở lại một phần.
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_3.png"
+  alt="Figure 3: cụm biểu diễn cũ cùng bị kéo lệch rồi rút lại một phần; các biểu đồ bên cạnh so sánh common shift có và không có normalization, cùng các đại lượng liên quan đến việc học facts mới."
+  caption="Figure 3 — Minh họa sự dịch chuyển chung của các biểu diễn cũ và vai trò của normalization. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 892"
+/>
+
+Vậy trong cơ chế mà tác giả phân tích, ta đã xác định được nguyên nhân gây collapse: khi tiếp tục finetune cùng một mô hình trên facts mới, các đầu vào cũ và mới dùng chung trọng số và có cấu trúc chung. Vì vậy, cập nhật để học facts mới cũng kéo các biểu diễn tri thức cũ lệch theo một hướng chung, khiến mô hình ưu tiên nhóm đáp án mới. Khả năng trả lời facts cũ giảm mạnh dù thông tin riêng của chúng vẫn có thể còn trong mô hình.
+
+<LessonNote tone="danger">
+Vậy thành phần nào giúp mô hình recovery?
+</LessonNote>
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    'Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network. Finetuning moves all old representations along a common direction, hiding the old facts while preserving their relative geometry; normalization withdraws this shift once the new facts are learned, whereas fact-specific changes accumulate and cause the erosion. Moreover, subtracting the common shift eliminates the collapse in a Transformer trained on synthetic data, and removing a single direction from each weight update restores old facts in a pretrained language model. Forgetting thus combines a shared, reversible loss of access with a slow erosion of individual facts, and only the second is catastrophic. Which one dominates depends on whether the new data move old memories together or apart.',
+  ]}
+  sectionHighlights={[
+    'normalization withdraws this shift once the new facts are learned',
+  ]}
+/>
+
+Transformer thường có normalization trong mỗi block. Trong mô hình mà tác giả phân tích, normalization giữ độ lớn của mỗi biểu diễn ở một mức cố định.
+
+Điều này ảnh hưởng đến cả hai phase collapse và recovery.
+
+Khi đi vào Section 3.2, chúng ta sẽ thấy ở phase đầu tiên, normalization làm trầm trọng thêm ảnh hưởng của shift: khi shift chung đang tăng mạnh, phần riêng bị thu nhỏ tương đối sau normalization, khiến thông tin cũ càng khó được đọc ra.
+
+Tuy nhiên, lợi ích đến ở phase thứ hai: khi tiếp tục finetune trên tập mới <InlineMath formula="B'" />, để học được đáp án cụ thể cho từng fact mới, mô hình phải sử dụng cả phần chung lẫn phần riêng: phần chung giúp hướng tới nhóm đáp án mới, còn phần riêng giúp phân biệt đáp án của từng fact trong nhóm đó. Normalization giữ độ lớn toàn bộ biểu diễn cố định, nên ảnh hưởng của hai phần phụ thuộc vào tỷ trọng của chúng trong biểu diễn sau chuẩn hóa. Khi phần riêng đã học được đáp án đúng, để tiếp tục giảm loss, quá trình học trong cơ chế này phải giảm shift chung để tăng ảnh hưởng của phần riêng, nhờ đó mô hình trả lời facts mới chính xác hơn.
+
+Điều này cũng giúp giảm shift trên tập <InlineMath formula="A" />, vì các đầu vào cũ và mới dùng chung trọng số và có cấu trúc chung. Phần thông tin riêng của <InlineMath formula="A" /> còn được giữ lại có ảnh hưởng trở lại, nên recall của <InlineMath formula="A" /> phục hồi một phần dù không được học lại facts cũ. Ở Figure 3, đường có normalization tăng rồi giảm, còn đường không có normalization tiếp tục giữ mức dịch chuyển lớn. Chúng ta sẽ phân tích chi tiết hơn cơ chế này ở các phần sau.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    'Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network. Finetuning moves all old representations along a common direction, hiding the old facts while preserving their relative geometry; normalization withdraws this shift once the new facts are learned, whereas fact-specific changes accumulate and cause the erosion. Moreover, subtracting the common shift eliminates the collapse in a Transformer trained on synthetic data, and removing a single direction from each weight update restores old facts in a pretrained language model. Forgetting thus combines a shared, reversible loss of access with a slow erosion of individual facts, and only the second is catastrophic. Which one dominates depends on whether the new data move old memories together or apart.',
+  ]}
+  sectionHighlights={[
+    'normalization withdraws this shift once the new facts are learned, whereas fact-specific changes accumulate and cause the erosion.',
+  ]}
+/>
+
+Normalization giúp giảm shift chung, nhưng trong quá trình finetuning, biểu diễn của từng fact cũ vẫn thay đổi theo những cách riêng. Các thay đổi này tích lũy và làm suy giảm chính phần thông tin đặc thù mà mô hình cần để trả lời từng fact. Vì vậy, dù bớt bị ảnh hưởng bởi shift chung, mô hình vẫn dần trả lời kém đi về facts cũ. Đây là **erosion**, phase thứ ba quan sát được sau recovery.
+
+<LessonNote tone="success">
+Tóm lại các insight chính mà nhóm đưa ra mà chúng ta cần nhớ:
+
+- Collapse: finetuning tạo shift chung khiến mô hình khó đọc ra facts cũ. Normalization ban đầu còn làm phần thông tin riêng bị lấn át hơn.
+- Recovery: khi mô hình học được liên kết riêng của facts mới, normalization góp phần làm shift chung giảm. Thông tin riêng cũ còn giữ được có ảnh hưởng trở lại, dù không được học lại.
+- Erosion: những thay đổi riêng ở từng fact vẫn tích lũy, làm suy giảm thông tin cũ; giảm shift chung không khắc phục được phần này.
+</LessonNote>
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="ABSTRACT"
+  sectionParagraphs={[
+    'Knowledge that a language model appears to forget during finetuning often remains stored and can be recovered, a phenomenon called spurious forgetting. Finetuning on new facts can even produce forgetting that undoes itself: recall of the old facts collapses, recovers as training continues on new facts alone, and only then erodes for good. We seek to understand when such forgetting is not catastrophic. A minimal associative memory reproduces these dynamics with three ingredients: keys with shared structure, concentrated new values, and normalization in the network. Finetuning moves all old representations along a common direction, hiding the old facts while preserving their relative geometry; normalization withdraws this shift once the new facts are learned, whereas fact-specific changes accumulate and cause the erosion. Moreover, subtracting the common shift eliminates the collapse in a Transformer trained on synthetic data, and removing a single direction from each weight update restores old facts in a pretrained language model. Forgetting thus combines a shared, reversible loss of access with a slow erosion of individual facts, and only the second is catastrophic. Which one dominates depends on whether the new data move old memories together or apart.',
+  ]}
+  sectionHighlights={[
+    'subtracting the common shift eliminates the collapse in a Transformer trained on synthetic data',
+    'removing a single direction from each weight update restores old facts in a pretrained language model',
+  ]}
+/>
+
+Để kiểm tra liệu common shift có phải là nguyên nhân chính gây ra collapse hay không, nhóm thử trừ trực tiếp phần dịch chuyển chung trên Transformer được train bằng dữ liệu tổng hợp và thấy collapse biến mất. Kết quả này ủng hộ lời giải thích rằng mô hình có thể mất khả năng trả lời vì các biểu diễn cũ bị kéo lệch, dù thông tin cũ vẫn còn. Với LLM đã pretrained, nhóm cũng thử loại bỏ một hướng khỏi mỗi cập nhật trọng số và khôi phục được khả năng trả lời facts cũ.
+
+Hiện tại, chỉ cần nhớ giả thuyết được đặt ra là:
+
+<LessonNote tone="info">
+Một phần hiện tượng quên có thể xảy ra vì finetuning trên facts mới kéo các biểu diễn tri thức cũ cùng lệch đi, khiến mô hình khó đọc ra đáp án, dù thông tin cũ vẫn còn. Nếu đảo ngược được phần dịch chuyển chung này, mô hình có thể sử dụng lại kiến thức cũ mà không cần học lại facts cũ.
+</LessonNote>
+
+Theo kết luận của nhóm trong các thí nghiệm này, forgetting kết hợp hai phần:
+
+1. Mất khả năng truy xuất nhưng có thể đảo ngược.
+2. Sự suy giảm lâu dài của từng fact.
+
+Chỉ phần thứ hai được gọi là catastrophic.
+
+</MdxPage>
