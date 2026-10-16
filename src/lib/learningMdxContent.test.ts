@@ -583,6 +583,16 @@ test('generic MDX contract rejects imports, executable expressions, and unknown 
   await assert.rejects(() => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Unknown />`, 'fixture.mdx', 'cv'), /unexpected MDX component/i);
 });
 
+test('retired Flowchart design is rejected by Learning Lab authoring', async () => {
+  for (const domainId of ['cv', 'research-papers']) {
+    const metadata = JSON.stringify({ domainId, id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] });
+    await assert.rejects(
+      () => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Flowchart nodes={[]} />`, 'fixture.mdx', domainId),
+      /unexpected MDX component/i,
+    );
+  }
+});
+
 test('MDX inspection derives each page title from its first section or subsection heading', async () => {
   const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'Fallback', headings: ['First', 'Second'], keywords: ['x'], pageCount: 3 }";
   const inspection = await inspectLearningMdx(`export const lessonMetadata = ${metadata}

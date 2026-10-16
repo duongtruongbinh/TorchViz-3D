@@ -1,4 +1,5 @@
 import React from 'react';
+import { MathInline } from '../../math';
 
 export interface AuthorItem {
   name: string;
@@ -29,20 +30,29 @@ export interface PaperExcerptProps {
   footnoteHighlight?: boolean;
 }
 
+function renderInlineMath(text: string): React.ReactNode {
+  return text.split(/(\$[^$\n]+\$)/g).map((part, index) => (
+    part.startsWith('$') && part.endsWith('$') && part.length > 2
+      ? <MathInline key={index} formula={part.slice(1, -1)} />
+      : part
+  ));
+}
+
 function renderHighlightedString(text: string, highlights?: string[]): React.ReactNode {
-  if (!highlights || highlights.length === 0) return text;
-  const regex = new RegExp(`(${highlights.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+  if (!highlights || highlights.length === 0) return renderInlineMath(text);
+  const highlightPattern = highlights.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const regex = new RegExp(`(${String.raw`\$[^$\n]+\$`}|${highlightPattern})`, 'g');
   const parts = text.split(regex);
   return parts.map((part, i) => {
     const isHit = highlights.some((h) => h === part);
     if (isHit) {
       return (
         <span key={i} className="bg-[#FEF08A]/85 px-1 py-0.5 rounded-[2px] text-black">
-          {part}
+          {renderInlineMath(part)}
         </span>
       );
     }
-    return part;
+    return renderInlineMath(part);
   });
 }
 

@@ -27,15 +27,10 @@ export const lessonMetadata = {
 
 Hãy bắt đầu Deep Learning bằng một hợp đồng đơn giản: đưa vào mô hình một bức ảnh, nhận lại tên lớp mô tả vật thể chính. Nếu ảnh chứa một chú mèo, đầu ra mong muốn là `cat`. Đây là **Image Classification** — bài toán gán một nhãn cho toàn bộ ảnh từ một tập lớp đã biết trước.
 
-<Flowchart
-  nodes={[
-    { id: 'image', step: 'INPUT', title: 'Ảnh RGB', subtitle: '32 × 32 × 3 pixel' },
-    { id: 'numbers', step: 'FLATTEN', title: 'Vector pixel', subtitle: '3.072 giá trị' },
-    { id: 'scores', step: 'MODEL', title: 'Class scores', subtitle: '10 điểm số' },
-    { id: 'cat', step: 'OUTPUT', title: 'cat', subtitle: 'Điểm cao nhất', active: true },
-  ]}
-  caption="Hợp đồng Image Classification tối giản: ảnh được chuyển thành số, mô hình chấm điểm từng lớp và trả về lớp thắng."
-/>
+1. **Ảnh RGB:** 32 × 32 × 3 pixel.
+2. **Vector pixel:** Flatten thành 3.072 giá trị.
+3. **Class scores:** Mô hình tính 10 điểm số.
+4. **cat:** Chọn lớp có điểm cao nhất.
 
 Giả sử dataset có 10 lớp: `airplane`, `car`, `bird`, `cat`, `deer`, `dog`, `frog`, `horse`, `ship` và `truck`. Mô hình không sinh trực tiếp chữ `cat`. Nó tạo ra 10 con số — một **class score** cho mỗi lớp — rồi chọn vị trí có score lớn nhất.
 

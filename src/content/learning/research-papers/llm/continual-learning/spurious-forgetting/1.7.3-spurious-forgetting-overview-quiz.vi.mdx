@@ -1,0 +1,484 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-overview-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Spurious forgetting',
+    'Recovery không replay',
+    'Thứ tự các pha',
+    'Ingredients của minimal model',
+    'Mục đích của mô hình tối giản',
+    'Phần chung của các keys',
+    'Các đáp án mới tập trung',
+    'Normalization làm gì?',
+    'Khi bỏ normalization',
+    'Common shift và thông tin cũ',
+    'Vì sao facts cũ cũng bị ảnh hưởng?',
+    'Normalization ở phase collapse',
+    'Vì sao normalization giúp recovery?',
+    'Đọc cụm điểm ở Figure 3',
+    'Vì sao vẫn còn erosion?',
+    'Trừ shift để kiểm tra điều gì?',
+  ],
+  keywords: [
+    'Quiz',
+    'Spurious Forgetting',
+    'Factual Recall',
+    'Common Shift',
+  ],
+  conceptIds: [
+    'spurious-access-definition',
+    'spurious-no-replay',
+    'spurious-phase-order',
+    'spurious-ingredient-set',
+    'spurious-minimal-model-purpose',
+    'spurious-shared-key-example',
+    'spurious-concentrated-answer-example',
+    'spurious-normalization-role',
+    'spurious-without-normalization',
+    'spurious-common-shift-geometry',
+    'spurious-shared-updates-old-inputs',
+    'spurious-normalization-collapse-effect',
+    'spurious-normalization-recovery-learning',
+    'spurious-figure-three-retraction',
+    'spurious-erosion-after-shift-reduction',
+    'spurious-subtract-shift-causal-test',
+  ],
+  pageCount: 16,
+};
+
+<MdxQuiz id="spurious-forgetting-overview-quiz" questions={[
+  {
+    "id": "spurious-access-definition",
+    "title": "Spurious forgetting",
+    "prompt": "Một old fact được trả lời sai sau finetuning nhưng phục hồi sau một can thiệp. Kết quả nào phù hợp nhất với khái niệm spurious forgetting?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Mô hình đã xóa toàn bộ thông tin của old fact, và can thiệp luôn học lại fact từ một nguồn bên ngoài."
+      },
+      {
+        "id": "option-2",
+        "label": "Accuracy trên new facts tăng, nên tất cả kiến thức trước finetuning vẫn còn nguyên trong weights."
+      },
+      {
+        "id": "option-3",
+        "label": "Một phần knowledge còn tồn tại nhưng khả năng truy xuất bị cản trở.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Fact bị trả lời sai cho thấy kiến thức đã mất hoàn toàn, dù sau đó recall có thể phục hồi bằng một can thiệp."
+      }
+    ],
+    "success": "Spurious forgetting là loss of access đối với knowledge còn tồn tại. Phục hồi old recall bằng can thiệp hỗ trợ cách hiểu này, nhưng chưa chứng minh mọi old facts được bảo toàn.",
+    "error": "Spurious forgetting là loss of access đối với knowledge còn tồn tại. Phục hồi old recall bằng can thiệp hỗ trợ cách hiểu này, nhưng chưa chứng minh mọi old facts được bảo toàn."
+  },
+  {
+    "id": "spurious-no-replay",
+    "title": "Recovery không replay",
+    "prompt": "Tại sao recovery khi training chỉ dùng new facts là một quan sát quan trọng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Nó cho thấy một phần old knowledge đã sống sót qua collapse.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Nó xác nhận new dataset đã chứa đầy đủ old facts dưới những phrasings khác, nên mô hình học lại tất cả."
+      },
+      {
+        "id": "option-3",
+        "label": "Nó chứng minh normalization luôn lưu một bản sao old answers độc lập với mọi thay đổi của weights."
+      },
+      {
+        "id": "option-4",
+        "label": "Nó bảo đảm rằng kéo dài finetuning trên bất kỳ dữ liệu mới nào cũng trả old accuracy về mức ban đầu."
+      }
+    ],
+    "success": "Không replay nghĩa là old facts không được đưa trở lại train. Recovery vì vậy hỗ trợ việc một phần information đã tồn tại xuyên qua collapse; nó không bảo đảm recovery cho mọi datasets.",
+    "error": "Không replay nghĩa là old facts không được đưa trở lại train. Recovery vì vậy hỗ trợ việc một phần information đã tồn tại xuyên qua collapse; nó không bảo đảm recovery cho mọi datasets."
+  },
+  {
+    "id": "spurious-phase-order",
+    "title": "Thứ tự các pha",
+    "prompt": "Sắp xếp trajectory old recall được Abstract mô tả, bắt đầu sau pretraining.",
+    "mode": "order",
+    "options": [
+      {
+        "id": "erosion",
+        "label": "Recall tiếp tục suy giảm chậm trong training kéo dài."
+      },
+      {
+        "id": "collapse",
+        "label": "Recall giảm nhanh trước khi phần lớn new facts được học."
+      },
+      {
+        "id": "recovery",
+        "label": "Recall tăng lại dù training vẫn chỉ dùng new facts."
+      }
+    ],
+    "correctOrder": [
+      "collapse",
+      "recovery",
+      "erosion"
+    ],
+    "success": "Trajectory gồm collapse → recovery → erosion. Recovery không đòi hỏi old facts trở lại training trong thiết lập này.",
+    "error": "Trajectory gồm collapse → recovery → erosion. Pha tăng trở lại nằm sau lần giảm nhanh và trước slow decline."
+  },
+  {
+    "id": "spurious-ingredient-set",
+    "title": "Ingredients của minimal model",
+    "prompt": "Bộ ingredients nào được Abstract dùng để tái hiện full trajectory?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Shared keys, new answers trong toàn vocabulary và replay thường xuyên để khôi phục old answers."
+      },
+      {
+        "id": "option-2",
+        "label": "Shared keys, concentrated new values và normalization.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-3",
+        "label": "Keys độc lập hoàn toàn, concentrated values và normalization để từng old fact không nhận shared updates."
+      },
+      {
+        "id": "option-4",
+        "label": "Shared keys, concentrated values và bỏ normalization để individual signals luôn giữ nguyên scale."
+      }
+    ],
+    "success": "Ba ingredients là shared structure của keys, new values tập trung và normalization. Đây là cấu hình tái hiện ba pha trong minimal model được báo cáo. Các phép thay từng yếu tố ở Figure 2 kiểm tra vai trò của chúng; kết quả chưa xác lập điều kiện cho mọi model.",
+    "error": "Ba ingredients là shared structure của keys, new values tập trung và normalization. Đây là cấu hình tái hiện ba pha trong minimal model được báo cáo. Các phép thay từng yếu tố ở Figure 2 kiểm tra vai trò của chúng; kết quả chưa xác lập điều kiện cho mọi model."
+  },
+  {
+    "id": "spurious-minimal-model-purpose",
+    "title": "Mục đích của mô hình tối giản",
+    "prompt": "Vì sao tác giả dùng một minimal associative memory trong nghiên cứu này?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Để tái hiện hiện tượng và thử vai trò của từng thành phần.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Để thay thế hoàn toàn Transformer, vì chỉ mô hình nhỏ mới có thể lưu giữ kiến thức cũ."
+      },
+      {
+        "id": "option-3",
+        "label": "Để lưu sẵn mọi đáp án, nhờ đó mô hình không cần học thêm thông tin mới trong thí nghiệm."
+      },
+      {
+        "id": "option-4",
+        "label": "Để đưa mẫu cũ trở lại mỗi bước train, rồi đo xem mô hình học lại chúng nhanh đến mức nào."
+      }
+    ],
+    "success": "Mô hình nhỏ tái hiện được ba pha, giúp tác giả thay từng thành phần để kiểm tra vai trò của nó. Lời giải thích sau đó còn phải được kiểm tra trên Transformer.",
+    "error": "Mô hình nhỏ tái hiện được ba pha, giúp tác giả thay từng thành phần để kiểm tra vai trò của nó. Lời giải thích sau đó còn phải được kiểm tra trên Transformer."
+  },
+  {
+    "id": "spurious-shared-key-example",
+    "title": "Phần chung của các keys",
+    "prompt": "Trong hai câu hỏi “An sống ở đâu?” và “Bình sống ở đâu?”, phần nào minh họa shared structure?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Tên An và Bình, vì tên riêng của hai người được xem là phần chung của các câu hỏi."
+      },
+      {
+        "id": "option-2",
+        "label": "Các đáp án Hà Nội và Huế, vì đáp án là phần cấu trúc chung bên trong hai câu hỏi."
+      },
+      {
+        "id": "option-3",
+        "label": "Toàn bộ hai câu hỏi, vì cùng hỏi nơi ở có nghĩa là chúng không còn phần riêng."
+      },
+      {
+        "id": "option-4",
+        "label": "Phần “sống ở đâu?” trong cả hai câu.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Hai câu cùng có phần “sống ở đâu?”, còn tên An và Bình là phần riêng. Ví dụ này minh họa keys có thể vừa có cấu trúc chung vừa có thông tin phân biệt từng người.",
+    "error": "Hai câu cùng có phần “sống ở đâu?”, còn tên An và Bình là phần riêng. Ví dụ này minh họa keys có thể vừa có cấu trúc chung vừa có thông tin phân biệt từng người."
+  },
+  {
+    "id": "spurious-concentrated-answer-example",
+    "title": "Các đáp án mới tập trung",
+    "prompt": "Mô hình đã học các facts có đáp án thuộc hai nhóm: nhóm $A$ gồm Hà Nội và Hải Phòng; nhóm $B$ gồm Huế và Đà Nẵng. Khi tạo facts về những nhân vật mới để finetune, cách chọn đáp án nào tương ứng với “concentrated new values”?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Các nhân vật mới phải trùng với các nhân vật cũ để mô hình được ôn lại đúng những facts đã học."
+      },
+      {
+        "id": "option-2",
+        "label": "Các đáp án mới phải lấy đều từ cả bốn thành phố, để hai nhóm đáp án được dùng cân bằng."
+      },
+      {
+        "id": "option-3",
+        "label": "Các đáp án mới chỉ dùng nhóm Huế và Đà Nẵng.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Tất cả nhân vật mới phải có đúng một đáp án giống hệt nhau, không được dùng hai thành phố khác nhau."
+      }
+    ],
+    "success": "Trong ví dụ của bài học, new answers chỉ lấy từ nhóm Huế và Đà Nẵng. “Tập trung” ở đây là giới hạn vào một nhóm đáp án, không bắt buộc mọi mẫu có cùng một đáp án hoặc lặp lại nhân vật cũ.",
+    "error": "Trong ví dụ của bài học, new answers chỉ lấy từ nhóm Huế và Đà Nẵng. “Tập trung” ở đây là giới hạn vào một nhóm đáp án, không bắt buộc mọi mẫu có cùng một đáp án hoặc lặp lại nhân vật cũ."
+  },
+  {
+    "id": "spurious-normalization-role",
+    "title": "Normalization làm gì?",
+    "prompt": "Trong mô hình tối giản được giải thích, normalization làm gì với các vector biểu diễn thông tin?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Gán cùng một đáp án cho các đầu vào có chung cách hỏi, để chúng được mô hình ghi nhớ giống nhau."
+      },
+      {
+        "id": "option-2",
+        "label": "Đưa tất cả các vector về cùng một vector, khiến chúng không còn chứa thông tin riêng khác nhau."
+      },
+      {
+        "id": "option-3",
+        "label": "Giữ nguyên mọi giá trị trong các vector, chỉ thay đổi thứ tự các mẫu được đưa vào huấn luyện."
+      },
+      {
+        "id": "option-4",
+        "label": "Đưa độ lớn của các vector về một mức cố định.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Normalization cố định độ lớn của các vector biểu diễn. Cùng độ lớn không có nghĩa là mọi vector trở thành giống nhau hoặc đều chứa cùng một thông tin.",
+    "error": "Normalization cố định độ lớn của các vector biểu diễn. Cùng độ lớn không có nghĩa là mọi vector trở thành giống nhau hoặc đều chứa cùng một thông tin."
+  },
+  {
+    "id": "spurious-without-normalization",
+    "title": "Khi bỏ normalization",
+    "prompt": "Trong thí nghiệm với mô hình tối giản, khi bỏ normalization thì chuyện gì xảy ra?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Mô hình không còn collapse và giữ nguyên toàn bộ kiến thức cũ trong suốt quá trình train trên mẫu mới."
+      },
+      {
+        "id": "option-2",
+        "label": "Vẫn có thể collapse nhưng không tự recovery như trước.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-3",
+        "label": "Mô hình recovery nhanh hơn và khôi phục toàn bộ mẫu cũ, vì không còn phép normalization ở giữa."
+      },
+      {
+        "id": "option-4",
+        "label": "Cả ba pha collapse, recovery và erosion vẫn giữ nguyên, cho thấy normalization không ảnh hưởng hiện tượng."
+      }
+    ],
+    "success": "Bài học nêu rằng khi bỏ hoặc thay normalization, mô hình vẫn có thể collapse nhưng không tự recovery như trước. Đây là kết quả trong mô hình được thử, giúp tác giả tìm hiểu vai trò của normalization đối với recovery.",
+    "error": "Bài học nêu rằng khi bỏ hoặc thay normalization, mô hình vẫn có thể collapse nhưng không tự recovery như trước. Đây là kết quả trong mô hình được thử, giúp tác giả tìm hiểu vai trò của normalization đối với recovery."
+  },
+  {
+    "id": "spurious-common-shift-geometry",
+    "title": "Common shift và thông tin cũ",
+    "prompt": "Trong cơ chế được giải thích ở Abstract, common shift có thể khiến mô hình trả lời sai về facts cũ như thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Nó xóa phần riêng của từng fact trước khi làm thay đổi câu trả lời."
+      },
+      {
+        "id": "option-2",
+        "label": "Nó đưa mọi biểu diễn cũ về cùng một vector, khiến chúng không còn khác nhau."
+      },
+      {
+        "id": "option-3",
+        "label": "Cả nhóm bị kéo lệch về phía đáp án mới, dù cấu trúc tương đối vẫn còn.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Nó chỉ đổi biểu diễn của facts mới, nên không ảnh hưởng cách mô hình trả lời facts cũ."
+      }
+    ],
+    "success": "Nếu chỉ xét dịch chuyển chung, cả nhóm biểu diễn bị kéo lệch nhưng vị trí tương đối vẫn được giữ. Cách đọc ra đáp án bị ảnh hưởng; trả lời sai chưa có nghĩa thông tin riêng đã bị xóa.",
+    "error": "Nếu chỉ xét dịch chuyển chung, cả nhóm biểu diễn bị kéo lệch nhưng vị trí tương đối vẫn được giữ. Cách đọc ra đáp án bị ảnh hưởng; trả lời sai chưa có nghĩa thông tin riêng đã bị xóa."
+  },
+  {
+    "id": "spurious-shared-updates-old-inputs",
+    "title": "Vì sao facts cũ cũng bị ảnh hưởng?",
+    "prompt": "Facts cũ không xuất hiện trong dữ liệu finetuning. Vì sao biểu diễn của chúng vẫn có thể nhận một dịch chuyển chung khi mô hình học facts mới?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Dùng chung trọng số và cấu trúc đầu vào khiến cập nhật mới cũng ảnh hưởng biểu diễn cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Dùng chung nhóm đáp án đồng nghĩa các facts cũ đã được đưa lại vào dữ liệu finetuning."
+      },
+      {
+        "id": "option-3",
+        "label": "Các biểu diễn cũ luôn được giữ cố định; chỉ tên gọi của các đáp án bị đổi sau mỗi bước học."
+      },
+      {
+        "id": "option-4",
+        "label": "Mô hình tự tạo lại tiểu sử cũ và dùng chúng làm dữ liệu huấn luyện bổ sung."
+      }
+    ],
+    "success": "Không cần replay để biểu diễn cũ thay đổi. Trọng số dùng chung được cập nhật khi học facts mới; cấu trúc chung của các đầu vào khiến một phần cập nhật tác động lên nhiều biểu diễn.",
+    "error": "Không cần replay để biểu diễn cũ thay đổi. Trọng số dùng chung được cập nhật khi học facts mới; cấu trúc chung của các đầu vào khiến một phần cập nhật tác động lên nhiều biểu diễn."
+  },
+  {
+    "id": "spurious-normalization-collapse-effect",
+    "title": "Normalization ở phase collapse",
+    "prompt": "Trong mô hình tác giả phân tích, vì sao normalization có thể làm ảnh hưởng của shift mạnh hơn ở phase collapse?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Nó làm shift trở về zero ngay khi mô hình bắt đầu học facts mới."
+      },
+      {
+        "id": "option-2",
+        "label": "Nó lưu đáp án cũ vào một bản sao, rồi chuyển việc trả lời sang nhóm đáp án mới."
+      },
+      {
+        "id": "option-3",
+        "label": "Nó tăng độ lớn toàn bộ biểu diễn để phần chung và phần riêng cùng mạnh lên như nhau."
+      },
+      {
+        "id": "option-4",
+        "label": "Nó cố định độ lớn; shift lớn khiến phần riêng bị thu nhỏ tương đối và yếu đi.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Khi phần chung chiếm tỷ trọng lớn sau normalization, phần riêng chứa thông tin đặc thù có ảnh hưởng yếu hơn lên câu trả lời. Đây là khuếch đại tác động của shift, không phải bằng chứng rằng phần riêng đã mất.",
+    "error": "Khi phần chung chiếm tỷ trọng lớn sau normalization, phần riêng chứa thông tin đặc thù có ảnh hưởng yếu hơn lên câu trả lời. Đây là khuếch đại tác động của shift, không phải bằng chứng rằng phần riêng đã mất."
+  },
+  {
+    "id": "spurious-normalization-recovery-learning",
+    "title": "Vì sao normalization giúp recovery?",
+    "prompt": "Khi phần riêng đã học được đáp án đúng cho từng fact mới, điều gì nối việc tiếp tục giảm loss trên facts mới với recovery của facts cũ?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Normalization đưa facts cũ trở lại dữ liệu để mô hình học lại đáp án."
+      },
+      {
+        "id": "option-2",
+        "label": "Giảm shift giúp phần riêng mới có tác dụng hơn và thông tin cũ cũng được đọc lại.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-3",
+        "label": "Normalization nhận biết facts nào là cũ và hoàn tác toàn bộ cập nhật liên quan đến chúng."
+      },
+      {
+        "id": "option-4",
+        "label": "Học được facts mới chứng minh mọi biểu diễn cũ đã trở về đúng vị trí trước finetuning."
+      }
+    ],
+    "success": "Normalization ràng buộc độ lớn biểu diễn. Khi phần riêng mới trở nên hữu ích, giảm shift có lợi cho việc chọn đúng đáp án mới. Qua trọng số và cấu trúc chung, facts cũ cũng bớt bị shift che khuất mà không cần replay.",
+    "error": "Normalization ràng buộc độ lớn biểu diễn. Khi phần riêng mới trở nên hữu ích, giảm shift có lợi cho việc chọn đúng đáp án mới. Qua trọng số và cấu trúc chung, facts cũ cũng bớt bị shift che khuất mà không cần replay."
+  },
+  {
+    "id": "spurious-figure-three-retraction",
+    "title": "Đọc cụm điểm ở Figure 3",
+    "prompt": "Ở hình bên trái Figure 3, cụm điểm lệch sang phải ở step 65 rồi quay về một phần ở step 400. Cách hiểu nào đúng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Các điểm co lại thành một điểm duy nhất, nên mô hình không còn phân biệt từng fact."
+      },
+      {
+        "id": "option-2",
+        "label": "Cụm điểm trở về đúng vị trí ban đầu, cho thấy mọi thay đổi do finetuning đều đã được hoàn tác."
+      },
+      {
+        "id": "option-3",
+        "label": "Độ lệch chung của cả cụm giảm; điều này khác với việc các điểm co sát vào nhau.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Các điểm ở step 400 là dữ liệu cũ vừa được đưa lại để mô hình học lại."
+      }
+    ],
+    "success": "Shift rút lại nghĩa là độ lệch chung giảm. Nó không có nghĩa cả cụm co thành một điểm, mọi thay đổi bị hoàn tác hay facts cũ được replay. Thay đổi riêng vẫn có thể còn, nên recovery chỉ một phần.",
+    "error": "Shift rút lại nghĩa là độ lệch chung giảm. Nó không có nghĩa cả cụm co thành một điểm, mọi thay đổi bị hoàn tác hay facts cũ được replay. Thay đổi riêng vẫn có thể còn, nên recovery chỉ một phần."
+  },
+  {
+    "id": "spurious-erosion-after-shift-reduction",
+    "title": "Vì sao vẫn còn erosion?",
+    "prompt": "Nếu normalization giúp giảm common shift, vì sao khả năng trả lời facts cũ vẫn có thể giảm dần sau recovery?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Thay đổi riêng vẫn tích lũy, làm suy giảm thông tin cũ dù shift chung đã giảm.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Shift giảm đồng nghĩa normalization bắt đầu xóa những đáp án cũ mà mô hình vừa nhớ lại."
+      },
+      {
+        "id": "option-3",
+        "label": "Khi facts mới đã được học, mô hình ngừng cập nhật nên không còn khả năng sử dụng facts cũ."
+      },
+      {
+        "id": "option-4",
+        "label": "Erosion chỉ là common shift đổi hướng; bỏ shift luôn phục hồi toàn bộ facts cũ ở mọi thời điểm."
+      }
+    ],
+    "success": "Paper phân biệt phần mất khả năng truy xuất do dịch chuyển chung với sự suy giảm do thay đổi riêng tích lũy. Normalization giúp recovery nhưng không đảo ngược mọi thay đổi riêng gây erosion.",
+    "error": "Paper phân biệt phần mất khả năng truy xuất do dịch chuyển chung với sự suy giảm do thay đổi riêng tích lũy. Normalization giúp recovery nhưng không đảo ngược mọi thay đổi riêng gây erosion."
+  },
+  {
+    "id": "spurious-subtract-shift-causal-test",
+    "title": "Trừ shift để kiểm tra điều gì?",
+    "prompt": "Nhóm trừ phần dịch chuyển chung và thấy collapse biến mất trên Transformer dùng dữ liệu tổng hợp. Phép thử này nhằm kiểm tra điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Mô hình có thể học lại đáp án cũ nhanh đến đâu nếu được đưa lại dữ liệu cũ."
+      },
+      {
+        "id": "option-2",
+        "label": "Normalization có cần dùng phép trừ thủ công này ở mọi bước để mô hình học được facts mới hay không."
+      },
+      {
+        "id": "option-3",
+        "label": "Toàn bộ sự suy giảm về lâu dài có biến mất khi mô hình học xong facts mới hay không."
+      },
+      {
+        "id": "option-4",
+        "label": "Common shift có phải nguyên nhân chính gây collapse: bỏ nó có giúp đọc lại facts cũ không.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Đây là can thiệp để kiểm chứng nguyên nhân của collapse. Nó khác với normalization giúp recovery trong quá trình học tiếp mà không có phép trừ thủ công. Kết quả không chứng minh mọi thay đổi riêng hoặc erosion đều được loại bỏ.",
+    "error": "Đây là can thiệp để kiểm chứng nguyên nhân của collapse. Nó khác với normalization giúp recovery trong quá trình học tiếp mà không có phép trừ thủ công. Kết quả không chứng minh mọi thay đổi riêng hoặc erosion đều được loại bỏ."
+  }
+]} />

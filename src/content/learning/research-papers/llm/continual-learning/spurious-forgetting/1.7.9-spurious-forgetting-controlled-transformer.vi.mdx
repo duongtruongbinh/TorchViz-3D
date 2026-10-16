@@ -1,0 +1,217 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-controlled-transformer',
+  locale: 'vi',
+  title: 'Kiểm chứng trên Controlled Transformer',
+  headings: [
+    '4 THE MECHANISM IN A CONTROLLED TRANSFORMER',
+    '4.1 TRAINING TRANSFORMERS ON SYNTHETIC BIOGRAPHIES MEETS THE CONDITIONS',
+    '4.2 THE TRANSFORMER SHOWS THE SAME GEOMETRIC SPLIT',
+    '4.3 SUBTRACTING THE COMMON SHIFT REMOVES THE COLLAPSE',
+    '4.4 THE LEARNING RATE CHANGES THE DEPTH OF THE COLLAPSE',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Controlled Transformer',
+    'Held-out Phrasings',
+    'Logit Intervention',
+    'Learning Rate',
+    'Common Shift',
+    'Figure 4',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### 4 THE MECHANISM IN A CONTROLLED TRANSFORMER
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="4 THE MECHANISM IN A CONTROLLED TRANSFORMER"
+  sectionParagraphs={[
+  "Having identified the mechanism behind spurious forgetting in a minimal model, we now return to the Transformer of Figure 1 and test whether its collapse and recovery follow the mechanism of the minimal model, first by showing that its data meet the same conditions, then through measurements and interventions on its representations. Table 1 lists where each analysis is repeated across models."
+]}
+  sectionHighlights={[]}
+/>
+
+Sau mô hình tối giản, nhóm quay lại Transformer ở Figure 1. Có hai việc cần làm trước khi coi lời giải thích là phù hợp với Transformer: xác nhận dữ liệu và kiến trúc đáp ứng các điều kiện đã phân tích, rồi đo và can thiệp lên biểu diễn để kiểm tra các dự đoán.
+
+Table 1 là bản đồ các phép kiểm tra được lặp ở từng loại mô hình. Dấu gạch ngang nghĩa là bảng không dẫn một phép kiểm tra tương ứng ở mô hình đó; không nên lấy kết quả ở mô hình tối giản gán cho mọi cột.
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/table_1.png"
+  alt="Table 1: vị trí từng phép kiểm tra ở minimal model, Transformer attention-only, Transformer có MLP và OLMo 2 1B."
+  caption="Table 1 — Những phân tích nào được lặp trên mô hình nào. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 612"
+/>
+
+Các trang tiếp theo đi theo thứ tự của Section 4: điều kiện dữ liệu, phép đo shift/drift, phép trừ common logits và tác động của learning rate. Kết quả về OLMo sẽ được đọc riêng ở Section 5.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 4.1 TRAINING TRANSFORMERS ON SYNTHETIC BIOGRAPHIES MEETS THE CONDITIONS
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="4.1 TRAINING TRANSFORMERS ON SYNTHETIC BIOGRAPHIES MEETS THE CONDITIONS"
+  sectionParagraphs={[
+  "The minimal model identifies three conditions for spurious forgetting: a normalization layer, keys that share structure, and new answers concentrated in one region of the output space. The first condition is met by any Transformer, as every residual block contains a normalization layer (Vaswani et al., 2017). In the pre-normalization architecture we use (Radford et al., 2019; Xiong et al., 2020), the last one sits just before the readout. The other two are properties of the data, which we now describe. The synthetic biographies of Section 2 (Allen-Zhu & Li, 2024; Zucchet et al., 2025) describe a large population of fictitious individuals, each with a unique name and a few attributes, such as a hometown or an employer. Each fact is stated by filling templates shared across all individuals, such as The hometown of [name] is [city] (Figure 4, left), and each set of biographies, A, B, B′ or C, contains its own individuals, so that the new facts are about individuals the model has never seen. If we view the feedforward layers of a Transformer as an associative memory in which part of the context serves as the key and the next token as the value (Geva et al., 2021), the key of a fact is the name of the individual together with the attribute being queried, and its value is the answer. As all facts about a given attribute are queried in a similar way, their keys share structure by design, just as the keys of the minimal model share the component $\\mu$. The last condition is not present by default, so we build it into the data: we split the possible answers of each attribute at random into two subsets. The individuals of A draw their answers from the first subset and those of B from the second. The finetuning sets therefore overlap with the old sets through their answers alone: those of B′ draw their answers from the second subset, like B, and those of C from both subsets. Details of the data and the model are given in Appendix A.1."
+]}
+  sectionHighlights={[]}
+/>
+
+Minimal model đã cho một lời giải thích có thể kiểm tra. Câu hỏi tiếp theo là liệu các dự đoán đó còn phù hợp với Transformer hay chỉ đúng với mô hình nhỏ. Tác giả dùng synthetic biographies để kiểm soát câu hỏi và answer pools, rồi kiểm tra cả thay đổi bên trong model lẫn khả năng phục hồi khi chỉnh sửa.
+
+Trong Figure 4 bên trái, cùng mẫu “The hometown of [name] is [city]” tạo phần cấu trúc chung, còn các tên khác nhau tạo phần riêng. Hai nhóm đáp án được chia ngẫu nhiên, không mặc định là hai nhóm thành phố có ý nghĩa ngữ nghĩa khác nhau.
+
+Mỗi nhân vật có sáu attributes. Một fact được thể hiện qua nhiều cách diễn đạt, chẳng hạn hỏi hometown của cùng người theo các câu khác nhau. Name và attribute là phần key; answer token là phần value.
+
+Hai pretraining populations, mỗi nhóm 2,000 người, lấy values từ hai halves của answer pool. Finetuning dùng 500 người mới với answers chỉ ở half của <InlineMath formula="B" />, hoặc ở cả hai halves. Các tập vẫn không chia sẻ nhân vật.
+
+Appendix A.1 dùng 25 phrasings cho mỗi attribute. Với từng người và attribute, 20 phrasings được dùng train và 5 được giữ lại để evaluation. Recall đo top-1 của first answer token trên held-out phrasings.
+
+<ComparisonMatrix ariaLabel="Thiết lập Controlled Transformer trong Appendix A.1" columns={[
+  "Thiết lập"
+]} rows={[
+  {
+    "label": "Model",
+    "values": [
+      "8 layers; model dimension 512; 8 attention heads"
+    ]
+  },
+  {
+    "label": "Architecture",
+    "values": [
+      "Rotary position embeddings; pre-LayerNorm; attention-only ở thí nghiệm chính"
+    ]
+  },
+  {
+    "label": "Pretraining",
+    "values": [
+      "4,000 người tổng cộng; 16,000 steps; batch 256 biographies"
+    ]
+  },
+  {
+    "label": "Finetuning",
+    "values": [
+      "500 người mới; 1,200 steps; peak learning rate 0.0000375"
+    ]
+  },
+  {
+    "label": "Evaluation",
+    "values": [
+      "First-token recall trên 5 held-out phrasings; 3–5 finetuning seeds"
+    ]
+  }
+]} />
+
+Đánh giá trên phrasing mới làm phép đo bớt phụ thuộc một câu template cụ thể. First-token accuracy vẫn hẹp hơn đánh giá toàn answer string, đặc biệt khi một answer có nhiều tokens.
+
+[Section 4.1 và Appendix A.1](https://arxiv.org/pdf/2610.08718v1#page=15) xác định mô hình chính không có MLP blocks. Appendix C.5 kiểm tra lại cơ chế khi thêm MLP.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### 4.2 THE TRANSFORMER SHOWS THE SAME GEOMETRIC SPLIT
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="4.2 THE TRANSFORMER SHOWS THE SAME GEOMETRIC SPLIT"
+  sectionParagraphs={[
+  "In the minimal model, the hidden states of the old facts first move together: their mean moves away from its pretrained value until the end of the collapse and then comes back, while the fact-specific displacements keep growing. To test whether the same happens in the Transformer, we track the representations of the old facts of A at the input of the readout, at the position where the model predicts the first token of the answer, for example Boston in Figure 4 (left). As in the minimal model, we decompose the displacement of each representation since the start of finetuning into a common shift $\\Delta\\overline h(t)$, its average over the facts of A about the same attribute, and a fact-specific remainder $\\varepsilon_a(t)$, whose size we measure by its average norm over the facts of A.",
+  "The two components evolve as the minimal model predicts (Figure 4, middle). The common shift grows quickly, peaks around the bottom of the collapse, and then partly retracts during the recovery, as in Figure 3 (middle). The fact-specific drift grows more slowly and, apart from a brief pause around the bottom of the collapse, keeps growing until it exceeds the common shift."
+]}
+  sectionHighlights={[]}
+/>
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_4.png"
+  alt="Figure 4: dữ liệu tiểu sử ở trái, common shift và individual drift ở giữa, kết quả chỉ giữ hoặc trừ common logits ở phải."
+  caption="Figure 4 — Từ thiết kế dữ liệu đến đo hình học và can thiệp trên logits. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 936"
+/>
+
+Giả thuyết common shift dự đoán rằng ở đầu collapse, nhiều old representations sẽ thay đổi cùng nhau; khi recovery, phần thay đổi chung sẽ rút lại. Để thử dự đoán đó, paper đo representations ở input của readout, tại vị trí model trả lời first answer token, rồi tách phần chung và phần riêng.
+
+<BlockMath formula="\Delta h_a(t)=h_a(t)-h_a(0)=\Delta\overline h(t)+\varepsilon_a(t),\qquad\Delta\overline h(t)=\frac1{|A|}\sum_{a\in A}\Delta h_a(t)" />
+
+Phép lấy trung bình được thực hiện trên old facts của <InlineMath formula="A" /> thuộc cùng attribute. Remainder epsilon giữ phần thay đổi riêng sau khi bỏ mean displacement. Tất cả vectors trong một phép phân tích có cùng hidden dimension.
+
+Ví dụ minh họa có hai old displacements là (3, 0.2) và (3, −0.2). Mean bằng (3, 0), còn hai remainders bằng (0, 0.2) và (0, −0.2). Common norm bằng 3, lớn gấp 15 lần norm 0.2 của từng remainder.
+
+<BlockMath formula="\Delta\overline h=\begin{bmatrix}3\\0\end{bmatrix},\qquad\varepsilon_1=\begin{bmatrix}0\\0.2\end{bmatrix},\quad\varepsilon_2=\begin{bmatrix}0\\-0.2\end{bmatrix}" />
+
+Figure 4 đo common norm tăng nhanh rồi giảm một phần quanh recovery, trong khi mean norm của fact-specific displacements lớn dần và cuối cùng vượt common norm. Đây là signature hình học phù hợp với minimal mechanism.
+
+Việc một component lớn cùng lúc với collapse chưa đủ chứng minh nguyên nhân. Section 4.3 tiếp tục chỉ giữ hoặc loại bỏ component đó để kiểm tra trực tiếp output thay đổi thế nào.
+
+[Section 4.2, Figure 4](https://arxiv.org/pdf/2610.08718v1#page=7) đo average norm của individual drift. Mean vector của các remainders bằng zero theo định nghĩa, nên không thể dùng norm của mean remainder để thay metric này.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### 4.3 SUBTRACTING THE COMMON SHIFT REMOVES THE COLLAPSE
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="4.3 SUBTRACTING THE COMMON SHIFT REMOVES THE COLLAPSE"
+  sectionParagraphs={[
+  "The minimal model predicts that the common shift alone causes the collapse: undoing it should restore the old facts, as long as what distinguishes them from one another has survived. Since the readout is linear and shared by all facts, a common shift of the readout states adds the same change to the logits of all old facts. We therefore test this prediction on the logits, at the same position as above: we write the change of the logits of each old fact a since the start of finetuning as z_a(t) − z_a(0) = c(t) + v_a(t), where c(t) is its average over the facts of A about the same attribute, and measure recall from z_a(0) + c(t), with only the common part, and from z_a(t) − c(t), with the common part removed.",
+  "As predicted, subtracting the common part removes the collapse entirely (Figure 4, right): the old facts remain almost perfectly recalled, and only the slow decline caused by the fact-specific drift is left. Keeping only the common part does the opposite and produces a collapse and a recovery by itself. This collapse is shallower than in the trained model, because the common shift brings the old facts close to losing to the new answer region and the fact-specific drift pushes many of them across. The collapse is therefore caused by the common shift, and erosion by the fact-specific drift.",
+  "The shift is carried mostly by the attention value and output weights, with little contribution from the query and key weights (Appendix C.4). In our attention-only architecture, these are the weights that write content into the residual stream, whereas the query and key weights only decide where attention goes, so this is consistent with the common shift being written into the associative memories of the network, as in the minimal model. With MLP blocks, the same three phases appear, and subtracting the common shift again removes the collapse (Appendix C.5)."
+]}
+  sectionHighlights={[]}
+/>
+
+Kết quả đo ở Section 4.2 phù hợp với giả thuyết, nhưng một phần thay đổi lớn chưa chắc là nguyên nhân của collapse. Tác giả thử hai chỉnh sửa để kiểm tra. Nếu common part gây che khuất, bỏ nó nên phục hồi old recall; giữ riêng nó nên tạo được ít nhất một phần collapse.
+
+Readout là linear, nên common shift ở readout states tạo thay đổi logits dùng chung. Vì vậy paper làm hai phép thử trên logits.
+
+<BlockMath formula="z_a(t)-z_a(0)=c(t)+v_a(t),\qquad c(t)=\frac1{|A|}\sum_{a\in A}\left[z_a(t)-z_a(0)\right]" />
+
+Ở đây c là vector vocabulary-sized trung bình của logit changes cho cùng attribute, còn v là phần riêng của mỗi fact. Hai đối chứng sử dụng pretrained logits cộng common part, hoặc trained logits trừ common part.
+
+<BlockMath formula="z_a^{\mathrm{common\ only}}=z_a(0)+c(t),\qquad z_a^{\mathrm{removed}}=z_a(t)-c(t)" />
+
+Kết quả đi theo hai dự đoán. Bỏ common part làm mất collapse và để lại slow decline; chỉ giữ common part tạo collapse và recovery. Tuy nhiên, common-only collapse nông hơn full model. Phần thay đổi chung giải thích được nhiều điều, nhưng cần tính cả fact-specific drift khi các facts đã gần ranh giới trả lời sai.
+
+Ví dụ một old answer có pretrained margin 2 so với new competitor. Nếu common update đóng góp −1.8 và individual drift đóng góp −0.4, final margin bằng −0.2. Common part đưa fact tới gần boundary, rồi individual drift khiến prediction đổi. Bỏ common part trả margin về 1.6 dù vẫn còn drift.
+
+Can thiệp dùng pretrained logits và averages của old facts để chẩn đoán. Nó cho bằng chứng nhân quả trong dataset này, chưa phải một thuật toán triển khai có thể tự sửa mọi unknown facts.
+
+[Section 4.3](https://arxiv.org/pdf/2610.08718v1#page=7) và Appendix C.5 cũng kiểm tra Transformer có MLP blocks. Shared và individual components có tỷ lệ đóng góp khác nhau nhưng loại bỏ common shift vẫn làm mất collapse.
+
+Đoạn cuối định vị phần shift trong trọng số. Trong mô hình attention-only, value/output weights ghi nội dung vào residual stream, còn query/key weights chủ yếu quyết định attention đọc ở đâu. Các phép thử ở Appendix C.4 cho thấy phần ghi nội dung đóng góp chủ yếu cho shift. Khi thêm MLP, Appendix C.5 vẫn quan sát ba phase và loại bỏ collapse bằng phép trừ common shift; vì thế kết quả không chỉ xuất hiện khi bỏ MLP.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### 4.4 THE LEARNING RATE CHANGES THE DEPTH OF THE COLLAPSE
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="4.4 THE LEARNING RATE CHANGES THE DEPTH OF THE COLLAPSE"
+  sectionParagraphs={[
+  "In the minimal model, the common shift reverses once the individual margin of the new facts turns positive (Section 3.3), so the end of the collapse should be tied to the learning of the new facts rather than to a number of steps. Varying the learning rate and the batch size of finetuning confirms this (Appendix C.2): the bottom of the collapse moves by a factor of three in steps, but falls at nearly the same accuracy on the new facts. This accuracy depends on how many new facts there are, however: with fewer, the bottom comes later in their learning, in the Transformer as in the minimal model, where the shift still peaks when the individual margin turns positive (Appendix C.3).",
+  "The depth of the collapse, in contrast, increases with the learning rate. This effect lies outside our gradient-flow analysis, in which the learning rate only rescales time. It is consistent with the observation that larger learning rates cause more forgetting, in continual pretraining (Gupta et al., 2023; Ibrahim et al., 2024) as in finetuning at matched loss (Springer et al., 2025; Lin et al., 2026; Rofin et al., 2026), and shows that part of this effect acts on forgetting that is spurious, and reverses once the new facts are learned."
+]}
+  sectionHighlights={[]}
+/>
+
+Nếu normalization rút shift khi new individual parts trở nên hữu ích, đáy collapse nên gắn với mức học new facts. Thay learning rate hoặc batch size có thể làm cùng tiến trình learning diễn ra ở số steps khác nhau.
+
+Các phép thay learning rate và batch size dịch đáy collapse khoảng ba lần theo số steps, nhưng new-fact accuracy tại đáy gần nhau trong cùng cấu hình dữ liệu. Số new facts lại có thể đổi điểm đó. Không có một ngưỡng new accuracy dùng chung cho mọi datasets và architectures.
+
+Có một quan sát mà phân tích hiện tại chưa giải thích được. Learning rate lớn hơn làm collapse sâu hơn, trong khi gradient flow lý tưởng chỉ đổi scale thời gian theo learning rate. Kết quả về timing phù hợp với lời giải thích, nhưng không cho phép kết luận rằng cùng phương trình đã giải thích cả depth.
+
+Appendix C.5 báo cáo ở Transformer có MLP, thay learning rate và batch size đưa đáy từ step 20 tới step 56; new accuracy tại đó khoảng 23–33%. Đây là một ví dụ cụ thể của timing thay đổi, không phải recipe dừng training cho pretrained LLM.
+
+[Section 4.4 và Appendices C.2–C.5](https://arxiv.org/pdf/2610.08718v1#page=8) tách prediction về timing khỏi quan sát về depth. Đọc cả hai giúp tránh suy luận rằng chỉ cần kéo dài finetuning là sẽ bảo toàn old knowledge.
+
+</MdxPage>

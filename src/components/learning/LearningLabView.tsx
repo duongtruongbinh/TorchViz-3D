@@ -114,9 +114,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         domainId: routeDomainId,
         trackId,
         lessonId: routeLessonId,
+        allowDomainFallback: !isHierarchicalDomain,
       })
       : null
-  ), [learningCatalog, routeDomainId, routeLessonId, trackId]);
+  ), [isHierarchicalDomain, learningCatalog, routeDomainId, routeLessonId, trackId]);
   const activeTrack = resolvedRoute?.track
     ?? groupedDomainLessons.find((group) => group.track.id === trackId)?.track
     ?? groupedDomainLessons[0]?.track

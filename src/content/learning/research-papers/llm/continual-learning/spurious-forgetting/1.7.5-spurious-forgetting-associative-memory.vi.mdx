@@ -1,0 +1,524 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-associative-memory',
+  locale: 'vi',
+  title: 'Chương 3: Cơ chế Spurious Forgetting',
+  headings: [
+    'Tổng quan chương 3',
+    '3 A MINIMAL MODEL REVEALS THE MECHANISM OF SPURIOUS FORGETTING',
+    '3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL',
+    '3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL',
+    '3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL',
+    '3.2 KEY SHARING LEADS TO COLLAPSE',
+    '3.2 KEY SHARING LEADS TO COLLAPSE',
+    '3.2 KEY SHARING LEADS TO COLLAPSE',
+    '3.3 NORMALIZATION DRIVES RECOVERY',
+    '3.3 NORMALIZATION DRIVES RECOVERY',
+    '3.3 NORMALIZATION DRIVES RECOVERY',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Associative Memory',
+    'Shared Keys',
+    'RMS Normalization',
+    'Ablation',
+    'Equation 1',
+    'Equation 2',
+    'Gradient Flow',
+    'Key Overlap',
+    'Common Shift',
+    'Readout Bias',
+    'Equation 3',
+    'Equation 4',
+    'Normalization',
+    'Shared Margin',
+    'Individual Margin',
+    'Equation 5',
+    'Restricted Ranking',
+    'Erosion',
+  ],
+  pageCount: 11,
+};
+
+<MdxPage page={0}>
+
+### Tổng quan chương 3
+
+Ở chương trước, nhóm đã quan sát thấy mô hình trả lời sai nhiều facts cũ rồi tự phục hồi một phần, dù chỉ tiếp tục học facts mới. Chương 3 tìm cơ chế giải thích điều đó bằng một mô hình nhỏ, dễ phân tích hơn Transformer.
+
+Các tác giả đang làm ba việc:
+
+1. **Tạo mô hình hỏi–đáp đơn giản:** Mỗi đầu vào là một key, đáp án cần nhớ là một value. Chẳng hạn, “An sống ở đâu?” phải được liên kết với “Hà Nội”. Các keys được tạo sao cho vừa có phần chung, như cùng cách hỏi nơi ở, vừa có phần riêng để phân biệt từng fact.
+2. **Tái hiện hiện tượng:** Cho mô hình học facts cũ, rồi chỉ học facts mới có đáp án tập trung trong một nhóm. Mạng có normalization, tức phép chuẩn hóa độ lớn các biểu diễn bên trong. Nhóm theo dõi xem khả năng trả lời facts cũ có giảm mạnh, phục hồi rồi suy giảm tiếp như trên Transformer hay không.
+3. **Tìm nguyên nhân:** Thay mức độ dùng chung của keys, cách chọn đáp án mới và normalization để xem phase nào thay đổi hoặc biến mất. Sau đó phân tích cập nhật của mô hình để giải thích các kết quả này.
+
+Các insight cần nhớ khi đọc chương này:
+
+- **Collapse:** Học facts mới có thể kéo nhiều biểu diễn cũ cùng lệch theo một hướng, gọi là common shift. Mô hình khó đọc ra đáp án cũ dù phần thông tin riêng vẫn có thể còn. Normalization có thể làm sự lấn át này mạnh hơn ở giai đoạn đầu.
+- **Recovery:** Khi mô hình học được đáp án riêng của từng fact mới, normalization tạo động lực giảm shift để dùng phần riêng tốt hơn. Do đầu vào cũ và mới dùng chung trọng số và có cấu trúc chung, shift trên facts cũ cũng giảm. Thông tin cũ còn giữ được có ảnh hưởng trở lại, dù không được học lại.
+- **Erosion:** Những thay đổi riêng ở từng fact vẫn tích lũy, làm suy giảm thông tin cũ. Giảm shift chung không khắc phục được phần này, nên recovery không đầy đủ và khả năng trả lời lại giảm dần.
+
+Các công thức ở chương này dùng để kiểm tra lời giải thích trên. Section 3.1 xây dựng mô hình và thử từng thành phần; Section 3.2 giải thích collapse; Section 3.3 giải thích recovery và erosion. Sang Section 4, nhóm mới quay lại kiểm chứng cơ chế trên Transformer.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 3 A MINIMAL MODEL REVEALS THE MECHANISM OF SPURIOUS FORGETTING
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3 A MINIMAL MODEL REVEALS THE MECHANISM OF SPURIOUS FORGETTING"
+  sectionParagraphs={[
+    'Factual recall, including that of synthetic biographies, can be abstracted as an associative memory: each fact maps a key, the subject it is about, to a value, its answer, which the model must retrieve when queried. We show that a minimal associative memory reproduces spurious forgetting once three ingredients are present: keys that share a common structure, new values concentrated in one part of the vocabulary, and a normalization layer. Its learning dynamics then explain the phenomenon: the structure of the data causes the collapse, and normalization drives the recovery. We check each step of this explanation in the model in Appendix B.8.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+Sau khi quan sát hiện tượng trên Transformer, nhóm cần một mô hình đơn giản hơn để phân tích vì sao collapse và recovery xảy ra. Họ xem việc nhớ facts như một associative memory: đầu vào cung cấp key, mô hình cần tìm lại value tương ứng.
+
+Chẳng hạn, với câu hỏi “An sống ở đâu?”, key mang thông tin về An và thuộc tính nơi ở; value là đáp án “Hà Nội”. Mô hình phải học liên kết này để trả lại đúng đáp án khi được hỏi. Cách biểu diễn bằng key và value giúp nhóm nghiên cứu việc học và nhớ facts mà chưa cần mô phỏng toàn bộ một Transformer.
+
+Nhóm đưa vào mô hình ba thành phần đã gặp ở Abstract: keys có cấu trúc chung, đáp án mới tập trung trong một vùng của vocabulary, và normalization. Mô hình tái hiện được hiện tượng, cho phép nhóm phân tích hai phần: cấu trúc dữ liệu tạo ra collapse như thế nào, và normalization giúp recovery ra sao. Appendix B.8 kiểm tra từng bước của lời giải thích này trong mô hình.
+
+Phần 3.1 tiếp theo sẽ mô tả cụ thể cách tạo keys, chia vùng đáp án và xây dựng mạng associative memory.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### 3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+    'Many phenomena of factual recall, such as how many facts a model can store as a function of its size (Allen-Zhu & Li, 2025; Nichani et al., 2025), how its loss scales (Cabannes et al., 2024) or the dynamics with which facts are learned (Zucchet et al., 2025; 2026), can be reproduced in a simple feedforward associative memory, which strips away the sequence-modeling layers of the transformer.',
+  ]}
+  sectionHighlights={[]}
+/>
+
+Việc chọn associative memory có cơ sở từ các nghiên cứu trước: dù đơn giản hơn Transformer, mô hình này đã tái hiện được nhiều hiện tượng liên quan đến việc nhớ facts:
+
+1. **Sức chứa kiến thức:** Số facts mô hình lưu được thay đổi thế nào theo kích thước mô hình — Allen-Zhu & Li (2025), Nichani và cộng sự (2025).
+2. **Quy luật của loss:** Loss thay đổi theo quy mô như thế nào — Cabannes và cộng sự (2024).
+3. **Quá trình học facts:** Các facts được học như thế nào trong quá trình huấn luyện — Zucchet và cộng sự (2025; 2026).
+
+Feedforward associative memory lược bỏ các lớp xử lý chuỗi của Transformer để tập trung vào liên kết giữa key và value. Những kết quả trước là cơ sở để nhóm chọn mô hình này; còn việc nó có tái hiện và giải thích được spurious forgetting hay không vẫn là điều cần kiểm tra trong nghiên cứu hiện tại.
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+    'Associative memory task. Each fact i is represented by a key',
+  ]}
+  sectionHighlights={[]}
+/>
+
+<BlockMath formula="\underbrace{k_i}_{\mathbb{R}^{d}}=\sqrt{\alpha}\,\underbrace{\mu}_{\mathbb{R}^{d}}+\sqrt{1-\alpha}\,\underbrace{e_i}_{\mathbb{R}^{d}},\qquad 0\leq\alpha\leq1" />
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+  "where $\\mu$ is a unit vector shared by all facts, $e_i$ a random unit vector specific to the fact, and $\\alpha$ sets how much structure the keys share. Each key is associated with a value $y_i$, a token from a vocabulary of size V that we split into two halves. The old facts form two sets, A, whose values are drawn uniformly from one half, and B, whose values are drawn from the other. The new facts B′ have new keys, sampled in the same way, and draw their values from the same half as B, just as the new biographies overlap with only one pretraining set in Figure 1 (right); drawing them from the entire vocabulary instead mirrors finetuning on C (left). The data thus combine keys that share structure with new values concentrated in one half of the vocabulary."
+]}
+  sectionHighlights={[]}
+/>
+
+Tác giả chủ động tạo key của mỗi fact bằng cách cộng hai phần:
+
+- **Phần chung:** Vector <InlineMath formula="\mu" /> giống nhau ở mọi fact, minh họa cấu trúc chung như cách hỏi “sống ở đâu?”.
+- **Phần riêng:** Vector <InlineMath formula="e_i" /> được lấy ngẫu nhiên cho từng fact, giúp phân biệt các đầu vào khác nhau.
+
+Cả hai vector có độ lớn bằng 1 trước khi nhân hệ số. Tham số <InlineMath formula="\alpha" /> điều chỉnh mức độ dùng chung: alpha càng lớn thì phần chung càng có tỷ trọng lớn; khi alpha bằng 0, key chỉ còn phần riêng. Đây là cấu trúc được thiết kế cho mô hình tối giản, không phải các vector được trích trực tiếp từ câu hỏi của Transformer.
+
+Với mỗi key, mô hình phải trả về một value là một token trong vocabulary có V token. Nhóm chia vocabulary thành hai nửa và chọn đáp án theo cách sau:
+
+1. **Facts cũ <InlineMath formula="A" /> và <InlineMath formula="B" />:** <InlineMath formula="A" /> lấy đáp án ngẫu nhiên đều từ một nửa, còn <InlineMath formula="B" /> lấy từ nửa kia.
+2. **Facts mới <InlineMath formula="B'" />:** Tạo keys mới theo cùng công thức, nhưng chỉ lấy đáp án từ nửa của <InlineMath formula="B" />. Đây là phiên bản tối giản của nhánh bên phải Figure 1.
+3. **Đối chứng <InlineMath formula="C" />:** Nếu lấy đáp án mới từ toàn bộ vocabulary, dữ liệu mới dùng cả hai nửa, tương ứng nhánh bên trái Figure 1.
+
+Như vậy, dữ liệu vừa có phần cấu trúc chung ở đầu vào, vừa có thể tập trung đáp án mới vào một vùng đã chọn. Chia sẻ cấu trúc không có nghĩa là dùng lại key cũ; dùng chung nửa vocabulary cũng không có nghĩa là replay fact cũ.
+
+Ta thử tạo key cho hai câu hỏi “An sống ở đâu?” và “Bình sống ở đâu?”. Để dễ tính, mỗi vector chỉ có 3 số, và ta tự quy ước vai trò của từng vị trí:
+
+1. Vị trí đầu dành cho phần chung của hai câu hỏi, như “sống ở đâu?”.
+2. Vị trí thứ hai dành cho phần riêng của câu hỏi về An.
+3. Vị trí thứ ba dành cho phần riêng của câu hỏi về Bình.
+
+Đây chỉ là ví dụ do ta thiết kế để nhìn rõ công thức, không phải cách từng chiều của một embedding thật được gán sẵn ý nghĩa.
+
+Theo quy ước đó, phần chung dùng vector (1, 0, 0), phần riêng của An dùng (0, 1, 0), còn phần riêng của Bình dùng (0, 0, 1). Số 1 đánh dấu vị trí được dùng, hai vị trí còn lại bằng 0:
+
+<BlockMath formula="\mu=\begin{bmatrix}1\\0\\0\end{bmatrix},\quad e_a=\begin{bmatrix}0\\1\\0\end{bmatrix},\quad e_b=\begin{bmatrix}0\\0\\1\end{bmatrix}" />
+
+Giờ chọn <InlineMath formula="\alpha=0.25" />. Trong công thức của paper, hệ số nhân phần chung là <InlineMath formula="\sqrt{0.25}=0.5" />, còn hệ số nhân phần riêng là <InlineMath formula="\sqrt{1-0.25}=\sqrt{0.75}\approx0.866" />. Nhân hệ số rồi cộng hai phần, ta được:
+
+<BlockMath formula="k_a=0.5\begin{bmatrix}1\\0\\0\end{bmatrix}+\sqrt{0.75}\begin{bmatrix}0\\1\\0\end{bmatrix}=\begin{bmatrix}0.5\\\sqrt{0.75}\\0\end{bmatrix}" />
+
+<BlockMath formula="k_b=0.5\begin{bmatrix}1\\0\\0\end{bmatrix}+\sqrt{0.75}\begin{bmatrix}0\\0\\1\end{bmatrix}=\begin{bmatrix}0.5\\0\\\sqrt{0.75}\end{bmatrix}" />
+
+Hai keys đều có số 0.5 ở vị trí đầu, nên có phần giống nhau. Chúng vẫn khác nhau vì phần riêng nằm ở vị trí thứ hai với An và vị trí thứ ba với Bình.
+
+Để đo phần giống nhau trong ví dụ này, ta tính dot product bằng cách nhân các số ở cùng vị trí rồi cộng lại:
+
+<BlockMath formula="k_a^\top k_b=0.5\times0.5+\sqrt{0.75}\times0+0\times\sqrt{0.75}=0.25" />
+
+Hai phần riêng không đóng góp vào kết quả vì không dùng chung vị trí nào. Dot product giữa chúng bằng 0; đây là ý “trực giao” trong ví dụ. Nhưng dot product giữa hai keys vẫn bằng 0.25 vì có phần chung. Ở phần phân tích gradient tiếp theo, chính mức overlap này quyết định một cập nhật cho key mới ảnh hưởng đến biểu diễn của key cũ bao nhiêu.
+
+Trong paper, tác giả không tự gán từng vị trí như ví dụ trên. Họ lấy các vector riêng ngẫu nhiên, mỗi vector có độ lớn bằng 1. Khi số chiều lớn, dot product giữa hai vector riêng thường gần 0, nên phần chung có thể chi phối overlap giữa hai keys. Ví dụ ở đây chọn dot product của hai phần riêng bằng đúng 0 để phép tính dễ nhìn hơn.
+
+[Equation 1 và Appendix B.1](https://arxiv.org/pdf/2610.08718v1#page=17) dùng cùng key distribution cho old và new facts. <InlineMath formula="A" /> nhận values ở nửa đầu vocabulary, <InlineMath formula="B" /> và <InlineMath formula="B'" /> ở nửa sau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### 3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+  "Model. The model is a two-layer network with an RMS normalization layer (Zhang & Sennrich, 2019) as the non-linearity between the two layers, followed by a softmax readout. It can be understood as the final linear layers of a Transformer. When queried with a key $k_i$, the model outputs a probability distribution over values,"
+]}
+  sectionHighlights={[]}
+/>
+
+Một key đi qua hai weight matrices, với Root Mean Square normalization (RMS normalization) ở giữa. Layer đầu tạo hidden state; layer sau biến hidden state đã normalize thành logits cho vocabulary.
+
+1. **Key:** Vector mang shared component và phần riêng của fact.
+2. **Linear layer và RMS:** Tạo hidden state rồi cố định norm theo hidden dimension.
+3. **Readout và softmax:** Tạo phân phối trên V answer tokens.
+
+Equation 2 có thể viết kèm shapes như sau. Minimal model dùng input và hidden dimension cùng bằng d.
+
+<BlockMath formula="\underbrace{h_i}_{d\times1}=\underbrace{W_1}_{d\times d}\underbrace{k_i}_{d\times1},\qquad x_i=\operatorname{RMS}(h_i)=\sqrt d\,\frac{h_i}{\lVert h_i\rVert}" />
+
+<BlockMath formula="\underbrace{z_i}_{V\times1}=\underbrace{W_2}_{V\times d}\underbrace{x_i}_{d\times1},\qquad p_i=\operatorname{softmax}(z_i)" />
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+  "The RMS normalization divides the hidden state by its norm and multiplies it by $\\sqrt d$. The weight matrices $W_1$ and $W_2$ are trained with minibatch gradient descent on the cross-entropy loss, first on the pretraining data (A and B) and then on the finetuning data (B′)."
+]}
+  sectionHighlights={[]}
+/>
+
+Ví dụ d bằng 4 và vocabulary có 8 tokens thì <InlineMath formula="W_1" /> có shape 4 × 4, <InlineMath formula="W_2" /> có shape 8 × 4. Mỗi key và hidden state có 4 phần tử; phân phối output có 8 phần tử. Model chọn token có xác suất cao nhất để đo recall.
+
+<BlockMath formula="\lVert h_i\rVert=5,\ d=4\quad\Longrightarrow\quad x_i=\frac{2}{5}h_i,\quad\lVert x_i\rVert=2" />
+
+Scale 2/5 áp dụng cho toàn bộ hidden state. Nếu common component tăng khiến norm tăng, phần riêng cũng bị scale xuống khi normalize. Điều này cho một khả năng cần kiểm tra là normalization có thể thay đổi việc tăng common component đang giúp hay cản trở học new facts.
+
+Cả <InlineMath formula="W_1" /> và <InlineMath formula="W_2" /> được tối ưu bằng cross-entropy, trước trên <InlineMath formula="A" /> và <InlineMath formula="B" />, sau chỉ trên <InlineMath formula="B'" />. Đây là model đơn giản dùng RMS như phi tuyến giữa hai layers; không có tokenizer, attention hoặc chuỗi context như một Transformer đầy đủ.
+
+[Appendix B.1, Equation 7](https://arxiv.org/pdf/2610.08718v1#page=17) quy định norm sau RMS là <InlineMath formula="\sqrt d" />. Trong phân tích này, RMS không có affine parameters học được.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### 3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.1 REPRODUCING SPURIOUS FORGETTING IN AN ASSOCIATIVE MEMORY MODEL"
+  sectionParagraphs={[
+  "Each of these ingredients is necessary. We follow the old facts of A over finetuning. The minimal model reproduces their collapse, recovery and erosion (Figure 2), and removing any one of its ingredients breaks this trajectory. With less shared structure in the keys, the collapse slows down until only gradual forgetting remains (panel 1). Drawing the values of the new facts from the entire vocabulary, as in finetuning on C, likewise leaves only gradual forgetting (panel 2). Without normalization, or with a ReLU in its place, the old facts collapse and never recover (panel 3)."
+]}
+  sectionHighlights={[]}
+/>
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_2.png"
+  alt="Figure 2: ba phép thay đổi key sharing, vùng đáp án mới và normalization làm thay đổi các phase của forgetting."
+  caption="Figure 2 — Kiểm tra từng thành phần của mô hình tối giản. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 848"
+/>
+
+Mô hình đầy đủ tái hiện được ba pha. Để kiểm tra vai trò của các yếu tố được đưa vào, Figure 2 lần lượt giảm cấu trúc chung của keys, cho new answers phủ cả vocabulary, và bỏ hoặc thay normalization. Ta so từng biến thể với mô hình đầy đủ để xem pha nào còn và pha nào mất.
+
+Kết quả không giống nhau ở cả ba phép thử. Giảm alpha khiến collapse yếu đi; ở alpha bằng 0 chỉ còn gradual forgetting. Cho new values phủ cả vocabulary cũng không còn full trajectory. Bỏ RMS hoặc thay bằng ReLU vẫn có collapse nhưng không recovery.
+
+Vì vậy, một lời giải thích chỉ nói vì sao model trả lời sai là chưa đủ. Nó còn phải giải thích vì sao cùng model có thể tự phục hồi với RMS, nhưng không phục hồi khi bỏ hoặc thay RMS. Phân tích tiếp theo cần tách nguyên nhân của collapse khỏi nguyên nhân của recovery.
+
+Điều kiện thứ hai không yêu cầu vocabulary có một thứ tự ngữ nghĩa đặc biệt. Trong minimal model, tác giả chia vocabulary thành hai subsets để điều khiển phân phối output. Sang Transformer, answer pools cũng được chia ngẫu nhiên.
+
+Figure 2 là bằng chứng ablation trong một model kiểm soát được. Nó không chứng minh rằng mọi hình thức spurious forgetting trong tất cả neural networks đều bắt buộc có đúng ba ingredients này.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### 3.2 KEY SHARING LEADS TO COLLAPSE
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.2 KEY SHARING LEADS TO COLLAPSE"
+  sectionParagraphs={[
+  "Intuitively, a gradient step on a new fact moves not only its own hidden state but that of every key resembling its own. All keys share a common component, so whatever the updates of the new facts have in common is written into all hidden states at once, the more so as $\\alpha$ grows. The result is a common shift that leaves the relative geometry of the hidden states mostly intact but, through the readout, favors the half of the vocabulary that contains the new answers, so that the facts of A can no longer be decoded.",
+  "All hidden states move in the same direction. When the model learns a new fact, gradient descent updates the first layer so that the hidden state of every key similar to the new fact’s key moves against that fact’s error. Since all keys, old and new, share a common component, they are all pushed in the same direction whenever the errors of the new facts agree. Formally, under gradient flow on the finetuning loss,"
+]}
+  sectionHighlights={[]}
+/>
+
+Phần 3.2 trả lời câu hỏi: vì sao chỉ học facts mới mà mô hình lại trả lời sai facts cũ, dù facts cũ không được đưa vào train?
+
+Ta đi theo bốn bước, bắt đầu từ keys là các vector số do tác giả tạo ra.
+
+1. **Các keys có phần giống nhau.** Chẳng hạn, một key cũ là (0.5, 0.866, 0), một key mới là (0.5, 0, 0.866). Cả hai đều có 0.5 ở vị trí đầu. Chúng khác nhau nhưng vẫn chia sẻ một phần đầu vào.
+2. **Các keys đi qua cùng một mạng.** Khi học key mới, mô hình cập nhật trọng số để trả lại đúng đáp án của nó. Nhưng những trọng số này cũng được dùng để xử lý key cũ. Vì thế, cập nhật liên quan đến phần chung có thể làm thay đổi cả biểu diễn của key cũ, dù key cũ không xuất hiện trong dữ liệu train.
+3. **Nhiều facts mới cùng đẩy theo một hướng.** Trong tập <InlineMath formula="B'" />, đáp án mới đều thuộc vùng của <InlineMath formula="B" />. Ban đầu mô hình còn dự đoán đáp án ở cả hai vùng. Để giảm lỗi trên facts mới, các cập nhật có một xu hướng chung là bớt chọn vùng <InlineMath formula="A" />, tăng chọn vùng <InlineMath formula="B" />. Qua phần key dùng chung, xu hướng này tác động lên nhiều biểu diễn cùng lúc. Đó là common shift.
+4. **Facts cũ của <InlineMath formula="A" /> bị kéo theo.** Đáp án đúng của facts thuộc <InlineMath formula="A" /> nằm ở vùng đang bị giảm ưu tiên, nên thua các đáp án thuộc vùng <InlineMath formula="B" />. Recall của <InlineMath formula="A" /> vì thế collapse, dù thông tin riêng phân biệt từng fact vẫn có thể còn. Facts cũ của <InlineMath formula="B" /> ít chịu cú collapse này hơn vì đáp án đúng vốn nằm trong vùng được ưu tiên.
+
+Như vậy, có phần chung ở keys chưa đủ để hiểu collapse. Cần nối cả chuỗi: dùng chung trọng số khiến cập nhật tác động lên facts cũ; đáp án mới tập trung trong một vùng khiến các cập nhật có cùng xu hướng; xu hướng đó làm đáp án cũ ở vùng còn lại bị thua.
+
+Equation 3 viết chính xác bước thứ hai bằng toán. Mạng biến mỗi key thành một vector bên trong, gọi là hidden state. Ký hiệu <InlineMath formula="h_a" /> là hidden state của một fact cũ; phương trình tính nó thay đổi thế nào khi mô hình học các facts mới:
+
+<BlockMath formula="\dot h_a=\dot W_1 k_a=-\frac{1}{n_B}\sum_{b\in B'}\underbrace{(k_b^\top k_a)}_{\text{scalar}}\underbrace{\delta_b}_{\mathbb{R}^{d}},\qquad\delta_b=\nabla_{h_b}\ell_b" />
+
+Trong phương trình:
+
+- <InlineMath formula="k_b^\top k_a" /> đo overlap giữa key mới và key cũ. Trong ví dụ hai keys ở trên, giá trị này bằng 0.25.
+- <InlineMath formula="\delta_b" /> là gradient của loss theo hidden state của fact mới. Dấu trừ lấy hướng làm giảm loss.
+- <InlineMath formula="n_B" /> là số facts mới trong <InlineMath formula="B'" />. Tổng rồi chia cho <InlineMath formula="n_B" /> nghĩa là lấy trung bình các đóng góp của chúng.
+- <InlineMath formula="\dot h_a" /> mô tả tốc độ thay đổi của hidden state cũ trong phân tích gradient flow, tức cách nhìn quá trình học như thay đổi liên tục. Với một bước gradient descent nhỏ, thay đổi còn nhân với learning rate.
+
+Điểm cần nhìn trong công thức là gradient của fact mới được nhân với overlap. Vì overlap khác 0, một fact cũ vẫn nhận tác động dù không có mặt trong loss đang train.
+
+Ví dụ minh họa có hai new facts, mỗi key overlap với old key bằng 0.25. Nếu hai gradients lần lượt là (2, 0) và (4, 0), update rate của old state là (−0.75, 0).
+
+<BlockMath formula="\dot h_a=-\frac12\left[0.25\begin{bmatrix}2\\0\end{bmatrix}+0.25\begin{bmatrix}4\\0\end{bmatrix}\right]=\begin{bmatrix}-0.75\\0\end{bmatrix}" />
+
+Old fact không xuất hiện trong loss nhưng hidden state vẫn dịch chuyển. Nếu nhiều old keys có overlap gần nhau với new keys, chúng nhận gần cùng update.
+
+[Section 3.2 và Appendix B.4](https://arxiv.org/pdf/2610.08718v1#page=4) phân tích cơ chế này ở leading order. Ví dụ số dùng gradients được chọn để minh họa, không phải gradient đo trong paper.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### 3.2 KEY SHARING LEADS TO COLLAPSE
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.2 KEY SHARING LEADS TO COLLAPSE"
+  sectionParagraphs={[
+  "In high dimension, the fact-specific parts of different keys are nearly orthogonal, so the overlap $k_b^\\top k_a$ is close to its shared part $\\alpha$ and, to leading order,"
+]}
+  sectionHighlights={[]}
+/>
+
+Ở ví dụ vừa rồi, hai phần riêng không dùng chung vị trí nào nên dot product giữa chúng bằng 0; overlap giữa hai keys chỉ đến từ phần chung và bằng 0.25. Trong dữ liệu thực của mô hình tối giản, các phần riêng được lấy ngẫu nhiên. Khi số chiều lớn, dot product giữa chúng thường gần 0, nên overlap giữa hai keys xấp xỉ bằng <InlineMath formula="\alpha" />. Equation 4 dùng điều này để rút gọn Equation 3:
+
+<BlockMath formula="k_b^\top k_a\approx\alpha,\qquad \overline\delta_B=\frac{1}{n_B}\sum_{b\in B'}\delta_b,\qquad\dot h_a\approx-\alpha\overline\delta_B" />
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.2 KEY SHARING LEADS TO COLLAPSE"
+  sectionParagraphs={[
+  "The terms this approximation ignores vary in sign from one new fact to the next and largely cancel, so they are negligible compared with the one it keeps as long as the errors $\\delta_b$ share a common component (Appendix B.4). All the old hidden states then move together in the same direction (Figure 3, left), at a speed proportional to $\\alpha$: this is why the collapse slows down as $\\alpha$ decreases and disappears at $\\alpha$ = 0 (Figure 2, panel 1).",
+  "Whether the errors share a common component depends on the finetuning data: pretraining covers both halves of the vocabulary, so the model’s predictions for the new keys are initially spread over both, whereas all the new answers lie in the same half, and on average the errors therefore all push probability toward this half. When the new answers are instead drawn from the entire vocabulary, this common push largely cancels, and so does the collapse (Figure 2, panel 2)."
+]}
+  sectionHighlights={[]}
+/>
+
+Equation 4 thay update của mỗi old state bằng một vector chung. Những thành phần bị bỏ qua vẫn tồn tại và có thể tích lũy thành fact-specific drift. Leading-order approximation dùng được khi gradients của new facts có phần aligned đủ lớn.
+
+Pretraining có answers trong cả hai vùng, trong khi new targets của <InlineMath formula="B'" /> chỉ thuộc một vùng. Khi predictions ban đầu còn đặt xác suất ở cả hai vùng, gradients từ new facts đều có xu hướng giảm probability ở vùng của <InlineMath formula="A" /> và tăng ở vùng của <InlineMath formula="B'" />.
+
+Nếu new targets phủ cả hai vùng, những pushes thiên về từng vùng có thể triệt tiêu nhau khi lấy trung bình. Điều quan trọng là hướng shift có ưu tiên một answer region hay không, không chỉ độ lớn của mọi representation changes.
+
+Appendix B.8 bổ sung một chi tiết giúp đọc ablation đúng. Khi new answers nằm trong toàn vocabulary, old states vẫn có thể cùng dịch chuyển khá xa; sự dịch chuyển đó không tạo bias giữa hai nửa như khi new answers tập trung trong một nửa.
+
+[Appendix B.8, Figure 9](https://arxiv.org/pdf/2610.08718v1#page=23) vì vậy không ủng hộ cách hiểu rằng balanced answers làm mọi gradient hoặc common shift bằng zero.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+### 3.2 KEY SHARING LEADS TO COLLAPSE
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.2 KEY SHARING LEADS TO COLLAPSE"
+  sectionParagraphs={[
+  "The common shift hides the facts of A. The collapse of A is a direct consequence of this common shift. Ignoring normalization for a moment, shifting all hidden states by the same vector adds the same bias to the logits of every old fact, favoring the half of the vocabulary that contains the new answers. The facts of A, whose answers lie in the other half, therefore lose to the new answers. Normalization amplifies this effect. Once the shift accounts for most of the norm of the hidden states, normalizing rotates all of them toward the shift direction: the old states become more similar to one another, the part of each state that encodes the fact’s own answer is scaled down, and the predictions follow the shift toward the answers most common among the new facts. The facts of B, whose answers lie in the favored half, are largely spared by the shift itself, which raises the answers of their half roughly together, in proportion to how often each is a new answer: removing the shift from their hidden states barely changes their recall, whereas it restores that of A. As their answers are also those of the new facts, they are instead exposed to the fact-specific learning of the new facts, which erodes them steadily, mostly after the collapse (Section 3.3)."
+]}
+  sectionHighlights={[]}
+/>
+
+Phân tích gradient gợi ý một common shift, nhưng điều đó chưa đủ giải thích recall giảm. Ta cần kiểm tra xem shift ấy có thể làm readout chọn answer sai trong khi phần riêng của old state vẫn còn hay không. Ví dụ dưới đây cô lập khả năng đó bằng cách giữ readout cố định.
+
+1. **Shared-key update:** Nhiều old states nhận gần cùng vector dịch chuyển.
+2. **Readout bias:** Hướng chung nâng logits của vùng new answers.
+3. **Normalization:** Phần riêng nhỏ đi tương đối khi norm được cố định.
+4. **Old answer mất top-1:** Thông tin phân biệt fact còn có thể tồn tại.
+
+Xét một ví dụ 2D có old hidden state (0, 1). Readout row cho old answer là (0, 1), còn row cho new answer là (1, 0). Ban đầu old answer có logit cao hơn. Dịch hidden state thêm (3, 0) làm new answer vượt lên.
+
+<BlockMath formula="h_{\mathrm{old}}=\begin{bmatrix}0\\1\end{bmatrix}\ \longrightarrow\ h_{\mathrm{shifted}}=\begin{bmatrix}3\\1\end{bmatrix},\qquad z_{\mathrm{old}}=1,\quad z_{\mathrm{new}}=3" />
+
+Với RMS và d bằng 2, cả hai logits được scale bởi <InlineMath formula="\sqrt2/\sqrt{10}" />. New logit khoảng 1.342 vẫn cao hơn old logit khoảng 0.447. Phần riêng trước normalization vẫn bằng 1; scale sau normalization làm nó giảm từ <InlineMath formula="\sqrt2" /> xuống <InlineMath formula="\sqrt2/\sqrt{10}" />.
+
+<BlockMath formula="\operatorname{RMS}\!\left(\begin{bmatrix}3\\1\end{bmatrix}\right)=\begin{bmatrix}1.342\\0.447\end{bmatrix},\qquad\frac{0.447}{\sqrt2}\approx0.316" />
+
+Trừ lại common shift rồi normalize trả state về <InlineMath formula="(0,\sqrt2)" />, và old answer lại thắng. Ví dụ này giữ readout cố định để cô lập cơ chế che khuất. Trong model được train, readout cũng có thể đổi và fact-specific drift làm recovery không đầy đủ.
+
+Ví dụ số cho thấy cách che khuất có thể xảy ra, còn evidence phải đến từ model được train. Appendix B.8 kiểm tra hướng thay đổi của old states và thứ hạng answers trong vùng của <InlineMath formula="A" />; phần kiểm tra thứ hạng sẽ được đọc ở bài sau. Section 3.2 cho rằng relative geometry trước normalization phần lớn được bảo toàn lúc đầu, dù normalized states có thể giống nhau hơn khi common component lớn.
+
+Phần cuối đoạn trích cũng trả lời vì sao <InlineMath formula="B" /> không collapse như <InlineMath formula="A" />. Common shift ưu tiên vùng đáp án của <InlineMath formula="B" />, nên không đẩy đáp án đúng của <InlineMath formula="B" /> sang phía bất lợi như với <InlineMath formula="A" />. Vì vậy, trừ shift giúp <InlineMath formula="A" /> nhiều nhưng ít thay đổi recall của <InlineMath formula="B" />. <InlineMath formula="B" /> vẫn suy giảm do những thay đổi riêng và việc các trọng số đọc ra vùng đáp án này tiếp tục được điều chỉnh khi học <InlineMath formula="B'" />.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+### 3.3 NORMALIZATION DRIVES RECOVERY
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.3 NORMALIZATION DRIVES RECOVERY"
+  sectionParagraphs={[
+  "Early in finetuning, all hidden states are pushed in the same direction, and this common shift causes the collapse of A. Because the normalization fixes the norm of each hidden state, the growing shift comes at the expense of the individual parts, which encode each fact’s own information and eventually become negligible. At first, this also helps the new facts, whose individual parts point to wrong answers. However, once the model has learned their individual associations, the shift drowns these as well and prevents the model from predicting the new facts correctly. Finetuning then undoes the shift, both on the new facts and on the old facts, restoring the individual parts of every hidden state. For the facts of A, these still carry most of the information that distinguishes them from one another, and the readout weights of their answers are barely changed by finetuning, as they only receive gradient while the model still puts probability on these answers for the new facts. The facts of A can therefore be read out again, and their recall partially recovers."
+]}
+  sectionHighlights={[]}
+/>
+
+Figure 2 để lại một câu hỏi cụ thể. Khi bỏ RMS hoặc thay bằng ReLU, model vẫn collapse nhưng không recovery; với RMS thì có recovery. Tác giả cần giải thích normalization làm khác điều gì trong quá trình học, rồi kiểm tra xem khác biệt đó có làm common shift rút lại hay không.
+
+Lúc đầu, individual parts của new states thường dự đoán sai. Scale chúng xuống có thể giúp loss giảm, nên common component lớn lên. Khi model đã học được individual associations, những phần riêng này có ích; scale chúng xuống lại cản trở learning.
+
+1. **New parts còn sai:** Giảm đóng góp của individual parts có thể giúp new loss.
+2. **Shared component tăng:** Normalization dành ít norm hơn cho individual parts.
+3. **New parts trở nên đúng:** Giảm chúng lúc này làm mất tín hiệu dự đoán đúng.
+4. **Shift rút lại:** Gradient tăng vai trò phần riêng, phục hồi khả năng đọc old facts.
+
+Old facts được hưởng recovery vì common shift được viết vào cả old và new states. Quá trình học new facts có thể rút shift ở cả hai nhóm, dù loss không chứa old examples.
+
+Không có normalization, thêm shared component không buộc individual parts giảm tỷ trọng theo cùng cơ chế. Figure 2 cho thấy collapse trong model không normalization hoặc dùng ReLU không tự recovery như RMS.
+
+[Section 3.3, Figure 3](https://arxiv.org/pdf/2610.08718v1#page=5) giải thích recovery thông qua new-fact learning. Normalization không có mục tiêu riêng là bảo vệ old knowledge.
+
+<LessonImage
+  assetPath="assets/learning/research-papers/llm/continual-learning/spurious-forgetting/figure_3.png"
+  alt="Figure 3: biểu diễn cũ cùng dịch chuyển rồi quay lại một phần; shift và margins được theo dõi trong quá trình finetuning."
+  caption="Figure 3 — Đọc đồng thời cụm biểu diễn, độ lớn shift và các margins. Nguồn: Palit và cộng sự, arXiv:2610.08718v1."
+  aspectRatio="1616 / 892"
+/>
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+### 3.3 NORMALIZATION DRIVES RECOVERY
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.3 NORMALIZATION DRIVES RECOVERY"
+  sectionParagraphs={[
+  "Normalization reverses the shift. We track the common shift through the norm s of the displacement of the old facts’ mean hidden state $\\overline h_A$ since the start of finetuning, and call its direction $\\widehat u_{\\mathrm{sh}}$ the shared direction. Through Equation 4, the dynamics of s are governed by whether pushing the hidden states of the new facts along the shared direction improves their predictions or not. Because of the normalization, such a push has two competing effects. On the one hand, it adds shared component, which improves the predictions on the new facts in proportion to the shared margin $\\overline\\gamma_{\\mathrm{sh}}$: the extra logit that the shared direction gives the correct answer compared with the model’s current prediction, averaged over the new facts. On the other hand, it scales their individual parts down, which changes their predictions in proportion to the individual margin $\\overline\\gamma_{\\mathrm{ind}}$, the same quantity measured along their individual parts. Assuming for simplicity that all new hidden states have the same coordinate s along $\\widehat u_{\\mathrm{sh}}$ and the same individual norm $\\sigma$, we obtain, to leading order,"
+]}
+  sectionHighlights={[]}
+/>
+
+Lời giải thích trên dự đoán shift sẽ đổi từ tăng sang giảm khi phần riêng của new facts trở nên có ích cho việc trả lời. Tác giả theo dõi độ dài common displacement, ký hiệu s, để kiểm tra dự đoán này. Để rút gọn phương trình, họ giả sử new states có cùng coordinate theo shared direction và cùng individual norm sigma.
+
+<BlockMath formula="s(t)=\lVert\overline h_A(t)-\overline h_A(0)\rVert,\qquad h_b\approx s\,\widehat u_{\mathrm{sh}}+\sigma\widehat u_{\mathrm{ind},b}" />
+
+Shared margin đo shared direction ưu tiên correct answer hơn phân phối prediction hiện tại bao nhiêu. Individual margin dùng cùng phép đo trên individual direction của mỗi new fact. Trong Appendix B.5, phép so sánh là với expected readout score dưới distribution p, không đơn thuần logit của token đứng thứ hai.
+
+<BlockMath formula="\gamma_{\mathrm{sh},b}=(W_2\widehat u_{\mathrm{sh}})_{y_b}-p_b^\top W_2\widehat u_{\mathrm{sh}},\qquad\overline\gamma_{\mathrm{sh}}=\frac1{n_B}\sum_b\gamma_{\mathrm{sh},b}" />
+
+Individual margin được định nghĩa tương tự bằng cách thay shared direction bằng individual direction. Equation 5 tổng hợp hai tác động qua RMS.
+
+<BlockMath formula="\dot s\approx\alpha\sqrt d\,\frac{\sigma\left(\sigma\overline\gamma_{\mathrm{sh}}-s\overline\gamma_{\mathrm{ind}}\right)}{(s^2+\sigma^2)^{3/2}},\qquad s(0)=0" />
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.3 NORMALIZATION DRIVES RECOVERY"
+  sectionParagraphs={[
+  "The first term corresponds to the added shared component and the second to the smaller individual parts; their relative size determines whether the common shift grows or shrinks. The derivation of this equation and the precise definitions of the two margins are given in Appendix B.5.",
+  "This equation explains the dynamics of the common shift in Figure 3. The shared margin only matters in the first steps of finetuning. The shared direction can move probability between the two halves of the vocabulary, but not between the answers within a half: $\\overline\\gamma_{\\mathrm{sh}}$ is positive at first, and once the predictions for the new facts have moved to the half of their answers, it can no longer improve them and remains close to zero (Figure 3, right). The shared margin thus sets the direction of the shift, and the individual margin then sets its magnitude. The new facts are initially confidently wrong, $\\overline\\gamma_{\\mathrm{ind}}$ < 0, so scaling their individual parts down helps them: s grows, and the growth reinforces itself. Once the individual parts of the new facts point to their correct answers, $\\overline\\gamma_{\\mathrm{ind}}$ becomes positive (Figure 3 right) and the same term pulls s back (Figure 3 middle). The shift therefore peaks when $\\overline\\gamma_{\\mathrm{ind}}$ crosses zero. This reversal waits for fact-specific learning, which is slow: the error of each new fact enters its own state with weight 1/nB, whereas their common component enters every state with weight $\\alpha$ (Appendix B.4), in line with the general observation that shared structure is learned before item-specific structure (Saxe et al., 2019). Without normalization, adding a shared component no longer scales the individual parts down, the $\\overline\\gamma_{\\mathrm{ind}}$ term disappears in Equation 5, and $\\dot s=\\alpha\\overline\\gamma_{\\mathrm{sh}}$. Nothing pulls the shift back (Figure 3 middle) and the collapse is permanent (Figure 2)."
+]}
+  sectionHighlights={[]}
+/>
+
+Term shared margin làm shift tăng khi hướng chung giúp new predictions. Term trừ individual margin xuất hiện vì normalization scale phần riêng xuống khi shift tăng. Khi individual margin âm, term này hỗ trợ shift lớn lên; khi margin dương, nó có thể kéo shift xuống.
+
+Với alpha bằng 0.25, d bằng 4, sigma bằng 1, s bằng 2 và shared margin bằng 0.1, dấu của update đổi khi individual margin chuyển từ −0.5 sang 0.5. Đây là phép thế số minh họa tại một thời điểm, không phải trajectory thực nghiệm.
+
+<BlockMath formula="\overline\gamma_{\mathrm{ind}}=-0.5\ \Longrightarrow\ \dot s\approx\frac{0.5(0.1+1)}{5^{3/2}}\approx0.0492" />
+
+<BlockMath formula="\overline\gamma_{\mathrm{ind}}=0.5\ \Longrightarrow\ \dot s\approx\frac{0.5(0.1-1)}{5^{3/2}}\approx-0.0402" />
+
+Margin dương chỉ đảm bảo shift giảm khi individual term vượt shared term. Trong minimal setup, shared margin sớm gần zero vì shared direction đã đẩy predictions vào đúng nửa vocabulary và không còn giúp phân biệt answers bên trong nửa đó.
+
+Figure 3 theo dõi shift và margins trong model được train, cho thấy shift rút lại khi individual margin chuyển sang dương. Kết quả này phù hợp với dấu mà phương trình dự đoán trong thiết lập đó. [Appendices B.5–B.6](https://arxiv.org/pdf/2610.08718v1#page=21) nêu rõ các approximations; khi errors gần zero, cả hai margins suy yếu, nên không có bảo đảm shift trở về chính xác zero.
+
+Trong Figure 3, hình bên phải cho thấy shared margin chỉ hữu ích lúc đầu, khi cần chuyển xác suất sang đúng vùng đáp án. Sau đó, nó gần zero vì không giúp chọn giữa các đáp án trong cùng vùng. Individual margin chuyển từ âm sang dương khi các liên kết riêng mới được học; ở hình giữa, đây là lúc shift đạt đỉnh rồi giảm. Phần chung nhận đóng góp từ nhiều facts với hệ số alpha, trong khi mỗi liên kết riêng học từ đóng góp có hệ số 1/n_B. Sự chênh lệch này giải thích vì sao collapse có thể đến trước khi mô hình nhớ được từng fact mới.
+
+Không có normalization, tăng phần chung không tạo thành phần gradient do phần riêng bị scale xuống như trong Equation 5. Phương trình rút còn phụ thuộc shared margin và không có cùng lực kéo shift trở lại. Đây là lý do cần đọc cả phép bỏ normalization ở Figure 2, không chỉ quan sát đường có normalization.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+### 3.3 NORMALIZATION DRIVES RECOVERY
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="3.3 NORMALIZATION DRIVES RECOVERY"
+  sectionParagraphs={[
+  "The facts of A are hidden, not erased. Undoing the common shift only restores the facts of A if what distinguishes them from one another has survived, and it does, for two reasons. First, beyond the common shift, each old hidden state only receives the part of the update carried by the fact-specific parts of the new keys, which overlap weakly with its own key (Appendix B.3). This individual displacement stays small during the collapse: while the mean of the old hidden states moves a lot, their relative geometry barely changes (Figure 3, left). The facts of A therefore keep their ordering within their own half, and even at the bottom of the collapse most of them still rank their correct answer first among the answers of that half (Appendix B.8). Second, the readout weights of the answers of A receive little gradient: they are only updated while the model puts probability on these answers for the new facts, which stops early in finetuning. Removing the part of the update that acts on the shared direction, $\\Delta W_1(t)\\mu\\mu^\\top$, while keeping everything else, including the finetuned readout, restores their recall almost entirely (Figure 13). The collapse is thus a loss of access to the facts of A, not a loss of the facts themselves.",
+  "The individual displacements nonetheless keep accumulating after the collapse, and they are not neutral: each old hidden state drifts toward the answers of the new facts whose keys overlap most with its own. For A, restoring the mean hidden state therefore helps less and less as finetuning proceeds, and recovery remains incomplete. For B, whose answers are those of the new facts, this drift, together with the readout weights of their half, which are refit to the new facts, erodes recall throughout finetuning, and removing the common shift barely helps."
+]}
+  sectionHighlights={[]}
+/>
+
+Ngay cả khi common shift rút lại, old facts chỉ phục hồi được nếu phần thông tin phân biệt chúng còn tồn tại. Giả thuyết che khuất vì vậy có thêm một dự đoán cần thử. Ở đáy collapse, correct answer có thể vẫn đứng đầu trong vùng old answers, dù thua các answers ở vùng mới khi xét toàn vocabulary.
+
+Ở high dimension, individual directions của old và new keys overlap yếu. Trong collapse ban đầu, common displacement lớn hơn fact-specific displacement. Readout rows của old answers thuộc vùng <InlineMath formula="A" /> cũng nhận ít gradient sau khi new predictions đã chuyển sang vùng của <InlineMath formula="B'" />.
+
+Một phép thử nữa trong đoạn gốc là loại phần cập nhật <InlineMath formula="W_1" /> tác động theo hướng key chung, nhưng giữ các phần cập nhật khác và cả readout đã finetune. Nếu recall gần như trở lại, sự phục hồi không thể chỉ được giải thích bằng việc trả toàn bộ mô hình về checkpoint cũ. Figure 13 trong Appendix B.9 báo cáo phép thử này.
+
+<BlockMath formula="W_{1,\mathrm{edited}}(t)=W_1(t)-\Delta W_1(t)\,\mu\mu^\top,\qquad \Delta W_1(t)=W_1(t)-W_1(0)" />
+
+Tác giả kiểm tra cấu trúc sống sót bằng cách xếp hạng answer trong riêng vùng của <InlineMath formula="A" />. Appendix B.8 báo cáo ở đáy collapse, 93% old facts vẫn xếp correct answer đứng đầu vùng của chúng, trong khi full-vocabulary accuracy chỉ 17%.
+
+<ComparisonMatrix ariaLabel="Hai phép đo tại đáy collapse của minimal model" columns={[
+  "Full vocabulary",
+  "Chỉ answer region của A"
+]} rows={[
+  {
+    "label": "Candidates",
+    "values": [
+      "Mọi tokens, gồm vùng new answers",
+      "Các candidates trong vùng old answers"
+    ]
+  },
+  {
+    "label": "Kết quả Appendix B.8",
+    "values": [
+      "17% accuracy",
+      "93% correct answers đứng đầu vùng"
+    ]
+  },
+  {
+    "label": "Ý nghĩa",
+    "values": [
+      "Model thường chọn answer ở vùng khác",
+      "Nhiều liên kết riêng vẫn phân biệt đúng trong vùng"
+    ]
+  }
+]} />
+
+Restricted ranking là phép chẩn đoán dùng kiến thức về cách chia vocabulary. Nó không phải accuracy thực tế của model khi không có thông tin answer region.
+
+Fact-specific displacement vẫn tích lũy. Old state có thể trôi về answer của new key gần nó, và readout của vùng new answers cũng tiếp tục đổi. Vì vậy trừ common shift càng về sau càng khôi phục ít hơn.
+
+[Appendix B.8, Figures 9–12](https://arxiv.org/pdf/2610.08718v1#page=23) hỗ trợ hai phần riêng biệt của kết luận. Phần access loss có thể đảo ngược; phần erosion giới hạn lượng knowledge có thể phục hồi bằng cùng can thiệp.
+
+</MdxPage>

@@ -43,7 +43,6 @@ import { CodeLabStep } from './code/CodeLabStep';
 import { InteractiveStepper } from './shell/InteractiveStepper';
 import { cx, type getLearningLabTheme, type LearningSemanticTone } from './theme';
 import { Mermaid, MermaidDiagram } from './MermaidDiagram';
-import { Flowchart } from './Flowchart';
 import { Timeline } from './Timeline';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
@@ -420,6 +419,13 @@ const LESSON_NOTE_TONES = {
   danger: { label: 'Question', Icon: CircleHelp, border: 'border-l-[#F43F5E]', header: 'bg-[#FDE9EE] text-[#B4233D]' },
   success: { label: 'Điểm chính', Icon: Check, border: 'border-l-[#2E8A5A]', header: 'bg-[#EAF7EE] text-[#226B45]' },
 } satisfies Record<string, { label: string; Icon: LucideIcon; border: string; header: string }>;
+
+export function TextHighlight({ children, tone = 'blue' }: { children?: ReactNode; tone?: 'blue' | 'ochre' }) {
+  const colors = tone === 'ochre'
+    ? 'bg-[#FFF5DD] text-[#7A5A32]'
+    : 'bg-[#EFF3F8] text-[#205089]';
+  return <span className={cx('rounded px-1', colors)}>{children}</span>;
+}
 
 export function LessonNote({
   children,
@@ -2114,6 +2120,7 @@ function MdxPre({ children }: { children?: ReactNode }) {
 
 const sharedAuthoredMdxComponents = {
   LessonNote,
+  TextHighlight,
   LessonImage,
   MdxQuiz,
   MdxPage,
@@ -2137,11 +2144,10 @@ const sharedAuthoredMdxComponents = {
   InteractiveStepper,
   Mermaid,
   MermaidDiagram,
-  Flowchart,
   Timeline,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
-export { Mermaid, MermaidDiagram, Flowchart, Timeline };
+export { Mermaid, MermaidDiagram, Timeline };
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,

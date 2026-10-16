@@ -6,6 +6,7 @@ import { learningCatalog, learningTableOfContents } from '../content/learning/in
 import { materializeLearningCatalog } from '../core/learning/materializeCatalog.ts';
 import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
 import {
+  getFirstLearningLessonRoute,
   getLearningDomain,
   getLearningDomainReadiness,
   getLearningHomeDomainSummaries,
@@ -40,8 +41,8 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 18);
   assert.equal(learningCatalog.domains.length, 18);
-  assert.equal(learningCatalog.tracks.length, 116);
-  assert.equal(learningCatalog.lessons.length, 963);
+  assert.equal(learningCatalog.tracks.length, 117);
+  assert.equal(learningCatalog.lessons.length, 972);
   assert.equal(learningCatalog.routeAliases?.length, 15);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -416,6 +417,32 @@ test('a bare domain route resolves the first lesson by product default', () => {
   assert.equal(route?.isCanonical, false);
 });
 
+test('hierarchical domain browsing stays at topics until a track or lesson is selected', () => {
+  for (const domainId of ['research-papers', 'ai-projects'] as const) {
+    assert.equal(resolveLearningLessonRoute(learningCatalog, {
+      domainId,
+      allowDomainFallback: false,
+    }), null);
+
+    const first = getFirstLearningLessonRoute(learningCatalog, domainId);
+    assert.ok(first);
+    const trackRoute = resolveLearningLessonRoute(learningCatalog, {
+      domainId,
+      trackId: first.track.id,
+      allowDomainFallback: false,
+    });
+    assert.equal(trackRoute?.lesson.id, first.lesson.id);
+    const lessonRoute = resolveLearningLessonRoute(learningCatalog, {
+      domainId,
+      trackId: first.track.id,
+      lessonId: first.lesson.id,
+      allowDomainFallback: false,
+    });
+    assert.equal(lessonRoute?.isCanonical, true);
+    assert.equal(lessonRoute?.lesson.id, first.lesson.id);
+  }
+});
+
 test('learning catalog ids resolve and first-party lessons have display text', () => {
   const strings = getStrings('en').learningLab;
 
@@ -448,7 +475,7 @@ test('only active authored domains and tagged CV exercise lessons carry authored
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'cv').length, 14);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'aiops').length, 10);
   const researchPapersPublished = publishedLessons.filter((lesson) => lesson.domainId === 'research-papers');
-  assert.equal(researchPapersPublished.length, 44);
+  assert.equal(researchPapersPublished.length, 53);
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-unlearning').length, 66);
   const salesForecastingTrack = getLearningTrack(learningCatalog, 'ai-projects', 'sales-forecasting-project');
   assert.ok(salesForecastingTrack);

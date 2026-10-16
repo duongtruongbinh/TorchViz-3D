@@ -1,0 +1,252 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-mechanism-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Overlap giữa A, B và B′',
+    'Shared strength của keys',
+    'Gradient tác động lên old states',
+    'New answers phủ cả vocabulary',
+    'Dấu của term phục hồi',
+    'Ablation bỏ RMS',
+    'Thông tin còn sống sót',
+    'Vì sao recovery không đầy đủ?',
+  ],
+  keywords: [
+    'Quiz',
+    'Spurious Forgetting',
+    'Factual Recall',
+    'Common Shift',
+  ],
+  conceptIds: [
+    'spurious-answer-overlap',
+    'spurious-key-overlap',
+    'spurious-old-update',
+    'spurious-balanced-output',
+    'spurious-normalization-force',
+    'spurious-no-normalization',
+    'spurious-restricted-ranking',
+    'spurious-erosion-limit',
+  ],
+  pageCount: 8,
+};
+
+<MdxQuiz id="spurious-forgetting-mechanism-quiz" questions={[
+  {
+    "id": "spurious-answer-overlap",
+    "title": "Overlap giữa A, B và B′",
+    "prompt": "Trong Figure 1, $B'$ overlap với $B$ theo nghĩa nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "$B'$ dùng lại các nhân vật của $B$ và cùng facts, nhưng đổi phrasing để tạo new training examples."
+      },
+      {
+        "id": "option-2",
+        "label": "$B'$ dùng answer region của $B$ cho các nhân vật mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-3",
+        "label": "$B'$ chứa đủ old biographies của cả $A$ và $B$, rồi sampling ưu tiên các examples của $B$ hơn."
+      },
+      {
+        "id": "option-4",
+        "label": "$B'$ dùng keys hoàn toàn orthogonal với old keys, khiến cả $A$ và $B$ đều không nhận shared updates."
+      }
+    ],
+    "success": "Overlap là cùng answer region. Các nhân vật finetuning mới và không replay old facts; shared template structure vẫn tạo overlap ở keys.",
+    "error": "Overlap là cùng answer region. Các nhân vật finetuning mới và không replay old facts; shared template structure vẫn tạo overlap ở keys."
+  },
+  {
+    "id": "spurious-key-overlap",
+    "title": "Shared strength của keys",
+    "prompt": "Trong ví dụ các hướng riêng và hướng chung trực giao, alpha bằng 0.25. Dot product của hai keys khác nhau bằng bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "0, vì hai phần riêng trực giao nên toàn bộ keys nhất thiết cũng trực giao với nhau."
+      },
+      {
+        "id": "option-2",
+        "label": "1, vì hai keys có cùng vector chung nên chúng là một vector bất kể phần riêng khác nhau."
+      },
+      {
+        "id": "option-3",
+        "label": "0.5, vì sqrt(alpha) là hệ số chung nên dot product luôn bằng đúng sqrt(alpha)."
+      },
+      {
+        "id": "option-4",
+        "label": "0.25.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Dot product của shared parts bằng sqrt(alpha) × sqrt(alpha) = alpha. Các cross terms trong ví dụ trực giao bằng zero; trong high dimension ngẫu nhiên chúng chỉ xấp xỉ nhỏ.",
+    "error": "Dot product của shared parts bằng sqrt(alpha) × sqrt(alpha) = alpha. Các cross terms trong ví dụ trực giao bằng zero; trong high dimension ngẫu nhiên chúng chỉ xấp xỉ nhỏ."
+  },
+  {
+    "id": "spurious-old-update",
+    "title": "Gradient tác động lên old states",
+    "prompt": "Trong Equation 3, yếu tố nào quyết định một gradient của new fact được ghi vào old hidden state bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Dot product giữa new key và old key.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Chỉ số thứ tự của old answer token trong vocabulary, dù mọi keys có hình học khác nhau."
+      },
+      {
+        "id": "option-3",
+        "label": "Số lần old fact xuất hiện trở lại trong finetuning, vốn bắt buộc phải lớn hơn zero để state đổi."
+      },
+      {
+        "id": "option-4",
+        "label": "Full-vocabulary accuracy của old dataset, được dùng làm coefficient cho mọi new gradient."
+      }
+    ],
+    "success": "Equation 3 nhân gradient của từng new hidden state với key overlap, rồi trung bình trên new facts. Vì vậy old states vẫn đổi dù old examples không xuất hiện trong finetuning loss.",
+    "error": "Equation 3 nhân gradient của từng new hidden state với key overlap, rồi trung bình trên new facts. Vì vậy old states vẫn đổi dù old examples không xuất hiện trong finetuning loss."
+  },
+  {
+    "id": "spurious-balanced-output",
+    "title": "New answers phủ cả vocabulary",
+    "prompt": "Kết quả ablation với new values ở cả hai answer regions nên được hiểu thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Mọi common displacement phải bằng zero, vì balanced targets ngăn mọi hidden state đổi khi training."
+      },
+      {
+        "id": "option-2",
+        "label": "Toàn bộ new gradients bằng zero, nên model không còn có thể học bất kỳ individual association nào."
+      },
+      {
+        "id": "option-3",
+        "label": "Bias giữa hai vùng yếu đi; common motion vẫn có thể tồn tại.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Old facts được replay qua target tokens, vì dùng chung answer region tương đương dùng chung fact."
+      }
+    ],
+    "success": "Balanced new values làm common push ưu tiên một vùng yếu đi. Appendix B.8 cho thấy old states vẫn có common motion; điều bị suy yếu là tác động bias giữa hai answer regions.",
+    "error": "Balanced new values làm common push ưu tiên một vùng yếu đi. Appendix B.8 cho thấy old states vẫn có common motion; điều bị suy yếu là tác động bias giữa hai answer regions."
+  },
+  {
+    "id": "spurious-normalization-force",
+    "title": "Dấu của term phục hồi",
+    "prompt": "Trong Equation 5, giả sử shared margin gần zero, s và sigma dương, individual margin chuyển sang dương. Điều gì xảy ra với common shift?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Shift tiếp tục tăng vì individual margin dương chỉ khiến model nâng shared component hơn trước."
+      },
+      {
+        "id": "option-2",
+        "label": "Term individual kéo shift giảm.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-3",
+        "label": "Shift tự trở về chính xác zero ngay trong một step, độc lập với learning rate và gradient còn lại."
+      },
+      {
+        "id": "option-4",
+        "label": "Individual margin bị normalization loại khỏi equation, nên nó không ảnh hưởng tốc độ của shift."
+      }
+    ],
+    "success": "Term −s × individual margin làm derivative của s âm khi shared margin gần zero và individual margin dương. Cả margins suy yếu khi errors biến mất, nên shift không nhất thiết trở lại zero.",
+    "error": "Term −s × individual margin làm derivative của s âm khi shared margin gần zero và individual margin dương. Cả margins suy yếu khi errors biến mất, nên shift không nhất thiết trở lại zero."
+  },
+  {
+    "id": "spurious-no-normalization",
+    "title": "Ablation bỏ RMS",
+    "prompt": "Figure 2 báo cáo điều gì khi bỏ normalization hoặc thay bằng ReLU?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Old facts collapse nhưng không recovery trong thiết lập này.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-2",
+        "label": "Old recall và new recall đều giữ nguyên vì network không còn gradients đi qua layer thứ nhất."
+      },
+      {
+        "id": "option-3",
+        "label": "Old recall tự recovery sớm hơn, vì individual states không bị shared component cạnh tranh về norm."
+      },
+      {
+        "id": "option-4",
+        "label": "Tất cả old facts được bảo toàn hoàn toàn, vì readout luôn giữ đúng thứ hạng trên full vocabulary."
+      }
+    ],
+    "success": "Collapse có thể xảy ra khi không có RMS, nhưng normalization-driven restoring term không còn. Ablation cho thấy mất recovery trong minimal setup, không phải một định lý cho mọi architectures.",
+    "error": "Collapse có thể xảy ra khi không có RMS, nhưng normalization-driven restoring term không còn. Ablation cho thấy mất recovery trong minimal setup, không phải một định lý cho mọi architectures."
+  },
+  {
+    "id": "spurious-restricted-ranking",
+    "title": "Thông tin còn sống sót",
+    "prompt": "Appendix B.8 có 17% full accuracy nhưng 93% correct answers đứng đầu trong old region tại đáy collapse. Diễn giải nào phù hợp?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "93% là accuracy thực tế khi model tự chọn trên full vocabulary, nên metric 17% phải được bỏ qua."
+      },
+      {
+        "id": "option-2",
+        "label": "Old facts đã được train lại bằng target tokens của vùng $A$, khiến restricted recall tăng nhờ replay."
+      },
+      {
+        "id": "option-3",
+        "label": "Tất cả old facts còn nguyên và sẽ luôn được trả lời đúng nếu training tiếp tục thêm số steps cố định."
+      },
+      {
+        "id": "option-4",
+        "label": "Nhiều liên kết riêng còn đúng trong vùng, nhưng bị vùng khác vượt lên.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Restricted ranking cho thấy model còn phân biệt nhiều old answers trong vùng của $A$. Full-vocabulary top-1 vẫn thấp vì competitors ở vùng new answers thắng. Phép ranking bị giới hạn candidates là diagnostic, không phải inference metric thay thế.",
+    "error": "Restricted ranking cho thấy model còn phân biệt nhiều old answers trong vùng của $A$. Full-vocabulary top-1 vẫn thấp vì competitors ở vùng new answers thắng. Phép ranking bị giới hạn candidates là diagnostic, không phải inference metric thay thế."
+  },
+  {
+    "id": "spurious-erosion-limit",
+    "title": "Vì sao recovery không đầy đủ?",
+    "prompt": "Theo Section 3.3, vì sao trừ common shift càng về sau càng khôi phục ít old facts hơn?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "option-1",
+        "label": "Normalization chủ động xóa old answers sau khi new-fact accuracy vượt một threshold cố định."
+      },
+      {
+        "id": "option-2",
+        "label": "Old facts trở thành new facts khi vocabulary region đổi, nên không thể tiếp tục đánh giá cùng metric."
+      },
+      {
+        "id": "option-3",
+        "label": "Fact-specific drift và readout changes tiếp tục tích lũy.",
+        "isCorrect": true
+      },
+      {
+        "id": "option-4",
+        "label": "Common shift là thành phần duy nhất thay đổi trong model, nên mọi suy giảm muộn vẫn được xóa hết."
+      }
+    ],
+    "success": "Individual displacements tích lũy và readout rows của vùng new answers được refit. Common-shift removal chỉ bỏ shared part; nó không đảo ngược mọi thay đổi làm old associations bị erosion.",
+    "error": "Individual displacements tích lũy và readout rows của vùng new answers được refit. Common-shift removal chỉ bỏ shared part; nó không đảo ngược mọi thay đổi làm old associations bị erosion."
+  }
+]} />

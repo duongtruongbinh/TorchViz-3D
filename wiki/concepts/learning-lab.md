@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-10-02
+updated: 2026-10-16
 ---
 
 # Learning Lab
@@ -19,12 +19,17 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 18 domains, 116 tracks, and 963 lesson nodes. Five hundred
-one Vietnamese-first lessons have authored content: forty-nine in
+Bare Research Papers and AI Projects domain URLs open their topic selectors.
+The shell disables first-lesson route fallback for these hierarchical domains;
+explicit track/lesson links still resolve normally. Other domains retain their
+first-lesson default.
+
+The catalog contains 18 domains, 117 tracks, and 972 lesson nodes. Five hundred
+ten Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
-chapters), forty-four in `research-papers`, fifteen in `evolutionary-algorithms`,
+chapters), fifty-three in `research-papers`, fifteen in `evolutionary-algorithms`,
 eight in `ai-projects`, eighty-eight in `fundamentals`, sixty-six in
 `llm-unlearning`, fourteen in `cv` (eight focused Chapter 1 nodes, an Image
 Classification theory/quiz opening for Chapter 2, plus four tagged exercise
@@ -32,8 +37,40 @@ lessons), and ten in `aiops`.
 The `research-papers` domain includes the eleven-node Quantifying Memorization
 track, with nine reading lessons and two quizzes. Its `PaperExcerpt` component
 is owned by the domain adapter and registered through the MDX allowlist.
+PaperExcerpt renders explicitly delimited inline math through the shared
+MathInline primitive, alongside its existing bold and highlight treatment.
 The title-and-authors lesson has one page; the method-comparison and ICLR
 impact sections were removed in the approved follow-up.
+The nine-node Spurious Forgetting track adds seven Vietnamese reading lessons
+and two quizzes on arXiv:2610.08718v1. It reuses the same excerpt and quiz
+runtime. The post-Abstract quiz has sixteen conceptual questions, including
+shared displacement, normalization across collapse/recovery, residual erosion,
+and the purpose of common-shift subtraction; the later mechanism quiz has eight.
+The track includes source-linked equations, illustrative calculations, controlled
+Transformer interventions, and OLMo 2 1B results from Table 3. Weight edits are
+described as temporary checkpoint evaluations of cumulative updates; their
+new-fact trade-off and the paper's limits remain explicit.
+Its opening lesson uses the authors' GIF to introduce collapse, recovery and
+erosion before the research question; `LessonImage` serves the original
+animation from the canonical R2 path with a source attribution in the lesson.
+Section 3 starts with a separate plain-language overview page explaining the
+minimal-model experiments and collapse/recovery/erosion insights before its
+source excerpts and mathematical details. The author/title lesson stays one page.
+The reading sequence presents observations before working hypotheses and
+interventions, distinguishing reported results from interpretations. It retains
+failed-recovery variants, unequal intervention effects, the new-fact trade-off,
+and effects the minimal analysis does not explain; the paper's final mechanism
+is treated as a claim to assess through this evidence chain.
+Chapter 3 is one eleven-page node, retaining the existing associative-memory
+lesson ID and all pages from the former common-shift and normalization nodes.
+Its mechanism quiz follows as a separate node.
+Sections 3–6 are reconciled against the original main-text paragraphs, including
+their opening context, assumptions, controls, results and limitations. The four
+reading lessons for these sections span 24 pages and retain Equations 1–5,
+original Figures 2–5 and the cross-model analysis map in Table 1. Appendix
+findings are included where cited as evidence; the lessons do not reproduce the
+full appendices, bibliography or acknowledgments. The paragraph coverage ledger
+is maintained in the existing Spurious Forgetting curriculum plan.
 The other 462 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
@@ -642,6 +679,9 @@ lesson media is served exclusively from the configured Cloudflare R2 CDN under
 `src/assets/learning/` fallback. `docs/assets/` is only for documentation
 artifacts.
 
+Inline text emphasis uses `TextHighlight` with blue or ochre light-palette
+tones, including shared wording and individual names in question examples.
+
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
 ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
 children, with optional muted peers, nested levels, and convergent connections.
@@ -691,6 +731,12 @@ selection. Selected rows use a solid blue surface, while completed markers
 remain green so progress continues to take precedence.
 
 ### Learning UI Ownership and Component Reuse
+
+The numbered card-and-arrow `Flowchart` design is retired at the user's request.
+Its renderer and MDX registration have been removed, so authored `<Flowchart>`
+elements are rejected. Do not recreate this design under another name. Use plain
+prose or numbered steps for a sequence; retain `ConceptFlow` for the separately
+approved concept-card presentation when requested.
 
 To maintain architectural clarity and prevent component sprawl, Learning Lab defines four distinct UI layers:
 

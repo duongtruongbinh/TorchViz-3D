@@ -1,0 +1,182 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'spurious-forgetting-discussion',
+  locale: 'vi',
+  title: 'Discussion, Giới hạn & Phân tích Mở rộng',
+  headings: [
+    '6 DISCUSSION',
+    '6 DISCUSSION',
+    '6 DISCUSSION',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Discussion',
+    'Limitations',
+    'Confounders',
+    'Appendix B.8',
+    'Appendix C.5',
+    'Appendix D.2',
+    'First-token Accuracy',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+### 6 DISCUSSION
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="6 DISCUSSION"
+  sectionParagraphs={[
+  "That a loss of performance need not be a loss of knowledge is an old idea: psychology separates stored from accessible information (Tulving & Pearlstone, 1966; Ebbinghaus, 1885), and suppressed associations return once interference stops (Postman et al., 1968). Connectionist networks show the same savings, and training them on unrelated associations can even restore forgotten ones (Hetherington & Seidenberg, 1989; Hinton & Plaut, 1987; Harvey & Stone, 1996; Atkins & Murre, 1998). In deep networks, linear probes often recover old tasks that the outputs no longer solve, a phenomenon called shallow forgetting (Murata et al., 2020; Davari et al., 2022; Hess et al., 2024; Lanzillotta et al., 2026); performance drops sharply at the start of a new task before returning with some replay (De Lange et al., 2023; Zucchet et al., 2025); and language models recover lost capabilities with a different prompt (Kotha et al., 2024) or a few old examples, a case named spurious forgetting (Zheng et al., 2025). In the settings we identify, the finetuning that hides the old facts also restores them, without probe, prompt or replay, through a shared shift that normalization withdraws once the new facts are learned. This shift towards the new answers may be one concrete form of the loss of task alignment that Zheng et al. (2025) identify behind spurious forgetting.",
+  "Forgetting is usually measured as a single quantity that grows with training, whereas our results suggest two processes on different timescales: a loss of access shared by all old facts, set by what the new data have in common, and a slower erosion specific to each fact. The pretrained model also points to a trade-off between learning new facts quickly and recovering old ones. When the subjects of the new facts share something that predicts their answers, as the kind of a product predicts the kind of its manufacturer, the shared direction helps the model learn them, and they are learned faster. But for the same reason the shift along this direction keeps helping the new facts, so it is never withdrawn, and the old facts stay hidden. What helps a model generalize to new facts may thus be what keeps it from recovering the old ones."
+]}
+  sectionHighlights={[]}
+/>
+
+Đoạn đầu Discussion đặt kết quả vào lịch sử nghiên cứu. Phân biệt thông tin còn được lưu với thông tin có thể truy xuất đã xuất hiện trong tâm lý học, các mạng connectionist và deep learning. Linear probe, đổi prompt hoặc train lại bằng một phần dữ liệu cũ đều đã giúp khôi phục hiệu suất trong những nghiên cứu được trích dẫn.
+
+Điểm nhóm nhấn mạnh ở đây là chính quá trình finetune trên facts mới vừa che khuất facts cũ, vừa có thể làm chúng được truy xuất trở lại, không thêm probe, đổi prompt hay replay. Họ đề xuất common shift như một cơ chế cụ thể cho việc mất task alignment mà Zheng và cộng sự mô tả. Cụm “may be” trong đoạn gốc giữ đây là một cách giải thích có phạm vi, không đồng nhất mọi spurious forgetting với cùng cơ chế.
+
+Sau các phép đo và chỉnh sửa, ta có thể đánh giá lời giải thích tác giả đề xuất. Minimal model tái hiện các pha; bỏ common part phục hồi recall trong controlled Transformer; top-component edit giúp OLMo phục hồi cả khi training không tự phục hồi. Chuỗi kết quả này hỗ trợ việc tách giảm recall thành phần access loss dùng chung và phần erosion riêng.
+
+Mức phục hồi khác nhau giữa các models, và edit có thể giảm new recall. Vì vậy lời giải thích cần giữ những điều kiện và giới hạn đó khi chuyển sang kết luận.
+
+<ComparisonMatrix ariaLabel="Hai thành phần của forgetting theo cơ chế được khảo sát" columns={[
+  "Shared access loss",
+  "Fact-specific erosion"
+]} rows={[
+  {
+    "label": "Representation change",
+    "values": [
+      "Nhiều states dịch chuyển cùng nhau",
+      "Relative positions và associations đổi riêng"
+    ]
+  },
+  {
+    "label": "Timescale quan sát",
+    "values": [
+      "Nhanh ở collapse",
+      "Tích lũy chậm hơn trong training"
+    ]
+  },
+  {
+    "label": "Can thiệp phù hợp",
+    "values": [
+      "Bỏ common shift hoặc component update chi phối",
+      "Bỏ common part chỉ giúp phần còn sống sót"
+    ]
+  },
+  {
+    "label": "Tự recovery",
+    "values": [
+      "Có thể xảy ra nếu shift hết hữu ích",
+      "Không được bảo đảm bởi cùng cơ chế"
+    ]
+  }
+]} />
+
+Các công trình được Section 6 dẫn đã phân biệt stored information với accessible information bằng probes, prompts hoặc replay. Điểm riêng của thiết lập này là learning trên new facts có thể vừa che old facts vừa làm chúng xuất hiện trở lại qua dynamics của normalization.
+
+Trade-off còn nằm ở cấu trúc new data. Shared features giúp generalize và học new facts nhanh có thể giữ shift tiếp tục hữu ích. Khi đó old facts bị che lâu hơn dù chúng vẫn phục hồi được phần lớn bằng can thiệp.
+
+[Section 6](https://arxiv.org/pdf/2610.08718v1#page=10) kết thúc bằng điều kiện dữ liệu quyết định forgetting diễn ra theo common motion hay individual drift. Một metric tại final checkpoint không cho biết tỷ lệ đóng góp của hai thành phần này.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### 6 DISCUSSION
+
+<PaperExcerpt
+  hideTitle={true}
+  sectionHeading="6 DISCUSSION"
+  sectionParagraphs={[
+  "Limitations. Our minimal model is deliberately extreme, and normalization-driven recovery is likely weaker on real data, although the collapse may be more general. In the pretrained model, we attribute the difference in recovery to what the subjects reveal about their answers, but the two kinds of new facts also differ in other ways, and we study a single model."
+]}
+  sectionHighlights={[]}
+/>
+
+Các thí nghiệm đã hỗ trợ một phần lời giải thích, nhưng chưa kiểm tra tất cả trường hợp forgetting. Minimal model chủ động chọn keys, vocabulary split và normalization để cô lập các yếu tố. Sang natural text, ta cần kiểm tra lại những điều kiện nào còn tồn tại thay vì coi chúng là mặc định.
+
+OLMo 2 1B là pretrained model duy nhất được kiểm tra. Synthetic individuals và real entities khác nhau về predictive structure của subject nhưng cũng có những khác biệt khác. So sánh recovery của chúng phù hợp với giả thuyết paper, chưa tách được mọi confounders.
+
+Recall chủ yếu đo first token. Một answer nhiều tokens có first token đúng vẫn có thể sai phần còn lại. CounterFact subset và việc tách first tokens của new answers cũng giới hạn loại factual knowledge được phép đo trực tiếp.
+
+Intervention SVD cần checkpoint trước finetuning và phép phân rã cho nhiều matrices. Paper đánh giá edited checkpoints rồi quay lại original weights để tiếp tục run. Nó chưa đo kết quả của việc dùng chính edited weights cho các bước training tiếp theo.
+
+Một lần accuracy không recovery cũng chưa chứng minh knowledge đã mất. Real-entity run minh họa điều đó khi top-component removal phục hồi phần lớn old recall mà training không tự mang lại. Ngược lại, recovery một phần không chứng minh mọi old facts còn nguyên.
+
+Để mở rộng kết luận, cần kiểm tra thêm model sizes, natural finetuning tasks, answers đủ chuỗi và interventions chạy trong training. Đây là những phép thử được đề xuất từ giới hạn hiện tại, không phải kết quả paper đã báo cáo.
+
+[Limitations, Section 6 và Appendix D.2](https://arxiv.org/pdf/2610.08718v1#page=10) giúp phân biệt cơ chế được kiểm chứng với cách ứng dụng còn cần đánh giá.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### 6 DISCUSSION
+
+Appendices kiểm tra cả những yếu tố bị minimal model bỏ qua lẫn mức can thiệp nào còn phục hồi được old facts. Các kết quả dưới đây là số tác giả báo cáo trong phần chữ hoặc bảng, không phải ước lượng từ curves.
+
+<ComparisonMatrix ariaLabel="Từ câu hỏi tới phép thử và phạm vi kết luận" columns={[
+  "Cách thử",
+  "Kết quả được báo cáo",
+  "Phạm vi kết luận"
+]} rows={[
+  {
+    "label": "Thông tin riêng còn sống sót?",
+    "values": [
+      "Xếp hạng correct answer trong riêng vùng cũ.",
+      "B.8: 93% đứng đầu vùng; full accuracy chỉ 17% tại đáy.",
+      "Hỗ trợ việc nhiều old associations còn tồn tại; không chứng minh mọi facts được giữ nguyên."
+    ]
+  },
+  {
+    "label": "Những weights nào mang shift?",
+    "values": [
+      "Trả từng group weights về trước finetuning rồi đo shift.",
+      "C.4: value/output 84%; query/key 11% ở đáy.",
+      "Định vị đóng góp trong attention-only model; tỷ lệ của các phép thử riêng không phải một tổng 100%."
+    ]
+  },
+  {
+    "label": "Bỏ common part có giúp khi thêm MLP?",
+    "values": [
+      "Trừ common logit change trong Transformer có MLP.",
+      "C.5: accuracy tại đáy từ 53% lên 99%.",
+      "Dự đoán phục hồi được hỗ trợ trong cấu hình này."
+    ]
+  },
+  {
+    "label": "Top-update edit có hiệu quả như nhau?",
+    "values": [
+      "Bỏ top component của weight updates ở hai controlled models.",
+      "D.3: attention-only 12% → 57%; có MLP 54% → 100%.",
+      "Cùng edit phục hồi ở mức khác nhau; chưa thể coi nó tương đương trừ common logits."
+    ]
+  },
+  {
+    "label": "Old recall phục hồi có cái giá gì?",
+    "values": [
+      "Đo cả old và new recall sau edit trong OLMo.",
+      "D.2: real entities, step 400: old 55% → 79%, new 100% → 66%.",
+      "Phục hồi old recall đi kèm giảm new recall, không phải bảo toàn mọi kiến thức."
+    ]
+  }
+]} />
+
+Với MLP blocks, shift phân bố qua cả attention value/output và MLP weights. Các groups này ghi content vào residual stream. Query/key weights ảnh hưởng nơi attention đọc và đóng góp ít vào common shift ban đầu trong những models được khảo sát.
+
+Logit subtraction và SVD removal có độ phục hồi khác nhau, đặc biệt ở attention-only Transformer. Mean logits được lấy trực tiếp từ old-fact changes; top singular component của mỗi update chỉ là intervention ở weight space dựa trên giả thuyết shared change chi phối. Không thể coi chúng là hai phép toán tương đương.
+
+Appendix D.2 còn báo cáo top component được bỏ chứa khoảng 15% squared norm của một typical update trong OLMo. Đây là độ lớn của phần chỉnh sửa, không phải tỷ lệ knowledge được giữ hoặc khôi phục.
+
+Appendix B.7 kiểm tra dynamics của common shift bằng margins đo ở từng minibatch. Phương trình đầy đủ tái hiện measured shift trong khoảng 1% range với normalization và 2% khi không normalization, ở thí nghiệm được báo cáo. Điều này kiểm tra dynamics trong minimal model, không chuyển thành độ chính xác dự đoán forgetting của pretrained LLM.
+
+Table 1 ở trang 14 chỉ rõ analysis nào được lặp ở model nào. Các mục không có phép kiểm tra trên OLMo 2 1B cần được giữ đúng phạm vi khi diễn giải.
+
+[Appendices B–D](https://arxiv.org/pdf/2610.08718v1#page=14) nối các quan sát output với kiểm tra geometry và interventions. Khi đọc một nghiên cứu về forgetting, nên tìm metric, dữ liệu bị thay đổi, và phép kiểm tra knowledge còn tồn tại trước khi diễn giải accuracy drop là mất kiến thức.
+
+</MdxPage>
