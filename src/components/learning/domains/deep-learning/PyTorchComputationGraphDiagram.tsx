@@ -1,18 +1,15 @@
 import { InlineMath } from '../../learningMdxComponents';
+import { DlCardShell } from './primitives';
 
 const VIEW_W = 700;
 const VIEW_H = 216;
 
 export function PyTorchComputationGraphDiagram() {
   return (
-    <section
-      className="my-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-      aria-label="Minh họa đồ thị tính toán (Computation Graph) trong PyTorch"
-    >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-sm font-bold text-[#172A43]">
-          Đồ thị Tính toán (Computation Graph) trong PyTorch
-        </h4>
+    <DlCardShell
+      ariaLabel="Minh họa đồ thị tính toán (Computation Graph) trong PyTorch"
+      title="Đồ thị Tính toán (Computation Graph) trong PyTorch"
+      rightSlot={
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
           <span className="inline-flex items-center gap-1.5 text-[#205089]">
             <span className="inline-block h-0.5 w-4 bg-[#205089]" />
@@ -23,7 +20,8 @@ export function PyTorchComputationGraphDiagram() {
             <code>loss.backward()</code> (tính gradient)
           </span>
         </div>
-      </div>
+      }
+    >
 
       <div className="overflow-x-auto">
         <div
@@ -322,6 +320,6 @@ export function PyTorchComputationGraphDiagram() {
         <code>loss.backward()</code>, PyTorch đi ngược đồ thị bằng Chain Rule để tính và điền{' '}
         <InlineMath formula="w.\text{grad} = -4.0" />.
       </p>
-    </section>
+    </DlCardShell>
   );
 }

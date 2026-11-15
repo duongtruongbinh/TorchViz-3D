@@ -1,14 +1,19 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
+import {
+  DL_PALETTE,
+  DlStepControl,
+  DlTabPillGroup,
+  useCodeHighlightPulse,
+} from './primitives';
 
-const BLUE = '#205089';
-const ROSE = '#C2415A';
-const SLATE = '#64748B';
+const BLUE = DL_PALETTE.primary;
+const ROSE = DL_PALETTE.rose;
 
 export function LossFunctionDiagram({
-  panel = 'explorer',
+  panel,
 }: {
-  panel?: 'pipeline' | 'explorer';
+  panel: 'pipeline' | 'explorer';
 }) {
   if (panel === 'pipeline') {
     return <ForwardToLossPipeline />;
@@ -121,14 +126,7 @@ function LossFunctionExplorer() {
   const [tab, setTab] = useState<'regression' | 'classification'>('regression');
   const [err, setErr] = useState(1.5);
   const [prob, setProb] = useState(0.7);
-  const [highlighted, setHighlighted] = useState(false);
-  const timerRef = useRef<number | null>(null);
-
-  const pulse = () => {
-    setHighlighted(true);
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => setHighlighted(false), 500);
-  };
+  const { highlighted, pulse } = useCodeHighlightPulse();
 
   const w = 320;
   const h = 172;
@@ -185,99 +183,44 @@ loss = nn.CrossEntropyLoss()(logits, target)`;
   return (
     <div className="my-6 bg-white py-2">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setTab('regression');
-              pulse();
-            }}
-            className={`rounded-full px-3.5 py-1 text-xs font-bold ${
-              tab === 'regression'
-                ? 'bg-[#205089] text-white'
-                : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-[#EFF3F8]'
-            }`}
-          >
-            Hồi quy: MSE vs MAE
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTab('classification');
-              pulse();
-            }}
-            className={`rounded-full px-3.5 py-1 text-xs font-bold ${
-              tab === 'classification'
-                ? 'bg-[#205089] text-white'
-                : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-[#EFF3F8]'
-            }`}
-          >
-            Phân loại: Cross-Entropy
-          </button>
-        </div>
+        <DlTabPillGroup
+          options={[
+            { value: 'regression', label: 'Hồi quy: MSE vs MAE' },
+            { value: 'classification', label: 'Phân loại: Cross-Entropy' },
+          ]}
+          value={tab}
+          onChange={(next) => {
+            setTab(next);
+            pulse();
+          }}
+        />
 
         {tab === 'regression' ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#172A43]">
-              <InlineMath formula="e = \hat{y} - y =" />
-            </span>
-            <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white">
-              <button
-                type="button"
-                onClick={() => {
-                  setErr((v) => Math.max(-3, Math.round((v - 0.5) * 10) / 10));
-                  pulse();
-                }}
-                className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8]"
-              >
-                −
-              </button>
-              <span className="w-12 border-x border-slate-200 py-1 text-center font-mono text-xs font-bold text-[#172A43]">
-                {err.toFixed(1)}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setErr((v) => Math.min(3, Math.round((v + 0.5) * 10) / 10));
-                  pulse();
-                }}
-                className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8]"
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <DlStepControl
+            label={<InlineMath formula="e = \hat{y} - y =" />}
+            displayValue={err.toFixed(1)}
+            onDecrement={() => {
+              setErr((v) => Math.max(-3, Math.round((v - 0.5) * 10) / 10));
+              pulse();
+            }}
+            onIncrement={() => {
+              setErr((v) => Math.min(3, Math.round((v + 0.5) * 10) / 10));
+              pulse();
+            }}
+          />
         ) : (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#172A43]">
-              <InlineMath formula="\hat{p}_{\text{true}} =" />
-            </span>
-            <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white">
-              <button
-                type="button"
-                onClick={() => {
-                  setProb((v) => Math.max(0.05, Math.round((v - 0.1) * 100) / 100));
-                  pulse();
-                }}
-                className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8]"
-              >
-                −
-              </button>
-              <span className="w-12 border-x border-slate-200 py-1 text-center font-mono text-xs font-bold text-[#172A43]">
-                {prob.toFixed(2)}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setProb((v) => Math.min(0.95, Math.round((v + 0.1) * 100) / 100));
-                  pulse();
-                }}
-                className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8]"
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <DlStepControl
+            label={<InlineMath formula="\hat{p}_{\text{true}} =" />}
+            displayValue={prob.toFixed(2)}
+            onDecrement={() => {
+              setProb((v) => Math.max(0.05, Math.round((v - 0.1) * 100) / 100));
+              pulse();
+            }}
+            onIncrement={() => {
+              setProb((v) => Math.min(0.95, Math.round((v + 0.1) * 100) / 100));
+              pulse();
+            }}
+          />
         )}
       </div>
 

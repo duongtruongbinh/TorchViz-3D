@@ -46,7 +46,7 @@ export function IrisScatterPlot({ highlightError = false }: { highlightError?: b
 
   return (
     <section
-      className="my-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="my-4 rounded-xl border border-[#B8C8DA] bg-white p-4 shadow-sm"
       aria-label={
         highlightError
           ? 'Biểu đồ Error Analysis đánh dấu mẫu dự đoán sai trên vùng giao thoa Versicolor và Virginica'

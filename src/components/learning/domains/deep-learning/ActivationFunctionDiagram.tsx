@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
+import { DL_PALETTE, DlStepControl, DlTabPillGroup, useCodeHighlightPulse } from './primitives';
 
-const BLUE = '#205089';
-const ROSE = '#C2415A';
-const SLATE = '#64748B';
+const BLUE = DL_PALETTE.primary;
+const ROSE = DL_PALETTE.rose;
+const SLATE = DL_PALETTE.slate;
 
 type ActivationKey = 'sigmoid' | 'tanh' | 'relu' | 'leaky_relu' | 'gelu';
 
@@ -12,7 +13,6 @@ interface ActivationMeta {
   label: string;
   formulaLatex: string;
   derivLatex: string;
-  rangeLatex: string;
   pytorchLine: string;
   whenToUse: string[];
   limitations: string[];
@@ -38,7 +38,6 @@ const ACTIVATIONS: ActivationMeta[] = [
     label: 'Sigmoid',
     formulaLatex: '\\sigma(z) = \\frac{1}{1 + e^{-z}}',
     derivLatex: "\\sigma'(z) = \\sigma(z)(1 - \\sigma(z))",
-    rangeLatex: '(0, 1)',
     pytorchLine: 'act = nn.Sigmoid()',
     whenToUse: [
       'Tầng Output của bài toán phân loại nhị phân (kết hợp BCELoss).',
@@ -59,7 +58,6 @@ const ACTIVATIONS: ActivationMeta[] = [
     label: 'Tanh',
     formulaLatex: '\\tanh(z) = \\frac{e^z - e^{-z}}{e^z + e^{-z}}',
     derivLatex: "\\tanh'(z) = 1 - \\tanh^2(z)",
-    rangeLatex: '(-1, 1)',
     pytorchLine: 'act = nn.Tanh()',
     whenToUse: [
       'Các khối mạng hồi quy RNN / LSTM cần đầu ra đối xứng quanh 0 trong (-1, 1).',
@@ -80,7 +78,6 @@ const ACTIVATIONS: ActivationMeta[] = [
     label: 'ReLU',
     formulaLatex: '\\text{ReLU}(z) = \\max(0, z)',
     derivLatex: "\\text{ReLU}'(z) = \\mathbb{I}(z > 0)",
-    rangeLatex: '[0, +\\infty)',
     pytorchLine: 'act = nn.ReLU()',
     whenToUse: [
       'Lựa chọn mặc định cho các tầng ẩn trong CNN và MLP truyền thống.',
@@ -98,7 +95,6 @@ const ACTIVATIONS: ActivationMeta[] = [
     label: 'Leaky ReLU',
     formulaLatex: '\\text{LeakyReLU}(z) = \\max(0.1z, z)',
     derivLatex: "\\phi'(z) = \\begin{cases}1 & z > 0 \\\\ 0.1 & z \\le 0\\end{cases}",
-    rangeLatex: '(-\\infty, +\\infty)',
     pytorchLine: 'act = nn.LeakyReLU(negative_slope=0.1)',
     whenToUse: [
       'Thay thế ReLU khi mạng gặp hiện tượng neuron chết (Dying ReLU).',
@@ -116,7 +112,6 @@ const ACTIVATIONS: ActivationMeta[] = [
     label: 'GELU',
     formulaLatex: '\\text{GELU}(z) = z \\cdot \\Phi(z)',
     derivLatex: "\\text{GELU}'(z) = \\Phi(z) + z\\phi(z)",
-    rangeLatex: '[-0.17, +\\infty)',
     pytorchLine: 'act = nn.GELU()',
     whenToUse: [
       'Tiêu chuẩn trong khối Feed-Forward Network (FFN) của Transformer (BERT, GPT).',
@@ -135,6 +130,8 @@ const ACTIVATIONS: ActivationMeta[] = [
   },
 ];
 
+const ACTIVATION_OPTIONS = ACTIVATIONS.map((a) => ({ value: a.key, label: a.label }));
+
 /**
  * Light-Mode visualizations for the Activation Functions lesson:
  * - panel="linear-collapse": Side-by-side comparison of Linear Collapse vs Non-linear Activation.
@@ -142,9 +139,9 @@ const ACTIVATIONS: ActivationMeta[] = [
  * - panel="vanishing-gradient": Illustrates gradient shrinkage across deep layers and 2 fixes (ReLU/GELU & Skip Connection).
  */
 export function ActivationFunctionDiagram({
-  panel = 'explorer',
+  panel,
 }: {
-  panel?: 'linear-collapse' | 'explorer' | 'vanishing-gradient';
+  panel: 'linear-collapse' | 'explorer' | 'vanishing-gradient';
 }) {
   if (panel === 'linear-collapse') {
     return <LinearCollapseComparison />;
@@ -257,20 +254,9 @@ function buildCurvePath(
 function ActivationExplorer() {
   const [selectedKey, setSelectedKey] = useState<ActivationKey>('relu');
   const [zVal, setZVal] = useState(1.0);
-  const [codeHighlighted, setCodeHighlighted] = useState(false);
-  const timerRef = useRef<number | null>(null);
+  const { highlighted: codeHighlighted, pulse: triggerHighlight } = useCodeHighlightPulse();
 
   const meta = ACTIVATIONS.find((a) => a.key === selectedKey) ?? ACTIVATIONS[2];
-
-  const triggerHighlight = () => {
-    setCodeHighlighted(true);
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-    }
-    timerRef.current = window.setTimeout(() => {
-      setCodeHighlighted(false);
-    }, 500);
-  };
 
   const handleSelect = (key: ActivationKey) => {
     setSelectedKey(key);
@@ -318,60 +304,24 @@ h = act(z)        # ${fz.toFixed(3)}
 h.backward()      # z.grad = ${dfz.toFixed(3)}`;
 
   return (
-    <div className="my-6 rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="my-6 rounded-2xl border border-[#B8C8DA] bg-white p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          {ACTIVATIONS.map((item) => {
-            const active = item.key === selectedKey;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => handleSelect(item.key)}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
-                  active
-                    ? 'bg-[#205089] text-white'
-                    : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-[#EFF3F8] hover:text-[#205089]'
-                }`}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
+        <DlTabPillGroup options={ACTIVATION_OPTIONS} value={selectedKey} onChange={handleSelect} />
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-[#172A43]">
-            <InlineMath formula="z =" />
-          </span>
-          <div className="inline-flex items-center rounded-lg border border-slate-200 bg-white">
-            <button
-              type="button"
-              onClick={() => stepZ(-0.5)}
-              disabled={zVal <= -4}
-              aria-label="Giảm giá trị z"
-              className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8] disabled:opacity-40"
-            >
-              −
-            </button>
-            <span className="w-12 border-x border-slate-200 py-1 text-center font-mono text-xs font-bold text-[#172A43]">
-              {zVal.toFixed(1)}
-            </span>
-            <button
-              type="button"
-              onClick={() => stepZ(0.5)}
-              disabled={zVal >= 4}
-              aria-label="Tăng giá trị z"
-              className="px-2.5 py-1 text-xs font-extrabold text-[#205089] hover:bg-[#EFF3F8] disabled:opacity-40"
-            >
-              +
-            </button>
-          </div>
-        </div>
+        <DlStepControl
+          label={<InlineMath formula="z =" />}
+          displayValue={zVal.toFixed(1)}
+          onDecrement={() => stepZ(-0.5)}
+          onIncrement={() => stepZ(0.5)}
+          disableDecrement={zVal <= -4}
+          disableIncrement={zVal >= 4}
+          decrementAriaLabel="Giảm giá trị z"
+          incrementAriaLabel="Tăng giá trị z"
+        />
       </div>
 
       {/* Formula & live values strip */}
-      <div className="mb-4 grid gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs md:grid-cols-3">
+      <div className="mb-4 grid gap-2 rounded-xl border border-[#B8C8DA] bg-[#EFF3F8] px-4 py-2.5 text-xs md:grid-cols-3">
         <div className="flex items-center gap-1.5 text-[#172A43]">
           <InlineMath formula={meta.formulaLatex} />
         </div>
@@ -380,14 +330,14 @@ h.backward()      # z.grad = ${dfz.toFixed(3)}`;
         </div>
         <div className="flex items-center gap-2 font-semibold text-[#205089]">
           <InlineMath formula={`\\phi(${zVal.toFixed(1)}) = ${fz.toFixed(3)}`} />
-          <span className="text-slate-300">|</span>
+          <span className="text-[#B8C8DA]">|</span>
           <InlineMath formula={`\\phi'(${zVal.toFixed(1)}) = ${dfz.toFixed(3)}`} />
         </div>
       </div>
 
       {/* Dual SVG Plots: Activation & Derivative */}
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-2">
+        <div className="rounded-xl border border-[#B8C8DA] bg-white p-2">
           <div className="mb-1 text-center text-[11px] font-extrabold uppercase tracking-wide text-[#205089]">
             Hàm kích hoạt <InlineMath formula="\phi(z)" />
           </div>
@@ -414,7 +364,7 @@ h.backward()      # z.grad = ${dfz.toFixed(3)}`;
           </svg>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-2">
+        <div className="rounded-xl border border-[#B8C8DA] bg-white p-2">
           <div className="mb-1 text-center text-[11px] font-extrabold uppercase tracking-wide text-[#C2415A]">
             Đạo hàm <InlineMath formula="\phi'(z)" />
           </div>
@@ -422,7 +372,7 @@ h.backward()      # z.grad = ${dfz.toFixed(3)}`;
             viewBox={`0 0 ${w} ${h}`}
             className="mx-auto w-full max-w-[280px]"
             role="img"
-            aria-label={`Đồ thị hàm kích hoạt ${meta.label}`}
+            aria-label={`Đồ thị đạo hàm hàm kích hoạt ${meta.label}`}
           >
             <line x1={pad} y1={mapYDeriv(0)} x2={w - pad} y2={mapYDeriv(0)} stroke="#CBD5E1" strokeWidth="1" />
             <line x1={mapX(0)} y1={pad} x2={mapX(0)} y2={h - pad} stroke="#CBD5E1" strokeWidth="1" />
@@ -453,7 +403,7 @@ h.backward()      # z.grad = ${dfz.toFixed(3)}`;
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-[#B8C8DA] bg-white p-4">
           <h4 className="mb-2 text-xs font-extrabold uppercase tracking-wider text-emerald-700">
             Khi nào dùng
           </h4>
@@ -463,7 +413,7 @@ h.backward()      # z.grad = ${dfz.toFixed(3)}`;
             ))}
           </ul>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-[#B8C8DA] bg-white p-4">
           <h4 className="mb-2 text-xs font-extrabold uppercase tracking-wider text-rose-700">
             Hạn chế
           </h4>

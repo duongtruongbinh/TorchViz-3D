@@ -1,8 +1,9 @@
-import { type ReactNode, useRef, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
+import { DL_PALETTE, useCodeHighlightPulse } from './primitives';
 
-const BLUE = '#205089';
-const SLATE = '#64748B';
+const BLUE = DL_PALETTE.primary;
+const SLATE = DL_PALETTE.slate;
 
 /**
  * Clean Light-Mode SVG visualizations for the Fully Connected Layers lesson:
@@ -14,9 +15,9 @@ const SLATE = '#64748B';
  * - panel="summary-*": Shared MLP diagram highlighting one concept while dimming the rest.
  */
 export function FullyConnectedDiagram({
-  panel = 'matrix',
+  panel,
 }: {
-  panel?:
+  panel:
     | 'intuition'
     | 'matrix'
     | 'params'
@@ -241,19 +242,7 @@ function FullyConnectedParamExplorer() {
   const [dIn, setDIn] = useState(4);
   const [dOut, setDOut] = useState(3);
   const [useBias, setUseBias] = useState(true);
-  const [isCodeHighlighted, setIsCodeHighlighted] = useState(false);
-  const highlightTimerRef = useRef<number | null>(null);
-
-  const triggerCodeHighlight = () => {
-    setIsCodeHighlighted(true);
-    if (highlightTimerRef.current !== null) {
-      window.clearTimeout(highlightTimerRef.current);
-    }
-    highlightTimerRef.current = window.setTimeout(() => {
-      setIsCodeHighlighted(false);
-      highlightTimerRef.current = null;
-    }, 500);
-  };
+  const { highlighted: isCodeHighlighted, pulse: triggerCodeHighlight } = useCodeHighlightPulse();
 
   const handleDInChange = (next: number) => {
     setDIn(next);

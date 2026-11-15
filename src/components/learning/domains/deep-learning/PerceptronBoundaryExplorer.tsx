@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE } from './primitives';
 
 interface DataPoint {
   x1: number;
@@ -30,9 +31,9 @@ const INITIAL_PARAMS = {
   xor: { w1: 1.0, w2: 1.0, bias: -0.5 },
 } as const;
 
-const BLUE = '#205089';
-const RED = '#C2415A';
-const INK = '#172A43';
+const BLUE = DL_PALETTE.primary;
+const RED = DL_PALETTE.rose;
+const INK = DL_PALETTE.ink;
 
 const DOMAIN_MIN = -0.2;
 const DOMAIN_MAX = 1.25;

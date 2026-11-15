@@ -2186,7 +2186,7 @@ function MdxCode({ children, className }: { children?: ReactNode; className?: st
   );
 }
 
-function MdxPre({ children }: { children?: ReactNode }) {
+export function MdxPre({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
 
   if (!isValidElement(children)) {

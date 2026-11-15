@@ -1,15 +1,11 @@
+import { DlCardShell } from './primitives';
+
 export function InceptionBottleneckDiagram() {
   return (
-    <div className="my-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-      <div className="mb-3">
-        <h4 className="text-sm font-bold text-[#172A43]">
-          Bài toán Nút cổ chai (1×1 Bottleneck) trong Inception & ResNet: Giảm ~10 lần Phép tính
-        </h4>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Đối chiếu số phép nhân khi áp dụng trực tiếp Conv 5×5 so với việc dùng Conv 1×1 nén số kênh trước.
-        </p>
-      </div>
-
+    <DlCardShell
+      title="Bài toán Nút cổ chai (1×1 Bottleneck) trong Inception & ResNet: Giảm ~10 lần Phép tính"
+      subtitle="Đối chiếu số phép nhân khi áp dụng trực tiếp Conv 5×5 so với việc dùng Conv 1×1 nén số kênh trước."
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Naive 5x5 Conv */}
         <div className="rounded-xl border border-rose-200 bg-rose-50/40 p-3.5 space-y-2">
@@ -22,7 +18,7 @@ export function InceptionBottleneckDiagram() {
             </span>
           </div>
           <svg viewBox="0 0 360 95" className="w-full h-auto" role="img" aria-label="Tích chập 5x5 trực tiếp tốn 120.4M phép tính">
-            <rect x="8" y="18" width="94" height="54" rx="6" fill="#EEF5FC" stroke="#205089" strokeWidth="1.5" />
+            <rect x="8" y="18" width="94" height="54" rx="6" fill="#EFF3F8" stroke="#205089" strokeWidth="1.5" />
             <text x="55" y="42" textAnchor="middle" fill="#172A43" fontSize="10.5" fontWeight="bold">
               Input Tensor
             </text>
@@ -39,7 +35,7 @@ export function InceptionBottleneckDiagram() {
               (5×5×192) × 32
             </text>
 
-            <rect x="236" y="18" width="114" height="54" rx="6" fill="#EEF5FC" stroke="#205089" strokeWidth="1.5" />
+            <rect x="236" y="18" width="114" height="54" rx="6" fill="#EFF3F8" stroke="#205089" strokeWidth="1.5" />
             <text x="293" y="42" textAnchor="middle" fill="#172A43" fontSize="10.5" fontWeight="bold">
               Output Feature Map
             </text>
@@ -63,7 +59,7 @@ export function InceptionBottleneckDiagram() {
             </span>
           </div>
           <svg viewBox="0 0 360 95" className="w-full h-auto" role="img" aria-label="Nén bằng Conv 1x1 trước Conv 5x5 chỉ tốn 12.4M phép tính">
-            <rect x="4" y="18" width="76" height="54" rx="6" fill="#EEF5FC" stroke="#205089" strokeWidth="1.5" />
+            <rect x="4" y="18" width="76" height="54" rx="6" fill="#EFF3F8" stroke="#205089" strokeWidth="1.5" />
             <text x="42" y="42" textAnchor="middle" fill="#172A43" fontSize="9.5" fontWeight="bold">
               Input
             </text>
@@ -95,7 +91,7 @@ export function InceptionBottleneckDiagram() {
               (10.0M)
             </text>
 
-            <rect x="304" y="18" width="52" height="54" rx="6" fill="#EEF5FC" stroke="#205089" strokeWidth="1.5" />
+            <rect x="304" y="18" width="52" height="54" rx="6" fill="#EFF3F8" stroke="#205089" strokeWidth="1.5" />
             <text x="330" y="42" textAnchor="middle" fill="#172A43" fontSize="9.5" fontWeight="bold">
               Output
             </text>
@@ -108,31 +104,25 @@ export function InceptionBottleneckDiagram() {
           </div>
         </div>
       </div>
-    </div>
+    </DlCardShell>
   );
 }
 
 export function UnetSkipConnectionDiagram() {
   return (
-    <div className="my-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-      <div className="mb-3">
-        <h4 className="text-sm font-bold text-[#172A43]">
-          Cơ chế Kết hợp Đặc trưng qua Skip Connection trong U-Net (Where + What)
-        </h4>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Mỗi khối Encoder gửi bản sao độ phân giải cao sang khối Decoder đối xứng để khôi phục ranh giới từng pixel.
-        </p>
-      </div>
-
+    <DlCardShell
+      title="Cơ chế Kết hợp Đặc trưng qua Skip Connection trong U-Net (Where + What)"
+      subtitle="Mỗi khối Encoder gửi bản sao độ phân giải cao sang khối Decoder đối xứng để khôi phục ranh giới từng pixel."
+    >
       <svg
         viewBox="0 0 760 225"
-        className="w-full h-auto rounded-xl border border-slate-200 bg-[#FAFBFD]"
+        className="w-full h-auto rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40"
         role="img"
         aria-label="Sơ đồ kết hợp đặc trưng biên sắc nét từ Encoder và đặc trưng ngữ nghĩa từ Decoder qua Skip Connection của U-Net"
       >
         {/* Panel 1: Encoder Features */}
         <rect x="18" y="18" width="215" height="188" rx="10" fill="#FFFFFF" stroke="#B8C8DA" strokeWidth="1.5" />
-        <rect x="18" y="18" width="215" height="32" rx="10" fill="#EEF5FC" />
+        <rect x="18" y="18" width="215" height="32" rx="10" fill="#EFF3F8" />
         <text x="125" y="39" textAnchor="middle" fill="#172A43" fontSize="12" fontWeight="bold">
           1. Đặc trưng Encoder (Tầng nông)
         </text>
@@ -158,7 +148,7 @@ export function UnetSkipConnectionDiagram() {
         </text>
 
         {/* Plus sign */}
-        <circle cx="256" cy="112" r="14" fill="#EEF5FC" stroke="#205089" strokeWidth="1.5" />
+        <circle cx="256" cy="112" r="14" fill="#EFF3F8" stroke="#205089" strokeWidth="1.5" />
         <text x="256" y="117" textAnchor="middle" fill="#205089" fontSize="16" fontWeight="bold">
           +
         </text>
@@ -216,6 +206,6 @@ export function UnetSkipConnectionDiagram() {
           Đúng nhãn ngữ nghĩa + sắc nét đường biên
         </text>
       </svg>
-    </div>
+    </DlCardShell>
   );
 }

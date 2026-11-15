@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DlCardShell, DlTabPillGroup } from './primitives';
 
 const POOL_INPUT = [
   [1, 1, 2, 4],
@@ -161,46 +162,24 @@ export function PoolingAndParamsExplorer() {
   const totalParams = rows.reduce((acc, r) => acc + r.params, 0);
 
   return (
-    <div className="my-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
-        <div>
-          <h4 className="text-sm font-bold text-[#172A43]">
-            So sánh Max / Average / Global Pooling & Bảng Giải phẫu Tham số CNN
-          </h4>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Kiểm chứng vì sao Pooling tốn 0 tham số và cách tính tay chính xác từng tầng mạng.
-          </p>
-        </div>
-        <div className="flex gap-1.5">
-          <button
-            type="button"
-            onClick={() => setTab('pooling')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tab === 'pooling'
-                ? 'bg-[#EEF5FC] text-[#205089] border border-[#B8C8DA]'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            1. Max vs Avg vs Global Pooling
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('params')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tab === 'params'
-                ? 'bg-[#EEF5FC] text-[#205089] border border-[#B8C8DA]'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            2. Giải phẫu & Đếm Tham số (2 Models)
-          </button>
-        </div>
-      </div>
-
+    <DlCardShell
+      title="So sánh Max / Average / Global Pooling & Bảng Giải phẫu Tham số CNN"
+      subtitle="Kiểm chứng vì sao Pooling tốn 0 tham số và cách tính tay chính xác từng tầng mạng."
+      rightSlot={
+        <DlTabPillGroup
+          options={[
+            { value: 'pooling', label: '1. Max vs Avg vs Global Pooling' },
+            { value: 'params', label: '2. Giải phẫu & Đếm Tham số (2 Models)' },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+      }
+    >
       {tab === 'pooling' ? (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-center">
           {/* Input 4x4 */}
-          <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+          <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
             <div className="text-xs font-bold text-[#172A43] mb-1">
               Feature Map Đầu vào (4×4)
             </div>
@@ -232,7 +211,7 @@ export function PoolingAndParamsExplorer() {
           </div>
 
           {/* Max Pooling 2x2 */}
-          <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+          <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
             <div className="text-xs font-bold text-[#172A43] mb-1">
               Max Pooling (2×2, s=2)
             </div>
@@ -260,7 +239,7 @@ export function PoolingAndParamsExplorer() {
           </div>
 
           {/* Average Pooling 2x2 */}
-          <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+          <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
             <div className="text-xs font-bold text-[#172A43] mb-1">
               Average Pooling (2×2, s=2)
             </div>
@@ -288,14 +267,14 @@ export function PoolingAndParamsExplorer() {
           </div>
 
           {/* Global Average Pooling */}
-          <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+          <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
             <div className="text-xs font-bold text-[#172A43] mb-1">
               Global Avg Pool (GAP)
             </div>
             <div className="text-[11px] text-slate-500 mb-2">
               Gom cả kênh 4×4 → 1 con số
             </div>
-            <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-[#EEF5FC] border-2 border-[#205089] text-sm font-mono font-extrabold text-[#205089]">
+            <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-[#EFF3F8] border-2 border-[#205089] text-sm font-mono font-extrabold text-[#205089]">
               3.125
             </div>
             <span className="mt-2 text-[11px] text-center text-slate-600">
@@ -313,7 +292,7 @@ export function PoolingAndParamsExplorer() {
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold border transition ${
                   modelIdx === 1
                     ? 'bg-[#205089] text-white border-[#172A43]'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    : 'bg-white text-slate-700 border-[#B8C8DA] hover:bg-[#EFF3F8]/60'
                 }`}
               >
                 Bài tập 1: CNN 3 tầng + Same Padding (225,034 params)
@@ -324,21 +303,21 @@ export function PoolingAndParamsExplorer() {
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold border transition ${
                   modelIdx === 2
                     ? 'bg-[#205089] text-white border-[#172A43]'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    : 'bg-white text-slate-700 border-[#B8C8DA] hover:bg-[#EFF3F8]/60'
                 }`}
               >
                 Bài tập 2: Dilation=2 + BatchNorm + Conv 1×1 (22,323 params)
               </button>
             </div>
-            <div className="text-xs font-mono font-bold text-[#205089] bg-[#EEF5FC] border border-[#B8C8DA] px-3 py-1 rounded-lg">
+            <div className="text-xs font-mono font-bold text-[#205089] bg-[#EFF3F8] border border-[#B8C8DA] px-3 py-1 rounded-lg">
               Tổng Params: {totalParams.toLocaleString()}
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <div className="overflow-x-auto rounded-xl border border-[#B8C8DA]">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-100 text-[#172A43] border-b border-slate-200">
+                <tr className="bg-[#EFF3F8] text-[#172A43] border-b border-[#B8C8DA]">
                   <th className="py-2 px-3 font-bold">Tầng (Layer)</th>
                   <th className="py-2 px-3 font-bold">Cấu hình</th>
                   <th className="py-2 px-3 font-bold">Output Shape</th>
@@ -348,7 +327,7 @@ export function PoolingAndParamsExplorer() {
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
                 {rows.map((r) => (
-                  <tr key={r.layer} className="hover:bg-slate-50">
+                  <tr key={r.layer} className="hover:bg-[#EFF3F8]/40">
                     <td className="py-2 px-3 font-semibold text-[#172A43]">{r.layer}</td>
                     <td className="py-2 px-3 text-slate-600">{r.config}</td>
                     <td className="py-2 px-3 font-mono text-[#205089] font-semibold">{r.shape}</td>
@@ -363,6 +342,6 @@ export function PoolingAndParamsExplorer() {
           </div>
         </div>
       )}
-    </div>
+    </DlCardShell>
   );
 }

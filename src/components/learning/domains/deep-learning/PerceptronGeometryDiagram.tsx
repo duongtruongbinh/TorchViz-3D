@@ -1,9 +1,10 @@
 import { useId } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE } from './primitives';
 
-const BLUE = '#205089';
-const RED = '#C2415A';
-const INK = '#172A43';
+const BLUE = DL_PALETTE.primary;
+const RED = DL_PALETTE.rose;
+const INK = DL_PALETTE.ink;
 
 /**
  * Static SVM-style SVG diagrams for Perceptron:
@@ -16,9 +17,9 @@ const INK = '#172A43';
  * - panel="backprop": Right-to-left MLP Backpropagation diagram propagating error from Output back through hidden layers.
  */
 export function PerceptronGeometryDiagram({
-  panel = 'both',
+  panel,
 }: {
-  panel?: 'line' | 'step' | 'scatter' | 'neuron' | 'width-depth' | 'forward' | 'backprop' | 'both';
+  panel: 'line' | 'step' | 'scatter' | 'neuron' | 'width-depth' | 'forward' | 'backprop';
 }) {
   if (panel === 'scatter') {
     return <PerceptronScatterDiagram />;
@@ -35,16 +36,10 @@ export function PerceptronGeometryDiagram({
   if (panel === 'backprop') {
     return <MlpPassDiagram direction="backprop" />;
   }
-
-  const showLine = panel === 'both' || panel === 'line';
-  const showStep = panel === 'both' || panel === 'step';
-
-  return (
-    <div className={panel === 'both' ? 'grid gap-4 md:grid-cols-2' : undefined}>
-      {showLine && <PerceptronLineDiagram />}
-      {showStep && <PerceptronStepDiagram />}
-    </div>
-  );
+  if (panel === 'step') {
+    return <PerceptronStepDiagram />;
+  }
+  return <PerceptronLineDiagram />;
 }
 
 // Data domain x1 in [-0.2, 1.5], x2 in [-0.2, 1.5] mapped to plot box [72..430] x [30..255]

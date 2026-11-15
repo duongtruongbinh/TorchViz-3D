@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE, DlCardShell } from './primitives';
 
 type BatchCard = {
   id: 'batch' | 'minibatch' | 'sgd';
@@ -17,7 +18,7 @@ const BATCH_CARDS: BatchCard[] = [
     title: 'Batch GD',
     badge: 'Toàn bộ dữ liệu',
     badgeClass: 'bg-[#EFF3F8] text-[#205089] border-[#B8C8DA]',
-    accent: '#205089',
+    accent: DL_PALETTE.primary,
     pathD: 'M 32 24 L 60 44 L 84 62 L 106 76 L 122 86',
     summary: 'Đường đi mượt, ổn định nhất nhưng mỗi bước rất chậm và tốn RAM.',
   },
@@ -26,7 +27,7 @@ const BATCH_CARDS: BatchCard[] = [
     title: 'Mini-batch GD',
     badge: '32 – 256 mẫu / bước',
     badgeClass: 'bg-teal-50 text-[#0F766E] border-teal-200',
-    accent: '#0F766E',
+    accent: DL_PALETTE.teal,
     pathD: 'M 32 24 L 58 50 L 76 54 L 98 76 L 114 80 L 124 88',
     summary: 'Tận dụng song song GPU, hơi lắc nhẹ nhưng hội tụ nhanh — chuẩn thực tế.',
   },
@@ -35,7 +36,7 @@ const BATCH_CARDS: BatchCard[] = [
     title: 'Stochastic GD (SGD)',
     badge: '1 mẫu / bước',
     badgeClass: 'bg-rose-50 text-[#C2415A] border-rose-200',
-    accent: '#C2415A',
+    accent: DL_PALETTE.rose,
     pathD: 'M 32 24 L 68 34 L 46 66 L 94 56 L 82 94 L 118 74 L 122 92',
     summary: 'Cập nhật cực nhanh nhưng nhiễu mạnh, dao động zíc-zắc quanh đáy.',
   },
@@ -55,7 +56,7 @@ const LR_PRESETS: LrPreset[] = [
     id: 'small',
     label: 'Quá nhỏ',
     eta: 0.08,
-    accent: '#205089',
+    accent: DL_PALETTE.primary,
     pillClass: 'border-[#B8C8DA] bg-[#EFF3F8] text-[#205089]',
     description: 'Bước nhảy quá ngắn, mất nhiều vòng lặp mà vẫn còn cách xa đáy tối ưu.',
   },
@@ -63,7 +64,7 @@ const LR_PRESETS: LrPreset[] = [
     id: 'good',
     label: 'Vừa phải',
     eta: 0.35,
-    accent: '#0F766E',
+    accent: DL_PALETTE.teal,
     pillClass: 'border-teal-200 bg-teal-50 text-[#0F766E]',
     description: 'Tiến thẳng về đáy chỉ sau vài bước cập nhật, hội tụ ổn định và nhanh chóng.',
   },
@@ -71,7 +72,7 @@ const LR_PRESETS: LrPreset[] = [
     id: 'large',
     label: 'Quá lớn',
     eta: 1.08,
-    accent: '#C2415A',
+    accent: DL_PALETTE.rose,
     pillClass: 'border-rose-200 bg-rose-50 text-[#C2415A]',
     description: 'Nhảy vọt qua bờ bên kia và ngày càng văng ra xa khỏi đáy (phân kỳ).',
   },
@@ -86,7 +87,7 @@ function BatchVariantsView() {
       {BATCH_CARDS.map((card) => (
         <div
           key={card.id}
-          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+          className="rounded-xl border border-[#B8C8DA] bg-white p-4 shadow-sm"
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <h4 className="text-sm font-bold text-[#172A43]">{card.title}</h4>
@@ -191,15 +192,15 @@ function LearningRateView() {
   }
 
   return (
-    <section
-      className="my-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-      aria-label="Minh họa ảnh hưởng của Learning Rate đến quỹ đạo hội tụ"
-    >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="text-sm font-bold text-[#172A43]">
+    <DlCardShell
+      ariaLabel="Minh họa ảnh hưởng của Learning Rate đến quỹ đạo hội tụ"
+      title={
+        <>
           Thử chọn Learning Rate (<InlineMath formula="\eta" />) trên hàm{' '}
           <InlineMath formula="\mathcal{L}(w) = w^2" />
-        </div>
+        </>
+      }
+      rightSlot={
         <div className="flex flex-wrap gap-1.5">
           {LR_PRESETS.map((item) => {
             const active = item.id === preset.id;
@@ -211,7 +212,7 @@ function LearningRateView() {
                 className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${
                   active
                     ? item.pillClass
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-[#EFF3F8]/60 hover:text-[#205089]'
                 }`}
               >
                 {item.label} (<InlineMath formula={`\\eta = ${item.eta}`} />)
@@ -219,7 +220,8 @@ function LearningRateView() {
             );
           })}
         </div>
-      </div>
+      }
+    >
 
       <div className="relative w-full" style={{ aspectRatio: `${LR_VIEW_W} / ${LR_VIEW_H}` }}>
         <svg
@@ -313,7 +315,7 @@ function LearningRateView() {
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-xs text-slate-700">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#EFF3F8] pt-2.5 text-xs text-slate-700">
         <span>{preset.description}</span>
         <span className="font-semibold text-[#172A43]">
           <InlineMath
@@ -324,11 +326,11 @@ function LearningRateView() {
           />
         </span>
       </div>
-    </section>
+    </DlCardShell>
   );
 }
 
-export function OptimizationDiagram({ variant = 'batch' }: { variant?: 'batch' | 'lr' }) {
+export function OptimizationDiagram({ variant }: { variant: 'batch' | 'lr' }) {
   if (variant === 'lr') {
     return <LearningRateView />;
   }

@@ -1,7 +1,8 @@
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE } from './primitives';
 
-const BLUE = '#205089';
-const SLATE = '#64748B';
+const BLUE = DL_PALETTE.primary;
+const SLATE = DL_PALETTE.slate;
 
 // 8x8 pixel grid representing a handwritten digit "3" (0 = white, 1 = light, 2 = mid, 3 = dark)
 const DIGIT_3_GRID: number[][] = [

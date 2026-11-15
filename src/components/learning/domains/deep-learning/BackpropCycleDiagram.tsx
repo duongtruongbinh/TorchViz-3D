@@ -1,8 +1,9 @@
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE } from './primitives';
 
-const BLUE = '#205089';
-const ROSE = '#C2415A';
-const EMERALD = '#047857';
+const BLUE = DL_PALETTE.primary;
+const ROSE = DL_PALETTE.rose;
+const EMERALD = DL_PALETTE.emerald;
 
 /**
  * Clean Light-Mode SVG diagram illustrating the 3-step Backpropagation cycle:

@@ -128,7 +128,7 @@ export function GradientDescentDirectionDiagram() {
         return (
           <div
             key={item.key}
-            className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            className="rounded-xl border border-[#B8C8DA] bg-white p-4 shadow-sm"
           >
             <div className="mb-2 flex items-center justify-between gap-2">
               <span

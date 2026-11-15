@@ -1,3 +1,4 @@
+import type { DEEP_LEARNING_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import type { LearningMdxComponent } from '../../learningMdxComponents';
 import { ActivationFunctionDiagram } from './ActivationFunctionDiagram';
 import { BackpropCycleDiagram } from './BackpropCycleDiagram';
@@ -20,23 +21,25 @@ import { PerceptronGeometryDiagram } from './PerceptronGeometryDiagram';
 import { PoolingAndParamsExplorer } from './PoolingAndParamsExplorer';
 import { PyTorchComputationGraphDiagram } from './PyTorchComputationGraphDiagram';
 
-export const deepLearningMdxComponents: Record<string, LearningMdxComponent> = {
-  ActivationFunctionDiagram,
+type DeepLearningComponentName = (typeof DEEP_LEARNING_MDX_COMPONENT_NAMES)[number];
+
+export const deepLearningMdxComponents = {
+  ActivationFunctionDiagram: ActivationFunctionDiagram as LearningMdxComponent,
   BackpropCycleDiagram,
   ChainRuleLinksDiagram,
   ConvolutionOperationExplorer,
-  FullyConnectedDiagram,
+  FullyConnectedDiagram: FullyConnectedDiagram as LearningMdxComponent,
   GradientDescentDirectionDiagram,
   HandwrittenDigitBlackboxDiagram,
   InceptionBottleneckDiagram,
   IrisExperimentsDiagram,
   IrisScatterPlot,
-  LossFunctionDiagram,
-  OptimizationDiagram,
+  LossFunctionDiagram: LossFunctionDiagram as LearningMdxComponent,
+  OptimizationDiagram: OptimizationDiagram as LearningMdxComponent,
   PaddingStrideExplorer,
   PerceptronBoundaryExplorer,
-  PerceptronGeometryDiagram,
+  PerceptronGeometryDiagram: PerceptronGeometryDiagram as LearningMdxComponent,
   PoolingAndParamsExplorer,
   PyTorchComputationGraphDiagram,
   UnetSkipConnectionDiagram,
-};
+} satisfies Record<DeepLearningComponentName, LearningMdxComponent>;

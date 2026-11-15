@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
+import { DL_PALETTE, DlCardShell, DlTabPillGroup } from './primitives';
 
 type TabKey = 'activation' | 'boundary' | 'overfit' | 'batch';
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'activation', label: '1. Activation' },
-  { key: 'boundary', label: '2. Decision Boundary' },
-  { key: 'overfit', label: '3. Width/Depth (Overfit)' },
-  { key: 'batch', label: '4. Batch vs SGD' },
+const TABS: { value: TabKey; label: string }[] = [
+  { value: 'activation', label: '1. Activation' },
+  { value: 'boundary', label: '2. Decision Boundary' },
+  { value: 'overfit', label: '3. Width/Depth (Overfit)' },
+  { value: 'batch', label: '4. Batch vs SGD' },
 ];
 
 const VIEW_W = 480;
@@ -299,41 +300,22 @@ export function IrisExperimentsDiagram() {
   const [tab, setTab] = useState<TabKey>('activation');
 
   return (
-    <section
-      className="my-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-      aria-label="Kết quả 4 thí nghiệm đối chứng trên dữ liệu Iris"
-    >
-      <div className="mb-3 flex flex-wrap gap-1.5 border-b border-slate-100 pb-3">
-        {TABS.map((item) => {
-          const active = item.key === tab;
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => setTab(item.key)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${
-                active
-                  ? 'border-[#B8C8DA] bg-[#EFF3F8] text-[#205089]'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {item.label}
-            </button>
-          );
-        })}
+    <DlCardShell ariaLabel="Kết quả 4 thí nghiệm đối chứng trên dữ liệu Iris">
+      <div className="mb-3 border-b border-[#EFF3F8] pb-3">
+        <DlTabPillGroup options={TABS} value={tab} onChange={setTab} />
       </div>
 
       {tab === 'activation' && (
         <LossChartFrame
           legend={[
-            { label: 'Identity (No Act)', color: '#205089' },
-            { label: 'Sigmoid', color: '#0F766E' },
-            { label: 'ReLU', color: '#C2415A' },
+            { label: 'Identity (No Act)', color: DL_PALETTE.primary },
+            { label: 'Sigmoid', color: DL_PALETTE.teal },
+            { label: 'ReLU', color: DL_PALETTE.rose },
           ]}
           paths={[
-            { d: toPolyline(ACT_IDENTITY), color: '#205089' },
-            { d: toPolyline(ACT_SIGMOID), color: '#0F766E' },
-            { d: toPolyline(ACT_RELU), color: '#C2415A' },
+            { d: toPolyline(ACT_IDENTITY), color: DL_PALETTE.primary },
+            { d: toPolyline(ACT_SIGMOID), color: DL_PALETTE.teal },
+            { d: toPolyline(ACT_RELU), color: DL_PALETTE.rose },
           ]}
           caption="Trên Iris (vốn gần như tách tuyến tính được), Identity vẫn giảm Loss xuống ~0.04 ngang ReLU, còn Sigmoid chậm hơn ở 40 epoch đầu. Để thấy rõ Linear Collapse của Identity, cần thử trên dữ liệu phi tuyến như make_moons."
         />
@@ -344,12 +326,12 @@ export function IrisExperimentsDiagram() {
       {tab === 'overfit' && (
         <LossChartFrame
           legend={[
-            { label: 'Mạng 3×128 (Train Loss)', color: '#205089' },
-            { label: 'Mạng 3×128 (Test Loss)', color: '#C2415A' },
+            { label: 'Mạng 3×128 (Train Loss)', color: DL_PALETTE.primary },
+            { label: 'Mạng 3×128 (Test Loss)', color: DL_PALETTE.rose },
           ]}
           paths={[
-            { d: toPolyline(OVERFIT_BIG_TRAIN), color: '#205089' },
-            { d: toPolyline(OVERFIT_BIG_TEST), color: '#C2415A' },
+            { d: toPolyline(OVERFIT_BIG_TRAIN), color: DL_PALETTE.primary },
+            { d: toPolyline(OVERFIT_BIG_TEST), color: DL_PALETTE.rose },
           ]}
           caption="Mạng quá lớn (3×128) kéo Train Loss xuống sát 0.00 nhưng Test Loss giữ ở mức ~0.40 và tách dần khỏi Train Loss — dấu hiệu rõ của Overfitting trên tập dữ liệu nhỏ."
         />
@@ -358,18 +340,18 @@ export function IrisExperimentsDiagram() {
       {tab === 'batch' && (
         <LossChartFrame
           legend={[
-            { label: 'batch=120 (Full-batch)', color: '#205089' },
-            { label: 'batch=16 (Mini-batch)', color: '#0F766E' },
-            { label: 'batch=1 (SGD)', color: '#C2415A' },
+            { label: 'batch=120 (Full-batch)', color: DL_PALETTE.primary },
+            { label: 'batch=16 (Mini-batch)', color: DL_PALETTE.teal },
+            { label: 'batch=1 (SGD)', color: DL_PALETTE.rose },
           ]}
           paths={[
-            { d: toPolyline(BATCH_FULL), color: '#205089' },
-            { d: toPolyline(BATCH_MINI), color: '#0F766E' },
-            { d: toPolyline(BATCH_SGD), color: '#C2415A' },
+            { d: toPolyline(BATCH_FULL), color: DL_PALETTE.primary },
+            { d: toPolyline(BATCH_MINI), color: DL_PALETTE.teal },
+            { d: toPolyline(BATCH_SGD), color: DL_PALETTE.rose },
           ]}
           caption="batch=120 (Full-batch) mượt nhất; batch=16 giảm nhanh và hơi gợn nhẹ; batch=1 (SGD) cập nhật 120 lần/epoch nên xuống nhanh từ epoch 0 nhưng dao động răng cưa mạnh."
         />
       )}
-    </section>
+    </DlCardShell>
   );
 }

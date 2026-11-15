@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DlCardShell, DlTabPillGroup } from './primitives';
 
 const INPUT_MATRIX = [
   [1, 1, 1, 0, 0],
@@ -101,47 +102,25 @@ export function ConvolutionOperationExplorer() {
   }
 
   return (
-    <div className="my-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
-        <div>
-          <h4 className="text-sm font-bold text-[#172A43]">
-            Trực quan hóa Phép Tích chập 2D & Bộ lọc Đặc trưng (Kernel / Filter)
-          </h4>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Bấm chọn từng ô kết quả để xem cách chiếc kính lúp 3×3 nhân từng phần tử rồi cộng tổng.
-          </p>
-        </div>
-        <div className="flex gap-1.5">
-          <button
-            type="button"
-            onClick={() => setTab('math')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tab === 'math'
-                ? 'bg-[#EEF5FC] text-[#205089] border border-[#B8C8DA]'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            1. Phép tính X ⊗ W (5×5 → 3×3)
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('filters')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tab === 'filters'
-                ? 'bg-[#EEF5FC] text-[#205089] border border-[#B8C8DA]'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            2. 4 Bộ lọc trên Chữ số 7
-          </button>
-        </div>
-      </div>
-
+    <DlCardShell
+      title="Trực quan hóa Phép Tích chập 2D & Bộ lọc Đặc trưng (Kernel / Filter)"
+      subtitle="Bấm chọn từng ô kết quả để xem cách chiếc kính lúp 3×3 nhân từng phần tử rồi cộng tổng."
+      rightSlot={
+        <DlTabPillGroup
+          options={[
+            { value: 'math', label: '1. Phép tính X ⊗ W (5×5 → 3×3)' },
+            { value: 'filters', label: '2. 4 Bộ lọc trên Chữ số 7' },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+      }
+    >
       {tab === 'math' ? (
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-center">
             {/* Input Matrix X (5x5) */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-1">
                 Ảnh đầu vào X (5×5)
               </div>
@@ -177,7 +156,7 @@ export function ConvolutionOperationExplorer() {
             </div>
 
             {/* Kernel W (3x3) */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-1">
                 Kernel W (3×3)
               </div>
@@ -191,7 +170,7 @@ export function ConvolutionOperationExplorer() {
                       key={`w-${rIdx}-${cIdx}`}
                       className={`w-10 h-10 flex items-center justify-center rounded-md text-xs font-mono font-bold border ${
                         val === 1
-                          ? 'bg-[#EEF5FC] border-[#205089] text-[#205089]'
+                          ? 'bg-[#EFF3F8] border-[#205089] text-[#205089]'
                           : 'bg-white border-slate-200 text-slate-400'
                       }`}
                     >
@@ -203,7 +182,7 @@ export function ConvolutionOperationExplorer() {
             </div>
 
             {/* Element-wise A * W */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-1">
                 Nhân từng vị trí (A ⊙ W)
               </div>
@@ -237,7 +216,7 @@ export function ConvolutionOperationExplorer() {
             </div>
 
             {/* Output Y (3x3) */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-1">
                 Feature Map Y (3×3)
               </div>
@@ -256,7 +235,7 @@ export function ConvolutionOperationExplorer() {
                         className={`w-11 h-11 flex items-center justify-center rounded-lg text-sm font-mono font-bold border transition cursor-pointer ${
                           isSelected
                             ? 'bg-[#205089] border-[#172A43] text-white shadow-sm ring-2 ring-[#B8C8DA]'
-                            : 'bg-white border-slate-300 text-[#172A43] hover:bg-[#EEF5FC]'
+                            : 'bg-white border-[#B8C8DA] text-[#172A43] hover:bg-[#EFF3F8]'
                         }`}
                       >
                         {val}
@@ -268,7 +247,7 @@ export function ConvolutionOperationExplorer() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-[#F4F8FC] border border-[#D5E2F0] px-4 py-2.5 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
+          <div className="rounded-xl bg-[#EFF3F8] border border-[#B8C8DA] px-4 py-2.5 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
             <span>
               Đang tính tại vị trí{' '}
               <strong className="text-[#172A43]">
@@ -291,8 +270,8 @@ export function ConvolutionOperationExplorer() {
                 onClick={() => setSelectedFilterIdx(idx)}
                 className={`rounded-xl p-2.5 text-left border transition ${
                   selectedFilterIdx === idx
-                    ? 'bg-[#EEF5FC] border-[#205089] text-[#172A43] shadow-xs'
-                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[#EFF3F8] border-[#205089] text-[#172A43] shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-[#EFF3F8]/60'
                 }`}
               >
                 <div className="text-xs font-bold">{f.name}</div>
@@ -302,7 +281,7 @@ export function ConvolutionOperationExplorer() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
             {/* Input Digit 7 */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-2">
                 Ảnh gốc Chữ số 7 (7×7)
               </div>
@@ -325,7 +304,7 @@ export function ConvolutionOperationExplorer() {
             </div>
 
             {/* Selected 3x3 Filter */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-2">
                 {activeFilter.name} (3×3)
               </div>
@@ -350,7 +329,7 @@ export function ConvolutionOperationExplorer() {
             </div>
 
             {/* Output Feature Map (5x5) */}
-            <div className="rounded-xl border border-slate-200 bg-[#FAFBFD] p-3 flex flex-col items-center">
+            <div className="rounded-xl border border-[#B8C8DA] bg-[#EFF3F8]/40 p-3 flex flex-col items-center">
               <div className="text-xs font-bold text-[#172A43] mb-2">
                 Feature Map Đầu ra (5×5)
               </div>
@@ -363,7 +342,7 @@ export function ConvolutionOperationExplorer() {
                         v >= 2
                           ? 'bg-[#205089] text-white border-[#172A43]'
                           : v === 1
-                            ? 'bg-[#DCEBFA] text-[#205089] border-[#99B9DC]'
+                            ? 'bg-[#EFF3F8] text-[#205089] border-[#B8C8DA]'
                             : v < 0
                               ? 'bg-rose-50 text-rose-600 border-rose-200'
                               : 'bg-white text-slate-300 border-slate-200'
@@ -377,12 +356,12 @@ export function ConvolutionOperationExplorer() {
             </div>
           </div>
 
-          <div className="rounded-xl bg-[#F4F8FC] border border-[#D5E2F0] px-4 py-2.5 text-xs text-slate-700">
+          <div className="rounded-xl bg-[#EFF3F8] border border-[#B8C8DA] px-4 py-2.5 text-xs text-slate-700">
             <strong className="text-[#172A43]">{activeFilter.name}:</strong>{' '}
             {activeFilter.desc} Các ô màu xanh đậm (giá trị ≥ 2) chính là vị trí khớp mạnh nhất với bộ lọc.
           </div>
         </div>
       )}
-    </div>
+    </DlCardShell>
   );
 }
