@@ -42,7 +42,7 @@ Tổng quát hóa cho một batch gồm <InlineMath formula="n" /> mẫu dữ li
   title="Phép biến đổi Tổng quát của Tầng Fully Connected"
   badge="Batch Forward"
   formula="\mathbf{Z} = \underbrace{\mathbf{X}}_{\mathbb{R}^{n \times d}} \underbrace{\mathbf{W}}_{\mathbb{R}^{d \times m}} + \underbrace{\mathbf{b}^\top}_{\mathbb{R}^{1 \times m}}, \qquad \mathbf{A} = \phi(\mathbf{Z}) \in \mathbb{R}^{n \times m}"
-  explanation="b được broadcast cộng vào từng hàng; A là ma trận đầu ra sau hàm kích hoạt φ."
+  explanation="b được broadcast cộng vào từng hàng; A là ma trận đầu ra sau hàm kích hoạt."
 />
 
 Trong **PyTorch**, tầng biến đổi tuyến tính này chính là `nn.Linear(in_features=d, out_features=m)`:

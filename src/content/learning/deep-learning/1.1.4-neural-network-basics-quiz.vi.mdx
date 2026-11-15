@@ -84,29 +84,29 @@ export const lessonMetadata = {
     {
       id: 'nn-basics-q3',
       title: 'Biểu diễn Ma trận Tầng Fully Connected',
-      prompt: 'Với ma trận đầu vào X ∈ ℝ^(n×d), ma trận trọng số W ∈ ℝ^(d×m) và vector độ lệch b ∈ ℝ^m, công thức nào mô tả đúng phép tính của một tầng Fully Connected?',
+      prompt: 'Với ma trận đầu vào $\\mathbf{X} \\in \\mathbb{R}^{n \\times d}$, ma trận trọng số $\\mathbf{W} \\in \\mathbb{R}^{d \\times m}$ và vector độ lệch $\\mathbf{b} \\in \\mathbb{R}^m$, công thức nào mô tả đúng phép tính của một tầng Fully Connected?',
       mode: 'single',
       options: [
         {
           id: 'opt1',
-          label: 'Z = X · W + bᵀ (broadcast theo hàng), sau đó áp dụng hàm kích hoạt H = φ(Z) ∈ ℝ^(n×m).',
+          label: '$\\mathbf{Z} = \\mathbf{X}\\mathbf{W} + \\mathbf{b}^\\top$ (broadcast theo hàng), sau đó áp dụng hàm kích hoạt $\\mathbf{H} = \\phi(\\mathbf{Z}) \\in \\mathbb{R}^{n \\times m}$.',
           isCorrect: true,
         },
         {
           id: 'opt2',
-          label: 'Z = W · X + b (broadcast theo cột), sau đó giữ nguyên giá trị tuyến tính không qua hàm kích hoạt.',
+          label: '$\\mathbf{Z} = \\mathbf{W}\\mathbf{X} + \\mathbf{b}$ (broadcast theo cột), sau đó giữ nguyên giá trị tuyến tính không qua hàm kích hoạt.',
         },
         {
           id: 'opt3',
-          label: 'Z = X + W · bᵀ (cộng từng phần tử), sau đó lấy tổng toàn bộ cột để thu về vector n chiều.',
+          label: '$\\mathbf{Z} = \\mathbf{X} + \\mathbf{W}\\mathbf{b}^\\top$ (cộng từng phần tử), sau đó lấy tổng toàn bộ cột để thu về vector $n$ chiều.',
         },
         {
           id: 'opt4',
-          label: 'Z = (X · Xᵀ) + W (tính tương đồng cặp), sau đó áp dụng hàm kích hoạt lên riêng vector độ lệch b.',
+          label: '$\\mathbf{Z} = (\\mathbf{X}\\mathbf{X}^\\top) + \\mathbf{W}$ (tính tương đồng cặp), sau đó áp dụng hàm kích hoạt lên riêng vector độ lệch $\\mathbf{b}$.',
         },
       ],
-      success: 'Chính xác. Với n mẫu theo hàng, X·W có kích thước n×m, cộng broadcast bᵀ theo từng hàng rồi qua hàm kích hoạt φ để cho ra H ∈ ℝ^(n×m).',
-      error: 'Hãy kiểm tra lại chiều ma trận X ∈ ℝ^(n×d) và W ∈ ℝ^(d×m) cùng bước kích hoạt φ(Z).',
+      success: 'Chính xác. Với $n$ mẫu theo hàng, $\\mathbf{X}\\mathbf{W}$ có kích thước $n \\times m$, cộng broadcast $\\mathbf{b}^\\top$ theo từng hàng rồi qua hàm kích hoạt $\\phi$ để cho ra $\\mathbf{H} \\in \\mathbb{R}^{n \\times m}$.',
+      error: 'Hãy kiểm tra lại chiều ma trận $\\mathbf{X} \\in \\mathbb{R}^{n \\times d}$ và $\\mathbf{W} \\in \\mathbb{R}^{d \\times m}$ cùng bước kích hoạt $\\phi(\\mathbf{Z})$.',
     },
     {
       id: 'nn-basics-q4',
@@ -134,20 +134,20 @@ export const lessonMetadata = {
         },
         {
           id: 'opt2',
-          label: 'Width là số neuron trong một tầng, Depth là số tầng có trọng số; node tính z rồi qua φ cho ra h.',
+          label: 'Width là số neuron trong một tầng, Depth là số tầng có trọng số; node tính $z$ rồi qua $\\phi(z)$ cho ra $h$.',
           isCorrect: true,
         },
         {
           id: 'opt3',
-          label: 'Width là kích thước batch dữ liệu, Depth là số epoch huấn luyện; z và h luôn bằng nhau ở mọi tầng.',
+          label: 'Width là kích thước batch dữ liệu, Depth là số epoch huấn luyện; $z$ và $h$ luôn bằng nhau ở mọi tầng.',
         },
         {
           id: 'opt4',
           label: 'Width là số chiều đầu ra cuối, Depth là số trọng số bias; hàm kích hoạt chỉ dùng ở tầng đầu vào.',
         },
       ],
-      success: 'Đúng. Width đo số neuron theo chiều dọc của một tầng, Depth đo số tầng có trọng số theo chiều sâu, còn mỗi tầng tính tổng tuyến tính z rồi qua φ(z) để tạo h.',
-      error: 'Hãy nhớ lại sơ đồ MLP chung ở Trang 4 bài Fully Connected: Width theo chiều dọc, Depth theo chiều ngang và h = φ(z).',
+      success: 'Đúng. Width đo số neuron theo chiều dọc của một tầng, Depth đo số tầng có trọng số theo chiều sâu, còn mỗi tầng tính tổng tuyến tính $z$ rồi qua $\\phi(z)$ để tạo $h$.',
+      error: 'Hãy nhớ lại sơ đồ MLP chung ở Trang 4 bài Fully Connected: Width theo chiều dọc, Depth theo chiều ngang và $h = \\phi(z)$.',
     },
     {
       id: 'nn-basics-q6',
