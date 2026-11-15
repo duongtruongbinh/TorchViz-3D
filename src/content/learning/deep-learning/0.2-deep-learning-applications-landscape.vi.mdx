@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'deep-learning-applications-landscape',
+  locale: 'vi',
+  title: 'Ứng dụng Thực tế',
+  headings: [
+    'Từ Siêu máy tính Đám mây đến Chip nhỏ trên Điện thoại',
+    'Bốn Trụ cột Ứng dụng trong Thế giới Thực',
+  ],
+  keywords: [
+    'edge ai',
+    'cloud ai',
+    'computer vision',
+    'llm',
+    'robotics',
+    'medical ai',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Từ Siêu máy tính Đám mây đến Chip nhỏ trên Điện thoại
+
+Một hiểu lầm phổ biến là Deep Learning chỉ sống trong các trung tâm dữ liệu khổng lồ tiêu tốn hàng megawatt điện. Thực tế, các mô hình hiện đại trải dài trên một phổ phần cứng cực rộng, từ cụm siêu máy tính huấn luyện hàng nghìn tỷ token cho tới bộ xử lý neural (**NPU**) nằm gọn trong chiếc điện thoại hay đồng hồ thông minh.
+
+<YouTubeEmbed
+  videoId="XIyTs2Rr0sE"
+  title="AI Hypercomputer: Behind the scenes at a Google Cloud data center"
+  caption="Bên trong trung tâm dữ liệu AI của Google Cloud — nơi Cloud TPU, NVIDIA GPU, chuyển mạch quang và hệ thống làm mát bằng chất lỏng vận hành các mô hình lớn."
+/>
+
+Ở đầu **máy lớn** (**Cloud / Cluster**), các cụm hàng nghìn GPU gánh vác quá trình tiền huấn luyện mô hình ngôn ngữ lớn, sinh ảnh độ phân giải cao và mô phỏng khoa học phức tạp. Ở đầu **máy nhỏ** (**Edge / Mobile**), các kỹ thuật nén mô hình như lượng tử hóa và chưng cất tri thức giúp mạng neural chạy ngoại tuyến với độ trễ vài mili-giây để mở khóa khuôn mặt, lọc ồn cuộc gọi hay dịch nhanh ngay trên thiết bị cá nhân.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bốn Trụ cột Ứng dụng trong Thế giới Thực
+
+Nhờ khả năng thích nghi đa phương thức, Deep Learning đã trở thành động cơ lõi của hầu hết các sản phẩm AI hiện đại trên nhiều lĩnh vực. Dưới đây là bốn trụ cột tiêu biểu nhất.
+
+<LessonImage
+  assetPath="deep-learning/dl_four_pillars.jpg"
+  alt="Bốn trụ cột ứng dụng Deep Learning: Computer Vision, NLP và LLM, Robotics, và Medical AI"
+  caption="Bốn trụ cột chính: nhìn và phát hiện (Computer Vision), đọc và suy luận (NLP & LLM), di chuyển và hành động (Robotics), chẩn đoán và khám phá (Medical AI)."
+/>
+
+- **Computer Vision:** Xe tự lái nhận diện vật cản, kiểm tra lỗi sản phẩm trên dây chuyền và phân tích ảnh vệ tinh.
+- **NLP & LLM:** Trợ lý lập trình, dịch đa ngôn ngữ, tóm tắt tài liệu và tìm kiếm ngữ nghĩa.
+- **Robotics:** Cánh tay robot gắp vật thể linh hoạt và robot tự hành điều hướng trong môi trường thực.
+- **Medical AI:** Hỗ trợ đọc phim X-quang, MRI, CT, phát hiện sớm tổn thương và nghiên cứu thuốc mới.
+
+Ở bài tiếp theo, ta sẽ trả lời câu hỏi cốt lõi nhất: điều gì khiến Deep Learning làm được những việc đó khác với Machine Learning truyền thống?
+
+</MdxPage>

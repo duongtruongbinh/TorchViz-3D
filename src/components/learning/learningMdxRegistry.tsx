@@ -78,6 +78,7 @@ let referenceComponentsPromise: Promise<Record<string, LearningMdxComponent>> | 
 
 const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<Record<string, LearningMdxComponent>>>> = {
   fundamentals: () => import('./domains/fundamentals/mdxComponents').then(({ fundamentalsMdxComponents }) => fundamentalsMdxComponents),
+  'deep-learning': () => import('./domains/deep-learning/mdxComponents').then(({ deepLearningMdxComponents }) => deepLearningMdxComponents),
   cv: () => import('./domains/cv/mdxComponents').then(({ cvMdxComponents }) => cvMdxComponents),
   'continual-learning-llm': () => import('./domains/continual-learning-llm/mdxComponents').then(({ continualLearningLlmMdxComponents }) => continualLearningLlmMdxComponents),
   'llm-ai-engineering': () => import('./domains/llm-ai-engineering/mdxComponents').then(({ llmMdxComponents }) => llmMdxComponents),

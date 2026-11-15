@@ -1,0 +1,509 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'mlp-activation-code-lab',
+  locale: 'vi',
+  title: 'Code Lab',
+  headings: [
+    'Phân loại Dữ liệu Bảng (Tabular) với MLP',
+    'Phân loại Ảnh Chữ số Viết tay (MNIST) với MLP',
+  ],
+  keywords: [
+    'pytorch code lab',
+    'iris dataset',
+    'tabular data',
+    'mlp',
+    'linear',
+    'relu',
+    'image classification',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Phân loại Dữ liệu Bảng (Tabular) với MLP
+
+Bộ dữ liệu **Iris** gồm <InlineMath formula="150" /> bông hoa thuộc <InlineMath formula="3" /> loài khác nhau (*Setosa*, *Versicolor*, *Virginica*). Mỗi bông hoa được biểu diễn bằng một hàng gồm <InlineMath formula="4" /> chỉ số đo dạng bảng: chiều dài, chiều rộng của đài hoa (**Sepal**) và cánh hoa (**Petal**). Mục tiêu của chúng ta là xây dựng một mạng **MLP** nhận <InlineMath formula="4" /> con số đầu vào này để phân loại xem bông hoa thuộc loài nào trong <InlineMath formula="3" /> loài trên.
+
+<LessonImage
+  assetPath="deep-learning/iris_species_features.jpg"
+  alt="Minh họa 3 loài hoa Iris (Setosa, Versicolor, Virginica) với sự khác biệt về kích thước cánh hoa và đài hoa"
+  caption="Ba loài hoa Iris khác nhau rõ rệt về kích thước cánh hoa (Petal) và đài hoa (Sepal) — đây chính là 4 đặc trưng dạng bảng để MLP phân loại."
+/>
+
+- **Setosa:** cánh hoa rất nhỏ và ngắn nên tách biệt khá rõ khỏi hai loài còn lại.
+- **Versicolor:** kích thước cánh hoa và đài hoa ở mức trung bình.
+- **Virginica:** cánh hoa dài và rộng nhất, có vùng giao thoa nhẹ với *Versicolor* nên cần ranh giới phi tuyến của MLP để tách lớp chính xác.
+
+### Bước 1: Setup & Import Thư viện
+
+Trước tiên, ta import PyTorch cùng các công cụ tải và tiền xử lý dữ liệu từ `scikit-learn`, cố định `manual_seed` để kết quả có thể tái lập và chọn thiết bị tính toán (`cuda` hoặc `cpu`):
+
+```python
+!pip install -q torchinfo
+
+import torch
+import torch.nn as nn
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+torch.manual_seed(42)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Using device:", device)
+```
+
+### Bước 2: Tải & Trực quan hóa Dữ liệu (`Iris`)
+
+Ta tải bộ dữ liệu `Iris` (`150` mẫu, `4` đặc trưng) và vẽ biểu đồ phân tán theo **chiều dài** và **chiều rộng cánh hoa** (`Petal Length` vs `Petal Width`) để quan sát phân bố 3 loài trước khi huấn luyện:
+
+```python
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+X, y = iris.data, iris.target
+print("Shape:", X.shape, "| Classes:", list(iris.target_names))
+
+for label, name in enumerate(iris.target_names):
+    mask = y == label
+    plt.scatter(X[mask, 2], X[mask, 3], label=name, alpha=0.85)
+
+plt.xlabel("Petal Length (cm)")
+plt.ylabel("Petal Width (cm)")
+plt.legend()
+plt.show()
+```
+
+<IrisScatterPlot />
+
+### Bước 3: Chia Train/Test & Chuẩn hóa Dữ liệu
+
+Ta chia dữ liệu theo tỷ lệ `80/20` (`stratify=y` để giữ đều tỷ lệ <InlineMath formula="3" /> loài). Để **tránh rò rỉ dữ liệu (data leakage)**, ta chỉ `fit` (tính trung bình và độ lệch chuẩn) trên tập **Train**, rồi mới dùng đúng bộ tham số đó để `transform` áp dụng lên tập **Test** trước khi chuyển sang `torch.tensor`:
+
+```python
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# 1. Fit & chuẩn hóa trên tập Train (tránh rò rỉ thông tin từ Test)
+scaler = StandardScaler()
+X_train = torch.tensor(scaler.fit_transform(X_train), dtype=torch.float32, device=device)
+y_train = torch.tensor(y_train, dtype=torch.long, device=device)
+
+# 2. Áp dụng đúng scaler vừa fit lên tập Test
+X_test = torch.tensor(scaler.transform(X_test), dtype=torch.float32, device=device)
+y_test = torch.tensor(y_test, dtype=torch.long, device=device)
+
+print("Train:", X_train.shape, "| Test:", X_test.shape)
+# Train: torch.Size([120, 4]) | Test: torch.Size([30, 4])
+```
+
+### Bước 4: Xây dựng Mô hình MLP
+
+Tầng `nn.Linear(4, 16)` nhận <InlineMath formula="4" /> chỉ số đầu vào, đi qua `nn.ReLU()` để tạo **ranh giới phi tuyến** (giúp tách được cặp *Versicolor* – *Virginica*, tránh *Linear Collapse* và giảm *Vanishing Gradient*), rồi qua `nn.Linear(16, 3)` xuất ra <InlineMath formula="3" /> giá trị **logits** tương ứng <InlineMath formula="3" /> loài hoa:
+
+```python
+from torchinfo import summary
+
+model = nn.Sequential(
+    nn.Linear(4, 16),
+    nn.ReLU(),
+    nn.Linear(16, 3),
+).to(device)
+
+summary(model, input_size=(1, 4))
+```
+
+```text
+------------------------------------------------------------------------------------------
+Layer (type:depth-idx)                   Output Shape              Param #
+------------------------------------------------------------------------------------------
+Sequential                               [1, 3]                    --
+├─Linear: 1-1                            [1, 16]                   80      # 4×16 + 16
+├─ReLU: 1-2                              [1, 16]                   0
+├─Linear: 1-3                            [1, 3]                    51      # 16×3 + 3
+------------------------------------------------------------------------------------------
+Total params: 131
+Trainable params: 131
+------------------------------------------------------------------------------------------
+```
+
+### Bước 5: Loss Function, Optimizer & Vòng lặp Huấn luyện
+
+Ta dùng `nn.CrossEntropyLoss()` cho bài toán phân loại <InlineMath formula="3" /> lớp (nhận trực tiếp **raw logits** từ tầng `Linear` cuối, không cần tự gọi `Softmax`) và `torch.optim.Adam` với learning rate <InlineMath formula="0.05" />. Mỗi epoch lặp qua đủ <InlineMath formula="5" /> bước chuẩn: `zero_grad()` <InlineMath formula="\to" /> Forward <InlineMath formula="\to" /> Loss <InlineMath formula="\to" /> `backward()` <InlineMath formula="\to" /> `step()`:
+
+```python
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.05)
+losses = []
+
+for epoch in range(1, 101):
+    optimizer.zero_grad()              # 1. Xóa gradient cũ
+    logits = model(X_train)            # 2. Forward Pass (dựng đồ thị)
+    loss = criterion(logits, y_train)  # 3. Loss Calculation
+    loss.backward()                    # 4. Backpropagation (Chain Rule)
+    optimizer.step()                   # 5. Cập nhật trọng số
+    losses.append(loss.item())         # Lưu loss để vẽ biểu đồ
+
+    if epoch % 20 == 0:
+        print(f"Epoch {epoch:03d} | loss = {loss.item():.4f}")
+```
+
+```text
+Epoch 020 | loss = 0.2891
+Epoch 040 | loss = 0.0954
+Epoch 060 | loss = 0.0582
+Epoch 080 | loss = 0.0471
+Epoch 100 | loss = 0.0418
+```
+
+### Bước 6: Vẽ Đường Loss, Đánh giá Test & Error Analysis
+
+Sau khi huấn luyện, ta vẽ lại `losses` để kiểm tra quá trình hội tụ, rồi bật `model.eval()` và `with torch.no_grad():` (tắt theo dõi gradient khi suy luận) để đo **Test Accuracy** và phân tích những ca mô hình đoán nhầm:
+
+```python
+from sklearn.metrics import confusion_matrix
+
+plt.plot(losses)
+plt.xlabel("Epoch")
+plt.ylabel("Cross-Entropy Loss")
+plt.show()
+
+model.eval()
+with torch.no_grad():
+    preds = model(X_test).argmax(dim=1)
+    acc = (preds == y_test).float().mean().item() * 100
+
+print(f"Test Accuracy: {acc:.1f}% ({(preds == y_test).sum().item()}/{len(y_test)})")
+print("Confusion Matrix:\n", confusion_matrix(y_test.cpu(), preds.cpu()))
+
+# Lọc các mẫu dự đoán sai trên tập Test
+wrong_idx = (preds != y_test).nonzero(as_tuple=True)[0]
+for idx in wrong_idx:
+    print(f"Mẫu test #{idx.item()}: thật={iris.target_names[y_test[idx]]}, đoán={iris.target_names[preds[idx]]}")
+```
+
+```text
+Test Accuracy: 96.7% (29/30)
+Confusion Matrix:
+ [[10  0  0]
+  [ 0  9  1]
+  [ 0  0 10]]
+Mẫu test #23: thật=versicolor, đoán=virginica
+```
+
+**Insight Error Analysis:** `Setosa` đúng tuyệt đối `10/10`, ca nhầm duy nhất rơi vào ranh giới giao thoa giữa `versicolor` và `virginica` — khớp hoàn toàn với biểu đồ phân bố dữ liệu ở Bước 2:
+
+<IrisScatterPlot highlightError />
+
+### Bước 7: Thí nghiệm Đối chứng Lý thuyết
+
+Ta chạy thêm các phép thử nhỏ ngay trên `Iris` để quan sát trực tiếp tác động của **Activation**, **Decision Boundary**, **Width/Depth (Overfitting)** và **Batch Size**:
+
+<IrisExperimentsDiagram />
+
+Nếu muốn tự chạy lại 3 thí nghiệm trên trong notebook, bạn có thể dùng một hàm `run_experiment` ngắn gọn như sau:
+
+```python
+from torch.utils.data import DataLoader, TensorDataset
+
+def run_experiment(net, loader, epochs=100, lr=0.05):
+    opt = torch.optim.Adam(net.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
+    train_hist, test_hist = [], []
+    for _ in range(epochs):
+        net.train()
+        total = 0.0
+        for xb, yb in loader:
+            opt.zero_grad()
+            loss = loss_fn(net(xb), yb)
+            loss.backward()
+            opt.step()
+            total += loss.item() * len(xb)
+        train_hist.append(total / len(loader.dataset))
+
+        net.eval()
+        with torch.no_grad():
+            test_hist.append(loss_fn(net(X_test), y_test).item())
+    return train_hist, test_hist
+
+full_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=len(X_train))
+
+# 1. Activation: Identity vs Sigmoid vs ReLU
+acts = {"Identity": nn.Identity(), "Sigmoid": nn.Sigmoid(), "ReLU": nn.ReLU()}
+act_res = {
+    k: run_experiment(nn.Sequential(nn.Linear(4, 16), a, nn.Linear(16, 3)).to(device), full_loader)[0]
+    for k, a in acts.items()
+}
+
+# 2. Width & Depth (Overfitting với mạng 3 tầng × 128)
+overfit_net = nn.Sequential(
+    nn.Linear(4, 128), nn.ReLU(),
+    nn.Linear(128, 128), nn.ReLU(),
+    nn.Linear(128, 128), nn.ReLU(),
+    nn.Linear(128, 3),
+).to(device)
+tr_overfit, te_overfit = run_experiment(overfit_net, full_loader)
+
+# 3. Batch Size: Full-batch (120) vs Mini-batch (16) vs SGD (1)
+batch_res = {
+    bs: run_experiment(
+        nn.Sequential(nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 3)).to(device),
+        DataLoader(TensorDataset(X_train, y_train), batch_size=bs, shuffle=True),
+    )[0]
+    for bs in [len(X_train), 16, 1]
+}
+
+# Vẽ trực tiếp 3 biểu đồ đối chứng
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+for name, hist in act_res.items():
+    axes[0].plot(hist, label=name)
+axes[0].set_title("1. Activation Functions"); axes[0].legend()
+
+axes[1].plot(tr_overfit, label="Train Loss")
+axes[1].plot(te_overfit, label="Test Loss")
+axes[1].set_title("2. Overfitting (3x128)"); axes[1].legend()
+
+for bs, hist in batch_res.items():
+    axes[2].plot(hist, label=f"batch={bs}")
+axes[2].set_title("3. Full-batch vs Mini-batch vs SGD"); axes[2].legend()
+
+plt.tight_layout()
+plt.show()
+
+# 4. Plot Decision Boundary trên 2 đặc trưng cánh hoa (cột 2, 3)
+X2_tr, X2_te = X_train[:, 2:4], X_test[:, 2:4]
+x_min, x_max = X2_tr[:, 0].min() - 0.5, X2_tr[:, 0].max() + 0.5
+y_min, y_max = X2_tr[:, 1].min() - 0.5, X2_tr[:, 1].max() + 0.5
+xx, yy = torch.meshgrid(
+    torch.linspace(x_min, x_max, 120, device=device),
+    torch.linspace(y_min, y_max, 120, device=device),
+    indexing="ij",
+)
+grid = torch.stack([xx.reshape(-1), yy.reshape(-1)], dim=1)
+
+models_2d = {
+    "Identity (Linear)": nn.Sequential(nn.Linear(2, 16), nn.Identity(), nn.Linear(16, 3)),
+    "MLP + ReLU (16)": nn.Sequential(nn.Linear(2, 16), nn.ReLU(), nn.Linear(16, 3)),
+    "Overfit (3x128)": nn.Sequential(
+        nn.Linear(2, 128), nn.ReLU(),
+        nn.Linear(128, 128), nn.ReLU(),
+        nn.Linear(128, 128), nn.ReLU(),
+        nn.Linear(128, 3),
+    ),
+}
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+for ax, (title, net) in zip(axes, models_2d.items()):
+    net = net.to(device)
+    opt = torch.optim.Adam(net.parameters(), lr=0.03)
+    for _ in range(150):
+        opt.zero_grad()
+        nn.CrossEntropyLoss()(net(X2_tr), y_train).backward()
+        opt.step()
+    with torch.no_grad():
+        zz = net(grid).argmax(dim=1).reshape(xx.shape).cpu()
+    ax.contourf(xx.cpu(), yy.cpu(), zz, alpha=0.25, cmap="coolwarm")
+    ax.scatter(X2_tr[:, 0].cpu(), X2_tr[:, 1].cpu(), c=y_train.cpu(), cmap="coolwarm", s=20, edgecolor="k")
+    ax.set_title(title)
+
+plt.tight_layout()
+plt.show()
+```
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân loại Ảnh Chữ số Viết tay (MNIST) với MLP
+
+Bộ dữ liệu **MNIST** gồm <InlineMath formula="70{,}000" /> ảnh xám kích thước <InlineMath formula="28 \times 28" /> pixel chụp các chữ số viết tay từ `0` đến `9` (<InlineMath formula="10" /> lớp). Khác với dữ liệu bảng <InlineMath formula="1\text{D}" />, mỗi bức ảnh là một lưới <InlineMath formula="2\text{D}" /> gồm <InlineMath formula="28 \times 28 = 784" /> điểm ảnh có độ sáng từ `0` đến `255`. Để đưa ảnh vào `nn.Linear`, ta cần duỗi thẳng lưới <InlineMath formula="2\text{D}" /> thành một vector <InlineMath formula="784" /> chiều bằng `nn.Flatten()`.
+
+### Bước 1: Tải MNIST, Chuẩn hóa & Xem thử Ảnh mẫu
+
+`transforms.ToTensor()` tự động chuyển ảnh về `torch.tensor` với shape `(1, 28, 28)` và chia pixel cho `255` để đưa giá trị về khoảng `[0.0, 1.0]`. Ta dùng `DataLoader` chia thành từng mini-batch `64` ảnh và vẽ thử `5` ảnh đầu tiên:
+
+```python
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+
+transform = transforms.ToTensor()
+train_ds = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
+test_ds = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+
+train_loader = DataLoader(train_ds, batch_size=64, shuffle=True)
+test_loader = DataLoader(test_ds, batch_size=256, shuffle=False)
+
+images, labels = next(iter(train_loader))
+print("Batch shape:", images.shape, "| Labels shape:", labels.shape)
+# Batch shape: torch.Size([64, 1, 28, 28]) | Labels shape: torch.Size([64])
+
+fig, axes = plt.subplots(1, 5, figsize=(8, 2))
+for i, ax in enumerate(axes):
+    ax.imshow(images[i].squeeze(), cmap="gray")
+    ax.set_title(f"Label: {labels[i].item()}")
+    ax.axis("off")
+plt.show()
+```
+
+<LessonImage
+  assetPath="deep-learning/mnist_sample_digits.png"
+  alt="Năm ảnh chữ số viết tay đầu tiên từ bộ dữ liệu MNIST kích thước 28x28"
+  caption="Năm ảnh mẫu đầu tiên trong mini-batch từ tập MNIST: nền đen (giá trị 0) và nét chữ số trắng (tối đa 1.0)."
+/>
+
+### Bước 2: Xây dựng MLP (`nn.Flatten`) & Summary
+
+Vì mỗi ảnh có <InlineMath formula="784" /> điểm ảnh, chỉ cần một tầng ẩn `Linear(784, 128)` đã tốn tới <InlineMath formula="784 \times 128 + 128 = 100{,}480" /> tham số — lớn hơn rất nhiều so với bài toán Tabular:
+
+```python
+img_model = nn.Sequential(
+    nn.Flatten(),              # (batch, 1, 28, 28) -> (batch, 784)
+    nn.Linear(784, 128),
+    nn.ReLU(),
+    nn.Linear(128, 10),        # 10 logits cho 10 chữ số (0..9)
+).to(device)
+
+summary(img_model, input_size=(1, 1, 28, 28))
+```
+
+```text
+------------------------------------------------------------------------------------------
+Layer (type:depth-idx)                   Output Shape              Param #
+------------------------------------------------------------------------------------------
+Sequential                               [1, 10]                   --
+├─Flatten: 1-1                           [1, 784]                  0
+├─Linear: 1-2                            [1, 128]                  100,480 # 784×128 + 128
+├─ReLU: 1-3                              [1, 128]                  0
+├─Linear: 1-4                            [1, 10]                   1,290   # 128×10 + 10
+------------------------------------------------------------------------------------------
+Total params: 101,770
+Trainable params: 101,770
+------------------------------------------------------------------------------------------
+```
+
+### Bước 3: Huấn luyện qua Mini-batch (`5` epochs)
+
+Ta dùng `CrossEntropyLoss()` và `Adam(lr=1e-3)`, lặp qua từng mini-batch `64` ảnh trong `train_loader` và lưu lại Loss trung bình mỗi epoch:
+
+```python
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(img_model.parameters(), lr=1e-3)
+epoch_losses = []
+
+for epoch in range(1, 6):
+    img_model.train()
+    total_loss = 0.0
+    for xb, yb in train_loader:
+        xb, yb = xb.to(device), yb.to(device)
+        optimizer.zero_grad()
+        loss = criterion(img_model(xb), yb)
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item() * len(xb)
+
+    avg_loss = total_loss / len(train_ds)
+    epoch_losses.append(avg_loss)
+    print(f"Epoch {epoch} | loss = {avg_loss:.4f}")
+```
+
+```text
+Epoch 1 | loss = 0.3412
+Epoch 2 | loss = 0.1548
+Epoch 3 | loss = 0.1076
+Epoch 4 | loss = 0.0819
+Epoch 5 | loss = 0.0642
+```
+
+```python
+plt.plot(range(1, 6), epoch_losses, marker="o")
+plt.xlabel("Epoch")
+plt.ylabel("Cross-Entropy Loss")
+plt.title("MNIST Training Loss")
+plt.show()
+```
+
+### Bước 4: Đánh giá, Error Analysis & Trực quan hóa Boundary bằng `t-SNE`
+
+Bật `img_model.eval()` và `with torch.no_grad():` để vừa đo độ chính xác trên <InlineMath formula="10{,}000" /> ảnh test, vừa trích xuất vector đặc trưng <InlineMath formula="128" /> chiều sau khối `Flatten → Linear → ReLU` (`img_model[:3]`) rồi chiếu lên <InlineMath formula="2\text{D}" /> bằng **t-SNE** — đồng thời đánh dấu đỏ những điểm bị phân loại sai để thấy chúng nằm ngay vùng ranh giới giữa các cụm:
+
+```python
+from sklearn.manifold import TSNE
+
+img_model.eval()
+correct, total = 0, 0
+mistakes = []
+
+with torch.no_grad():
+    for xb, yb in test_loader:
+        xb, yb = xb.to(device), yb.to(device)
+        preds = img_model(xb).argmax(dim=1)
+        correct += (preds == yb).sum().item()
+        total += len(yb)
+
+        for img, y_true, y_pred in zip(xb, yb, preds):
+            if y_true != y_pred and len(mistakes) < 5:
+                mistakes.append((img.cpu(), y_true.item(), y_pred.item()))
+
+print(f"Test Accuracy: {100 * correct / total:.2f}% ({correct}/{total})")
+# Test Accuracy: 97.60% (9760/10000)
+
+# 1) Vẽ 5 ca đoán nhầm đầu tiên
+fig, axes = plt.subplots(1, len(mistakes), figsize=(9, 2.2))
+for ax, (img, y_true, y_pred) in zip(axes, mistakes):
+    ax.imshow(img.squeeze(), cmap="gray")
+    ax.set_title(f"True: {y_true} | Pred: {y_pred}")
+    ax.axis("off")
+plt.show()
+
+# 2) Lấy 1,000 ảnh test -> trích xuất đặc trưng 128D + đánh dấu điểm đoán sai lên t-SNE
+xb_vis, yb_vis = next(iter(DataLoader(test_ds, batch_size=1000, shuffle=False)))
+with torch.no_grad():
+    feats = img_model[:3](xb_vis.to(device)).cpu().numpy()   # (1000, 128)
+    preds_vis = img_model(xb_vis.to(device)).argmax(dim=1).cpu().numpy()
+
+y_true_vis = yb_vis.numpy()
+err_mask = preds_vis != y_true_vis
+z_2d = TSNE(n_components=2, random_state=42).fit_transform(feats)
+
+plt.figure(figsize=(6.5, 6.5))
+plt.scatter(z_2d[:, 0], z_2d[:, 1], c=y_true_vis, cmap="viridis", s=14, alpha=0.85)
+plt.scatter(z_2d[err_mask, 0], z_2d[err_mask, 1],
+            c="red", marker="x", s=55, linewidths=1.8, label="Misclassified")
+for x, y, yt, yp in zip(z_2d[err_mask, 0], z_2d[err_mask, 1], y_true_vis[err_mask], preds_vis[err_mask]):
+    plt.annotate(
+        f"{yt}→{yp}",
+        (x, y),
+        textcoords="offset points",
+        xytext=(4, 4),
+        fontsize=7,
+        color="red",
+        fontweight="bold",
+    )
+for digit in range(10):
+    cx, cy = z_2d[y_true_vis == digit].mean(axis=0)
+    plt.text(cx, cy, str(digit), fontsize=9, fontweight="bold",
+             bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="black"))
+plt.title("t-SNE (kèm nhãn True→Pred ở điểm sai)")
+plt.legend(loc="upper right")
+plt.xticks([]); plt.yticks([])
+plt.show()
+```
+
+<LessonImage
+  assetPath="deep-learning/mnist_mistakes.png"
+  alt="Kết quả Test Accuracy 97.60% và 5 ảnh MNIST đầu tiên mô hình MLP đoán nhầm"
+  caption="Kết quả chạy thực tế trên tập Test MNIST (97.60%) cùng 5 ca đoán nhầm đầu tiên: số 8 nghiêng bị đoán thành 2, số 9 nét vòng khép bị đoán thành 8, số 4 thành 6 và số 6 thành 0."
+/>
+
+<LessonImage
+  assetPath="deep-learning/mnist_tsne_errors.jpg"
+  alt="Biểu đồ t-SNE 2D của không gian đặc trưng tầng ẩn MLP kèm các điểm đoán nhầm và nhãn True→Pred"
+  caption="Biểu đồ t-SNE từ tầng ẩn 128 chiều (img_model[:3]): các dấu × đỏ kèm nhãn True→Pred cho thấy những ca đoán nhầm (như 4→9, 6→0, 8→2, 9→8, 3→5, 5→8) đều nằm ngay vùng ranh giới giao thoa giữa các cụm."
+/>
+
+**Insight & Giới hạn của MLP trên Ảnh:**
+- Các ca đoán nhầm (`8` <InlineMath formula="\to" /> `2`, `9` <InlineMath formula="\to" /> `8`, `4` <InlineMath formula="\to" /> `6`, `6` <InlineMath formula="\to" /> `0`) đều là những điểm rơi sát vùng ranh giới (boundary) giữa các cụm trong không gian đặc trưng do nét viết nghiêng hoặc vòng tròn gần giống nhau.
+- Khi gọi `nn.Flatten()`, cấu trúc lân cận 2D bị phá vỡ thành một hàng dài: chỉ cần dịch chữ số sang trái/phải vài pixel là toàn bộ vector <InlineMath formula="784" /> chiều thay đổi vị trí, đồng thời số lượng tham số tăng vọt nếu ảnh lớn (ví dụ ảnh RGB <InlineMath formula="224 \times 224" /> cần tới hơn `150,000` đầu vào!). Đó là lý do chương tiếp theo ta cần **CNN (Mạng Tích chập)**.
+
+</MdxPage>

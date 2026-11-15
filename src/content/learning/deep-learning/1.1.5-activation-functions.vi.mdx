@@ -1,0 +1,85 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'activation-functions',
+  locale: 'vi',
+  title: 'Hàm Kích hoạt (Activation Functions)',
+  headings: [
+    'Vì sao Cần Hàm Kích hoạt Phi tuyến?',
+    'Khám phá các Hàm Kích hoạt Kinh điển & Hiện đại',
+    'Activation Function và Vấn đề Vanishing Gradient',
+  ],
+  keywords: [
+    'activation function',
+    'sigmoid',
+    'tanh',
+    'relu',
+    'leaky relu',
+    'gelu',
+    'vanishing gradient',
+    'dying relu',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Vì sao Cần Hàm Kích hoạt Phi tuyến?
+
+Trong một tầng **Fully Connected**, phép tính tuyến tính chỉ xoay, co giãn và tịnh tiến không gian qua công thức <InlineMath formula="\mathbf{z} = \mathbf{W}^\top \mathbf{x} + \mathbf{b}" />. Điều gì sẽ xảy ra nếu ta xếp chồng nhiều tầng tuyến tính liên tiếp mà **không đặt hàm kích hoạt phi tuyến** ở giữa?
+
+<EquationCallout
+  title="Hiện tượng Sụp đổ Tuyến tính (Linear Collapse)"
+  badge="Linearity"
+  formula="\mathbf{y} = \mathbf{W}_2(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1) + \mathbf{b}_2 = \underbrace{(\mathbf{W}_2 \mathbf{W}_1)}_{\mathbf{W}_{\text{eff}}} \mathbf{x} + \underbrace{(\mathbf{W}_2 \mathbf{b}_1 + \mathbf{b}_2)}_{\mathbf{b}_{\text{eff}}}"
+  explanation="Tích của hai ma trận trọng số vẫn chỉ là một ma trận duy nhất. Dù xếp 100 tầng tuyến tính, toàn bộ mạng vẫn sụp về một phép biến đổi tuyến tính bậc nhất."
+/>
+
+Chính hàm kích hoạt phi tuyến <InlineMath formula="\phi(\cdot)" /> đặt sau mỗi tầng ẩn (<InlineMath formula="\mathbf{h} = \phi(\mathbf{z})" />) mới giúp mạng neural bẻ cong không gian biểu diễn để học được các ranh giới phức tạp như bài toán XOR, nhận diện ảnh hay hiểu ngôn ngữ.
+
+<ActivationFunctionDiagram panel="linear-collapse" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khám phá các Hàm Kích hoạt Kinh điển & Hiện đại
+
+Mỗi hàm kích hoạt không chỉ biến đổi giá trị đầu ra <InlineMath formula="\phi(z)" />, mà còn quyết định trực tiếp độ lớn của đạo hàm <InlineMath formula="\phi'(z)" /> truyền ngược về trong quá trình **Backpropagation**.
+
+Hãy chọn từng hàm kích hoạt và điều chỉnh giá trị <InlineMath formula="z" /> bên dưới để quan sát đồ thị hàm số, đồ thị đạo hàm và mã PyTorch tương ứng:
+
+<ActivationFunctionDiagram panel="explorer" />
+
+Hai hiện tượng cần đặc biệt lưu ý khi quan sát đồ thị đạo hàm <InlineMath formula="\phi'(z)" />:
+
+- **Vanishing Gradient (Sigmoid / Tanh):** Khi <InlineMath formula="|z|" /> lớn, đường cong đi ngang nên <InlineMath formula="\phi'(z) \approx 0" />. Khi nhân liên tiếp nhiều đạo hàm nhỏ qua các tầng sâu, gradient truyền về các tầng đầu gần như bằng <InlineMath formula="0" />, khiến mạng ngừng học.
+- **Dying ReLU:** Với ReLU chuẩn, nếu một neuron luôn rơi vào vùng <InlineMath formula="z \le 0" />, cả đầu ra lẫn đạo hàm đều bằng <InlineMath formula="0" />, làm neuron đó không thể cập nhật trọng số nữa. **Leaky ReLU** và **GELU** khắc phục bằng cách giữ độ dốc nhỏ hoặc đường cong mượt ở miền âm.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Activation Function và Vấn đề Vanishing Gradient
+
+Trong mạng neural sâu, **Activation Function chính là nguyên nhân trực tiếp dẫn đến hiện tượng Vanishing Gradient** — một rào cản lớn khiến các mạng sâu khó huấn luyện hiệu quả.
+
+### Vanishing Gradient là gì?
+
+**Vanishing Gradient** (triệt tiêu gradient) là hiện tượng độ lớn của đạo hàm sai số giảm dần theo cấp số nhân khi truyền ngược từ tầng đầu ra về các tầng đầu tiên. Khi gradient tiến gần về <InlineMath formula="0" />, trọng số ở các tầng đầu gần như không được cập nhật, khiến mạng ngừng học phần trích xuất đặc trưng cơ bản.
+
+### Vì sao Activation Function là nguyên nhân chính?
+
+Theo quy tắc dây chuyền (**Chain Rule**) trong Backpropagation, gradient ở tầng đầu bằng tích các đạo hàm qua mọi tầng phía sau:
+
+<BlockMath formula="\frac{\partial \mathcal{L}}{\partial \mathbf{W}_1} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_L} \prod_{l=2}^{L} \frac{\partial \mathbf{h}_l}{\partial \mathbf{z}_l} \frac{\partial \mathbf{z}_l}{\partial \mathbf{h}_{l-1}} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_L} \prod_{l=2}^{L} \phi'(\mathbf{z}_l) \, \mathbf{W}_l^\top" />
+
+Với các hàm kích hoạt bão hòa như **Sigmoid**, đạo hàm <InlineMath formula="\sigma'(z) \le 0.25" /> tại mọi điểm. Chỉ qua <InlineMath formula="10" /> tầng sâu, tích đạo hàm đã thu nhỏ xuống tối đa <InlineMath formula="0.25^{10} \approx 9.5 \times 10^{-7}" /> — tín hiệu học bị triệt tiêu gần như hoàn toàn trước khi về tới tầng đầu.
+
+<ActivationFunctionDiagram panel="vanishing-gradient" />
+
+### Hai cách phổ biến để khắc phục
+
+1. **Đổi hàm kích hoạt:** Thay các hàm dễ bão hòa (Sigmoid, Tanh) bằng **ReLU**, **Leaky ReLU** hoặc **GELU** ở các tầng ẩn. Với ReLU, đạo hàm bằng <InlineMath formula="1" /> trên toàn bộ miền dương nên tích đạo hàm không bị bóp nghẹt qua nhiều tầng.
+2. **Dùng Skip Connection (Residual Block):** Thiết kế đường nối tắt <InlineMath formula="\mathbf{y} = F(\mathbf{x}) + \mathbf{x}" /> (như trong ResNet) để gradient có thể truyền thẳng qua phép cộng (<InlineMath formula="\frac{\partial \mathbf{y}}{\partial \mathbf{x}} = \frac{\partial F}{\partial \mathbf{x}} + \mathbf{I}" />) mà không bị triệt tiêu hoàn toàn khi đi qua chuỗi hàm kích hoạt.
+
+</MdxPage>

@@ -1,0 +1,249 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'cnn-architectures-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Cải tiến Cốt lõi từ LeNet-5 lên AlexNet',
+    'Câu hỏi Bẫy về Hai Luồng Song song của AlexNet',
+    'Triết lý Thay Kernel 5×5 bằng Hai Lớp 3×3 trong VGG-16',
+    'Vai trò của Global Average Pooling (GAP) so với Fully Connected',
+    'Khối Đa Nhánh và Nút cổ chai 1×1 trong Inception-v1',
+    'Cơ chế Huấn luyện Nhánh Chính và Nhánh Phụ khi Gradient Suy giảm',
+    'Cải tiến Phân rã Bộ lọc trong Inception-v2/v3 & Depthwise Separable Conv',
+    'Skip Connection và Khối Bottleneck trong ResNet-50',
+  ],
+  keywords: [
+    'cnn architectures quiz',
+    'lenet',
+    'alexnet',
+    'vgg16',
+    'inception',
+    'resnet',
+    'skip connection',
+    'global average pooling',
+  ],
+  pageCount: 8,
+};
+
+<MdxQuiz
+  id="cnn-architectures-quiz"
+  questions={[
+    {
+      id: 'cnn-arch-q1',
+      title: 'Cải tiến Cốt lõi từ LeNet-5 lên AlexNet',
+      prompt: 'Khi chuyển từ kiến trúc LeNet-5 (1998) sang AlexNet (2012), cặp thay đổi nào về hàm kích hoạt và tầng Pooling đã giúp mô hình huấn luyện nhanh hơn và giữ lại được các đặc trưng mạnh tốt hơn?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Đổi hàm kích hoạt từ Tanh/Sigmoid sang ReLU (đạo hàm miền dương bằng 1 chống vanishing gradient) và đổi từ Average Pooling sang Max Pooling (tránh làm mờ các kích hoạt nổi bật).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Đổi hàm kích hoạt từ ReLU sang Sigmoid và thay toàn bộ Max Pooling bằng Average Pooling 5×5.',
+        },
+        {
+          id: 'opt3',
+          label: 'Loại bỏ hoàn toàn các tầng Fully Connected ở cuối mạng và chỉ giữ lại duy nhất một lớp tích chập 3×3.',
+        },
+        {
+          id: 'opt4',
+          label: 'Giảm số lượng tham số từ 60 triệu của LeNet-5 xuống còn 60 nghìn tham số trong AlexNet.',
+        },
+      ],
+      success: 'Chính xác. ReLU giúp tính đạo hàm cực nhanh và tránh bão hòa gradient, trong khi Max Pooling giữ lại đặc trưng nổi bật thay vì bị kéo trung bình như Average Pooling.',
+      error: 'Hãy nhớ lại hàm kích hoạt nào xuất hiện ở AlexNet có đạo hàm chỉ gồm {0, 1} và loại Pooling nào giữ lại giá trị lớn nhất.',
+    },
+    {
+      id: 'cnn-arch-q2',
+      title: 'Câu hỏi Bẫy về Hai Luồng Song song của AlexNet',
+      prompt: '(It’s a trap!!) Tại sao sơ đồ kiến trúc gốc trong bài báo AlexNet (2012) lại được vẽ thành 2 luồng song song trên và dưới? Có phải AlexNet là kiến trúc đầu tiên áp dụng mô hình rẽ nhánh đa tỉ lệ như Inception không?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Không phải rẽ nhánh đa tỉ lệ; năm 2012 mỗi card GPU GTX 580 chỉ có 3GB VRAM không đủ chứa toàn bộ mô hình nên tác giả phải chia đôi số bộ lọc sang 2 GPU chạy song song.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Đúng, một nhánh của AlexNet dùng bộ lọc 3×3 để bắt ảnh đen trắng, nhánh còn lại dùng bộ lọc 11×11 để bắt màu sắc.',
+        },
+        {
+          id: 'opt3',
+          label: 'Một nhánh dùng để tính Forward Pass và nhánh còn lại chỉ dùng để tính Backward Pass độc lập.',
+        },
+        {
+          id: 'opt4',
+          label: 'Hai nhánh dùng hai hàm mất mát khác nhau để vừa phân loại ảnh vừa phân đoạn từng điểm ảnh.',
+        },
+      ],
+      success: 'Chính xác. Hai luồng của AlexNet có cấu trúc giống hệt nhau và chỉ tách ra do giới hạn bộ nhớ 3GB VRAM của GPU thời đó; kiến trúc rẽ nhánh đa tỉ lệ thực sự đầu tiên là Inception-v1 (2014).',
+      error: 'Hãy nhớ lại giới hạn phần cứng của card đồ họa GTX 580 năm 2012 khiến tác giả AlexNet phải chia đôi mạng.',
+    },
+    {
+      id: 'cnn-arch-q3',
+      title: 'Triết lý Thay Kernel 5×5 bằng Hai Lớp 3×3 trong VGG-16',
+      prompt: 'Vì sao kiến trúc VGG-16 (2014) lại thay thế một tầng tích chập có bộ lọc lớn 5×5 bằng hai tầng tích chập bộ lọc nhỏ 3×3 xếp nối tiếp nhau?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Hai lớp 3×3 nối tiếp vẫn giữ nguyên vùng nhìn Receptive Field bằng 5×5, nhưng đi qua 2 lần hàm kích hoạt phi tuyến ReLU và tốn ít tham số hơn (ví dụ với C=3 chỉ tốn 54 thay vì 75 tham số).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Hai lớp 3×3 nối tiếp làm tăng gấp đôi kích thước chiều cao và chiều rộng của bức ảnh đầu ra so với một lớp 5×5.',
+        },
+        {
+          id: 'opt3',
+          label: 'Bộ lọc 5×5 không thể áp dụng được kỹ thuật Zero Padding trong khi bộ lọc 3×3 luôn tự động đệm viền.',
+        },
+        {
+          id: 'opt4',
+          label: 'Hai lớp 3×3 không cần dùng hàm kích hoạt phi tuyến nào ở giữa nên giảm được thời gian tính toán.',
+        },
+      ],
+      success: 'Đúng. Xếp chồng 2 lớp 3×3 vừa đạt cùng Receptive Field 5×5, vừa giảm 28% số lượng tham số (18C² so với 25C²), lại tăng độ sâu biểu diễn nhờ 2 lần qua ReLU.',
+      error: 'Hãy so sánh vùng nhìn cảm thụ (Receptive Field), số lần qua hàm kích hoạt ReLU và số tham số giữa 2×(3×3) với 1×(5×5).',
+    },
+    {
+      id: 'cnn-arch-q4',
+      title: 'Vai trò của Global Average Pooling (GAP) so với Fully Connected',
+      prompt: 'Nhận định nào sau đây là ĐÚNG khi so sánh tầng Global Average Pooling (GAP) ở cuối mạng Inception/ResNet với các tầng Fully Connected (FC) lớn ở cuối mạng VGG-16?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'GAP lấy trung bình toàn bộ mỗi kênh H×W thành 1 con số duy nhất mà không tốn bất kỳ tham số nào (0 params), giúp cắt giảm hàng chục triệu tham số so với việc Flatten rồi đưa vào các tầng FC lớn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'GAP không thể thay thế bằng tầng FC trong bất kỳ bài toán phân loại ảnh nào vì GAP làm tăng gấp 10 lần số tham số.',
+        },
+        {
+          id: 'opt3',
+          label: 'Tầng FC không tiêu tốn tham số nào trong khi GAP phải học một ma trận trọng số riêng cho từng kênh.',
+        },
+        {
+          id: 'opt4',
+          label: 'GAP chỉ hoạt động được trên ảnh xám 1 kênh duy nhất và không dùng được khi số kênh lớn hơn 3.',
+        },
+      ],
+      success: 'Chính xác. Nhờ thay các tầng FC khổng lồ bằng GAP (0 params) kết hợp Bottleneck 1×1, Inception-v1 dù sâu 22 tầng nhưng chỉ nặng 5M tham số so với 138M tham số của VGG-16.',
+      error: 'Hãy nhớ lại cách GAP rút gọn một khối H×W×64 thành vector 64 giá trị trung bình mà không cần trọng số học.',
+    },
+    {
+      id: 'cnn-arch-q5',
+      title: 'Khối Đa Nhánh và Nút cổ chai 1×1 trong Inception-v1',
+      prompt: 'Trong khối Inception (GoogLeNet), việc chia thành nhiều nhánh song song (1×1, 3×3, 5×5, MaxPool) và đặt tầng Conv 1×1 đứng trước các tầng 3×3, 5×5 giải quyết đồng thời hai mục tiêu gì?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Các nhánh song song giúp mạng tự trích xuất đặc trưng ở nhiều kích thước vật thể khác nhau (mở rộng chiều rộng), còn Conv 1×1 nén giảm số kênh đầu vào giúp giảm ~10 lần chi phí tính toán.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Các nhánh song song dùng để chia mô hình lên 4 card đồ họa khác nhau, còn Conv 1×1 dùng để tăng gấp đôi chiều cao và chiều rộng bức ảnh.',
+        },
+        {
+          id: 'opt3',
+          label: 'Tầng Conv 1×1 đứng trước 5×5 giúp tăng số lượng tham số lên gấp 10 lần để mô hình dễ ghi nhớ tập huấn luyện hơn.',
+        },
+        {
+          id: 'opt4',
+          label: 'Khối Inception chỉ giữ lại nhánh nào có giá trị loss thấp nhất và xóa bỏ hoàn toàn 3 nhánh còn lại sau mỗi epoch.',
+        },
+      ],
+      success: 'Chính xác. Đa nhánh giúp bắt vật thể ở nhiều tỉ lệ (gần/xa) rồi ghép kênh (Concat), còn nút cổ chai 1×1 nén chiều sâu (ví dụ 192 → 16 kênh) giúp giảm số phép nhân từ 120.4M xuống 12.4M.',
+      error: 'Hãy xem lại ví dụ chú chó chụp cận cảnh vs chụp xa và bài toán giảm số phép tính nhờ nén kênh bằng Conv 1×1.',
+    },
+    {
+      id: 'cnn-arch-q6',
+      title: 'Cơ chế Huấn luyện Nhánh Chính và Nhánh Phụ khi Gradient Suy giảm',
+      prompt: 'Trong mạng có cấu trúc rẽ nhánh gồm nhánh chính (dài, đi qua toàn bộ mạng) và nhánh phụ (ngắn hơn, gắn ở tầng giữa như trong Inception-v1 với L_total = L_main + 0.3·L_aux1 + 0.3·L_aux2), quá trình cập nhật trọng số ở các lớp đầu diễn ra như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Gradient tại các lớp đầu là tổng gradient từ nhánh chính và nhánh phụ; khi gradient từ nhánh chính dài bị suy giảm (vanishing) qua nhiều tầng, các lớp đầu vẫn tiếp tục được cập nhật hiệu quả nhờ gradient truyền về từ nhánh phụ ngắn hơn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Hàm mất mát của nhánh phụ luôn có trọng số lớn hơn nhánh chính vì nhánh phụ đi qua ít lớp tích chập hơn.',
+        },
+        {
+          id: 'opt3',
+          label: 'Nếu xảy ra vanishing gradient ở lớp đầu tiên thì các lớp gần đầu ra (output layer) cũng bị đóng băng và không thể cập nhật trọng số.',
+        },
+        {
+          id: 'opt4',
+          label: 'Nhánh chính chỉ được cập nhật ở epoch cuối cùng, còn tất cả các epoch đầu chỉ cập nhật nhánh phụ.',
+        },
+      ],
+      success: 'Đúng. Nhánh chính có trọng số loss cao hơn (1.0 vs 0.3) vì trích xuất đặc trưng sâu hơn, nhưng nhánh phụ đóng vai trò đường tiếp sức gradient ngắn hơn giúp các tầng đầu không bị đóng băng khi nhánh chính suy giảm đạo hàm.',
+      error: 'Hãy nhớ lại quy tắc cộng đạo hàm tại điểm rẽ nhánh và lý do người ta đặt thêm Auxiliary Classifiers ở giữa mạng sâu.',
+    },
+    {
+      id: 'cnn-arch-q7',
+      title: 'Cải tiến Phân rã Bộ lọc trong Inception-v2/v3 & Depthwise Separable Conv',
+      prompt: 'Điểm cải tiến nổi bật của Inception-v2/v3 và kỹ thuật Depthwise Separable Convolution (dùng trong MobileNet) cùng hướng tới nguyên lý nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Phân rã các phép tích chập lớn/đầy đủ thành các bước nhỏ hơn (như tách 5×5 → hai lớp 3×3, tách 7×7 → 1×7 và 7×1, hoặc tách lọc không gian từng kênh Depthwise với trộn kênh Pointwise 1×1) để giảm mạnh chi phí tính toán.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Tăng kích thước bộ lọc từ 5×5 lên 15×15 để phù hợp với màn hình điện thoại di động có độ phân giải cao.',
+        },
+        {
+          id: 'opt3',
+          label: 'Thay thế toàn bộ các phép tích chập bằng các tầng Fully Connected nhằm tăng độ chính xác trên thiết bị nhúng.',
+        },
+        {
+          id: 'opt4',
+          label: 'Mọi ma trận trọng số bất kỳ đều có thể phân rã chính xác tuyệt đối thành tích của hai vector 1 chiều mà không có sai số xấp xỉ.',
+        },
+      ],
+      success: 'Chính xác. Việc tách bộ lọc lớn thành chuỗi bộ lọc nhỏ hoặc tách rời lọc không gian (Depthwise) và trộn kênh (Pointwise 1×1) giúp giảm khối lượng tính toán nhiều lần cho các thiết bị di động.',
+      error: 'Hãy nhớ lại cách Inception-v3 tách khối 5×5 thành hai khối 3×3, phân rã bất đối xứng n×1, 1×n và cách MobileNet tách Depthwise + Pointwise.',
+    },
+    {
+      id: 'cnn-arch-q8',
+      title: 'Skip Connection và Khối Bottleneck trong ResNet-50',
+      prompt: 'Trong khối Bottleneck Residual (1×1 → 3×3 → 1×1) của ResNet-50, tại sao sau khi dùng Conv 1×1 đầu tiên để nén số kênh và Conv 3×3 để trích xuất đặc trưng, tác giả lại phải thêm một lớp Conv 1×1 thứ hai trước khi cộng với đường nối tắt Skip Connection?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Để khôi phục lại số lượng kênh (restore dimensions) khớp với số kênh của đầu vào x, giúp thực hiện được phép cộng y = F(x) + x vừa chống vanishing gradient vừa bảo toàn toàn bộ thông tin từ tầng trước.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Để giảm số lượng kênh về đúng 1 kênh duy nhất trước khi đưa vào hàm kích hoạt Softmax ở mỗi khối.',
+        },
+        {
+          id: 'opt3',
+          label: 'Vì ResNet nối các đặc trưng bằng phép ghép kênh (Concatenate) giống hệt Inception nên không cần quan tâm tới kích thước đầu vào.',
+        },
+        {
+          id: 'opt4',
+          label: 'Để xóa bỏ hoàn toàn thông tin từ các tầng nông và chỉ giữ lại đặc trưng ở tầng cuối cùng.',
+        },
+      ],
+      success: 'Chính xác. Lớp Conv 1×1 đầu tiên nén kênh để giảm tính toán cho lớp 3×3, còn lớp Conv 1×1 thứ hai mở rộng lại số kênh về đúng chiều ban đầu để cộng trực tiếp F(x) + x.',
+      error: 'Hãy nhớ rằng phép cộng từng phần tử y = F(x) + x trong ResNet đòi hỏi F(x) và x phải có cùng số lượng kênh và cùng kích thước không gian.',
+    },
+  ]}
+/>

@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'unet-semantic-segmentation',
+  locale: 'vi',
+  title: 'Kiến trúc U-Net & Semantic Segmentation',
+  headings: [
+    'Từ Phân loại Ảnh đến Semantic Segmentation: Bài toán Vị trí vs Ngữ nghĩa',
+    'Giải phẫu Kiến trúc Chữ U Đối xứng: Encoder, Bottleneck và Decoder',
+    'Sức mạnh của Skip Connections trong U-Net và Câu hỏi Kết nối Chéo',
+  ],
+  keywords: [
+    'u-net',
+    'semantic segmentation',
+    'encoder decoder',
+    'skip connection',
+    'transposed convolution',
+    'up-convolution',
+    'medical image segmentation',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Ở tất cả các kiến trúc từ **LeNet-5**, **AlexNet**, **VGG-16**, **Inception** cho tới **ResNet**, đầu ra cuối cùng của mạng luôn là một vector xác suất duy nhất trả lời câu hỏi *"Bức ảnh này chứa con vật hay đồ vật gì?"* (**Image Classification**). Tuy nhiên, trong chẩn đoán hình ảnh y khoa (khoanh vùng khối u não, tổn thương phổi, gan, mạch máu võng mạc hay từng tế bào dưới kính hiển vi) cũng như xe tự hành, việc chỉ gắn một nhãn chung cho cả bức ảnh là hoàn toàn không đủ.
+
+<LessonImage
+  assetPath="deep-learning/unet_where_plus_what.jpg"
+  alt="Minh họa cách U-Net kết hợp thông tin vị trí sắc nét ở tầng nông (Encoder: Where) và thông tin ngữ nghĩa ở tầng sâu (Decoder: What) thông qua cầu nối Skip Connection"
+  caption="Mâu thuẫn cốt lõi trong phân đoạn ảnh: Tầng nông (Encoder) giữ được đường viền sắc nét nhưng không rõ ngữ nghĩa; Tầng sâu (Decoder) biết vùng đó là chiếc xe đạp nhưng ranh giới bị nhòe. Cầu nối Skip Connection của U-Net hợp nhất cả hai để tô màu chính xác tới từng pixel."
+/>
+
+### Từ Phân loại Ảnh đến Semantic Segmentation: Bài toán Vị trí vs Ngữ nghĩa
+
+**Semantic Segmentation (Phân đoạn ảnh ngữ nghĩa)** là bài toán phân loại **từng điểm ảnh (pixel)** trong bức ảnh vào một lớp đối tượng tương ứng, từ đó vẽ ra ranh giới chính xác (**Precise Boundaries**) giữa các mô, tế bào hoặc vật thể.
+
+Trước khi có mạng tích chập hoàn toàn (**Fully Convolutional Network — FCN**) và **U-Net**, người ta thường cắt bức ảnh thành hàng nghìn ô vuông nhỏ (**Image Patches**) lấy từng pixel làm tâm rồi đưa qua mạng **CNN** để phân loại riêng lẻ từng ô (ví dụ ma trận <InlineMath formula="10 \times 10" /> chia thành các ô <InlineMath formula="2 \times 2" /> tạo ra <InlineMath formula="25" /> patch). Cách làm theo từng patch này vừa chậm chạp do tính toán trùng lặp, vừa vấp phải mâu thuẫn cố hữu giữa hai nhóm tầng trong mạng **CNN**:
+
+* **Các lớp nông có độ phân giải cao (Shallow High-Resolution Layers — Biết chính xác "Ở đâu"):** Nằm ngay gần đầu vào nên giữ lại hầu hết chi tiết không gian (**Spatial details**) của ảnh gốc. Chúng dùng bộ lọc nhỏ (<InlineMath formula="3 \times 3" />) để bắt chính xác tọa độ của các đường viền, góc cạnh, nhưng do **Receptive Field** còn rất hẹp nên không đủ ngữ cảnh để biết đường viền đó thuộc về chiếc xe, cái cây hay khối u (**Vấn đề của Pixel Location**).
+* **Các lớp sâu có độ phân giải thấp (Deep Low-Resolution Layers — Biết rõ "Cái gì"):** Sau nhiều lần đi qua **Max Pooling** hoặc **Strided Convolution**, kích thước bản đồ đặc trưng bị thu nhỏ lại nhưng **Receptive Field** mở rộng ra toàn ảnh. Chúng nắm bắt được khái niệm ngữ nghĩa bậc cao (**Semantic information**), nhưng đã đánh rơi chi tiết tọa độ viền sắc nét nên không thể tự khôi phục ranh giới chính xác (**Vấn đề của Pixel Categorization**).
+* **Hệ quả thực tế khi thiếu sự kết hợp:** Chẳng hạn khi nhận diện một chiếc xe trên đường phố, nếu mô hình chỉ nhìn vào đặc trưng cục bộ là cặp bánh xe mà thiếu ngữ cảnh toàn cục (hoặc ngược lại), một chiếc xe rất dễ bị phát hiện tách rời thành hai vật thể riêng biệt hoặc vùng phân đoạn bị lem nhòe ra ngoài nền đường.
+
+Làm thế nào để một mô hình vừa hiểu được ngữ nghĩa toàn cục của các tầng sâu, vừa vẽ lại được đường viền sắc nét tới từng pixel của các tầng nông, ngay cả khi chỉ có vài chục bức ảnh y khoa để huấn luyện? Đó chính là lý do **Olaf Ronneberger, Philipp Fischer và Thomas Brox (2015)** thiết kế nên kiến trúc **U-Net**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+**U-Net** là một kiến trúc mạng **Fully Convolutional Network (FCN)** (loại bỏ hoàn toàn các tầng **Fully Connected** ở cuối mạng, chỉ sử dụng các phép tích chập, gộp và phóng đại không gian) được thiết kế đối xứng gồm hai nửa tạo thành hình chữ **U** đặc trưng.
+
+### Giải phẫu Kiến trúc Chữ U Đối xứng: Encoder, Bottleneck và Decoder
+
+Quan sát sơ đồ kiến trúc gốc của **U-Net (2015)** dưới đây, luồng dữ liệu đi qua ba khu vực rõ rệt:
+
+<LessonImage
+  assetPath="deep-learning/unet_original_architecture.png"
+  alt="Sơ đồ kiến trúc U-Net gốc của Ronneberger et al. (2015) gồm nhánh nén Encoder bên trái, đáy Bottleneck và nhánh khôi phục Decoder bên phải nối với nhau bằng các mũi tên xám Skip Connections"
+  caption="Kiến trúc U-Net (Ronneberger et al., 2015): Nửa bên trái là nhánh thu hẹp (Encoder) nén kích thước không gian và nhân đôi số kênh (64 → 128 → 256 → 512 → 1024); nửa bên phải là nhánh mở rộng (Decoder) dùng Up-conv 2×2 khôi phục độ phân giải và kết hợp với đặc trưng từ Encoder qua các đường nối ngang."
+/>
+
+1. **Nhánh thu hẹp bên trái — Encoder (Contracting Path):**
+   Đóng vai trò **Trích xuất đặc trưng (Feature Extraction)** tương tự một mạng CNN chuẩn. Ở mỗi bậc thang đi xuống:
+   * Dữ liệu đi qua **2 lớp tích chập `Conv 3×3` liên tiếp** (kèm **ReLU**). Trong bài báo gốc năm 2015, tác giả dùng tích chập không đệm viền (`padding = 0, stride = 1`), nên cứ sau mỗi lớp `Conv 3×3`, chiều cao và chiều rộng giảm đi <InlineMath formula="2" /> đơn vị:
+     <BlockMath formula="H_{\text{out}} = \frac{572 - 3 + 2 \times 0}{1} + 1 = 570 \xrightarrow{\text{Conv } 3\times 3\text{ lần 2}} 568" />
+     *(Trong các bản cài đặt PyTorch hiện đại, người ta thường đặt `padding = 1` để giữ nguyên kích thước <InlineMath formula="572 \to 572" /> cho tiện ghép nối mà không cần cắt viền).*
+   * Tiếp theo, mũi tên đỏ đi xuống thực hiện **`MaxPool 2×2` (`stride = 2`)** làm giảm một nửa kích thước không gian (từ <InlineMath formula="568 \times 568 \to 284 \times 284" />), đồng thời cụm tích chập kế tiếp **nhân đôi số lượng kênh đặc trưng** (<InlineMath formula="64 \to 128 \to 256 \to 512" />).
+2. **Đáy chữ U — Bottleneck:**
+   Tại tầng sâu nhất ở đáy chữ U, bản đồ đặc trưng được nén về kích thước không gian nhỏ nhất (<InlineMath formula="32 \times 32 \to 28 \times 28" />) nhưng có độ sâu lớn nhất lên tới **<InlineMath formula="1{,}024" /> kênh**, cô đọng thông tin ngữ nghĩa bậc cao của toàn bức ảnh.
+3. **Nhánh mở rộng bên phải — Decoder (Expansive Path):**
+   Đóng vai trò **Khôi phục kích thước không gian (Spatial Reconstruction)** để tạo ra bản đồ phân đoạn:
+   * Mỗi bậc đi lên (mũi tên xanh lá) sử dụng phép **Up-convolution `2×2`** (còn gọi là **Transposed Convolution** `nn.ConvTranspose2d` hoặc nội suy **Upsampling** kèm tích chập) để **nhân đôi chiều cao và chiều rộng** bản đồ đặc trưng, đồng thời giảm một nửa số kênh (<InlineMath formula="1024 \to 512 \to 256 \to 128 \to 64" />).
+   * Ở bước cuối cùng góc trên bên phải, một lớp **`Conv 1×1`** ánh xạ từ <InlineMath formula="64" /> kênh đặc trưng về đúng <InlineMath formula="K" /> kênh đầu ra (tương ứng với <InlineMath formula="K" /> lớp cần phân đoạn), tạo thành **Bản đồ xác suất (Probability Map)** gán nhãn cho từng pixel một.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Nếu chỉ có nhánh **Encoder** nén xuống rồi nhánh **Decoder** phóng to ngược trở lại (giống như một mạng **Autoencoder** thông thường), những chi tiết đường viền sắc nét đã bị mất đi trong quá trình `MaxPool 2×2` sẽ không bao giờ lấy lại được. Điểm làm nên tên tuổi của **U-Net** chính là hệ thống cầu nối ngang **Skip Connections** bắc qua giữa hai nhánh chữ U.
+
+### Sức mạnh của Skip Connections trong U-Net và Câu hỏi Kết nối Chéo
+
+Tại mỗi bậc của nhánh **Encoder**, khối đặc trưng sau khi đi qua hai lớp `Conv 3×3` sẽ phát ra **2 luồng đầu ra đồng thời**:
+
+1. **Luồng đi xuống:** Đưa vào tầng `MaxPool 2×2` để tiếp tục nén sang bậc **Encoder** sâu hơn.
+2. **Luồng đi ngang (Skip Connection):** Sao chép bản đồ đặc trưng độ phân giải cao đó và gửi thẳng sang bậc **Decoder** đối xứng nằm ở cùng độ cao bên nhánh phải.
+
+Ngược lại, mỗi bậc của nhánh **Decoder** sẽ nhận vào **2 nguồn đầu vào** và ghép nối chúng lại theo chiều kênh (**Concatenation**, ví dụ ghép <InlineMath formula="512" /> kênh từ dưới đi lên với <InlineMath formula="512" /> kênh từ ngang truyền sang thành <InlineMath formula="1{,}024" /> kênh, trước khi đưa qua hai lớp `Conv 3×3` để tinh chỉnh):
+
+* **Nguồn 1 (Từ tầng sâu đi lên qua Up-conv):** Mang đặc trưng ngữ nghĩa toàn cục (biết vùng này là đối tượng gì).
+* **Nguồn 2 (Từ khối Encoder đối xứng truyền ngang sang):** Mang đặc trưng vị trí cục bộ sắc nét chưa bị làm mờ bởi các lớp Pooling phía dưới.
+
+<UnetSkipConnectionDiagram />
+
+Khi mới tìm hiểu **U-Net**, một câu hỏi thảo luận rất thú vị thường được đặt ra là: *Tại sao ta chỉ nối ngang từng cặp khối Encoder – Decoder đối xứng ở cùng một tầng, mà không nối chéo kiểu "Fully Connected" từ mọi khối Encoder sang tất cả các khối Decoder?*
+
+Câu trả lời nằm ở **ràng buộc kích thước không gian và sự đánh đổi độ phức tạp**:
+
+* **Điều kiện bắt buộc để ghép nối (Same Spatial Size):** Phép ghép kênh `torch.cat([x_enc, x_dec], dim=1)` (cũng giống như phép cộng phần tử trong **ResNet**) đòi hỏi hai khối tensor phải có **cùng chiều cao <InlineMath formula="H" /> và chiều rộng <InlineMath formula="W" />**. Nhờ thiết kế đối xứng hình chữ U, khối Encoder ở tầng thứ <InlineMath formula="l" /> và khối Decoder ở tầng thứ <InlineMath formula="l" /> tự nhiên có cùng cấp độ phân giải để ghép khớp vào nhau.
+* **Khác biệt giữa Skip Connection của ResNet và U-Net:** Trong **ResNet**, đường nối tắt thực hiện **phép cộng từng phần tử (<InlineMath formula="\mathcal{F}(x) + x" />)** giữ nguyên số kênh để truyền đạo hàm qua hàng trăm lớp. Trong **U-Net**, đường nối tắt thực hiện **phép ghép nối theo chiều kênh (`Concatenate`)** làm tăng gấp đôi số kênh tại đầu vào mỗi bậc Decoder, giúp các lớp tích chập phía sau tự do chọn lọc và pha trộn giữa kênh biên giới sắc nét (Encoder) và kênh ngữ nghĩa (Decoder).
+* **Có thể nối chéo mọi tầng nếu cưỡng bức đổi kích thước không?** Về mặt kỹ thuật là hoàn toàn khả thi nếu ta dùng thêm các phép **Downsampling (MaxPool)** hoặc **Upsampling (Bilinear Interpolation)** để ép các tầng lệch cấp về cùng một kích thước <InlineMath formula="(H, W)" /> (đây chính là ý tưởng của các biến thể về sau như **UNet++** và **UNet 3+**). Tuy nhiên, việc nối chéo toàn bộ khiến số lượng kênh và chi phí bộ nhớ tăng vọt, trong khi trên phần lớn bài toán phân đoạn ảnh thực tế, chỉ riêng các đường nối ngang đối xứng của **U-Net** chuẩn đã mang lại độ chính xác biên rất cao với tốc độ nhanh hơn nhiều.
+
+</MdxPage>

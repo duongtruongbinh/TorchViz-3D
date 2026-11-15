@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'deep-learning-history-timeline',
+  locale: 'vi',
+  title: 'Lịch sử Deep Learning',
+  headings: [
+    'Từ Neuron Nhân tạo Đầu tiên đến Mùa đông AI',
+    'Sự trỗi dậy của Backpropagation và Kỷ nguyên GPU',
+    'Kỷ nguyên Transformer và Định luật Mở rộng Quy mô',
+  ],
+  keywords: [
+    'deep learning history',
+    'perceptron',
+    'backpropagation',
+    'alexnet',
+    'transformer',
+    'scaling laws',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Từ Neuron Nhân tạo Đầu tiên đến Mùa đông AI
+
+Lịch sử Deep Learning không phải một đường thẳng đi lên liên tục mà là chuỗi những lần bùng nổ rồi chững lại kéo dài hàng thập kỷ. Năm 1943, Warren McCulloch và Walter Pitts đề xuất mô hình toán học đầu tiên cho tế bào thần kinh nhân tạo. Đến năm 1958, Frank Rosenblatt chế tạo **Perceptron**, cỗ máy có thể tự điều chỉnh trọng số để phân loại hình ảnh đơn giản.
+
+<LessonImage
+  assetPath="deep-learning/dl_history_milestones.jpg"
+  alt="Ba kỷ nguyên lịch sử Deep Learning từ Perceptron và Backpropagation đến AlexNet và Transformer"
+  caption="Ba bước ngoặt lớn: nền tảng Perceptron & Backpropagation, cú hích GPU với AlexNet (2012) và kỷ nguyên Transformer (2017+)."
+/>
+
+Sự hưng phấn ban đầu nhanh chóng nguội lạnh khi Marvin Minsky và Seymour Papert chỉ ra vào năm 1969 rằng một Perceptron đơn tầng không thể giải nổi bài toán phi tuyến cơ bản như phép toán XOR. Thiếu thuật toán huấn luyện hiệu quả cho mạng nhiều tầng và thiếu năng lực tính toán đã đẩy lĩnh vực vào **Mùa đông AI** đầu tiên.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Sự trỗi dậy của Backpropagation và Kỷ nguyên GPU
+
+Ngọn lửa được thắp lại vào năm 1986 khi David Rumelhart, Geoffrey Hinton và Ronald Williams phổ biến thuật toán **Backpropagation**, cho phép truyền tín hiệu sai số ngược từ đầu ra về các tầng ẩn để cập nhật trọng số. Tiếp đó, Yann LeCun ứng dụng mạng tích chập **LeNet** vào nhận dạng chữ số viết tay trên séc ngân hàng trong thập niên 1990.
+
+Dù thuật toán đã sẵn sàng, mạng neural sâu vẫn chật vật vì dữ liệu còn ít và CPU quá chậm. Bước ngoặt thực sự chỉ đến vào năm 2012 với sự hội tụ của ba yếu tố vàng.
+
+- **Dữ liệu lớn (ImageNet):** Hàng triệu bức ảnh gắn nhãn tạo ra thước đo đủ khó và đủ phong phú để mô hình sâu phát huy lợi thế.
+- **Phần cứng song song (GPU):** Việc tận dụng GPU chơi game để nhân ma trận giúp tăng tốc huấn luyện lên hàng chục lần.
+- **Kiến trúc & kỹ thuật mới (AlexNet):** Kết hợp hàm kích hoạt ReLU, Dropout và các tầng tích chập sâu giúp AlexNet bỏ xa toàn bộ phương pháp thị giác truyền thống tại cuộc thi ImageNet 2012.
+
+<YouTubeEmbed
+  videoId="UZDiGooFs54"
+  title="The moment we stopped understanding AI [AlexNet] (Welch Labs)"
+  caption="Welch Labs — câu chuyện về cột mốc AlexNet (2012), sự kết hợp với GPU và bước ngoặt mở đầu làn sóng Deep Learning hiện đại."
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kỷ nguyên Transformer và Định luật Mở rộng Quy mô
+
+Sau cột mốc 2012, Deep Learning bùng nổ qua nhiều kiến trúc chuyên biệt như ResNet giải quyết mạng siêu sâu, hay LSTM thống trị xử lý chuỗi. Tuy nhiên, năm 2017 đánh dấu cuộc cách mạng tiếp theo khi kiến trúc **Transformer** ra đời với cơ chế **Self-Attention**, loại bỏ nút thắt tuần tự của RNN và cho phép song song hóa triệt để trên cụm GPU lớn.
+
+<LessonImage
+  assetPath="deep-learning/dl_transformer_scaling_laws.jpg"
+  alt="Từ Self-Attention song song đến Scaling Laws (Data, Model, Compute) và mô hình nền tảng đa tác vụ"
+  caption="Self-Attention mở khóa khả năng song song hóa, kết hợp với Scaling Laws tạo ra các mô hình nền tảng đa năng."
+/>
+
+Từ đây, cộng đồng phát hiện ra **Scaling Laws** (định luật mở rộng quy mô). Khi tăng đồng thời kích thước mô hình, lượng dữ liệu huấn luyện và ngân sách tính toán, hiệu năng không chỉ cải thiện đều đặn mà còn nảy sinh những năng lực suy luận mới trên các **mô hình nền tảng** (**foundation models**).
+
+Hành trình hơn 80 năm cho thấy một quy luật lặp lại: mỗi khi ý tưởng thuật toán gặp đúng bộ dữ liệu và hạ tầng phần cứng phù hợp, Deep Learning lại mở ra một chuẩn mực hoàn toàn mới. Sau bài Quiz ôn tập ngắn tiếp theo, bạn sẽ sẵn sàng bước vào Chương 1 để tự tay bóc tách từng kiến trúc cốt lõi từ **Neural Network**, **CNN**, **RNN**, **Transformer**, **Autoencoders/VAE/U-Net**, **GANs & Diffusion** đến **Compression** và **Transfer Learning**.
+
+</MdxPage>

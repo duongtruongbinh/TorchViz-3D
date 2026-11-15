@@ -2,6 +2,8 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'LessonNote',
   'TextHighlight',
   'LessonImage',
+  'YouTubeEmbed',
+  'JournalLetter',
   'MdxQuiz',
   'MdxPage',
   'RequirementCard',

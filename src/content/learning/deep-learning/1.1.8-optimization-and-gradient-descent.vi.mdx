@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'optimization-and-gradient-descent',
+  locale: 'vi',
+  title: 'Tối ưu hóa & Gradient Descent',
+  headings: [
+    'Batch, Stochastic (SGD) & Mini-batch Gradient Descent',
+    'Learning Rate: Quá nhỏ, Vừa phải và Quá lớn',
+    'Từ SGD đến Momentum, Adam & Vòng lặp PyTorch',
+  ],
+  keywords: [
+    'optimization',
+    'gradient descent',
+    'batch gradient descent',
+    'mini-batch',
+    'sgd',
+    'learning rate',
+    'momentum',
+    'adam',
+    'zero_grad',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Batch, Stochastic (SGD) & Mini-batch Gradient Descent
+
+Trong thực tế, tập dữ liệu có thể chứa hàng trăm nghìn đến hàng triệu mẫu. Sự khác nhau lớn nhất giữa các biến thể **Gradient Descent** nằm ở việc ta dùng **bao nhiêu mẫu** để tính gradient cho mỗi lần cập nhật trọng số:
+
+<OptimizationDiagram variant="batch" />
+
+- **Batch GD:** Tính gradient trên toàn bộ tập dữ liệu rồi mới cập nhật 1 lần <InlineMath formula="\implies" /> hướng đi rất chính xác nhưng quá chậm và dễ tràn bộ nhớ với dữ liệu lớn.
+- **Stochastic GD (SGD):** Chọn 1 mẫu ngẫu nhiên để cập nhật ngay <InlineMath formula="\implies" /> rất nhanh nhưng gradient bị nhiễu mạnh, đường đi zíc-zắc.
+- **Mini-batch GD:** Chia dữ liệu thành từng nhóm nhỏ (thường <InlineMath formula="32" />, <InlineMath formula="64" />, <InlineMath formula="128" /> hoặc <InlineMath formula="256" /> mẫu) <InlineMath formula="\implies" /> tận dụng tối đa khả năng tính song song của GPU mà vẫn giữ được độ ổn định. Đây là chuẩn mặc định trong Deep Learning.
+
+Thực hành cập nhật trọng số Perceptron theo SGD và Batch ngay tại [Bài tập 1 — Cập nhật Perceptron](#/learning/fundamentals/logistic-classification?lesson=perceptron-practice).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Learning Rate: Quá nhỏ, Vừa phải và Quá lớn
+
+Ở bước cập nhật <InlineMath formula="w_{\text{new}} = w_{\text{old}} - \eta \cdot \nabla \mathcal{L}" />, siêu tham số **Learning Rate** (<InlineMath formula="\eta" />) quyết định độ dài bước nhảy theo hướng ngược gradient. Chọn sai <InlineMath formula="\eta" /> là một trong những nguyên nhân phổ biến nhất khiến mô hình không hội tụ:
+
+<OptimizationDiagram variant="lr" />
+
+- Nếu <InlineMath formula="\eta" /> **quá nhỏ**: mỗi bước dịch chuyển quá ít, mô hình mất rất nhiều epoch mới nhích gần tới đáy (hoặc kẹt sớm khi hết thời gian huấn luyện).
+- Nếu <InlineMath formula="\eta" /> **quá lớn**: bước nhảy vọt qua điểm cực tiểu sang sườn đối diện cao hơn, khiến Loss dao động mạnh hoặc tăng vọt ra vô cùng (**phân kỳ**).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ SGD đến Momentum, Adam & Vòng lặp PyTorch
+
+SGD thuần chỉ nhìn vào gradient tại đúng thời điểm hiện tại, nên dễ bị dao động mạnh qua lại trong các "thung lũng hẹp" hoặc lê bước chậm ở vùng mặt phẳng có độ dốc nhỏ. Hai cải tiến phổ biến giải quyết triệt để vấn đề này:
+
+<ConceptFlow
+  ariaLabel="Tiến hóa từ SGD thuần sang Momentum và Adam"
+  items={[
+    {
+      title: '1. SGD + Momentum',
+      subtitle: 'Tích lũy quán tính',
+      detail: 'Cộng thêm một phần hướng di chuyển của các bước trước (thường hệ số quán tính bằng 0.9), giúp triệt tiêu dao động ngang và lướt nhanh hơn dọc theo hướng dốc chính.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Adam (Adaptive Moment)',
+      subtitle: 'Mặc định phổ biến nhất',
+      detail: 'Kết hợp quán tính (Momentum) với việc tự điều chỉnh learning rate riêng cho từng trọng số dựa trên độ lớn gradient lịch sử — hội tụ nhanh và ít phải tinh chỉnh tay.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+Trong PyTorch, toàn bộ quá trình tối ưu được đóng gói gọn trong ba lệnh kinh điển ở mỗi vòng lặp huấn luyện:
+
+```python
+import torch
+import torch.nn as nn
+
+model = nn.Linear(4, 1)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+# Một bước huấn luyện trên 1 mini-batch
+optimizer.zero_grad()          # 1. Xóa gradient cũ tích lũy từ bước trước
+loss = ((model(x) - y) ** 2).mean()
+loss.backward()                # 2. Tính gradient mới (Backpropagation)
+optimizer.step()               # 3. Cập nhật toàn bộ trọng số của model
+```
+
+**Vì sao phải gọi `optimizer.zero_grad()`?** Mặc định khi gọi `loss.backward()`, PyTorch sẽ **cộng dồn** gradient mới vào `param.grad` sẵn có chứ không ghi đè. Nếu quên xóa về `0`, gradient của các mini-batch trước sẽ cộng chồng lên mini-batch sau làm hướng cập nhật bị sai lệch hoàn toàn.
+
+</MdxPage>

@@ -1,0 +1,128 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'pooling-and-feature-maps',
+  locale: 'vi',
+  title: 'Pooling, Batch Norm & Đếm Tham số CNN',
+  headings: [
+    'Tầng Gộp (Pooling): Max Pooling, Average Pooling & Global Average Pooling',
+    'Batch Normalization trong CNN và Công thức Đếm Tham số',
+    'Thực hành Giải phẫu & Tính tay Bảng Tham số Mô hình CNN',
+  ],
+  keywords: [
+    'max pooling',
+    'average pooling',
+    'global average pooling',
+    'batch normalization',
+    'cnn parameter counting',
+    'dilation rate',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Sau khi các lớp tích chập trích xuất ra hàng chục bản đồ đặc trưng (**Feature Maps**), nếu giữ nguyên độ phân giải cao từ đầu đến cuối mạng thì chi phí tính toán và bộ nhớ sẽ tăng rất nhanh. Vì vậy, người ta thường xen kẽ các tầng **Pooling** sau mỗi cụm tích chập để tóm tắt và giảm kích thước không gian.
+
+### Tầng Gộp (Pooling): Max Pooling, Average Pooling & Global Average Pooling
+
+**Pooling** hoạt động bằng cách trượt một cửa sổ kích thước <InlineMath formula="k \times k" /> (phổ biến nhất là <InlineMath formula="2 \times 2" /> với bước nhảy <InlineMath formula="\text{stride} = 2" />) độc lập trên từng kênh của bản đồ đặc trưng rồi rút gọn <InlineMath formula="4" /> giá trị trong cửa sổ về <InlineMath formula="1" /> con số đại diện duy nhất. Điểm quan trọng nhất cần nhớ là tầng **Pooling** chỉ thực hiện phép toán cố định (lấy cực đại hoặc trung bình) nên **không tiêu tốn bất kỳ tham số học nào (<InlineMath formula="0" /> parameters)**.
+
+Ba biến thể **Pooling** thông dụng nhất trong mạng **CNN** gồm:
+
+* **Max Pooling:** Giữ lại giá trị lớn nhất trong mỗi cửa sổ <InlineMath formula="2 \times 2" />. Phép toán này được ưa chuộng nhất vì nó bảo tồn tín hiệu kích hoạt mạnh nhất (chẳng hạn các bài toán đầu tiên nhận diện chữ số viết tay màu trắng giá trị <InlineMath formula="255" /> trên nền đen giá trị <InlineMath formula="0" />, hoặc các đường biên sắc nét vừa được bộ lọc phát hiện), tránh việc giá trị đặc trưng mạnh bị kéo tụt xuống bởi các ô nền xung quanh.
+* **Average Pooling:** Lấy trung bình cộng các phần tử trong cửa sổ, giúp làm mượt thông tin và giảm nhiễu cục bộ (từng được dùng trong kiến trúc **LeNet-5** đời đầu).
+* **Global Average Pooling (GAP):** Thay vì dùng cửa sổ nhỏ <InlineMath formula="2 \times 2" />, **GAP** lấy trung bình trên toàn bộ chiều cao và chiều rộng <InlineMath formula="H \times W" /> của mỗi kênh, nén một khối đặc trưng <InlineMath formula="H \times W \times C" /> thành một vector <InlineMath formula="1 \times 1 \times C" /> (mỗi kênh chỉ còn đúng <InlineMath formula="1" /> con số đại diện). Kỹ thuật này thường đặt ngay trước tầng phân loại cuối để thay thế các tầng **Fully Connected** đắt đỏ.
+
+<PoolingAndParamsExplorer />
+
+Việc đặt tầng **Pooling** xen kẽ giữa các lớp tích chập mang lại bốn lợi ích trực tiếp:
+
+* **Giảm kích thước không gian và khối lượng tính toán:** Một tầng `MaxPool2d(2, stride=2)` giảm một nửa cả chiều cao lẫn chiều rộng (tức giảm <InlineMath formula="4" /> lần tổng số điểm ảnh trên mỗi kênh, ví dụ từ <InlineMath formula="224 \times 224 \times 64" /> xuống <InlineMath formula="112 \times 112 \times 64" />), kéo theo số lượng tham số ở các tầng sau giảm mạnh.
+* **Tăng tính bất biến với dịch chuyển nhỏ (Translation Invariance):** Nếu nét chữ hoặc vật thể lệch sang trái hay phải <InlineMath formula="1" /> pixel bên trong ô <InlineMath formula="2 \times 2" />, giá trị cực đại đầu ra của **Max Pooling** hầu như không thay đổi.
+* **Mở rộng nhanh Receptive Field:** Các lớp tích chập phía sau tầng **Pooling** có thể nhìn bao quát vùng ảnh rộng gấp đôi mà không cần tăng kích thước bộ lọc.
+* **Kiểm soát Overfitting:** Do nén bớt độ phân giải mà không sinh thêm bất kỳ trọng số nào, mô hình buộc phải giữ lại những đặc trưng khái quát nhất.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Trong một kiến trúc **CNN** hoàn chỉnh, cứ sau <InlineMath formula="1" /> đến <InlineMath formula="2" /> lần thực hiện `Conv + BatchNorm + ReLU`, mạng sẽ qua một lớp `Pooling`, và ở chặng cuối cùng sẽ trải phẳng (`Flatten`) hoặc dùng `GAP` để đưa vào lớp `Linear (Fully Connected)` kèm `Softmax` phân loại. Để thiết kế và gỡ lỗi kiến trúc mạng, bạn cần nắm vững cách tính số lượng tham số tại từng tầng.
+
+### Batch Normalization trong CNN và Công thức Đếm Tham số
+
+Tầng **Batch Normalization** (`nn.BatchNorm2d`) không chỉ chuẩn hóa ở đầu vào mà được đặt xen vào giữa các tầng tích chập để giữ cho phân phối kích hoạt của mọi kênh luôn ổn định (không quá lớn gây **Exploding Gradient** và không quá nhỏ gây **Vanishing Gradient**):
+
+<BlockMath formula="\hat{x}_c = \frac{x_c - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}}, \qquad y_c = \gamma_c \hat{x}_c + \beta_c" />
+
+Với mỗi kênh đặc trưng <InlineMath formula="c \in \{1, \dots, C\}" />, tầng `BatchNorm2d` lưu trữ <InlineMath formula="4" /> đại lượng gồm hệ số co giãn học được <InlineMath formula="\gamma_c" />, độ lệch học được <InlineMath formula="\beta_c" />, cùng trung bình trượt <InlineMath formula="\mu_c" /> và phương sai trượt <InlineMath formula="\sigma_c^2" />. Do đó, trong bảng thống kê mô hình (như Keras hoặc toàn bộ trạng thái kênh), mỗi kênh có <InlineMath formula="4" /> tham số (trong đó <InlineMath formula="2" /> tham số <InlineMath formula="\gamma, \beta" /> được cập nhật qua gradient).
+
+Tổng hợp lại, ta có bộ bốn quy tắc đếm tham số cho mọi mô hình **CNN**:
+
+* **Tầng Tích chập 2D (`Conv2d`):** Với bộ lọc kích thước <InlineMath formula="K \times K" />, nhận đầu vào có độ sâu <InlineMath formula="C_{\text{in}}" /> kênh và xuất ra <InlineMath formula="C_{\text{out}}" /> bộ lọc (mỗi bộ lọc có <InlineMath formula="1" /> hệ số độ lệch **bias** riêng)
+
+<BlockMath formula="\text{Params}_{\text{Conv2d}} = \left( K \times K \times C_{\text{in}} + 1_{\text{bias}} \right) \times C_{\text{out}}" />
+
+* **Tầng Kết nối Đầy đủ (`Linear` / `Dense`):** Nhận vector đầu vào <InlineMath formula="D_{\text{in}}" /> chiều và nối tới <InlineMath formula="D_{\text{out}}" /> neuron đầu ra
+
+<BlockMath formula="\text{Params}_{\text{Dense}} = \left( D_{\text{in}} + 1_{\text{bias}} \right) \times D_{\text{out}}" />
+
+* **Tầng Chuẩn hóa theo Lô (`BatchNorm2d`):** Với đầu vào có <InlineMath formula="C" /> kênh đặc trưng
+
+<BlockMath formula="\text{Params}_{\text{BN (Total)}} = 4 \times C \quad (\text{gồm } 2C \text{ tham số học } \gamma, \beta \text{ và } 2C \text{ thống kê trượt } \mu, \sigma^2)" />
+
+* **Các tầng `MaxPool`, `AvgPool`, `GAP`, `Flatten`, `Dropout`, `Activation` (`ReLU`, `Softmax`):** Hoàn toàn không có trọng số nên luôn có **<InlineMath formula="0" /> tham số**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Hãy cùng áp dụng trực tiếp bộ công thức trên để giải phẫu hai kiến trúc mạng thực tế.
+
+### Thực hành Giải phẫu & Tính tay Bảng Tham số Mô hình CNN
+
+**Bài toán 1 — Mạng CNN 3 khối chuẩn với `padding = 'same'`:**
+Xét đầu vào là ảnh màu kích thước <InlineMath formula="32 \times 32 \times 3" />. Nhớ rằng `padding = 'same'` với <InlineMath formula="\text{stride} = 1" /> luôn giữ nguyên chiều cao và chiều rộng, chỉ làm thay đổi độ sâu theo số lượng bộ lọc <InlineMath formula="C_{\text{out}}" />:
+
+<ComparisonMatrix
+  leftHeader="Tầng (Layer)"
+  rightHeader="Giải phẫu Bài toán 1: CNN 3 tầng + Same Padding (Tổng: 225,034 params)"
+  columns={['Cấu hình', 'Output Shape', 'Công thức tính Params', 'Params #']}
+  rows={[
+    { label: 'Input Image', values: ['RGB 3 kênh', '32 × 32 × 3', '0 (Không có trọng số)', '0'] },
+    { label: 'Conv2D_1', values: ['32 filters (3×3), pad=same', '32 × 32 × 32', '(3 × 3 × 3 + 1) × 32', '896'] },
+    { label: 'MaxPool2D_1', values: ['Pool 2×2, stride=2', '16 × 16 × 32', '0', '0'] },
+    { label: 'Conv2D_2', values: ['64 filters (3×3), pad=same', '16 × 16 × 64', '(3 × 3 × 32 + 1) × 64', '18,496'] },
+    { label: 'MaxPool2D_2', values: ['Pool 2×2, stride=2', '8 × 8 × 64', '0', '0'] },
+    { label: 'Conv2D_3', values: ['128 filters (3×3), pad=same', '8 × 8 × 128', '(3 × 3 × 64 + 1) × 128', '73,856'] },
+    { label: 'MaxPool2D_3 + Flatten', values: ['Pool 2×2 → duỗi phẳng', '2048', '0', '0'] },
+    { label: 'Dense_1 (FC)', values: ['64 neurons, ReLU', '64', '(2048 + 1) × 64', '131,136'], highlight: 3 },
+    { label: 'Dense_2 (Output)', values: ['10 classes, Softmax', '10', '(64 + 1) × 10', '650'] },
+  ]}
+/>
+
+Cộng toàn bộ mạng ta được đúng **<InlineMath formula="225{,}034" /> tham số** — trong đó riêng tầng `Dense_1` đầu tiên sau `Flatten` đã chiếm gần <InlineMath formula="58\%" /> tổng tham số cả mạng!
+
+**Bài toán 2 — Mạng kết hợp `dilation_rate = 2`, `BatchNorm`, `Dropout` và `Conv 1×1`:**
+Xét đầu vào là ảnh xám <InlineMath formula="28 \times 28 \times 1" /> đi qua tầng tích chập đầu tiên có `32 filters 3×3` với `dilation_rate = 2` (tích chập giãn nở, chèn khoảng trống giữa các phần tử của bộ lọc để mở rộng trường nhìn mà không tăng số trọng số):
+
+* **Ảnh hưởng của `dilation_rate = d` lên kích thước không gian:** Bộ lọc <InlineMath formula="k \times k" /> giãn nở với hệ số <InlineMath formula="d" /> có kích thước phủ hiệu dụng là <InlineMath formula="k_{\text{eff}} = k + (k - 1)(d - 1)" />. Với <InlineMath formula="k = 3, d = 2" />, ta có <InlineMath formula="k_{\text{eff}} = 3 + 2 \times 1 = 5" />. Do đó kích thước đầu ra (khi <InlineMath formula="p = 0, s = 1" />) giảm từ <InlineMath formula="28" /> xuống <InlineMath formula="28 - 5 + 1 = 24 \implies 24 \times 24 \times 32" />, trong khi số tham số vẫn chỉ tính trên <InlineMath formula="3 \times 3" /> phần tử thực của bộ lọc là <InlineMath formula="(3 \times 3 \times 1 + 1_{\text{bias}}) \times 32 = 320" />.
+
+<ComparisonMatrix
+  leftHeader="Tầng (Layer)"
+  rightHeader="Giải phẫu Bài toán 2: Dilation=2 + BatchNorm + Conv 1×1 (Tổng: 22,323 params)"
+  columns={['Cấu hình', 'Output Shape', 'Công thức tính Params', 'Params #']}
+  rows={[
+    { label: 'Input Image', values: ['Ảnh xám 1 kênh', '28 × 28 × 1', '0', '0'] },
+    { label: 'Conv2D (d=2)', values: ['32 filters (3×3), k_eff=5, pad=0', '24 × 24 × 32', '(3 × 3 × 1 + 1) × 32', '320'] },
+    { label: 'BatchNorm + Dropout + MaxPool', values: ['BN 32 kênh, Pool 2×2', '12 × 12 × 32', '32 × 4', '128'] },
+    { label: 'Conv2D (1×1)', values: ['64 filters (1×1), pad=0', '12 × 12 × 64', '(1 × 1 × 32 + 1) × 64', '2,112'] },
+    { label: 'BatchNorm + Dropout', values: ['Chuẩn hóa 64 kênh', '12 × 12 × 64', '64 × 4', '256'] },
+    { label: 'Conv2D (3×3)', values: ['32 filters (3×3), pad=0', '10 × 10 × 32', '(3 × 3 × 64 + 1) × 32', '18,464'] },
+    { label: 'Conv2D (1×1 nén kênh)', values: ['1 filter (1×1), nén 32 → 1 kênh', '10 × 10 × 1', '(1 × 1 × 32 + 1) × 1', '33'], highlight: 3 },
+    { label: 'Flatten + Dense(10)', values: ['100 → 10 classes (Softmax)', '10', '(100 + 1) × 10', '1,010'] },
+  ]}
+/>
+
+Nhờ tầng `Conv 1×1` chỉ dùng <InlineMath formula="1" /> bộ lọc để ép độ sâu từ <InlineMath formula="32" /> kênh về đúng <InlineMath formula="1" /> kênh (<InlineMath formula="10 \times 10 \times 1" />) với chỉ <InlineMath formula="33" /> tham số, tầng `Dense` cuối cùng chỉ tốn <InlineMath formula="(100 + 1) \times 10 = 1{,}010" /> tham số!
+
+</MdxPage>

@@ -1,0 +1,115 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'modern-cnn-inception-resnet',
+  locale: 'vi',
+  title: 'Các Kiến trúc CNN (Phần 2): Inception & ResNet',
+  headings: [
+    'Inception-v1 / GoogLeNet (2014): Mở rộng Chiều rộng & Nút cổ chai 1×1',
+    'Inception-v2/v3 (2015) và Tích chập Tách chiều sâu (Depthwise Separable Conv)',
+    'ResNet-50 (2015): Skip Connection & Bảng Tổng hợp So sánh 5 Kiến trúc',
+  ],
+  keywords: [
+    'inception',
+    'googlenet',
+    '1x1 bottleneck',
+    'auxiliary classifier',
+    'depthwise separable convolution',
+    'resnet-50',
+    'skip connection',
+    'residual block',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Cùng ra đời năm 2014 với **VGG-16**, kiến trúc **Inception-v1 (GoogLeNet)** của nhóm nghiên cứu Google đi theo một hướng đột phá hoàn toàn khác: mở rộng mạng lên **<InlineMath formula="22" /> tầng** nhưng chỉ sử dụng vỏn vẹn **<InlineMath formula="5\text{ triệu}" /> tham số** (nhẹ hơn <InlineMath formula="12" /> lần so với AlexNet và nhẹ hơn <InlineMath formula="27" /> lần so với VGG-16!).
+
+### Inception-v1 / GoogLeNet (2014): Mở rộng Chiều rộng & Nút cổ chai 1×1
+
+Khi thiết kế một tầng tích chập thông thường, người kỹ sư luôn đứng trước câu hỏi khó: nên chọn bộ lọc <InlineMath formula="1 \times 1" />, <InlineMath formula="3 \times 3" /> hay <InlineMath formula="5 \times 5" />? Thực tế trong ảnh tự nhiên, cùng một đối tượng (ví dụ khuôn mặt chú chó) có lúc chụp cận cảnh chiếm gần hết khung hình, có lúc lại đứng ở xa chỉ chiếm một góc nhỏ.
+
+<LessonImage
+  assetPath="deep-learning/cnn_inception_multiscale_dogs.png"
+  alt="So sánh hai bức ảnh chú chó có kích thước chiếm khung hình rất khác nhau đòi hỏi các kích thước Kernel khác nhau"
+  caption="Bài toán đa tỉ lệ (Multi-scale): bức ảnh cận cảnh bên trái cần bộ lọc có Receptive Field lớn (5×5) để bao quát khuôn mặt, trong khi bức ảnh chụp xa bên phải cần bộ lọc nhỏ (3×3, 1×1) để bắt chi tiết cục bộ."
+/>
+
+Thay vì ép mạng chỉ chọn một kích thước duy nhất, **Khối Inception (Inception Module)** mở rộng mạng theo chiều rộng bằng cách **chạy song song cả 4 nhánh** (<InlineMath formula="1 \times 1" />, <InlineMath formula="3 \times 3" />, <InlineMath formula="5 \times 5" /> và <InlineMath formula="\text{MaxPool } 3 \times 3" />) trên cùng một đầu vào, sau đó ghép nối (**Concatenate**) toàn bộ các bản đồ đặc trưng đầu ra theo chiều kênh để mạng tự học trọng số ưu tiên nhánh phù hợp nhất.
+
+* **Cơ sở lý thuyết (Arora et al., 2014):** Thiết kế nhiều tháp tích chập song song được truyền cảm hứng từ nguyên lý phân cụm tương quan thống kê giữa các đơn vị kích hoạt ở tầng trước: những neuron có tương quan cực cao trong phạm vi <InlineMath formula="1" /> điểm ảnh được gom bằng nhánh <InlineMath formula="1 \times 1" />, những cụm tương quan trong lân cận vừa được gom bằng nhánh <InlineMath formula="3 \times 3" />, và những cụm tương quan trải rộng hơn được gom bằng nhánh <InlineMath formula="5 \times 5" />.
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_inception_v1.png"
+  alt="Sơ đồ tổng thể kiến trúc Inception-v1 (GoogLeNet) với 2 nhánh phân loại phụ (Auxiliary Classifiers) và cấu trúc bên trong khối Inception Module"
+  caption="Kiến trúc Inception-v1 (2014): gồm khối Stem ở đầu, chuỗi 9 khối Inception xếp chồng, thay thế các tầng FC lớn ở cuối bằng Global Average Pooling (avg-pool 7×7), và gắn thêm 2 nhánh phân loại phụ ở giữa mạng."
+/>
+
+Tuy nhiên, nếu đặt trực tiếp bộ lọc <InlineMath formula="5 \times 5" /> trên khối đặc trưng có hàng trăm kênh thì số phép nhân sẽ phình to. Giải pháp thiên tài của **Inception-v1** là đặt một tầng **Conv 1×1 (Bottleneck)** ngay trước tầng <InlineMath formula="3 \times 3" /> và <InlineMath formula="5 \times 5" /> để nén giảm số kênh đầu vào trước khi tích chập không gian:
+
+<InceptionBottleneckDiagram />
+
+Bên cạnh khối Inception và nút cổ chai <InlineMath formula="1 \times 1" />, do mạng đã sâu tới <InlineMath formula="22" /> tầng dễ gây **Vanishing Gradient** cho các lớp đầu, tác giả gắn thêm **2 nhánh phân loại phụ (Auxiliary Classifiers)** rẽ ra từ các tầng giữa của mạng. Hàm mất mát tổng trong quá trình huấn luyện được tính bằng tổng có trọng số
+
+<BlockMath formula="\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{main}} + 0.3 \cdot \mathcal{L}_{\text{aux1}} + 0.3 \cdot \mathcal{L}_{\text{aux2}}" />
+
+* **Tại sao trọng số nhánh chính (<InlineMath formula="1.0" />) lớn hơn nhánh phụ (<InlineMath formula="0.3" />)?** Nhánh chính đi qua toàn bộ <InlineMath formula="22" /> tầng nên trích xuất được đặc trưng ngữ nghĩa đầy đủ nhất. Hai nhánh phụ ngắn hơn đóng vai trò "bơm trực tiếp gradient" về các tầng đầu: ở giai đoạn sau khi gradient từ nhánh chính truyền ngược qua nhiều lớp bị suy giảm nhỏ dần, đạo hàm tại các tầng đầu vẫn nhận được tín hiệu cập nhật ổn định nhờ tổng đạo hàm cộng thêm từ hai nhánh phụ (khi suy luận thực tế trên tập Test, hai nhánh phụ này được tháo bỏ hoàn toàn).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Một năm sau **Inception-v1**, nhóm tác giả tiếp tục nâng cấp lên **Inception-v2 & Inception-v3 (2015)** (~<InlineMath formula="24\text{M}" /> tham số) và đặt nền móng cho các phép phân rã tích chập siêu nhẹ trên thiết bị di động.
+
+### Inception-v2/v3 (2015) và Tích chập Tách chiều sâu (Depthwise Separable Conv)
+
+Trong **Inception-v2/v3**, tác giả áp dụng hai kỹ thuật phân rã bộ lọc (**Factorization**) để vừa giảm thêm chi phí tính toán vừa tăng độ sâu phi tuyến:
+
+1. **Thay thế nhánh `Conv 5×5` bằng 2 tầng `Conv 3×3` nối tiếp:** Kế thừa trực tiếp bài học từ **VGG-16**, nhánh <InlineMath formula="5 \times 5" /> trong khối Inception được tách thành hai lớp <InlineMath formula="3 \times 3" /> liên tiếp, giúp giảm gần một nửa chi phí tính toán trên nhánh này mà vẫn giữ nguyên trường nhìn <InlineMath formula="5 \times 5" />.
+2. **Phân rã tích chập bất đối xứng (<InlineMath formula="n \times n \to 1 \times n \text{ rồi } n \times 1" />):** Thay vì nhân một bộ lọc vuông <InlineMath formula="7 \times 7" /> (<InlineMath formula="49" /> trọng số mỗi kênh), ta tách thành một tầng tích chập ngang <InlineMath formula="1 \times 7" /> nối tiếp với một tầng tích chập dọc <InlineMath formula="7 \times 1" /> (chỉ tốn <InlineMath formula="7 + 7 = 14" /> trọng số, giảm <InlineMath formula="71\%" /> chi phí!). Trong thực tế, phép phân rã <InlineMath formula="1 \times n" /> và <InlineMath formula="n \times 1" /> hoạt động rất hiệu quả ở các tầng bản đồ đặc trưng trung gian có kích thước <InlineMath formula="17 \times 17" />.
+
+Từ tư tưởng tách riêng việc lọc không gian và việc trộn kênh của họ nhà **Inception**, kiến trúc **Depthwise Separable Convolution** (sử dụng trong **Xception** và **MobileNet**) ra đời và tách một phép tích chập chuẩn thành hai bước cực gọn:
+
+* **Bước 1 — Depthwise Convolution (Lọc không gian độc lập từng kênh):** Dùng đúng <InlineMath formula="C_{\text{in}}" /> bộ lọc mỏng kích thước <InlineMath formula="k \times k \times 1" />, mỗi bộ lọc chỉ trượt trên đúng <InlineMath formula="1" /> kênh tương ứng của đầu vào (tốn <InlineMath formula="k \times k \times C_{\text{in}}" /> tham số).
+* **Bước 2 — Pointwise Convolution (Trộn kênh bằng `Conv 1×1`):** Dùng <InlineMath formula="C_{\text{out}}" /> bộ lọc kích thước <InlineMath formula="1 \times 1 \times C_{\text{in}}" /> để kết hợp thông tin giữa các kênh (tốn <InlineMath formula="1 \times 1 \times C_{\text{in}} \times C_{\text{out}}" /> tham số).
+* **Đánh đổi kỹ thuật:** Với bộ lọc <InlineMath formula="3 \times 3" />, **Depthwise Separable Convolution** giảm khối lượng tính toán đi khoảng <InlineMath formula="8" /> đến <InlineMath formula="9" /> lần so với tích chập truyền thống, cực kỳ lý tưởng cho điện thoại và thiết bị nhúng (**Edge AI**), đổi lại khả năng học các tương quan không gian-kênh phức tạp thấp hơn một chút so với tích chập đầy đủ.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Nếu **Inception** dùng kiến trúc rẽ nhánh và nhánh phụ để đối phó với độ sâu <InlineMath formula="22" /> tầng, thì điều gì xảy ra khi ta muốn đẩy độ sâu lên <InlineMath formula="50" />, <InlineMath formula="101" /> hay <InlineMath formula="152" /> tầng? Năm 2015, Kaiming He và cộng sự giới thiệu **ResNet (Residual Network)**, giải quyết triệt để rào cản độ sâu bằng một ý tưởng đơn giản nhưng làm thay đổi toàn bộ lịch sử Deep Learning.
+
+### ResNet-50 (2015): Skip Connection & Bảng Tổng hợp So sánh 5 Kiến trúc
+
+Thay vì bắt một cụm tầng tích chập phải học trực tiếp ánh xạ mong muốn <InlineMath formula="H(x)" /> từ đầu vào <InlineMath formula="x" />, **ResNet** tạo một **đường nối tắt (Skip Connection / Residual Connection)** vòng qua phần thân các lớp tích chập để cộng trực tiếp đầu vào <InlineMath formula="x" /> vào đầu ra của khối:
+
+<BlockMath formula="y = \mathcal{F}(x) + x \quad \Longleftrightarrow \quad \mathcal{F}(x) = H(x) - x" />
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_resnet50.png"
+  alt="Sơ đồ kiến trúc ResNet-50 (2015) cùng cấu trúc chi tiết của Conv Block và Identity Block dùng Bottleneck 1×1 → 3×3 → 1×1"
+  caption="Kiến trúc ResNet-50 (50 tầng, ~26M tham số): sử dụng hai dạng khối Residual là Identity Block (khi x và F(x) cùng kích thước) và Conv Block (có thêm Conv 1×1 trên đường nối tắt để khớp kích thước khi giảm độ phân giải hoặc đổi số kênh)."
+/>
+
+Cơ chế **Skip Connection** cùng cấu trúc **Bottleneck Block (<InlineMath formula="1 \times 1 \to 3 \times 3 \to 1 \times 1" />)** trong **ResNet-50** giải quyết đồng thời ba bài toán lớn:
+
+* **Xóa bỏ Vanishing Gradient bằng đường cao tốc đạo hàm:** Khi tính đạo hàm ngược qua khối Residual theo quy tắc dây chuyền, ta có <InlineMath formula="\frac{\partial \mathcal{L}}{\partial x} = \frac{\partial \mathcal{L}}{\partial y} \left( \frac{\partial \mathcal{F}(x)}{\partial x} + 1 \right)" />. Ngay cả khi đạo hàm qua các lớp tích chập <InlineMath formula="\frac{\partial \mathcal{F}(x)}{\partial x}" /> bị suy giảm về gần <InlineMath formula="0" />, số hạng <InlineMath formula="+1" /> từ đường nối tắt vẫn truyền nguyên vẹn gradient từ các lớp cuối về thẳng những lớp đầu tiên!
+* **Bảo toàn và kết hợp đa dạng cấp độ đặc trưng:** Phép cộng <InlineMath formula="\mathcal{F}(x) + x" /> cho phép tầng sau vừa nhận được đặc trưng mới vừa học (<InlineMath formula="\mathcal{F}(x)" />), vừa giữ lại toàn bộ thông tin gốc từ tầng trước (<InlineMath formula="x" />).
+* **Khôi phục số chiều qua khối Bottleneck (`1×1 → 3×3 → 1×1`):** Nếu chỉ dùng một lớp `Conv 1×1` để nén số kênh (như từ <InlineMath formula="256 \to 64" />) rồi `Conv 3×3` để giảm tính toán, luồng thông tin sẽ bị thắt cổ chai và không thể cộng trực tiếp với đầu vào <InlineMath formula="x" /> (<InlineMath formula="256" /> kênh). Vì vậy **ResNet-50** đặt thêm một lớp `Conv 1×1` thứ hai ở cuối khối để **khôi phục số kênh (Restore dimensions)** từ <InlineMath formula="64 \to 256" /> trước khi thực hiện phép cộng <InlineMath formula="\mathcal{F}(x) + x" />:
+  * **Identity Block:** Dùng khi kích thước không gian và số kênh của đầu vào <InlineMath formula="x" /> bằng đúng đầu ra <InlineMath formula="\mathcal{F}(x)" />, đường nối tắt cộng thẳng <InlineMath formula="x" /> mà không cần tầng phụ.
+  * **Conv Block (Projection Block):** Dùng tại ranh giới chuyển tầng khi kích thước không gian giảm một nửa hoặc số kênh tăng gấp đôi; khi đó đường nối tắt đi qua một lớp `Conv 1×1` (kèm `BatchNorm`) để đồng bộ kích thước tensor trước khi cộng.
+
+Để khép lại phần tiến hóa kiến trúc, bảng dưới đây đặt cả **5 kiến trúc CNN kinh điển** lên cùng một hệ quy chiếu so sánh:
+
+| Đặc điểm | LeNet-5 (1998) | AlexNet (2012) | VGG-16 (2014) | Inception-v1 (2014) | ResNet-50 (2015) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Số tầng trọng số** | <InlineMath formula="7" /> tầng | <InlineMath formula="8" /> tầng (<InlineMath formula="5\text{ Conv} + 3\text{ FC}" />) | <InlineMath formula="16" /> tầng (<InlineMath formula="13\text{ Conv} + 3\text{ FC}" />) | <InlineMath formula="22" /> tầng | <InlineMath formula="50" /> tầng |
+| **Tổng số tham số** | <InlineMath formula="\sim 60\text{K}" /> | <InlineMath formula="\sim 60\text{M}" /> | <InlineMath formula="\sim 138\text{M}" /> | **<InlineMath formula="\sim 5\text{M}" />** | <InlineMath formula="\sim 25.6\text{M}" /> |
+| **Kích thước Input** | <InlineMath formula="32 \times 32 \times 1" /> (Ảnh xám) | <InlineMath formula="224 \times 224 \times 3" /> (RGB) | <InlineMath formula="224 \times 224 \times 3" /> (RGB) | <InlineMath formula="224 \times 224 \times 3" /> (RGB) | <InlineMath formula="224 \times 224 \times 3" /> (RGB) |
+| **Kích thước Kernel** | <InlineMath formula="5 \times 5" /> | <InlineMath formula="11 \times 11,\; 5 \times 5,\; 3 \times 3" /> | Đồng nhất **<InlineMath formula="3 \times 3" />** | Đa nhánh <InlineMath formula="1\times 1, 3\times 3, 5\times 5" /> | Bottleneck <InlineMath formula="1\times 1 \to 3\times 3 \to 1\times 1" /> |
+| **Pooling & Đầu ra** | AvgPool + 3 FC | Overlapping MaxPool + 3 FC | MaxPool <InlineMath formula="2 \times 2" /> + 3 FC | MaxPool + **GAP** (Bỏ FC lớn) | MaxPool + **GAP** + 1 FC |
+| **Hàm kích hoạt** | Tanh / Sigmoid | **ReLU** | ReLU | ReLU | ReLU + BatchNorm |
+| **Đóng góp cốt lõi** | Khuôn mẫu `CONV → POOL → FC` & Weight Sharing | Đưa ReLU, Dropout, GPU vào Deep CNN | Chứng minh xếp chồng kernel nhỏ <InlineMath formula="3 \times 3" /> tốt hơn kernel lớn | Mở rộng chiều rộng, Bottleneck <InlineMath formula="1 \times 1" /> & Auxiliary Loss | **Skip Connection** (<InlineMath formula="\mathcal{F}(x)+x" />) mở khóa mạng cực sâu |
+
+</MdxPage>

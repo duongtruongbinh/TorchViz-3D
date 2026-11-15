@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'convolution-operation',
+  locale: 'vi',
+  title: 'Tại sao cần CNN & Phép Tích chập (Convolution)',
+  headings: [
+    'Hạn chế của Tầng Fully Connected trên Dữ liệu Ảnh',
+    'Phép Tích chập (Convolution) và Ẩn dụ Chiếc Kính lúp',
+    'Ý nghĩa Vật lý của Các Bộ lọc (Kernel) Khác nhau',
+  ],
+  keywords: [
+    'convolutional neural network',
+    'convolution',
+    'kernel',
+    'filter',
+    'weight sharing',
+    'feature map',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+Ở cuối chương trước, khi đưa ảnh chữ số viết tay MNIST kích thước <InlineMath formula="28 \times 28" /> vào mạng **MLP**, ta buộc phải dùng `nn.Flatten()` để đập bẹp lưới ảnh 2 chiều thành một vector dài <InlineMath formula="784" /> phần tử. Cách tiếp cận này hoạt động tạm ổn trên ảnh xám cỡ nhỏ, nhưng nhanh chóng bộc lộ rào cản lớn khi bước sang ảnh thực tế.
+
+<LessonImage
+  assetPath="deep-learning/cnn_flatten_vs_sliding_kernel.jpg"
+  alt="So sánh cách Flatten phá vỡ cấu trúc lưới 2D của bức ảnh với cơ chế trượt kính lúp Kernel 2D của mạng CNN"
+  caption="Trái: Flatten kéo dãn lưới ảnh 2D thành một dải 1D làm đứt gãy liên kết lân cận. Giữa: Kernel trượt trực tiếp trên ảnh 2D như chiếc kính lúp. Phải: Nhiều bộ lọc tạo ra chồng Feature Maps bảo toàn cấu trúc không gian."
+/>
+
+### Hạn chế của Tầng Fully Connected trên Dữ liệu Ảnh
+
+Giả sử ta cần phân loại một bức ảnh màu hệ **RGB** kích thước nhỏ <InlineMath formula="32 \times 32" /> sang <InlineMath formula="10" /> lớp đối tượng. Bức ảnh gồm <InlineMath formula="3" /> kênh màu (Đỏ, Lục, Lam), mỗi kênh là một ma trận <InlineMath formula="32 \times 32" />. Khi trải phẳng toàn bộ bức ảnh thành một vector hàng duy nhất, số chiều đầu vào là
+
+<BlockMath formula="d_{\text{in}} = 32 \times 32 \times 3 = 3{,}072" />
+
+Ngay cả khi tầng ẩn đầu tiên chỉ đặt <InlineMath formula="10" /> neuron, phép nhân ma trận tại tầng **Fully Connected** vẫn có dạng
+
+<BlockMath formula="\underbrace{X}_{(1,\; 3072)} \cdot \underbrace{W}_{(3072,\; 10)} + \underbrace{b}_{(1,\; 10)} = \underbrace{Z}_{(1,\; 10)}" />
+
+Nếu độ phân giải ảnh tăng lên mức chuẩn <InlineMath formula="224 \times 224 \times 3" /> (<InlineMath formula="150{,}528" /> chiều) và tầng ẩn đầu tiên có <InlineMath formula="1{,}024" /> neuron, riêng một tầng kết nối đầy đủ đã tiêu tốn <InlineMath formula="150{,}528 \times 1{,}024 \approx 154.1\text{ triệu}" /> tham số. Việc dùng tầng **Fully Connected** trực tiếp trên ảnh gặp ba điểm yếu cốt lõi sau:
+
+* **Phá vỡ cấu trúc không gian 2D:** Trong ảnh tự nhiên, một điểm ảnh luôn có mối liên hệ mật thiết với các điểm nằm ngay trên, dưới, trái, phải và chéo cạnh nó để tạo thành đường viền hay góc cạnh. Khi đập bẹp ma trận 2D thành vector 1D, hai điểm ảnh nằm sát nhau theo chiều dọc bị đẩy cách xa nhau hàng trăm vị trí.
+* **Bùng nổ số lượng tham số:** Mỗi pixel đầu vào phải nối trọng số riêng biệt tới mọi neuron tầng ẩn, dẫn tới chi phí lưu trữ bộ nhớ lớn và rất dễ **Overfitting** khi lượng ảnh huấn luyện có hạn.
+* **Kém bền vững với phép dịch chuyển:** Nếu vật thể trong ảnh chỉ dịch sang phải hoặc xoay nhẹ vài pixel, giá trị tại các vị trí chỉ mục cố định trong vector trải phẳng thay đổi hoàn toàn khiến mạng khó nhận ra cùng một vật thể.
+
+Để khắc phục triệt để cả ba điểm yếu trên, **Convolutional Neural Network (CNN)** giữ nguyên cấu trúc lưới của bức ảnh và thay thế phép nhân ma trận toàn cục bằng phép **Tích chập (Convolution)** trượt cục bộ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Thay vì nối tất cả điểm ảnh vào cùng một neuron, mạng **CNN** quét qua bức ảnh bằng những ma trận trọng số cỡ nhỏ nhằm dò tìm các khuôn mẫu cục bộ ở mọi vị trí.
+
+### Phép Tích chập (Convolution) và Ẩn dụ Chiếc Kính lúp
+
+Xét một bức ảnh xám được biểu diễn dưới dạng ma trận <InlineMath formula="X \in \mathbb{R}^{m \times n}" />. Ta định nghĩa **Kernel** (còn gọi là **Filter** hay bộ lọc) là một ma trận vuông cỡ nhỏ <InlineMath formula="W \in \mathbb{R}^{k \times k}" />, trong đó <InlineMath formula="k" /> thường chọn là số lẻ (<InlineMath formula="1, 3, 5, 7\dots" />) để luôn xác định được một ô tâm đối xứng <InlineMath formula="x_{i,j}" />.
+
+Hãy hình dung **Kernel** giống như một chiếc kính lúp soi từng vùng nhỏ <InlineMath formula="k \times k" /> của bức ảnh theo thứ tự từ trái sang phải, hết hàng trên rồi xuống hàng dưới. Thay vì chỉ phóng to thông thường, mỗi chiếc kính lúp mang một bộ trọng số riêng để phát hiện một nét đặc trưng cụ thể (chẳng hạn trên chữ số `7`, bộ lọc thứ nhất bắt nét ngang phía trên, bộ lọc thứ hai bắt nét chéo ở thân, bộ lọc thứ ba bắt viền dưới).
+
+Ký hiệu phép tích chập giữa ảnh <InlineMath formula="X" /> và bộ lọc <InlineMath formula="W" /> là
+
+<BlockMath formula="Y = X \otimes W" />
+
+Quá trình tính toán một phần tử trên ma trận kết quả <InlineMath formula="Y" /> (gọi là **Feature Map** hoặc **Activation Map**) gồm ba bước tuần tự:
+
+1. Đặt khung cửa sổ kích thước <InlineMath formula="k \times k" /> của bộ lọc <InlineMath formula="W" /> đè lên một vùng con <InlineMath formula="A \in \mathbb{R}^{k \times k}" /> trên ảnh <InlineMath formula="X" /> (ví dụ lấy phần tử <InlineMath formula="x_{2,2}" /> làm tâm của cửa sổ <InlineMath formula="3 \times 3" /> đầu tiên).
+2. Thực hiện phép nhân từng phần tử tương ứng (**Element-wise multiplication**, ký hiệu <InlineMath formula="A \odot W" />) giữa vùng ảnh <InlineMath formula="A" /> và bộ lọc <InlineMath formula="W" />.
+3. Cộng tổng toàn bộ <InlineMath formula="k \times k" /> tích vừa nhân được (kèm độ lệch <InlineMath formula="b" /> nếu có) rồi ghi kết quả vào ô tương ứng trên ma trận <InlineMath formula="Y" />.
+
+Với vùng con <InlineMath formula="3 \times 3" /> góc trên bên trái của ma trận <InlineMath formula="X" /> (tâm tại <InlineMath formula="x_{2,2}" />), phép tính diễn ra tường minh như sau
+
+<BlockMath formula="A \otimes W = \begin{bmatrix} 1 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{bmatrix} \otimes \begin{bmatrix} 1 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 1 \end{bmatrix} \implies \sum \begin{bmatrix} 1\times 1 & 1\times 0 & 1\times 1 \\ 0\times 0 & 1\times 1 & 1\times 0 \\ 0\times 1 & 0\times 0 & 1\times 1 \end{bmatrix} = 1 + 1 + 1 + 1 = 4" />
+
+<ConvolutionOperationExplorer />
+
+Nhờ việc dùng chung duy nhất một ma trận trọng số <InlineMath formula="W" /> trượt khắp bức ảnh (**Weight Sharing**), một bộ lọc <InlineMath formula="3 \times 3" /> chỉ cần đúng <InlineMath formula="9" /> trọng số nhưng có thể phát hiện cùng một nét cạnh dù nét đó nằm ở góc trái hay góc phải bức ảnh.
+
+### Ý nghĩa Vật lý của Các Bộ lọc (Kernel) Khác nhau
+
+Tùy thuộc vào các con số bên trong ma trận <InlineMath formula="W" />, phép tích chập tạo ra những hiệu ứng trích xuất thông tin hoàn toàn khác nhau trên cùng một bức ảnh đầu vào:
+
+* **Bộ lọc đồng nhất (Identity):** Chỉ có phần tử tâm bằng <InlineMath formula="1" />, các ô xung quanh bằng <InlineMath formula="0" />, giữ nguyên bức ảnh gốc.
+* **Bộ lọc phát hiện cạnh (Edge Detection):** Đặt trọng số dương ở tâm và trọng số âm ở các ô lân cận để triệt tiêu những vùng màu phẳng (nơi các pixel bằng nhau có tổng tích bằng <InlineMath formula="0" />) và chỉ giữ lại những đường biên nơi độ sáng thay đổi đột ngột.
+* **Bộ lọc làm nét (Sharpen) và làm mờ (Box Blur):** Tăng cường độ tương phản tại tâm so với lân cận để làm sắc nét, hoặc lấy trung bình cộng <InlineMath formula="\frac{1}{9}" /> của <InlineMath formula="9" /> ô để làm mịn nhiễu.
+
+<LessonImage
+  assetPath="deep-learning/cnn_kernel_effects_table.png"
+  alt="Bảng minh họa kết quả tích chập với các Kernel khác nhau: Identity, Edge detection, Sharpen và Box blur"
+  caption="Mỗi ma trận Kernel 3×3 tạo ra một bản đồ đặc trưng khác nhau: giữ nguyên ảnh, tách đường viền cạnh, làm sắc nét hoặc làm mờ. Trong mạng CNN, các con số trong Kernel không cần thiết kế thủ công mà được tự động học qua Backpropagation."
+/>
+
+</MdxPage>

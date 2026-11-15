@@ -1,0 +1,159 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'perceptron-and-mlp',
+  locale: 'vi',
+  title: 'Perceptron và MLP',
+  headings: [
+    'Từ Neuron Sinh học đến Perceptron',
+    'Giới hạn của Perceptron: Bài toán XOR và MLP',
+    'Cảm hứng từ Não bộ nhưng Không Vận hành Giống Não người',
+  ],
+  keywords: [
+    'perceptron',
+    'mlp',
+    'biological neuron',
+    'synapse',
+    'backpropagation',
+    'predictive coding',
+    'hebbian learning',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Từ Neuron Sinh học đến Perceptron
+
+Mạng neural nhân tạo bắt đầu từ một câu hỏi đơn giản: làm sao mô phỏng lại đơn vị tính toán cơ bản của bộ não con người? Trong não sinh học, mỗi **neuron** nhận xung điện từ hàng nghìn neuron khác qua các nhánh **dendrite**, điều chỉnh độ mạnh yếu tại các khớp nối **synapse**, tổng hợp tín hiệu tại thân tế bào (**soma**) và chỉ phát xung qua sợi trục (**axon**) khi tổng kích thích vượt qua một ngưỡng nhất định.
+
+<LessonImage
+  assetPath="deep-learning/dl_bio_neuron_vs_perceptron.jpg"
+  alt="So sánh cấu trúc neuron sinh học với mô hình toán học của Perceptron và mạng MLP nhiều tầng"
+  caption="Neuron sinh học truyền xung qua dendrite, synapse, soma và axon; Perceptron trừu tượng hóa quá trình đó thành tổng có trọng số và hàm kích hoạt."
+/>
+
+**Perceptron** mô hình hóa trực tiếp ý tưởng đó bằng một phép tính tuyến tính kết hợp ngưỡng quyết định.
+
+<EquationCallout
+  title="Mô hình Toán học của Perceptron"
+  badge="Forward Pass"
+  formula="z = \underbrace{\mathbf{w}^\top}_{\mathbb{R}^{1 \times d}} \underbrace{\mathbf{x}}_{\mathbb{R}^{d \times 1}} + \underbrace{b}_{\mathbb{R}}, \qquad \hat{y} = \phi(z)"
+  explanation="Trong đó x và w là các vector trọng số/đầu vào d chiều, b là độ lệch vô hướng và hàm kích hoạt tạo ra đầu ra phi tuyến."
+/>
+
+Chẳng hạn với vector đầu vào hai chiều <InlineMath formula="\mathbf{x} = [1.0, 0.5]^\top" />, vector trọng số <InlineMath formula="\mathbf{w} = [0.8, -0.4]^\top" /> và độ lệch <InlineMath formula="b = 0.1" />, phép tính tích vô hướng được viết tường minh:
+
+<BlockMath formula="z = \underbrace{\begin{bmatrix} 0.8 & -0.4 \end{bmatrix}}_{\mathbf{w}^\top \in \mathbb{R}^{1 \times 2}} \underbrace{\begin{bmatrix} 1.0 \\ 0.5 \end{bmatrix}}_{\mathbf{x} \in \mathbb{R}^{2 \times 1}} + \underbrace{0.1}_{b} = 0.8 \cdot 1.0 + (-0.4) \cdot 0.5 + 0.1 = 0.7 > 0" />
+
+<PerceptronGeometryDiagram panel="line" />
+
+Vì <InlineMath formula="z > 0" />, neuron vượt ngưỡng và kích hoạt đầu ra dương. Theo định nghĩa gốc của Frank Rosenblatt (1958), **Perceptron** sử dụng **hàm bước nhảy theo ngưỡng (step function)**:
+
+<BlockMath formula="\hat{y} = \phi(z) = \begin{cases} +1 & \text{nếu } z \ge 0 \\ -1 & \text{nếu } z < 0 \end{cases}" />
+
+Hàm <InlineMath formula="\phi(z)" /> chốt đầu ra thành nhãn `+1` hoặc `-1` ở hai phía đường thẳng ranh giới <InlineMath formula="\mathbf{w}^\top \mathbf{x} + b = 0" />, tương tự cách neuron sinh học quyết định phát xung hay im lặng.
+
+<PerceptronGeometryDiagram panel="step" />
+
+Trong thực tế, ma trận đầu vào <InlineMath formula="\mathbf{X}" /> chính là tập các điểm dữ liệu thu thập được kèm nhãn phân loại. Khi trực quan hóa <InlineMath formula="\mathbf{X}" /> trên mặt phẳng hai chiều <InlineMath formula="(x_1, x_2)" />, mỗi hàng <InlineMath formula="\mathbf{x}_i" /> tương ứng với một điểm dữ liệu:
+
+<PerceptronGeometryDiagram panel="scatter" />
+
+Ở bài toán phân loại (classification), tập dữ liệu <InlineMath formula="\mathbf{X}" /> và nhãn là thứ đã cho sẵn; **trọng số <InlineMath formula="\mathbf{w}" /> và độ lệch <InlineMath formula="b" /> mới là bộ tham số ta cần tìm** sao cho đường thẳng <InlineMath formula="\mathbf{w}^\top \mathbf{x} + b = 0" /> tách đúng hai nhóm điểm. Bạn hãy thử tự điều chỉnh <InlineMath formula="w_1, w_2, b" /> bên dưới để tìm ra đường phân tách:
+
+<PerceptronBoundaryExplorer />
+
+Tóm lại, toàn bộ hoạt động của **1 neuron (Perceptron)** có thể gói gọn thành một đơn vị tính toán gồm các đầu vào nhân trọng số, cộng độ lệch <InlineMath formula="b" />, đi qua nút tổng hợp và hàm kích hoạt <InlineMath formula="\phi(z)" /> để cho ra đầu ra <InlineMath formula="\hat{y}" />:
+
+<PerceptronGeometryDiagram panel="neuron" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Giới hạn của Perceptron: Bài toán XOR và MLP
+
+Một Perceptron đơn lẻ chỉ vẽ được một đường thẳng tuyến tính, nên bất lực trước các bài toán phi tuyến như phép toán **XOR** hay đường cong dữ liệu.
+
+<PerceptronBoundaryExplorer mode="xor" />
+
+Để vượt qua rào cản đó, **Multi-Layer Perceptron (MLP)** kết hợp nhiều neuron xếp thành nhiều tầng nối tiếp nhau.
+
+Khi mở rộng một mạng **MLP**, ta có hai hướng cơ bản: tăng số lượng neuron trong mỗi tầng để mở rộng **width** (độ rộng), hoặc tăng số tầng nối tiếp nhau để tăng **depth** (độ sâu). Việc khi nào nên ưu tiên tăng **width** hay **depth** sẽ được phân tích kỹ hơn ở các bài sau.
+
+<PerceptronGeometryDiagram panel="width-depth" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cảm hứng từ Não bộ nhưng Không Vận hành Giống Não người
+
+Ở hai trang trước, dữ liệu đi một chiều từ đầu vào <InlineMath formula="\mathbf{X}" /> qua các tầng neuron để tạo ra dự đoán <InlineMath formula="\hat{\mathbf{y}}" /> — quá trình đó gọi là **Forward Pass** (lan truyền xuôi):
+
+<PerceptronGeometryDiagram panel="forward" />
+
+Để mạng *học* được bộ trọng số <InlineMath formula="\mathbf{w}" /> và độ lệch <InlineMath formula="b" /> phù hợp, mô hình phải đo sai số giữa <InlineMath formula="\hat{\mathbf{y}}" /> với nhãn thật, rồi truyền tín hiệu sai số ngược lại qua các tầng bằng **Backpropagation** dựa trên thuật toán **Gradient Descent** (sẽ được phân tích kỹ ở các chương sau):
+
+<PerceptronGeometryDiagram panel="backprop" />
+
+Tuy nhiên, khoa học thần kinh **vẫn chưa chứng minh được** não người có cơ chế truyền ngược sai số đối xứng như Backpropagation. Ở não sinh học, tín hiệu đi theo chiều xuôi (**forward**) và mỗi synapse chỉ tự cập nhật cục bộ dựa trên hai neuron nối trực tiếp với nó (quy tắc **Hebbian**).
+
+<ComparisonMatrix
+  ariaLabel="So sánh Backpropagation và các hướng tiếp cận học cục bộ thay thế"
+  rowHeaderLabel="Hướng tiếp cận"
+  columns={['Cơ chế cốt lõi', 'Ưu điểm', 'Hạn chế']}
+  rows={[
+    {
+      label: 'Backpropagation',
+      values: [
+        'Truyền đạo hàm sai số toàn cục từ Loss ngược về từng trọng số',
+        'Độ chính xác cao, tối ưu tốt trên GPU ở quy mô lớn',
+        'Không giống sinh học, dễ quên kiến thức cũ (Catastrophic Forgetting)',
+      ],
+      highlightedColumn: 1,
+    },
+    {
+      label: 'Hebbian Learning',
+      values: [
+        'Điều chỉnh synapse theo hoạt động đồng thời của hai neuron kề nhau',
+        'Hoàn toàn cục bộ, hỗ trợ học liên tục tự nhiên',
+        'Khó phối hợp nhiều tầng sâu cho bài toán phức tạp',
+      ],
+    },
+    {
+      label: 'Predictive Coding',
+      values: [
+        'Tầng trên dự đoán tầng dưới, chỉ gửi ngược phần sai số dự đoán',
+        'Cập nhật cục bộ giữa 2 tầng kế, gần với khoa học thần kinh',
+        'Tốn nhiều vòng lặp hội tụ, chậm hơn Backprop khi mở rộng',
+      ],
+    },
+    {
+      label: 'Forward-Forward',
+      values: [
+        'Thay chiều ngược bằng 2 lần truyền xuôi với dữ liệu đúng/sai (goodness)',
+        'Không cần lưu đồ thị đạo hàm xuyên suốt toàn mạng',
+        'Độ chính xác và tốc độ trên mô hình lớn còn kém Backprop',
+      ],
+    },
+    {
+      label: 'Equilibrium Propagation',
+      values: [
+        'Mạng cân bằng năng lượng rồi cập nhật cục bộ từ nhiễu nhỏ ở đầu ra',
+        'Hợp với phần cứng vật lý (analog / neuromorphic)',
+        'Khó mô phỏng nhanh trên GPU truyền thống',
+      ],
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="deep-learning/dl_backprop_vs_predictive_coding.jpg"
+  alt="So sánh Backpropagation truyền sai số toàn cục từ cuối mạng và Predictive Coding cập nhật cục bộ qua sai số dự đoán giữa các tầng liền kề"
+  caption="Backpropagation chờ tín hiệu sai số toàn cục từ đầu ra; các hướng học cục bộ như Predictive Coding cập nhật trọng số ngay tại chỗ dựa trên tín hiệu giữa hai tầng kế nhau."
+/>
+
+Khoảng cách giữa sinh học và máy học vẫn là chủ đề tranh luận sôi nổi: nhiều nhà nghiên cứu cho rằng muốn AI học nhanh, tiết kiệm năng lượng và ít quên như con người, ta cần các cơ chế cập nhật hoàn toàn cục bộ. Tuy nhiên, cho đến nay **chưa có hướng đi nào thật sự thành công và vượt qua được Backpropagation** về độ chính xác lẫn khả năng mở rộng trên các mô hình lớn, nên Backpropagation vẫn là tiêu chuẩn thống trị trong thực tế.
+
+</MdxPage>

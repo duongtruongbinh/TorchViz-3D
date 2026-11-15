@@ -1,0 +1,98 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'deep-learning-history-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Deep Learning vs ML Truyền thống',
+    'Giới hạn của Perceptron Đơn tầng',
+    'Bước ngoặt AlexNet (2012)',
+    'Deep Learning trên Thiết bị Nhỏ (Edge AI)',
+    'Những Người Đặt Nền móng',
+  ],
+  keywords: [
+    'deep learning quiz',
+    'feature extraction',
+    'alexnet',
+    'backpropagation',
+    'edge ai',
+    'turing award',
+  ],
+  pageCount: 5,
+};
+
+<MdxQuiz
+  id="deep-learning-history-quiz"
+  questions={[
+    {
+      id: 'dl-hist-q1',
+      title: 'Deep Learning vs ML Truyền thống',
+      prompt: 'Điểm khác biệt cốt lõi nhất giữa Deep Learning và Machine Learning truyền thống nằm ở đâu?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: 'Deep Learning chỉ hoạt động với dữ liệu dạng bảng nhỏ hơn 1.000 dòng.' },
+        { id: 'opt2', label: 'Deep Learning tự động học biểu diễn đặc trưng phân cấp từ dữ liệu thô thay vì phụ thuộc vào thiết kế đặc trưng thủ công.', isCorrect: true },
+        { id: 'opt3', label: 'Machine Learning truyền thống không sử dụng bất kỳ hàm toán học nào.' },
+        { id: 'opt4', label: 'Deep Learning luôn chạy nhanh hơn trên CPU đơn nhân so với mọi thuật toán cây quyết định.' },
+      ],
+      success: 'Chính xác. ML truyền thống thường đòi hỏi feature engineering thủ công, còn Deep Learning tự học chuỗi biểu diễn từ thô đến trừu tượng qua nhiều tầng.',
+      error: 'Hãy nhớ lại sự khác nhau ở khâu trích xuất đặc trưng trong bảng so sánh ML truyền thống và Deep Learning.',
+    },
+    {
+      id: 'dl-hist-q2',
+      title: 'Giới hạn của Perceptron Đơn tầng',
+      prompt: 'Nhược điểm nào của Perceptron đơn tầng đã góp phần dẫn tới Mùa đông AI đầu tiên vào cuối thập niên 1960?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: 'Không thể giải quyết các bài toán phi tuyến cơ bản như phép toán XOR.', isCorrect: true },
+        { id: 'opt2', label: 'Không thể chạy trên hệ điều hành Linux.' },
+        { id: 'opt3', label: 'Tiêu tốn quá nhiều bộ nhớ VRAM của GPU hiện đại.' },
+        { id: 'opt4', label: 'Chỉ xử lý được văn bản tiếng Anh.' },
+      ],
+      success: 'Đúng. Perceptron đơn tầng chỉ tạo được ranh giới phân tách tuyến tính nên thất bại với bài toán phi tuyến như XOR.',
+      error: 'Hãy nhớ lại phân tích của Minsky và Papert năm 1969 về giới hạn tuyến tính của Perceptron đơn tầng.',
+    },
+    {
+      id: 'dl-hist-q3',
+      title: 'Bước ngoặt AlexNet (2012)',
+      prompt: 'Bộ ba yếu tố nào đã hội tụ tại cột mốc AlexNet (2012) để mở ra làn sóng Deep Learning hiện đại?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: 'Mạng RNN tuần tự, dữ liệu âm thanh nhỏ và CPU đơn nhân.' },
+        { id: 'opt2', label: 'Luật chuyên gia viết tay, cơ sở dữ liệu quan hệ và lập trình logic.' },
+        { id: 'opt3', label: 'Bộ dữ liệu lớn (ImageNet), năng lực tính toán song song của GPU và kiến trúc CNN sâu với ReLU/Dropout.', isCorrect: true },
+        { id: 'opt4', label: 'Chỉ riêng việc tăng gấp đôi dung lượng RAM máy chủ.' },
+      ],
+      success: 'Chính xác. Dữ liệu lớn ImageNet, GPU song song và các cải tiến kiến trúc CNN đã cùng nhau tạo nên bước nhảy vọt năm 2012.',
+      error: 'Hãy kiểm tra lại ba yếu tố vàng (dữ liệu, phần cứng và kiến trúc) tại cuộc thi ImageNet 2012.',
+    },
+    {
+      id: 'dl-hist-q4',
+      title: 'Deep Learning trên Thiết bị Nhỏ (Edge AI)',
+      prompt: 'Vì sao các mô hình Deep Learning vẫn có thể chạy trực tiếp trên điện thoại thông minh (Edge AI)?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: 'Vì điện thoại tự động kết nối siêu máy tính để huấn luyện lại từ đầu mỗi lần mở khóa.' },
+        { id: 'opt2', label: 'Vì mọi mô hình Deep Learning đều có kích thước dưới 100 tham số.' },
+        { id: 'opt3', label: 'Vì GPU đám mây không thể xử lý dữ liệu ảnh hoặc giọng nói.' },
+        { id: 'opt4', label: 'Nhờ các kỹ thuật nén mô hình như lượng tử hóa, chưng cất tri thức và bộ xử lý neural (NPU) trên thiết bị.', isCorrect: true },
+      ],
+      success: 'Đúng. Nén mô hình kết hợp với phần cứng NPU chuyên dụng giúp chạy suy luận độ trễ thấp ngay trên thiết bị cá nhân.',
+      error: 'Hãy nhớ lại cách đưa mô hình từ đám mây xuống điện thoại trong bài Ứng dụng Thực tế.',
+    },
+    {
+      id: 'dl-hist-q5',
+      title: 'Những Người Đặt Nền móng',
+      prompt: 'Ai là người khởi xướng bộ dữ liệu ImageNet giúp tạo ra bệ phóng dữ liệu cho cuộc cách mạng thị giác năm 2012?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: 'Yann LeCun' },
+        { id: 'opt2', label: 'Fei-Fei Li', isCorrect: true },
+        { id: 'opt3', label: 'Frank Rosenblatt' },
+        { id: 'opt4', label: 'John Hopfield' },
+      ],
+      success: 'Chính xác. Fei-Fei Li đã khởi xướng ImageNet, cung cấp hàng triệu ảnh gắn nhãn cho cộng đồng.',
+      error: 'Hãy xem lại bốn gương mặt tiêu biểu trong bài Những Người Đặt Nền móng.',
+    },
+  ]}
+/>

@@ -1,0 +1,288 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'cnn-code-lab',
+  locale: 'vi',
+  title: 'Code Lab',
+  headings: [
+    'Bước 1: Xây dựng Mạng CNN & Kiểm chứng Công thức Đếm Tham số',
+    'Bước 2: Huấn luyện CNN & So sánh Độ chính xác với MLP',
+    'Bước 3: Trực quan hóa Feature Maps qua Các Tầng Tích chập',
+    'Bước 4: Tự Cài đặt Khối Residual Block (ResNet) bằng PyTorch',
+    'Bước 5: Xây dựng Kiến trúc Mini U-Net với Skip Connections (torch.cat)',
+  ],
+  keywords: [
+    'cnn code lab',
+    'pytorch conv2d',
+    'feature maps visualization',
+    'residual block pytorch',
+    'unet pytorch',
+    'convtranspose2d',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+Trong bài thực hành **Code Lab** cuối chương `1.1`, mạng **MLP** dùng `nn.Flatten()` đạt độ chính xác `97.60%` trên tập Test **MNIST** nhưng bị nhầm lẫn ở những chữ số có nét viết nghiêng hoặc lệch vị trí (`8 → 2`, `9 → 8`, `6 → 0`). Bây giờ, ta sẽ thay thế `nn.Flatten()` ở đầu mạng bằng các khối **Tích chập 2D (`nn.Conv2d`)** để giữ nguyên cấu trúc lưới không gian <InlineMath formula="28 \times 28" /> và tận mắt quan sát những gì các bộ lọc học được bên trong mạng.
+
+### Bước 1: Xây dựng Mạng CNN & Kiểm chứng Công thức Đếm Tham số
+
+Ta thiết kế một mạng **CNN** gồm <InlineMath formula="2" /> khối trích xuất đặc trưng (`Conv2d → BatchNorm2d → ReLU → MaxPool2d`) theo đúng chuẩn hiện đại, sau đó dùng `torchinfo.summary` để đối chiếu với công thức đếm tham số đã học ở bài `1.2.3`:
+
+* **Khối Conv 1:** Nhận ảnh xám <InlineMath formula="(1, 28, 28)" />, dùng <InlineMath formula="16" /> bộ lọc <InlineMath formula="3 \times 3" /> với `padding=1` (giữ nguyên <InlineMath formula="28 \times 28" />), qua `BatchNorm2d(16)` và `MaxPool2d(2)` giảm kích thước còn <InlineMath formula="(16, 14, 14)" />.
+  * Số tham số `Conv1`: <InlineMath formula="(3 \times 3 \times 1 + 1_{\text{bias}}) \times 16 = 160" />.
+  * Số tham số học `BatchNorm1`: <InlineMath formula="2 \times 16 = 32" /> (<InlineMath formula="\gamma, \beta" />).
+* **Khối Conv 2:** Nhận <InlineMath formula="(16, 14, 14)" />, dùng <InlineMath formula="32" /> bộ lọc <InlineMath formula="3 \times 3" /> với `padding=1`, qua `BatchNorm2d(32)` và `MaxPool2d(2)` giảm kích thước còn <InlineMath formula="(32, 7, 7)" />.
+  * Số tham số `Conv2`: <InlineMath formula="(3 \times 3 \times 16 + 1_{\text{bias}}) \times 32 = 4{,}640" />.
+  * Số tham số học `BatchNorm2`: <InlineMath formula="2 \times 32 = 64" />.
+* **Khối Phân loại:** Thay vì nối nhiều tầng FC nặng nề, ta trải phẳng <InlineMath formula="32 \times 7 \times 7 = 1{,}568" /> đặc trưng rồi nối thẳng tới <InlineMath formula="10" /> lớp đầu ra (<InlineMath formula="(1{,}568 + 1_{\text{bias}}) \times 10 = 15{,}690" /> tham số). Tổng cộng toàn mạng chỉ có **<InlineMath formula="20{,}586" /> tham số** (nhỏ hơn <InlineMath formula="5" /> lần so với <InlineMath formula="109{,}386" /> tham số của mạng MLP chương trước!).
+
+```python
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+from torchinfo import summary
+import matplotlib.pyplot as plt
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# 1. Tải dữ liệu MNIST (1, 28, 28)
+transform = transforms.ToTensor()
+train_ds = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
+test_ds  = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+
+train_loader = DataLoader(train_ds, batch_size=64, shuffle=True)
+test_loader  = DataLoader(test_ds, batch_size=256, shuffle=False)
+
+# 2. Định nghĩa kiến trúc CNN giữ nguyên cấu trúc 2D
+cnn_model = nn.Sequential(
+    # Block 1: (1, 28, 28) -> (16, 28, 28) -> (16, 14, 14)
+    nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1),
+    nn.BatchNorm2d(16),
+    nn.ReLU(),
+    nn.MaxPool2d(kernel_size=2, stride=2),
+
+    # Block 2: (16, 14, 14) -> (32, 14, 14) -> (32, 7, 7)
+    nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
+    nn.BatchNorm2d(32),
+    nn.ReLU(),
+    nn.MaxPool2d(kernel_size=2, stride=2),
+
+    # Classifier: (32, 7, 7) -> 1568 -> 10
+    nn.Flatten(),
+    nn.Linear(32 * 7 * 7, 10),
+).to(device)
+
+summary(cnn_model, input_size=(64, 1, 28, 28))
+```
+
+Kết quả bảng `summary(cnn_model)` khớp chính xác tới từng con số với phép tính tay:
+
+```text
+==========================================================================================
+Layer (type:depth-idx)                   Output Shape              Param #
+==========================================================================================
+Sequential                               [64, 10]                  --
+├─Conv2d: 1-1                            [64, 16, 28, 28]          160
+├─BatchNorm2d: 1-2                       [64, 16, 28, 28]          32
+├─ReLU: 1-3                              [64, 16, 28, 28]          --
+├─MaxPool2d: 1-4                         [64, 16, 14, 14]          --
+├─Conv2d: 1-5                            [64, 32, 14, 14]          4,640
+├─BatchNorm2d: 1-6                       [64, 32, 14, 14]          64
+├─ReLU: 1-7                              [64, 32, 14, 14]          --
+├─MaxPool2d: 1-8                         [64, 32, 7, 7]            --
+├─Flatten: 1-9                           [64, 1568]                --
+├─Linear: 1-10                           [64, 10]                  15,690
+==========================================================================================
+Total params: 20,586
+Trainable params: 20,586
+==========================================================================================
+```
+
+### Bước 2: Huấn luyện CNN & So sánh Độ chính xác với MLP
+
+Huấn luyện `cnn_model` trong <InlineMath formula="5" /> epoch với bộ tối ưu `Adam`:
+
+```python
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(cnn_model.parameters(), lr=1e-3)
+
+for epoch in range(5):
+    cnn_model.train()
+    running_loss = 0.0
+    for xb, yb in train_loader:
+        xb, yb = xb.to(device), yb.to(device)
+        optimizer.zero_grad()
+        loss = criterion(cnn_model(xb), yb)
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item() * len(xb)
+    print(f"Epoch {epoch+1}/5 | Train Loss: {running_loss / len(train_ds):.4f}")
+
+# Đánh giá trên 10,000 ảnh Test
+cnn_model.eval()
+correct = 0
+with torch.no_grad():
+    for xb, yb in test_loader:
+        preds = cnn_model(xb.to(device)).argmax(dim=1).cpu()
+        correct += (preds == yb).sum().item()
+
+print(f"CNN Test Accuracy: {100 * correct / len(test_ds):.2f}% ({correct}/{len(test_ds)})")
+# CNN Test Accuracy: 99.04% (9904/10000) — chỉ với 20,586 tham số!
+```
+
+Chỉ với **<InlineMath formula="20{,}586" /> tham số** (ít hơn mạng MLP tới <InlineMath formula="81\%" />), mạng **CNN** đẩy độ chính xác trên tập Test vọt từ `97.60%` lên **`99.04%`** (giảm hơn một nửa số ca đoán sai từ `240` ca xuống chỉ còn `96` ca trên `10,000` ảnh test).
+
+### Bước 3: Trực quan hóa Feature Maps qua Các Tầng Tích chập
+
+Để thấy tận mắt các chiếc kính lúp `Conv2d` đã tách cạnh ngang, cạnh dọc và hình khối của chữ số như thế nào, ta lấy <InlineMath formula="1" /> ảnh test và vẽ trực tiếp <InlineMath formula="6" /> kênh **Feature Map** đầu tiên sau Khối 1 (<InlineMath formula="28 \times 28" />) và sau Khối 2 (<InlineMath formula="14 \times 14" />):
+
+```python
+sample_img, sample_label = test_ds[0]          # Ảnh chữ số 7: (1, 28, 28)
+x_in = sample_img.unsqueeze(0).to(device)      # Thêm chiều batch -> (1, 1, 28, 28)
+
+with torch.no_grad():
+    feat_block1 = cnn_model[:3](x_in).cpu().squeeze(0)   # (16, 28, 28) sau Conv1+BN1+ReLU
+    feat_block2 = cnn_model[:7](x_in).cpu().squeeze(0)   # (32, 14, 14) sau Conv2+BN2+ReLU
+
+fig, axes = plt.subplots(2, 6, figsize=(12, 4.2))
+for i in range(6):
+    axes[0, i].imshow(feat_block1[i], cmap="viridis")
+    axes[0, i].set_title(f"Block1 - Ch {i}")
+    axes[0, i].axis("off")
+
+    axes[1, i].imshow(feat_block2[i], cmap="magma")
+    axes[1, i].set_title(f"Block2 - Ch {i}")
+    axes[1, i].axis("off")
+
+plt.suptitle(f"Feature Maps của chữ số {sample_label}: Tầng nông (28×28) vs Tầng sâu (14×14)")
+plt.tight_layout()
+plt.show()
+```
+
+Khi chạy đoạn code trên, bạn sẽ quan sát thấy hàng trên (`Block 1`) giữ nguyên độ phân giải sắc nét <InlineMath formula="28 \times 28" />, trong đó mỗi kênh làm sáng rực một hướng cạnh khác nhau (kênh bắt thanh ngang của số `7`, kênh bắt nét sổ chéo); sang hàng dưới (`Block 2`), độ phân giải cô đọng về <InlineMath formula="14 \times 14" /> và chỉ giữ lại các cụm kích hoạt bậc cao đặc trưng cho cấu trúc chữ số `7`.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Ở trang thứ hai của **Code Lab**, ta sẽ tự tay cài đặt hai kiến trúc nền tảng quan trọng nhất của Deep Learning hiện đại mà ta vừa học ở bài `1.2.6` và `1.2.8`: **Khối nối tắt Residual Block (ResNet)** dùng phép cộng <InlineMath formula="y = \mathcal{F}(x) + x" /> và **Kiến trúc Mini U-Net** dùng phép ghép kênh `torch.cat` qua **Skip Connections**.
+
+### Bước 4: Tự Cài đặt Khối Residual Block (ResNet) bằng PyTorch
+
+Trong `nn.Sequential`, dữ liệu chỉ đi theo một đường thẳng duy nhất. Để tạo đường nối tắt **Skip Connection** (<InlineMath formula="y = \mathcal{F}(x) + x" />), ta kế thừa lớp `nn.Module` và định nghĩa hàm `forward`. Chú ý cách xử lý tự động cả hai trường hợp **Identity Block** (khi số kênh và kích thước không đổi) và **Conv / Projection Block** (khi đổi số kênh hoặc giảm một nửa kích thước bằng `stride = 2` thông qua một tầng `Conv 1×1` trên nhánh tắt `self.shortcut`):
+
+```python
+class ResidualBlock(nn.Module):
+    def __init__(self, in_ch: int, out_ch: int, stride: int = 1):
+        super().__init__()
+        # Nhánh chính F(x): 2 lớp Conv 3×3
+        self.conv_path = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=3, stride=stride, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+        )
+        # Nhánh nối tắt (Shortcut):
+        # Nếu cùng kích thước (stride=1 và in_ch == out_ch) -> Identity()
+        # Nếu khác kích thước -> dùng Conv 1×1 để đồng bộ (H, W) và số kênh!
+        if stride != 1 or in_ch != out_ch:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_ch, out_ch, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(out_ch),
+            )
+        else:
+            self.shortcut = nn.Identity()
+
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = self.conv_path(x) + self.shortcut(x)   # Phép cộng phần tử F(x) + x
+        return self.relu(out)
+
+# Kiểm chứng Identity Block vs Conv Block
+x_dummy = torch.randn(4, 32, 28, 28)
+id_block   = ResidualBlock(in_ch=32, out_ch=32, stride=1)
+proj_block = ResidualBlock(in_ch=32, out_ch=64, stride=2)
+
+print("Identity Block output:", id_block(x_dummy).shape)     # torch.Size([4, 32, 28, 28])
+print("Conv Block output:    ", proj_block(x_dummy).shape)   # torch.Size([4, 64, 14, 14])
+```
+
+### Bước 5: Xây dựng Kiến trúc Mini U-Net với Skip Connections (torch.cat)
+
+Tiếp theo, ta cài đặt một mạng **U-Net** hoàn chỉnh phục vụ bài toán **Semantic Segmentation** (nhận đầu vào là lô ảnh kích thước <InlineMath formula="(B, 1, 64, 64)" /> và xuất ra bản đồ phân đoạn <InlineMath formula="(B, \text{num\_classes}, 64, 64)" /> có độ phân giải khớp tuyệt đối tới từng pixel với ảnh gốc).
+
+Hãy quan sát kỹ hàm `forward` bên dưới để thấy rõ sự khác biệt với **ResNet**:
+
+* Mỗi bậc **Encoder** (`enc1`, `enc2`) xuất ra đặc trưng <InlineMath formula="e_1, e_2" /> vừa để đưa xuống `MaxPool2d(2)` đi tiếp xuống đáy **Bottleneck**, vừa giữ lại để truyền ngang sang nhánh **Decoder**.
+* Ở nhánh **Decoder**, sau khi dùng `nn.ConvTranspose2d(..., kernel_size=2, stride=2)` phóng đại kích thước không gian lên gấp đôi, ta dùng `torch.cat([up, skip], dim=1)` để **ghép nối theo chiều kênh** trước khi đưa vào khối tích chập tinh chỉnh:
+
+```python
+class DoubleConv(nn.Module):
+    """Cụm 2 lớp (Conv 3×3 -> BatchNorm -> ReLU) chuẩn tại mỗi bậc của U-Net."""
+    def __init__(self, in_ch: int, out_ch: int):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+class MiniUNet(nn.Module):
+    def __init__(self, in_channels: int = 1, num_classes: int = 2):
+        super().__init__()
+        # 1. Nhánh Encoder (Contracting Path)
+        self.enc1 = DoubleConv(in_channels, 32)
+        self.enc2 = DoubleConv(32, 64)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # 2. Đáy chữ U (Bottleneck)
+        self.bottleneck = DoubleConv(64, 128)
+
+        # 3. Nhánh Decoder (Expansive Path) + Skip Connections
+        self.up2  = nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2)
+        self.dec2 = DoubleConv(64 + 64, 64)   # Ghép 64 kênh từ up2 + 64 kênh từ enc2 = 128
+
+        self.up1  = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
+        self.dec1 = DoubleConv(32 + 32, 32)   # Ghép 32 kênh từ up1 + 32 kênh từ enc1 = 64
+
+        # 4. Tầng Conv 1×1 cuối cùng ánh xạ về K lớp phân đoạn trên từng pixel
+        self.out_conv = nn.Conv2d(32, num_classes, kernel_size=1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Encoder
+        e1 = self.enc1(x)                        # (B, 32, 64, 64) -> Giữ lại cho Skip 1
+        e2 = self.enc2(self.pool(e1))            # (B, 64, 32, 32) -> Giữ lại cho Skip 2
+
+        # Bottleneck
+        b  = self.bottleneck(self.pool(e2))      # (B, 128, 16, 16)
+
+        # Decoder + Skip Connection (Concatenate theo chiều kênh dim=1)
+        d2 = self.up2(b)                         # (B, 64, 32, 32) — Cùng (H, W) với e2!
+        d2 = torch.cat([d2, e2], dim=1)          # (B, 128, 32, 32)
+        d2 = self.dec2(d2)                       # (B, 64, 32, 32)
+
+        d1 = self.up1(d2)                        # (B, 32, 64, 64) — Cùng (H, W) với e1!
+        d1 = torch.cat([d1, e1], dim=1)          # (B, 64, 64, 64)
+        d1 = self.dec1(d1)                       # (B, 32, 64, 64)
+
+        return self.out_conv(d1)                 # (B, num_classes, 64, 64)
+
+# Kiểm chứng luồng Tensor qua MiniUNet
+unet = MiniUNet(in_channels=1, num_classes=3).to(device)
+summary(unet, input_size=(4, 1, 64, 64))
+```
+
+Bảng `summary` xác nhận kích thước không gian thu hẹp từ <InlineMath formula="64 \times 64 \to 32 \times 32 \to 16 \times 16" /> ở nhánh **Encoder**, rồi mở rộng đối xứng ngược lại <InlineMath formula="16 \times 16 \to 32 \times 32 \to 64 \times 64" /> ở nhánh **Decoder** và xuất ra bản đồ phân đoạn <InlineMath formula="[4, 3, 64, 64]" /> cho từng điểm ảnh!
+
+</MdxPage>

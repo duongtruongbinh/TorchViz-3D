@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'loss-functions-and-forward-pass',
+  locale: 'vi',
+  title: 'Hàm Mất mát & Forward Pass (Loss Functions)',
+  headings: [
+    'Từ Forward Pass đến Thước đo Sai số (Loss Function)',
+    'Hai Nhóm Loss Kinh điển: Hồi quy & Phân loại',
+  ],
+  keywords: [
+    'loss function',
+    'forward pass',
+    'mse',
+    'mae',
+    'cross entropy',
+    'bcewithlogitsloss',
+    'logits',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+## Từ Forward Pass đến Thước đo Sai số (Loss Function)
+
+Khi đưa một mẫu dữ liệu <InlineMath formula="\mathbf{x}" /> đi xuôi qua toàn bộ các tầng của mạng neural (**Forward Pass**), mô hình tạo ra dự đoán <InlineMath formula="\hat{\mathbf{y}} = f_{\mathbf{W}}(\mathbf{x})" />. Tuy nhiên, nếu chỉ có <InlineMath formula="\hat{\mathbf{y}}" />, mạng vẫn chưa biết mình đang đoán **tốt hay tệ** và cần sửa trọng số theo hướng nào.
+
+**Loss Function** (hàm mất mát, ký hiệu <InlineMath formula="\mathcal{L}(\hat{\mathbf{y}}, \mathbf{y}_{\text{true}})" />) giải quyết điều đó bằng cách nén toàn bộ sự sai lệch giữa dự đoán và nhãn thật thành **một giá trị vô hướng duy nhất**:
+
+- Giá trị <InlineMath formula="\mathcal{L}" /> càng nhỏ nghĩa là dự đoán càng sát thực tế.
+- Toàn bộ bài toán huấn luyện mạng neural quy về việc tìm bộ trọng số <InlineMath formula="\mathbf{W}, \mathbf{b}" /> làm cực tiểu hóa hàm mất mát <InlineMath formula="\mathcal{L}" />.
+
+<LossFunctionDiagram panel="pipeline" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai Nhóm Loss Kinh điển: Hồi quy & Phân loại
+
+Tùy vào đầu ra cần dự đoán là số liên tục hay xác suất phân lớp, ta chọn hai nhóm hàm mất mát khác nhau:
+
+<EquationCallout
+  title="Hồi quy (Regression): MSE & MAE"
+  badge="Regression"
+  formula="\mathcal{L}_{\text{MSE}} = \frac{1}{n}\sum_{i=1}^{n}(\hat{y}_i - y_i)^2, \qquad \mathcal{L}_{\text{MAE}} = \frac{1}{n}\sum_{i=1}^{n}|\hat{y}_i - y_i|"
+  explanation="MSE bình phương sai số nên phạt rất nặng các điểm ngoại lai (outliers); MAE tăng tuyến tính nên ổn định hơn khi dữ liệu có nhiễu mạnh."
+/>
+
+**Ví dụ:** Với 2 mẫu có giá trị thật <InlineMath formula="\mathbf{y} = [3.0,\ 5.0]" /> và dự đoán của mô hình <InlineMath formula="\hat{\mathbf{y}} = [2.5,\ 7.0]" />:
+
+<BlockMath formula="\mathcal{L}_{\text{MSE}} = \frac{(2.5 - 3.0)^2 + (7.0 - 5.0)^2}{2} = 2.125, \qquad \mathcal{L}_{\text{MAE}} = \frac{|-0.5| + |2.0|}{2} = 1.25" />
+
+<EquationCallout
+  title="Phân loại (Classification): Binary & Multi-class Cross-Entropy"
+  badge="Classification"
+  formula="\mathcal{L}_{\text{CE}} = -\sum_{c=1}^{C} y_c \log(\hat{p}_c)"
+  explanation="Trong phân loại một nhãn đúng (one-hot), loss chỉ còn -log(p_true): càng tự tin sai (p_true → 0), mức phạt càng vọt lên vô cùng."
+/>
+
+**Ví dụ:** Phân loại 3 lớp (**Mèo, Chó, Chim**) với nhãn thật là **Mèo** (<InlineMath formula="\mathbf{y} = [1,\ 0,\ 0]" />) và xác suất đầu ra <InlineMath formula="\hat{\mathbf{p}} = [0.70,\ 0.20,\ 0.10]" />:
+
+<BlockMath formula="\mathcal{L}_{\text{CE}} = -\big(1 \cdot \ln(0.70) + 0 \cdot \ln(0.20) + 0 \cdot \ln(0.10)\big) = -\ln(0.70) \approx 0.357" />
+
+Hãy tương tác bên dưới để so sánh đường cong phạt sai số của **MSE vs MAE** và **Cross-Entropy** kèm mã PyTorch tương ứng:
+
+<LossFunctionDiagram panel="explorer" />
+
+</MdxPage>

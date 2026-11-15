@@ -5,6 +5,27 @@ import {
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
+export const DEEP_LEARNING_MDX_COMPONENT_NAMES = [
+  'ActivationFunctionDiagram',
+  'BackpropCycleDiagram',
+  'ChainRuleLinksDiagram',
+  'ConvolutionOperationExplorer',
+  'FullyConnectedDiagram',
+  'GradientDescentDirectionDiagram',
+  'HandwrittenDigitBlackboxDiagram',
+  'InceptionBottleneckDiagram',
+  'IrisExperimentsDiagram',
+  'IrisScatterPlot',
+  'LossFunctionDiagram',
+  'OptimizationDiagram',
+  'PaddingStrideExplorer',
+  'PerceptronBoundaryExplorer',
+  'PerceptronGeometryDiagram',
+  'PoolingAndParamsExplorer',
+  'PyTorchComputationGraphDiagram',
+  'UnetSkipConnectionDiagram',
+] as const;
+
 export const FUNDAMENTALS_MDX_COMPONENT_NAMES = ['SvmThresholdMotivation', 'SvmTwoDimensionalBoundary', 'SvmThreeDimensionalBoundary', 'SvmKernelMotivation', 'SvmKernelChoiceIllustration', 'SvmHyperplaneMathIllustration', 'SvmOptimizationIllustration', 'VectorPlane', 'DotProductPlane', 'DotProductCoordinateDiagram', 'PerceptronExercise', 'PerceptronStateIllustration'] as const;
 
 export const CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES = ['StageContinuityMap'] as const;
@@ -125,6 +146,7 @@ export const RESEARCH_PAPERS_MDX_COMPONENT_NAMES = [
 
 const domainMdxComponentNames = {
   fundamentals: FUNDAMENTALS_MDX_COMPONENT_NAMES,
+  'deep-learning': DEEP_LEARNING_MDX_COMPONENT_NAMES,
   cv: CV_MDX_COMPONENT_NAMES,
   'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,
