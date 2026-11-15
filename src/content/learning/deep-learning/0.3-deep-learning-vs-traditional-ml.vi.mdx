@@ -1,0 +1,109 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'deep-learning-vs-traditional-ml',
+  locale: 'vi',
+  title: 'DL vs ML Truyền thống',
+  headings: [
+    'Bước nhảy từ Đặc trưng Thủ công sang Học Biểu diễn',
+    'Phân cấp Biểu diễn theo Tầng',
+    'Khi nào nên dùng Deep Learning và khi nào chọn ML Truyền thống?',
+  ],
+  keywords: [
+    'deep learning',
+    'traditional machine learning',
+    'feature engineering',
+    'representation learning',
+    'feature hierarchy',
+    'scaling',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Bước nhảy từ Đặc trưng Thủ công sang Học Biểu diễn
+
+Trong nhiều thập kỷ, xây dựng một hệ thống nhận dạng ảnh hay phân tích văn bản bằng **Machine Learning truyền thống** luôn bắt đầu bằng công việc thủ công của con người. Kỹ sư phải tự thiết kế các bộ **trích xuất đặc trưng** (**feature engineering**), chẳng hạn đo độ sắc cạnh, đếm tần suất từ khóa, hay tính các chỉ số thống kê rồi mới đưa vào mô hình như SVM hay Random Forest.
+
+<LessonImage
+  assetPath="deep-learning/dl_vs_traditional_ml_v2.jpg"
+  alt="So sánh Machine Learning truyền thống với trích xuất đặc trưng thủ công và Deep Learning tự động học biểu diễn qua nhiều tầng"
+  caption="ML truyền thống phụ thuộc vào đặc trưng do con người thiết kế; Deep Learning học trực tiếp chuỗi biểu diễn từ dữ liệu thô."
+/>
+
+Cách làm này gặp trần giới hạn rất sớm khi dữ liệu trở nên phức tạp như ảnh tự nhiên, âm thanh hay ngôn ngữ đời thực. Con người không thể viết tay hàng nghìn quy tắc để mô tả mọi góc ánh sáng trên khuôn mặt một con mèo hay mọi sắc thái ngữ nghĩa của một câu nói.
+
+**Deep Learning** giải quyết nút thắt đó bằng **học biểu diễn** (**representation learning**). Thay vì tách rời khâu thiết kế đặc trưng và khâu phân loại, mạng neural nhiều tầng tự động học cả hai trong cùng một quy trình tối ưu đầu cuối (**end-to-end training**).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân cấp Biểu diễn theo Tầng
+
+Điểm mạnh cốt lõi của Deep Learning không chỉ nằm ở số lượng tham số lớn, mà ở cấu trúc **phân cấp biểu diễn** (**hierarchical representation**). Dữ liệu đi qua từng tầng mạng sẽ được biến đổi từ tín hiệu thô sang các khái niệm trừu tượng dần.
+
+<LessonImage
+  assetPath="deep-learning/dl_feature_hierarchy.jpg"
+  alt="Quá trình học đặc trưng phân cấp qua các tầng mạng neural từ pixel thô đến cạnh, bộ phận và vật thể hoàn chỉnh"
+  caption="Mỗi tầng mạng ghép các mẫu đơn giản ở tầng trước thành biểu diễn giàu ngữ nghĩa hơn ở tầng sau."
+/>
+
+- **Tầng nông:** Học các mẫu cục bộ đơn giản như cạnh ngang, cạnh chéo, đốm màu trên ảnh hoặc tổ hợp ký tự ngắn trong văn bản.
+- **Tầng giữa:** Kết hợp các mảnh đơn giản ở tầng trước thành bộ phận có cấu trúc như mắt, bánh xe, khung cửa sổ hay cụm từ mang ngữ nghĩa.
+- **Tầng sâu:** Tổng hợp thành khái niệm toàn cục phục vụ trực tiếp cho quyết định cuối cùng như nhận diện vật thể, dịch câu hay dự đoán hành động.
+
+Nhờ cơ chế tự động xếp chồng đặc trưng này, cùng một kiến trúc nền tảng có thể thích nghi với nhiều loại dữ liệu khác nhau miễn là có đủ mẫu huấn luyện và tín hiệu phản hồi rõ ràng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khi nào nên dùng Deep Learning và khi nào chọn ML Truyền thống?
+
+Dù mạnh mẽ trên dữ liệu phi cấu trúc, Deep Learning không phải lúc nào cũng là lựa chọn tối ưu. Với dữ liệu dạng bảng có kích thước nhỏ hoặc vừa, các mô hình cây quyết định tăng cường như XGBoost hay LightGBM thường cho kết quả nhanh, ổn định và dễ giải thích hơn.
+
+<ComparisonMatrix
+  ariaLabel="So sánh Machine Learning truyền thống và Deep Learning"
+  rowHeaderLabel="Tiêu chí"
+  columns={['ML Truyền thống', 'Deep Learning']}
+  rows={[
+    {
+      label: 'Tự động trích xuất đặc trưng',
+      values: ['✗', '✓'],
+      highlightedColumn: 1,
+    },
+    {
+      label: 'Phù hợp dữ liệu bảng (Tabular)',
+      values: ['✓', 'Trung bình'],
+      highlightedColumn: 0,
+    },
+    {
+      label: 'Phù hợp ảnh, âm thanh, văn bản',
+      values: ['✗', '✓'],
+      highlightedColumn: 1,
+    },
+    {
+      label: 'Nhu cầu dữ liệu huấn luyện',
+      values: ['Thấp', 'Cao'],
+    },
+    {
+      label: 'Chi phí tính toán (Compute)',
+      values: ['Thấp', 'Cao'],
+    },
+    {
+      label: 'Mở rộng hiệu năng theo quy mô',
+      values: ['Thấp', 'Cao'],
+      highlightedColumn: 1,
+    },
+    {
+      label: 'Tính dễ giải thích',
+      values: ['Cao', 'Thấp'],
+      highlightedColumn: 0,
+    },
+  ]}
+/>
+
+Hiểu rõ ranh giới này giúp bạn tránh dùng dao mổ trâu để giết gà, đồng thời biết khi nào cần sức mạnh biểu diễn của mạng neural sâu. Ở bài tiếp theo, ta sẽ nhìn lại hành trình lịch sử đã đưa Deep Learning từ ý tưởng mô phỏng một tế bào thần kinh đơn lẻ đến kỷ nguyên mô hình nền tảng ngày nay.
+
+</MdxPage>

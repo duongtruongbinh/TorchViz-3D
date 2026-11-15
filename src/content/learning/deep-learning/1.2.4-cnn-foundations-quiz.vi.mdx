@@ -1,0 +1,248 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'cnn-foundations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Điểm yếu của Flatten + Fully Connected trên Ảnh',
+    'Bản chất Phép nhân trong Convolution',
+    'Tác dụng của Zero Padding và Stride',
+    'Bài tập Tính Kích thước Output Feature Map',
+    'Vai trò của Tích chập 1×1 (Point-wise Convolution)',
+    'Đặc điểm của Tầng Pooling và Lý do Dùng Max Pooling',
+    'Đếm Số lượng Tham số Tầng Conv2D',
+    'Phân cấp Đặc trưng Low-level và High-level',
+  ],
+  keywords: [
+    'cnn quiz',
+    'convolution',
+    'padding',
+    'stride',
+    'pooling',
+    'parameter counting',
+    '1x1 conv',
+  ],
+  pageCount: 8,
+};
+
+<MdxQuiz
+  id="cnn-foundations-quiz"
+  questions={[
+    {
+      id: 'cnn-found-q1',
+      title: 'Điểm yếu của Flatten + Fully Connected trên Ảnh',
+      prompt: 'Khi đưa một bức ảnh màu RGB kích thước 32×32×3 qua bước Flatten thành vector 3,072 chiều để huấn luyện bằng tầng Fully Connected, mô hình gặp những hạn chế cốt lõi nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Phá vỡ cấu trúc không gian lân cận 2D của các pixel, phát sinh lượng lớn trọng số và rất nhạy cảm khi vật thể dịch chuyển nhẹ.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Làm mất toàn bộ giá trị màu sắc của 2 kênh G và B, chỉ giữ lại được thông tin độ sáng của kênh R đầu tiên.',
+        },
+        {
+          id: 'opt3',
+          label: 'Không thể áp dụng được hàm kích hoạt Softmax ở tầng đầu ra khi số chiều vector đầu vào lớn hơn 1,000.',
+        },
+        {
+          id: 'opt4',
+          label: 'Bắt buộc mọi bức ảnh đầu vào phải chuyển sang ảnh nhị phân chỉ gồm hai giá trị 0 và 1 trước khi nhân ma trận.',
+        },
+      ],
+      success: 'Chính xác. Việc đập bẹp ảnh 2D làm đứt gãy mối liên hệ giữa các pixel lân cận, làm bùng nổ số lượng trọng số khi ảnh lớn và khiến mô hình kém bền vững trước phép dịch chuyển.',
+      error: 'Hãy nhớ lại chuyện gì xảy ra với các điểm ảnh lân cận và số lượng kết nối khi ta kéo thẳng lưới ảnh 2D thành một dải 1D.',
+    },
+    {
+      id: 'cnn-found-q2',
+      title: 'Bản chất Phép nhân trong Convolution',
+      prompt: 'Trong một bước trượt của phép tích chập Y = X ⊗ W giữa vùng ảnh con A (k×k) và bộ lọc Kernel W (k×k), giá trị ghi vào một ô của Feature Map Y được tính như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Nhân từng phần tử ở vị trí tương ứng của A và W (element-wise), sau đó cộng tất cả các tích này lại (kèm hệ số bias nếu có) thành một con số duy nhất.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Thực hiện phép nhân hai ma trận chuẩn A · W theo quy tắc hàng nhân cột rồi giữ nguyên ma trận k×k làm kết quả.',
+        },
+        {
+          id: 'opt3',
+          label: 'Lấy phần tử lớn nhất của vùng ảnh A trừ đi phần tử nhỏ nhất của bộ lọc W tại mỗi bước trượt.',
+        },
+        {
+          id: 'opt4',
+          label: 'Sắp xếp các phần tử của A và W theo thứ tự tăng dần rồi lấy giá trị trung vị ở chính giữa.',
+        },
+      ],
+      success: 'Đúng. Tại mỗi vị trí đặt chiếc kính lúp Kernel, ta nhân từng cặp phần tử trùng khớp vị trí giữa vùng ảnh con và Kernel rồi cộng tổng lại thành một giá trị kích hoạt.',
+      error: 'Phép tích chập trong CNN không phải là phép nhân hàng-cột thông thường của đại số tuyến tính mà là nhân từng phần tử tương ứng rồi lấy tổng.',
+    },
+    {
+      id: 'cnn-found-q3',
+      title: 'Tác dụng của Zero Padding và Stride',
+      prompt: 'Khi thực hiện tích chập với bộ lọc có kích thước k > 1, cặp kỹ thuật Padding (p) và Stride (s) tác động lên kích thước của bản đồ đặc trưng đầu ra Y như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Padding giảm kích thước của Y bằng cách cắt bỏ viền ảnh, còn Stride tăng kích thước của Y bằng cách nội suy thêm điểm ảnh.',
+        },
+        {
+          id: 'opt2',
+          label: 'Padding đệm thêm các hàng/cột 0 ở rìa để giữ hoặc tăng kích thước Y (giúp pixel biên được làm tâm), còn tăng Stride (s > 1) làm giảm kích thước Y do nhảy bước lớn hơn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Cả Padding và Stride đều chỉ làm thay đổi số lượng kênh (depth) của đầu ra chứ không ảnh hưởng tới chiều cao và chiều rộng.',
+        },
+        {
+          id: 'opt4',
+          label: 'Stride luôn có thể chọn một số nguyên bất kỳ mà không bao giờ xảy ra hiện tượng cửa sổ trượt bị lẻ bước ở biên.',
+        },
+      ],
+      success: 'Chính xác. Padding thêm viền 0 để chống co rút kích thước qua nhiều tầng, trong khi Stride > 1 giúp giảm kích thước không gian bằng cách nhảy cóc qua nhiều pixel.',
+      error: 'Hãy phân biệt kỹ thuật thêm viền số 0 xung quanh ma trận (Padding) và bước nhảy của cửa sổ trượt (Stride).',
+    },
+    {
+      id: 'cnn-found-q4',
+      title: 'Bài tập Tính Kích thước Output Feature Map',
+      prompt: 'Cho tensor đầu vào kích thước 64×64×3 đi qua một lớp tích chập gồm 10 bộ lọc kích thước 3×3, với tham số padding = 2 và stride = 5. Kích thước của tensor đầu ra là bao nhiêu?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: '14 × 14 × 10',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: '14 × 14 × 3',
+        },
+        {
+          id: 'opt3',
+          label: '13 × 13 × 10',
+        },
+        {
+          id: 'opt4',
+          label: '64 × 64 × 10',
+        },
+      ],
+      success: 'Chính xác. Áp dụng công thức (64 - 3 + 2×2) / 5 + 1 = 65 / 5 + 1 = 14, và có 10 bộ lọc nên độ sâu đầu ra bằng 10 → kích thước tensor là 14×14×10.',
+      error: 'Hãy thay N = 64, k = 3, p = 2, s = 5 vào công thức (N - k + 2p) / s + 1 và nhớ rằng số kênh đầu ra bằng số lượng bộ lọc (10).',
+    },
+    {
+      id: 'cnn-found-q5',
+      title: 'Vai trò của Tích chập 1×1 (Point-wise Convolution)',
+      prompt: 'Tại sao các kiến trúc CNN hiện đại thường xuyên sử dụng tầng tích chập có kích thước bộ lọc 1×1 (Point-wise Convolution)?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Để mở rộng trường nhìn không gian (Receptive Field) ra toàn bộ bức ảnh chỉ trong một lớp duy nhất.',
+        },
+        {
+          id: 'opt2',
+          label: 'Để trộn thông tin xuyên qua các kênh và thay đổi độ sâu (tăng hoặc nén giảm số lượng kênh) cực nhanh trước khi đưa vào các bộ lọc lớn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Để thay thế hoàn toàn các hàm kích hoạt phi tuyến như ReLU hay Sigmoid trong mạng.',
+        },
+        {
+          id: 'opt4',
+          label: 'Để tự động đệm thêm viền số 0 vào xung quanh bức ảnh mà không cần cấu hình tham số padding.',
+        },
+      ],
+      success: 'Đúng. Bộ lọc 1×1×C_in giữ nguyên chiều cao và chiều rộng nhưng cho phép tổ hợp tuyến tính giữa các kênh và điều chỉnh số lượng kênh C_out với chi phí tính toán rất thấp.',
+      error: 'Hãy chú ý rằng bộ lọc 1×1 chỉ nhìn 1 tọa độ điểm ảnh nhưng xuyên suốt toàn bộ chiều sâu C_in của khối đặc trưng.',
+    },
+    {
+      id: 'cnn-found-q6',
+      title: 'Đặc điểm của Tầng Pooling và Lý do Dùng Max Pooling',
+      prompt: 'Phát biểu nào sau đây mô tả ĐÚNG về tầng Pooling (Max Pooling, Average Pooling, Global Average Pooling) trong mạng CNN?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Tầng Pooling tiêu tốn gấp đôi số lượng tham số học so với tầng Conv2D đứng ngay trước nó.',
+        },
+        {
+          id: 'opt2',
+          label: 'Tầng Pooling không phát sinh bất kỳ tham số học nào (0 params), giúp giảm kích thước Feature Map, chống overfitting; trong đó Max Pooling giúp giữ lại các tín hiệu kích hoạt nổi bật nhất.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Global Average Pooling (GAP) luôn làm tăng gấp 4 lần chiều cao và chiều rộng của bản đồ đặc trưng đầu vào.',
+        },
+        {
+          id: 'opt4',
+          label: 'Average Pooling luôn cho kết quả nhận diện cạnh sắc nét hơn Max Pooling khi dữ liệu có nhiều nhiễu nền.',
+        },
+      ],
+      success: 'Chính xác. Pooling không có trọng số cần học (0 params), vừa giúp giảm chiều dữ liệu cho các tầng sau vừa tăng khả năng khái quát hóa; Max Pooling giữ lại tín hiệu mạnh nhất trong từng vùng.',
+      error: 'Hãy kiểm tra lại xem phép lấy cực đại hay trung bình trên một cửa sổ 2×2 có cần học trọng số nào không.',
+    },
+    {
+      id: 'cnn-found-q7',
+      title: 'Đếm Số lượng Tham số Tầng Conv2D',
+      prompt: 'Một tầng Conv2D nhận đầu vào là Feature Map kích thước 16×16×32 và sử dụng 64 bộ lọc có kích thước 3×3 (có sử dụng hệ số bias). Số lượng tham số học (trainable parameters) của riêng tầng Conv2D này là bao nhiêu?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: '18,496 tham số',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: '18,432 tham số',
+        },
+        {
+          id: 'opt3',
+          label: '896 tham số',
+        },
+        {
+          id: 'opt4',
+          label: '73,856 tham số',
+        },
+      ],
+      success: 'Chính xác. Áp dụng công thức ((K × K × C_in) + 1_bias) × C_out = (3 × 3 × 32 + 1) × 64 = 289 × 64 = 18,496 tham số.',
+      error: 'Hãy áp dụng công thức ((3 × 3 × 32) + 1_bias) × 64, đừng quên cộng 1 tham số bias cho mỗi bộ lọc trong 64 bộ lọc.',
+    },
+    {
+      id: 'cnn-found-q8',
+      title: 'Phân cấp Đặc trưng Low-level và High-level',
+      prompt: 'Khi đi từ các lớp tích chập nông (gần đầu vào) tới các lớp tích chập sâu (gần đầu ra) trong mạng CNN, bản chất của các đặc trưng học được thay đổi như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Các lớp nông giữ độ phân giải cao và bắt đặc trưng hình học cục bộ (cạnh, góc, màu sắc); các lớp sâu có Receptive Field lớn hơn và tổng hợp thành đặc trưng ngữ nghĩa bậc cao (mắt, mũi, bánh xe, toàn bộ vật thể).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Các lớp nông nhận diện ngay toàn bộ đối tượng hoàn chỉnh, còn các lớp sâu chỉ dùng để tách các cạnh ngang và dọc đơn giản.',
+        },
+        {
+          id: 'opt3',
+          label: 'Độ phân giải không gian (H, W) ngày càng tăng lên trong khi số lượng kênh đặc trưng (C) ngày càng giảm về 1.',
+        },
+        {
+          id: 'opt4',
+          label: 'Mọi lớp từ nông đến sâu đều có cùng một kích thước Receptive Field bằng đúng kích thước bộ lọc 3×3.',
+        },
+      ],
+      success: 'Đúng. Nhờ chồng nhiều lớp tích chập và giảm chiều qua Pooling, Receptive Field mở rộng dần giúp mạng tiến hóa từ các cạnh cục bộ (Low-level) lên ngữ nghĩa đối tượng (High-level).',
+      error: 'Hãy nhớ lại hình minh họa của Zeiler & Fergus (2013) về sự khác biệt giữa tầng Conv1_1 (cạnh/góc) và tầng Conv5_3 (khuôn mặt/vật thể).',
+    },
+  ]}
+/>

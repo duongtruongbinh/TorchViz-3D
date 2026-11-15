@@ -10,7 +10,7 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 | `programming-foundation` | placeholder | 12 | 80 | 0 |
 | `linear-algebra` | active | 8 | 59 | 59 |
 | `fundamentals` | placeholder | 7 | 95 | 88 |
-| `deep-learning` | placeholder | 7 | 45 | 0 |
+| `deep-learning` | partial | 10 | 60 | 25 |
 | `cv` | partial | 2 | 19 | 14 |
 | `nlp` | placeholder | 9 | 65 | 0 |
 | `llm-ai-engineering` | active | 12 | 158 | 49 |
@@ -26,4 +26,4 @@ Single source of truth: the typed domain TOCs under `src/content/learning/`.
 | `research-papers` | active | 7 | 53 | 53 |
 | `ai-projects` | active | 4 | 11 | 8 |
 
-**Totals:** 18 domains · 117 tracks · 972 lesson nodes · 510 published · 462 placeholders.
+**Totals:** 18 domains · 120 tracks · 987 lesson nodes · 535 published · 452 placeholders.

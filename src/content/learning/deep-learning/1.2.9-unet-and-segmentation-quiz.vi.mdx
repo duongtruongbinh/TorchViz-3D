@@ -1,0 +1,191 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'unet-and-segmentation-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Sự Đánh đổi Giữa Tầng Nông và Tầng Sâu trong Semantic Segmentation',
+    'Vai trò của Nhánh Encoder và Nhánh Decoder trong U-Net',
+    'Biến đổi Kích thước qua Conv 3×3 (pad=0) và MaxPool 2×2 trong U-Net Gốc',
+    'Hai Luồng Đầu vào của Mỗi Khối Decoder trong U-Net',
+    ' Lý do Skip Connection Nối Ngang Cặp Tầng Đối xứng',
+    'Vai trò của Tầng Conv 1×1 Cuối cùng trong U-Net',
+  ],
+  keywords: [
+    'unet quiz',
+    'semantic segmentation',
+    'encoder decoder',
+    'skip connection',
+    'receptive field',
+    'pixel classification',
+  ],
+  pageCount: 6,
+};
+
+<MdxQuiz
+  id="unet-and-segmentation-quiz"
+  questions={[
+    {
+      id: 'unet-seg-q1',
+      title: 'Sự Đánh đổi Giữa Tầng Nông và Tầng Sâu trong Semantic Segmentation',
+      prompt: 'Trong bài toán phân đoạn ảnh ngữ nghĩa (Semantic Segmentation), tại sao việc chỉ dựa riêng vào các lớp nông (Shallow layers) hoặc chỉ dựa riêng vào các lớp sâu (Deep layers) đều không cho ranh giới phân đoạn tốt?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Các lớp nông giữ được độ phân giải cao và vị trí biên chính xác (Pixel Location) nhưng nghèo ngữ nghĩa; ngược lại các lớp sâu có Receptive Field lớn hiểu rõ ngữ nghĩa đối tượng (Pixel Categorization) nhưng đã mất chi tiết không gian do qua nhiều lần Downsampling.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Các lớp nông có độ phân giải quá thấp không nhìn thấy cạnh, còn các lớp sâu có độ phân giải quá cao nhưng không có trọng số.',
+        },
+        {
+          id: 'opt3',
+          label: 'Các lớp nông chỉ xử lý được ảnh màu RGB, trong khi các lớp sâu chỉ xử lý được ảnh nhị phân trắng đen.',
+        },
+        {
+          id: 'opt4',
+          label: 'Cả lớp nông lẫn lớp sâu đều không thể tính được đạo hàm khi huấn luyện trên ảnh y khoa.',
+        },
+      ],
+      success: 'Chính xác. Tầng nông biết rõ "Ở đâu" (Where) nhờ độ phân giải cao, còn tầng sâu biết rõ "Cái gì" (What) nhờ trường nhìn rộng. Động lực cốt lõi của U-Net là kết hợp cả hai.',
+      error: 'Hãy nhớ lại sự khác nhau về độ phân giải không gian và kích thước trường nhìn (Receptive Field) giữa tầng đầu mạng và tầng cuối mạng.',
+    },
+    {
+      id: 'unet-seg-q2',
+      title: 'Vai trò của Nhánh Encoder và Nhánh Decoder trong U-Net',
+      prompt: 'Trong cấu trúc hình chữ U của mạng U-Net (Ronneberger et al., 2015), hai nhánh Encoder (bên trái) và Decoder (bên phải) lần lượt đảm nhận nhiệm vụ gì?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Encoder thu hẹp dần kích thước không gian và tăng số kênh để trích xuất đặc trưng ngữ nghĩa; Decoder dùng các phép Up-convolution (Transposed Conv) để khôi phục lại kích thước không gian ban đầu tạo bản đồ phân đoạn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Encoder phóng to bức ảnh lên gấp 4 lần, còn Decoder nén bức ảnh về một vector 10 chiều duy nhất.',
+        },
+        {
+          id: 'opt3',
+          label: 'Encoder chỉ gồm các tầng Fully Connected, còn Decoder chỉ gồm các tầng Max Pooling.',
+        },
+        {
+          id: 'opt4',
+          label: 'Hai nhánh hoạt động độc lập song song trên cùng một ảnh gốc và không có bất kỳ kết nối nào với nhau.',
+        },
+      ],
+      success: 'Đúng. Nhánh Encoder nén không gian (Downsampling) để lấy ngữ nghĩa, còn nhánh Decoder mở rộng không gian (Upsampling) để tái tạo bản đồ nhãn ở cấp độ từng pixel.',
+      error: 'Hãy quan sát chiều mũi tên đi xuống (MaxPool) ở nhánh trái và chiều mũi tên đi lên (Up-conv) ở nhánh phải của chữ U.',
+    },
+    {
+      id: 'unet-seg-q3',
+      title: 'Biến đổi Kích thước qua Conv 3×3 (pad=0) và MaxPool 2×2 trong U-Net Gốc',
+      prompt: 'Ở bậc đầu tiên của nhánh Encoder trong bài báo U-Net gốc, ảnh đầu vào kích thước 572×572 đi qua 2 lớp tích chập 3×3 liên tiếp không đệm viền (padding = 0, stride = 1), sau đó đi qua 1 lớp MaxPool 2×2 (stride = 2). Kích thước không gian sau từng bước biến đổi như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: '572×572 → 570×570 (sau Conv 1) → 568×568 (sau Conv 2) → 284×284 (sau MaxPool 2×2).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: '572×572 → 572×572 (sau Conv 1) → 572×572 (sau Conv 2) → 570×570 (sau MaxPool 2×2).',
+        },
+        {
+          id: 'opt3',
+          label: '572×572 → 286×286 (sau Conv 1) → 143×143 (sau Conv 2) → 140×140 (sau MaxPool 2×2).',
+        },
+        {
+          id: 'opt4',
+          label: '572×572 → 574×574 (sau Conv 1) → 576×576 (sau Conv 2) → 288×288 (sau MaxPool 2×2).',
+        },
+      ],
+      success: 'Chính xác. Với k = 3, pad = 0, stride = 1, mỗi lớp Conv làm kích thước giảm đi (3 - 1) = 2 đơn vị (572 → 570 → 568), sau đó MaxPool 2×2 chia đôi 568 còn 284.',
+      error: 'Hãy áp dụng công thức (N - 3 + 0)/1 + 1 = N - 2 cho mỗi lần qua Conv 3×3 không padding, rồi chia 2 khi qua MaxPool 2×2.',
+    },
+    {
+      id: 'unet-seg-q4',
+      title: 'Hai Luồng Đầu vào của Mỗi Khối Decoder trong U-Net',
+      prompt: 'Tại mỗi bậc của nhánh Decoder trong U-Net, khối tích chập nhận và ghép nối (Concatenate) hai nguồn đặc trưng nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Đặc trưng ngữ nghĩa từ tầng sâu hơn vừa được phóng to lên (qua Up-conv 2×2) VÀ đặc trưng chi tiết vị trí cục bộ truyền ngang sang từ khối Encoder đối xứng thông qua Skip Connection.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Bức ảnh RGB gốc chưa qua xử lý VÀ vector nhãn one-hot từ hàm mất mát.',
+        },
+        {
+          id: 'opt3',
+          label: 'Hai bản sao giống hệt nhau của tầng Bottleneck ở đáy chữ U.',
+        },
+        {
+          id: 'opt4',
+          label: 'Đầu ra của tầng Softmax cuối cùng truyền ngược về VÀ trọng số của tầng Fully Connected.',
+        },
+      ],
+      success: 'Đúng. Sự kết hợp giữa bản đồ ngữ nghĩa từ tầng dưới đi lên và bản đồ chi tiết không gian từ khối Encoder đối xứng truyền ngang sang giúp U-Net khôi phục sắc nét từng đường biên.',
+      error: 'Hãy xem lại sơ đồ chữ U: mỗi khối bên phải nhận một mũi tên xanh đi từ dưới lên và một mũi tên xám đi ngang từ bên trái sang.',
+    },
+    {
+      id: 'unet-seg-q5',
+      title: 'Lý do Skip Connection Nối Ngang Cặp Tầng Đối xứng',
+      prompt: 'Tại sao trong U-Net chuẩn, các đường Skip Connection lại nối ngang từng cặp khối Encoder – Decoder đối xứng ở cùng bậc độ cao mà không nối trực tiếp từ một khối Encoder bất kỳ sang mọi khối Decoder?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Vì phép ghép nối theo chiều kênh (Concatenation) đòi hỏi hai khối Feature Map phải có cùng kích thước không gian (H × W); các cặp Encoder – Decoder đối xứng tự nhiên có cùng cấp độ phân giải.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Vì về mặt toán học không tồn tại phép toán nào có thể thay đổi kích thước không gian của một Feature Map.',
+        },
+        {
+          id: 'opt3',
+          label: 'Vì các khối Encoder ở tầng khác nhau không chứa bất kỳ thông tin nào về bức ảnh đầu vào.',
+        },
+        {
+          id: 'opt4',
+          label: 'Vì PyTorch chỉ cho phép tối đa đúng 4 lệnh torch.cat trong toàn bộ một chương trình.',
+        },
+      ],
+      success: 'Chính xác. Để ghép nối hai tensor theo chiều kênh (dim=1), chiều cao H và chiều rộng W của chúng phải khớp nhau; nếu muốn nối chéo các tầng lệch cấp (như UNet++), ta bắt buộc phải thêm bước Downsample/Upsample phụ trợ.',
+      error: 'Hãy nghĩ xem điều kiện về kích thước chiều cao H và chiều rộng W để ghép hai khối tensor (C1, H, W) và (C2, H, W) thành (C1+C2, H, W) là gì.',
+    },
+    {
+      id: 'unet-seg-q6',
+      title: 'Vai trò của Tầng Conv 1×1 Cuối cùng trong U-Net',
+      prompt: 'Ở bước cuối cùng của nhánh Decoder trong U-Net, tại sao tác giả đặt một tầng tích chập có kích thước bộ lọc 1×1?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Để ánh xạ từ 64 kênh đặc trưng tại mỗi tọa độ điểm ảnh về đúng K kênh đầu ra (ứng với K lớp cần phân đoạn), tạo ra bản đồ điểm số/xác suất cho từng pixel mà không làm thay đổi kích thước (H, W).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Để giảm chiều cao và chiều rộng của bức ảnh từ 388×388 về 1×1 cho bài toán phân loại cả bức ảnh.',
+        },
+        {
+          id: 'opt3',
+          label: 'Để thay thế cho phép phóng đại kích thước Up-convolution 2×2 ở các bậc trước đó.',
+        },
+        {
+          id: 'opt4',
+          label: 'Để xóa bỏ các đường biên của vật thể và làm mờ toàn bộ bản đồ phân đoạn.',
+        },
+      ],
+      success: 'Chính xác. Tầng Conv 1×1 cuối cùng đóng vai trò như một bộ phân loại tuyến tính tại từng pixel, gom 64 kênh đặc trưng về K lớp phân đoạn trên toàn bộ lưới (H, W).',
+      error: 'Hãy nhớ lại tác dụng của Point-wise Conv 1×1: giữ nguyên (H, W) và biến đổi số lượng kênh từ C_in = 64 về số lớp K.',
+    },
+  ]}
+/>

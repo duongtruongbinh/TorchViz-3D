@@ -41,8 +41,8 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 18);
   assert.equal(learningCatalog.domains.length, 18);
-  assert.equal(learningCatalog.tracks.length, 117);
-  assert.equal(learningCatalog.lessons.length, 972);
+  assert.equal(learningCatalog.tracks.length, 120);
+  assert.equal(learningCatalog.lessons.length, 987);
   assert.equal(learningCatalog.routeAliases?.length, 15);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -73,7 +73,7 @@ test('fully published and updating domains are prioritized without disturbing ca
   );
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
+    ['deep-learning', 'cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     prioritizedDomains.map((item) => item.domain.id),
@@ -81,6 +81,7 @@ test('fully published and updating domains are prioritized without disturbing ca
       'linear-algebra',
       'continual-learning-llm',
       'research-papers',
+      'deep-learning',
       'cv',
       'llm-ai-engineering',
       'llm-unlearning',
@@ -90,7 +91,6 @@ test('fully published and updating domains are prioritized without disturbing ca
       'ai-projects',
       'programming-foundation',
       'fundamentals',
-      'deep-learning',
       'nlp',
       'ai-system-design',
       'reinforcement-learning',
@@ -119,7 +119,7 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
-    ['cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
+    ['deep-learning', 'cv', 'llm-ai-engineering', 'llm-unlearning', 'mlops-llmops-production-systems', 'aiops', 'evolutionary-algorithms', 'ai-projects'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [
@@ -463,7 +463,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only active authored domains and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 462);
+  assert.equal(missingLessons.length, 452);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);

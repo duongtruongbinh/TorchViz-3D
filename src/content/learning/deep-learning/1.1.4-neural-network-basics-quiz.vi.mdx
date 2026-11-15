@@ -1,0 +1,234 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'neural-network-basics-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Perceptron và Giới hạn Tuyến tính',
+    'Forward Pass và Backpropagation',
+    'Biểu diễn Ma trận Tầng Fully Connected',
+    'Đếm Tham số Tầng Fully Connected',
+    'Width, Depth và Hàm Kích hoạt',
+    'Vai trò của Fully Connected trong CNN + MLP',
+    'Vì sao Neural Network Thống trị Deep Learning?',
+    'Độ sâu Kiến trúc & Mô hình Hộp đen',
+  ],
+  keywords: [
+    'neural network quiz',
+    'perceptron',
+    'mlp',
+    'fully connected',
+    'width depth',
+    'resnet',
+  ],
+  pageCount: 8,
+};
+
+<MdxQuiz
+  id="neural-network-basics-quiz"
+  questions={[
+    {
+      id: 'nn-basics-q1',
+      title: 'Perceptron và Giới hạn Tuyến tính',
+      prompt: 'Vì sao một Perceptron đơn lẻ không thể giải quyết bài toán XOR, trong khi mạng MLP lại giải được?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Perceptron chỉ có một tầng đầu ra tuyến tính, còn MLP tăng learning rate để tự bẻ cong đường biên.',
+        },
+        {
+          id: 'opt2',
+          label: 'Perceptron chỉ tạo một siêu phẳng tuyến tính, còn MLP ghép nhiều tầng ẩn kèm hàm kích hoạt phi tuyến.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Perceptron không dùng được độ lệch bias, còn MLP bổ sung bias vào mọi nút đầu vào để tách lớp.',
+        },
+        {
+          id: 'opt4',
+          label: 'Perceptron chỉ xử lý đầu vào nhị phân, còn MLP chuyển toàn bộ bài toán sang không gian xác suất.',
+        },
+      ],
+      success: 'Chính xác. Một Perceptron chỉ vạch được một đường thẳng/siêu phẳng tuyến tính, còn MLP kết hợp nhiều neuron ẩn và hàm kích hoạt phi tuyến để phân tách các vùng như XOR.',
+      error: 'Hãy nhớ lại sự khác nhau giữa một siêu phẳng tuyến tính đơn lẻ và nhiều tầng ẩn có hàm kích hoạt phi tuyến.',
+    },
+    {
+      id: 'nn-basics-q2',
+      title: 'Forward Pass và Backpropagation',
+      prompt: 'Trong một bước huấn luyện chuẩn của mạng MLP, cặp quá trình Forward Pass và Backpropagation hoạt động như thế nào?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Forward Pass tính đạo hàm sai số từng lớp, còn Backpropagation khởi tạo lại trọng số ngẫu nhiên.',
+        },
+        {
+          id: 'opt2',
+          label: 'Forward Pass chuẩn hóa dữ liệu đầu vào, còn Backpropagation chỉ cập nhật bias ở tầng cuối cùng.',
+        },
+        {
+          id: 'opt3',
+          label: 'Forward Pass tính dự đoán và loss, còn Backpropagation dùng Chain Rule truyền ngược gradient về trước.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt4',
+          label: 'Cả hai quá trình đều truyền thông tin theo một chiều từ đầu vào tới đầu ra trong suốt quá trình học.',
+        },
+      ],
+      success: 'Đúng. Forward Pass đưa tín hiệu đi tới để đánh giá sai số, còn Backpropagation lan truyền ngược gradient qua từng tầng nhờ quy tắc dây chuyền.',
+      error: 'Hãy phân biệt chiều đi của dữ liệu (Forward) và chiều truyền ngược đạo hàm sai số (Backward).',
+    },
+    {
+      id: 'nn-basics-q3',
+      title: 'Biểu diễn Ma trận Tầng Fully Connected',
+      prompt: 'Với ma trận đầu vào X ∈ ℝ^(n×d), ma trận trọng số W ∈ ℝ^(d×m) và vector độ lệch b ∈ ℝ^m, công thức nào mô tả đúng phép tính của một tầng Fully Connected?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Z = X · W + bᵀ (broadcast theo hàng), sau đó áp dụng hàm kích hoạt H = φ(Z) ∈ ℝ^(n×m).',
+          isCorrect: true,
+        },
+        {
+          id: 'opt2',
+          label: 'Z = W · X + b (broadcast theo cột), sau đó giữ nguyên giá trị tuyến tính không qua hàm kích hoạt.',
+        },
+        {
+          id: 'opt3',
+          label: 'Z = X + W · bᵀ (cộng từng phần tử), sau đó lấy tổng toàn bộ cột để thu về vector n chiều.',
+        },
+        {
+          id: 'opt4',
+          label: 'Z = (X · Xᵀ) + W (tính tương đồng cặp), sau đó áp dụng hàm kích hoạt lên riêng vector độ lệch b.',
+        },
+      ],
+      success: 'Chính xác. Với n mẫu theo hàng, X·W có kích thước n×m, cộng broadcast bᵀ theo từng hàng rồi qua hàm kích hoạt φ để cho ra H ∈ ℝ^(n×m).',
+      error: 'Hãy kiểm tra lại chiều ma trận X ∈ ℝ^(n×d) và W ∈ ℝ^(d×m) cùng bước kích hoạt φ(Z).',
+    },
+    {
+      id: 'nn-basics-q4',
+      title: 'Đếm Tham số Tầng Fully Connected',
+      prompt: 'Trong PyTorch, tầng nn.Linear(784, 256) với cấu hình mặc định (bias=True) chứa tổng cộng bao nhiêu tham số học được?',
+      mode: 'single',
+      options: [
+        { id: 'opt1', label: '784 + 256 = 1.040 tham số (chỉ tính số neuron vào và ra).' },
+        { id: 'opt2', label: '784 × 256 = 200.704 tham số (chỉ tính ma trận trọng số).' },
+        { id: 'opt3', label: '784 × 256 + 256 = 200.960 tham số (trọng số và bias đầu ra).', isCorrect: true },
+        { id: 'opt4', label: '784 × 256 + 784 = 201.488 tham số (trọng số và bias đầu vào).' },
+      ],
+      success: 'Chính xác. Số tham số gồm d_in × d_out = 784 × 256 trọng số trong ma trận W và cộng thêm d_out = 256 giá trị bias ở tầng đầu ra.',
+      error: 'Hãy kiểm tra lại công thức Params = d_in × d_out + d_out (bias gắn với từng neuron đầu ra).',
+    },
+    {
+      id: 'nn-basics-q5',
+      title: 'Width, Depth và Hàm Kích hoạt',
+      prompt: 'Phát biểu nào sau đây phân biệt đúng các khái niệm Width, Depth và giá trị trước/sau kích hoạt (z và h) trong MLP?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Width là tổng số tầng ẩn, Depth là số neuron một tầng; z là đầu ra sau khi qua hàm kích hoạt.',
+        },
+        {
+          id: 'opt2',
+          label: 'Width là số neuron trong một tầng, Depth là số tầng có trọng số; node tính z rồi qua φ cho ra h.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Width là kích thước batch dữ liệu, Depth là số epoch huấn luyện; z và h luôn bằng nhau ở mọi tầng.',
+        },
+        {
+          id: 'opt4',
+          label: 'Width là số chiều đầu ra cuối, Depth là số trọng số bias; hàm kích hoạt chỉ dùng ở tầng đầu vào.',
+        },
+      ],
+      success: 'Đúng. Width đo số neuron theo chiều dọc của một tầng, Depth đo số tầng có trọng số theo chiều sâu, còn mỗi tầng tính tổng tuyến tính z rồi qua φ(z) để tạo h.',
+      error: 'Hãy nhớ lại sơ đồ MLP chung ở Trang 4 bài Fully Connected: Width theo chiều dọc, Depth theo chiều ngang và h = φ(z).',
+    },
+    {
+      id: 'nn-basics-q6',
+      title: 'Vai trò của Fully Connected trong CNN + MLP',
+      prompt: 'Vì sao trong các kiến trúc thị giác như CNN + MLP, tầng Fully Connected thường được đặt ở phần cuối thay vì xử lý trực tiếp ảnh lớn?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Vì tầng Fully Connected không chạy được trên GPU và chỉ nhận đầu vào có tối đa 10 chiều.',
+        },
+        {
+          id: 'opt2',
+          label: 'Vì PyTorch chỉ cho phép gọi nn.Linear ở dòng cuối cùng sau khi đã đi qua hàm mất mát.',
+        },
+        {
+          id: 'opt3',
+          label: 'Vì duỗi phẳng ảnh lớn gây bùng nổ tham số và mất vị trí không gian; cuối mạng nó ráp đặc trưng để phân loại.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt4',
+          label: 'Vì tầng Fully Connected tự động học tốt biên cạnh 2D hơn CNN nhưng lại không thể xuất xác suất lớp.',
+        },
+      ],
+      success: 'Chính xác. CNN trích xuất biên cạnh và bộ phận hiệu quả hơn nhiều trên ảnh 2D, còn Fully Connected ở cuối tổng hợp toàn bộ đặc trưng để dự đoán lớp.',
+      error: 'Hãy nhớ lại ưu điểm tổng hợp toàn cục và hai nhược điểm (bùng nổ tham số, mất cấu trúc không gian) của tầng Fully Connected.',
+    },
+    {
+      id: 'nn-basics-q7',
+      title: 'Vì sao Neural Network Thống trị Deep Learning?',
+      prompt: 'Dù vẫn tồn tại các mô hình phân tầng ngoài mạng neural (như Deep Forest), yếu tố nào giúp Neural Network thống trị Deep Learning?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'Neural Network không cần dữ liệu gắn nhãn và luôn hội tụ chỉ sau một lần duyệt qua tập dữ liệu.',
+        },
+        {
+          id: 'opt2',
+          label: 'Neural Network tối ưu end-to-end bằng Backprop, chạy ma trận song song trên GPU/TPU và scale tốt.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt3',
+          label: 'Neural Network chỉ dùng phép toán logic rời rạc nên tránh được hoàn toàn hiện tượng overfitting.',
+        },
+        {
+          id: 'opt4',
+          label: 'Các mô hình ngoài mạng neural không thể xếp nhiều tầng liên tiếp để biểu diễn dữ liệu phân cấp.',
+        },
+      ],
+      success: 'Đúng. Tính khả vi toàn phần qua Backpropagation, sức mạnh nhân ma trận trên GPU/TPU và khả năng mở rộng quy mô giúp Neural Network vượt trội.',
+      error: 'Hãy xem lại 3 khối ConceptFlow ở Trang 1 bài MLP (Phần 2).',
+    },
+    {
+      id: 'nn-basics-q8',
+      title: 'Độ sâu Kiến trúc & Mô hình Hộp đen',
+      prompt: 'Nhận định nào sau đây đúng về tiến trình tăng độ sâu mạng trên ImageNet và cách nhìn "hộp đen" của bài toán phân loại ảnh?',
+      mode: 'single',
+      options: [
+        {
+          id: 'opt1',
+          label: 'AlexNet (152 layers) là mạng đầu tiên dùng Skip Connection, còn ResNet chỉ sâu 8 layers với lỗi 16.4%.',
+        },
+        {
+          id: 'opt2',
+          label: 'Mọi mô hình phân loại ảnh đều bắt buộc dùng duy nhất MLP, không thể thay hộp đen bằng CNN hay ResNet.',
+        },
+        {
+          id: 'opt3',
+          label: 'Từ AlexNet (8 layers) đến ResNet-152 (152 layers, 3.57%) nhờ Skip Connection; hộp đen f(x) có thể thay bằng MLP hoặc mạng sâu hơn.',
+          isCorrect: true,
+        },
+        {
+          id: 'opt4',
+          label: 'Tăng độ sâu luôn làm giảm lỗi ImageNet một cách tự động mà không gặp vấn đề suy biến gradient hay tối ưu.',
+        },
+      ],
+      success: 'Chính xác. Skip Connection giúp ResNet-152 đạt 3.57% Top-5 Error trên ImageNet, và trong luồng tổng quát Ảnh → Flatten → Blackbox → y, ta có thể thay Blackbox bằng MLP hoặc các mạng sâu hơn.',
+      error: 'Hãy kiểm tra lại bảng mốc AlexNet (8), VGG-19 (19), GoogLeNet (22), ResNet-152 (152) và sơ đồ Blackbox ở Trang 3.',
+    },
+  ]}
+/>

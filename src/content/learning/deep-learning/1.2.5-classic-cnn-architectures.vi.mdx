@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'classic-cnn-architectures',
+  locale: 'vi',
+  title: 'Các Kiến trúc CNN (Phần 1): LeNet-5, AlexNet & VGG-16',
+  headings: [
+    'Quy ước Ký hiệu và Khung Phân tích Kiến trúc CNN',
+    'LeNet-5 (1998): Khởi nguồn Chuẩn mực CONV → POOL → FC',
+    'AlexNet (2012): Cú nổ ImageNet, ReLU và Câu hỏi Bẫy 2 Luồng GPU',
+    'VGG-16 (2014): Triết lý Kernel Nhỏ 3×3 và Sức mạnh của Độ sâu',
+  ],
+  keywords: [
+    'lenet-5',
+    'alexnet',
+    'vgg-16',
+    'cnn architectures',
+    'receptive field',
+    'overlapping pooling',
+    'local response normalization',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Sau khi nắm vững từng viên gạch cơ bản gồm **Convolution**, **Padding**, **Stride** và **Pooling**, câu hỏi lớn tiếp theo là làm sao lắp ghép chúng lại thành một mạng hoàn chỉnh. Lịch sử tiến hóa của **CNN** từ năm 1998 đến nay chính là hành trình giải quyết bài toán đánh đổi giữa độ sâu, chi phí tính toán và hiện tượng **Vanishing Gradient**.
+
+### Quy ước Ký hiệu và Khung Phân tích Kiến trúc CNN
+
+Khi phân tích và đặt các kiến trúc **CNN** lên bàn cân so sánh, ta thống nhất quan sát bốn yếu tố cốt lõi trong sơ đồ khối dưới đây:
+
+* **Luồng kết nối:** Mạng đi theo một đường thẳng tuần tự hay rẽ nhánh song song.
+* **Sự biến thiên kích thước:** Kích thước không gian <InlineMath formula="(H, W)" /> co nhỏ dần qua **Pooling** trong khi số lượng kênh <InlineMath formula="C" /> mở rộng dần qua các tầng **Conv**.
+* **Kích thước Kernel và Hàm kích hoạt:** Sự dịch chuyển từ bộ lọc lớn (<InlineMath formula="11 \times 11, 5 \times 5" />) về bộ lọc nhỏ (<InlineMath formula="3 \times 3, 1 \times 1" />) và từ hàm kích hoạt **Tanh / Sigmoid** sang **ReLU**.
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_notation_legend.png"
+  alt="Bảng quy ước ký hiệu màu sắc cho các tầng Conv (đỏ), Pooling (xám), Merge/Concat (tím), Dense (xanh dương) và hàm kích hoạt Tanh (T), ReLU (R)"
+  caption="Quy ước ký hiệu xuyên suốt chuỗi bài kiến trúc CNN: khối đỏ là tầng tích chập (Conv), khối xám là tầng gộp (Pooling), thanh dọc xanh dương là tầng kết nối đầy đủ (Dense/FC), ký hiệu tròn T là Tanh, R là ReLU, B là Batch Normalization và S là Softmax."
+/>
+
+### LeNet-5 (1998): Khởi nguồn Chuẩn mực CONV → POOL → FC
+
+Được **Yann LeCun** công bố năm 1998 để tự động đọc chữ số viết tay trên séc ngân hàng và mã bưu điện tại Mỹ, **LeNet-5** là kiến trúc đầu tiên áp dụng thành công khuôn mẫu kinh điển `CONV → POOL → CONV → POOL → FC → Softmax`.
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_lenet5.png"
+  alt="Sơ đồ kiến trúc tuần tự 7 lớp của mạng LeNet-5 (1998)"
+  caption="Kiến trúc LeNet-5: nhận ảnh xám 32×32×1, đi qua 2 cụm tích chập 5×5 kèm Average Pooling 2×2 và hàm kích hoạt Tanh (T), trước khi vào các tầng Fully Connected (120 → 84 → 10) và Softmax (S)."
+/>
+
+Bóc tách chi tiết từng tầng và cách đếm tham số của **LeNet-5** trên ảnh đầu vào <InlineMath formula="32 \times 32 \times 1" />:
+
+1. **Tầng C1 (`Conv 5×5`, `6 filters`, `pad=0, stride=1`):** Kích thước không gian giảm về <InlineMath formula="\frac{32 - 5}{1} + 1 = 28 \implies 28 \times 28 \times 6" />. Số tham số là <InlineMath formula="(5 \times 5 \times 1 + 1_{\text{bias}}) \times 6 = 156" />.
+2. **Tầng S2 (`Average Pooling 2×2`, `stride=2`):** Giảm một nửa chiều cao và chiều rộng xuống <InlineMath formula="14 \times 14 \times 6" /> (<InlineMath formula="0" /> tham số chuẩn hiện đại).
+3. **Tầng C3 (`Conv 5×5`, `16 filters`, `pad=0, stride=1`):** Kích thước đầu ra còn <InlineMath formula="\frac{14 - 5}{1} + 1 = 10 \implies 10 \times 10 \times 16" />. Nếu nối đầy đủ <InlineMath formula="6" /> kênh trước vào <InlineMath formula="16" /> bộ lọc, số tham số là <InlineMath formula="(5 \times 5 \times 6 + 1_{\text{bias}}) \times 16 = 2{,}416" />.
+4. **Tầng S4 (`Average Pooling 2×2`, `stride=2`) & Flatten:** Giảm kích thước về <InlineMath formula="5 \times 5 \times 16" />, trải phẳng thành vector <InlineMath formula="5 \times 5 \times 16 = 400" /> chiều.
+5. **Ba tầng Fully Connected (`120` → `84` → `10`):**
+   * **FC1:** <InlineMath formula="(400 + 1_{\text{bias}}) \times 120 = 48{,}120" /> tham số.
+   * **FC2:** <InlineMath formula="(120 + 1_{\text{bias}}) \times 84 = 10{,}164" /> tham số.
+   * **Output (`Softmax 10 lớp`):** <InlineMath formula="(84 + 1_{\text{bias}}) \times 10 = 850" /> tham số.
+
+Tổng cộng toàn mạng **LeNet-5** chỉ có khoảng **<InlineMath formula="61{,}706" /> tham số** (hoặc <InlineMath formula="\sim 60{,}000" /> trong bài báo gốc do tầng C3 nối thưa một phần kênh để tiết kiệm tính toán trên phần cứng năm 1998).
+
+| Tiêu chí Phân tích | Đặc điểm trong LeNet-5 (1998) | Đối chiếu với Các Kiến trúc Về sau |
+| :--- | :--- | :--- |
+| **Cách trích xuất đặc trưng** | Thay thế hoàn toàn **Hand-crafted features** bằng trọng số tự học qua **Weight Sharing**, giúp mô hình học được vị trí tương đối thay vì phụ thuộc tọa độ cứng nhắc. | Mở đường cho toàn bộ họ mạng CNN hiện đại. |
+| **Kích thước Kernel & Độ sâu** | Dùng bộ lọc <InlineMath formula="5 \times 5" /> và chỉ dừng ở <InlineMath formula="2" /> lớp tích chập do giới hạn CPU thập niên 1990. | Các mạng như **VGG** chuyển sang xếp chồng nhiều lớp bộ lọc nhỏ <InlineMath formula="3 \times 3" /> để tăng độ sâu. |
+| **Pooling & Activation** | Dùng **Average Pooling** để làm mượt nhiễu và hàm kích hoạt **Tanh / Sigmoid**. | Từ **AlexNet (2012)** trở đi chuyển hẳn sang **Max Pooling** và hàm kích hoạt **ReLU**. |
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Sau thành công của **LeNet-5**, mạng nơ-ron rơi vào khoảng lặng kéo dài hơn một thập kỷ trước sự thống trị của **SVM**, **Random Forest** và **AdaBoost** do thiếu dữ liệu lớn và năng lực tính toán. Phải đến cuộc thi **ImageNet 2012 (ILSVRC)**, sự xuất hiện của **AlexNet** (Alex Krizhevsky, Ilya Sutskever và Geoffrey Hinton) mới đưa **Deep CNN** trở lại vị trí dẫn đầu.
+
+### AlexNet (2012): Cú nổ ImageNet, ReLU và Câu hỏi Bẫy 2 Luồng GPU
+
+So với ảnh xám <InlineMath formula="32 \times 32" /> của LeNet-5, **AlexNet** xử lý ảnh màu tự nhiên độ phân giải cao <InlineMath formula="224 \times 224 \times 3" /> thuộc <InlineMath formula="1{,}000" /> lớp đối tượng. Cấu trúc mạng gồm <InlineMath formula="8" /> tầng có trọng số (<InlineMath formula="5" /> tầng **Conv** và <InlineMath formula="3" /> tầng **FC**) với tổng cộng **<InlineMath formula="60\text{ triệu}" /> tham số** (lớn gấp <InlineMath formula="1{,}000" /> lần LeNet-5).
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_alexnet.png"
+  alt="Sơ đồ kiến trúc 8 lớp của mạng AlexNet (2012) với các bộ lọc 11×11, 5×5, 3×3 và hàm kích hoạt ReLU"
+  caption="Kiến trúc AlexNet (2012): khởi đầu bằng bộ lọc lớn 11×11 (stride 4), giảm dần xuống 5×5 rồi 3×3×3, kết hợp Max Pooling 3×3 và 3 tầng Fully Connected lớn (4096 → 4096 → 1000)."
+/>
+
+Những thay đổi mang tính bước ngoặt của **AlexNet** cùng góc nhìn phản biện từ hiện tại gồm:
+
+* **Đổi hàm kích hoạt từ Tanh / Sigmoid sang ReLU:** Hàm <InlineMath formula="\text{ReLU}(x) = \max(0, x)" /> có đạo hàm chỉ nhận hai giá trị <InlineMath formula="\{0, 1\}" /> và không bị bão hòa về <InlineMath formula="0" /> trên miền dương. Nhờ đó **AlexNet** huấn luyện nhanh gấp <InlineMath formula="6" /> lần so với mạng dùng **Tanh** tương đương và giảm mạnh hiện tượng **Vanishing Gradient**.
+* **Đổi từ Average Pooling sang Max Pooling (Overlapping Pooling):** Việc lấy trung bình trong **Average Pooling** khiến các điểm ảnh kéo giá trị lẫn nhau làm mờ các cạnh sắc nét. **AlexNet** dùng **Max Pooling** với cửa sổ <InlineMath formula="3 \times 3" /> nhưng bước nhảy <InlineMath formula="\text{stride} = 2" /> (các vùng gộp chồng lấn lên nhau) để giữ lại tín hiệu mạnh nhất và giảm nhẹ **Overfitting**.
+* **Áp dụng Dropout (0.5) và Data Augmentation mạnh:** Do hai tầng **FC** đầu tiên có tới <InlineMath formula="4{,}096" /> neuron mỗi tầng (chiếm phần lớn trong <InlineMath formula="60\text{M}" /> tham số), tác giả áp dụng **Dropout** tắt ngẫu nhiên <InlineMath formula="50\%" /> neuron khi huấn luyện, kết hợp dịch chuyển, lật ngang ảnh và biến đổi **PCA** trên kênh màu **RGB**.
+* **Hai điểm thiết kế về sau bị bác bỏ:**
+  1. Tác giả chọn bộ lọc đầu tiên rất lớn (<InlineMath formula="11 \times 11" /> với <InlineMath formula="\text{stride} = 4" />, sau đó giảm xuống <InlineMath formula="5 \times 5" /> rồi <InlineMath formula="3 \times 3" />) vì nghĩ rằng ảnh đầu vào lớn thì cần kính lúp lớn. Các nghiên cứu sau đó chứng minh bộ lọc <InlineMath formula="11 \times 11" /> quá thô và tốn tham số.
+  2. Kỹ thuật **Local Response Normalization (LRN)** lấy cảm hứng từ sinh học để ức chế các điểm lân cận về sau được chứng minh là chỉ làm tốn bộ nhớ và thời gian tính toán mà không tăng độ chính xác (được thay thế hoàn toàn bởi **Batch Normalization** năm 2015).
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_alexnet_two_streams.png"
+  alt="Sơ đồ gốc của AlexNet chia thành 2 luồng tính toán song song trên 2 card đồ họa GTX 580"
+  caption="Câu hỏi bẫy kinh điển: Tại sao sơ đồ gốc trong bài báo AlexNet (2012) lại vẽ tách làm 2 nhánh trên và dưới? Đây không phải kiến trúc rẽ nhánh đa tỉ lệ mà do giới hạn phần cứng!"
+/>
+
+Một câu hỏi thảo luận rất dễ gây hiểu lầm khi đọc bài báo gốc của **AlexNet** là tại sao sơ đồ lại chia thành **hai luồng song song** như hình trên, và liệu có phải **AlexNet** mới là mạng đầu tiên dùng kiến trúc rẽ nhánh hay không:
+
+* **Giải mã cái bẫy:** Hai luồng trong sơ đồ gốc của **AlexNet** hoàn toàn có cấu trúc giống hệt nhau! Vào năm 2012, mỗi chiếc card đồ họa **NVIDIA GTX 580** chỉ có vỏn vẹn **<InlineMath formula="3\text{ GB VRAM}" />**, không đủ chứa toàn bộ mạng **AlexNet**. Tác giả buộc phải chẻ đôi số lượng bộ lọc ở mỗi tầng (ví dụ <InlineMath formula="96" /> bộ lọc chia thành <InlineMath formula="48" /> bộ lọc trên GPU 1 và <InlineMath formula="48" /> bộ lọc trên GPU 2) và chỉ cho hai GPU giao tiếp chéo ở một vài tầng nhất định. Về mặt toán học, **AlexNet** vẫn là một kiến trúc tuần tự đơn thuần, còn kiến trúc rẽ nhánh đa tỉ lệ thực sự chỉ xuất hiện từ **Inception-v1 (2014)**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Nếu **AlexNet** lựa chọn kích thước bộ lọc theo kinh nghiệm (<InlineMath formula="11 \times 11 \to 5 \times 5 \to 3 \times 3" />), thì hai năm sau, nhóm nghiên cứu Visual Geometry Group tại Oxford đã đưa ra một quy tắc thiết kế cực kỳ kỷ luật và thanh lịch trong kiến trúc **VGG-16 (2014)**.
+
+### VGG-16 (2014): Triết lý Kernel Nhỏ 3×3 và Sức mạnh của Độ sâu
+
+**VGG-16** gồm <InlineMath formula="16" /> tầng có trọng số (<InlineMath formula="13" /> tầng **Conv** và <InlineMath formula="3" /> tầng **FC**), sâu gấp đôi **AlexNet** và chứa khoảng **<InlineMath formula="138\text{ triệu}" /> tham số**. Điểm đặc trưng nhất của **VGG-16** là **loại bỏ hoàn toàn các bộ lọc lớn** và chỉ sử dụng duy nhất bộ lọc kích thước **<InlineMath formula="3 \times 3" />** (<InlineMath formula="\text{stride} = 1, \text{padding} = 1" />) kết hợp với **Max Pooling <InlineMath formula="2 \times 2" />** (<InlineMath formula="\text{stride} = 2" />) xuyên suốt từ đầu đến cuối mạng.
+
+<LessonImage
+  assetPath="deep-learning/cnn_arch_vgg16.png"
+  alt="Sơ đồ kiến trúc VGG-16 (2014) với các cụm Conv 3×3 xếp chồng đồng nhất"
+  caption="Kiến trúc VGG-16 (2014): thay vì dùng 1 lớp Conv rồi Pool ngay, VGG-16 gom thành từng khối gồm 2 hoặc 3 lớp Conv 3×3 liên tiếp trước khi qua MaxPool 2×2."
+/>
+
+Tại sao việc xếp chồng nhiều lớp bộ lọc nhỏ <InlineMath formula="3 \times 3" /> lại vượt trội hơn hẳn việc dùng một bộ lọc lớn <InlineMath formula="5 \times 5" /> hay <InlineMath formula="7 \times 7" />? Ta có thể chứng minh trực tiếp bằng hai lý do toán học:
+
+1. **Cùng Receptive Field nhưng nhiều tầng phi tuyến hơn:** Như đã phân tích ở bài trước, xếp nối tiếp <InlineMath formula="2" /> lớp tích chập <InlineMath formula="3 \times 3" /> cho vùng nhìn cảm thụ (**Receptive Field**) bằng đúng <InlineMath formula="5 \times 5" />, và xếp <InlineMath formula="3" /> lớp <InlineMath formula="3 \times 3" /> cho vùng nhìn bằng đúng <InlineMath formula="7 \times 7" />. Tuy nhiên, nếu dùng <InlineMath formula="1" /> lớp <InlineMath formula="5 \times 5" /> ta chỉ đi qua hàm kích hoạt **ReLU** đúng <InlineMath formula="1" /> lần, còn khi tách thành <InlineMath formula="2" /> lớp <InlineMath formula="3 \times 3" /> dữ liệu được đi qua **<InlineMath formula="2" /> lần kích hoạt phi tuyến ReLU**, giúp hàm quyết định của mạng giàu sức biểu diễn hơn.
+2. **Tiết kiệm đáng kể số lượng tham số:** Giả sử cả đầu vào và đầu ra của cụm tầng đều có <InlineMath formula="C" /> kênh đặc trưng (tạm bỏ qua bias để so sánh trực diện):
+   * Dùng <InlineMath formula="1" /> tầng bộ lọc <InlineMath formula="5 \times 5" /> tiêu tốn <InlineMath formula="5 \times 5 \times C \times C = 25C^2" /> tham số.
+   * Dùng <InlineMath formula="2" /> tầng bộ lọc <InlineMath formula="3 \times 3" /> liên tiếp chỉ tiêu tốn <InlineMath formula="2 \times (3 \times 3 \times C \times C) = 18C^2" /> tham số (giảm <InlineMath formula="28\%" /> tham số!).
+   * Lấy ví dụ cụ thể từ tài liệu với <InlineMath formula="C = 3" /> (hoặc tính trên <InlineMath formula="1" /> tổ hợp kênh độ sâu <InlineMath formula="3" />): hai bộ lọc <InlineMath formula="3 \times 3 \times 3" /> chỉ cần <InlineMath formula="2 \times (3 \times 3 \times 3) = 54" /> trọng số, trong khi một bộ lọc <InlineMath formula="5 \times 5 \times 3" /> cần tới <InlineMath formula="5 \times 5 \times 3 = 75" /> trọng số. Tương tự, <InlineMath formula="3" /> lớp <InlineMath formula="3 \times 3" /> chỉ tốn <InlineMath formula="27C^2" /> so với <InlineMath formula="49C^2" /> của một lớp <InlineMath formula="7 \times 7" /> (giảm tới <InlineMath formula="45\%" /> tham số!).
+
+Bên cạnh đó, **VGG-16** còn để lại ba bài học thiết kế quan trọng:
+
+* **Cấu trúc theo Block (`Conv × n → MaxPool`):** Hai khối đầu tiên dùng <InlineMath formula="2" /> lớp `Conv 3×3` rồi mới `MaxPool`, còn ba khối tiếp theo dùng <InlineMath formula="3" /> lớp `Conv 3×3` trước khi `MaxPool` để trích xuất nhiều cấp độ đặc trưng hơn khi đi vào chiều sâu.
+* **Loại bỏ hoàn toàn LRN:** Thực nghiệm của nhóm tác giả VGG chứng minh tầng **Local Response Normalization** trong AlexNet không mang lại bất kỳ sự cải thiện nào mà chỉ làm tăng bộ nhớ.
+* **Điểm nghẽn 138M tham số:** Mặc dù các tầng tích chập <InlineMath formula="3 \times 3" /> rất gọn, việc trải phẳng khối đặc trưng cuối <InlineMath formula="7 \times 7 \times 512 = 25{,}088" /> chiều để nối vào tầng **FC** <InlineMath formula="4{,}096" /> neuron khiến riêng một tầng kết nối đầy đủ này ngốn tới <InlineMath formula="25{,}088 \times 4{,}096 \approx 102.7\text{ triệu}" /> tham số (chiếm <InlineMath formula="74\%" /> toàn mạng!). Đây chính là động lực để **Inception (GoogLeNet)** và **ResNet** ở bài tiếp theo xóa bỏ các tầng **FC** khổng lồ này bằng **Global Average Pooling (GAP)**.
+
+</MdxPage>

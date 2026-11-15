@@ -24,8 +24,9 @@ The shell disables first-lesson route fallback for these hierarchical domains;
 explicit track/lesson links still resolve normally. Other domains retain their
 first-lesson default.
 
-The catalog contains 18 domains, 117 tracks, and 972 lesson nodes. Five hundred
-ten Vietnamese-first lessons have authored content: forty-nine in
+The catalog contains 18 domains, 120 tracks, and 987 lesson nodes. Five hundred
+thirty-five Vietnamese-first lessons have authored content: twenty-five in `deep-learning`,
+forty-nine in
 `llm-ai-engineering`, eighty-five in `continual-learning-llm`, sixty-three in
 `mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
 overview followed by twenty-nine alternating theory/quiz pairs across 7 core
@@ -71,7 +72,7 @@ original Figures 2–5 and the cross-model analysis map in Table 1. Appendix
 findings are included where cited as evidence; the lessons do not reproduce the
 full appendices, bibliography or acknowledgments. The paragraph coverage ledger
 is maintained in the existing Spurious Forgetting curriculum plan.
-The other 462 nodes are navigable placeholders and render one shared localized
+The other 452 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
 payloads. These headline counts are verified against the typed catalog by
 `npm run check:catalog-stats`; see

@@ -31,7 +31,7 @@
   }
 
   .learning-mdx-content > h3 {
-    @apply text-lg font-black text-[#7A5A32];
+    @apply text-lg font-black text-[#163B6B];
   }
 
   .learning-mdx-content > h4 {
@@ -67,16 +67,16 @@
     @apply leading-6;
   }
 
-  .learning-mdx-content table {
+  .learning-mdx-content table:not([data-component]) {
     @apply my-5 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm text-slate-900;
     border-collapse: collapse;
   }
 
-  .learning-mdx-content th {
+  .learning-mdx-content table:not([data-component]) th {
     @apply border-b-2 border-slate-200 bg-[#EFF4FA] p-3 text-left font-bold text-[#123B68];
   }
 
-  .learning-mdx-content td {
+  .learning-mdx-content table:not([data-component]) td {
     @apply border-b border-slate-200 p-3 text-slate-700;
   }
 

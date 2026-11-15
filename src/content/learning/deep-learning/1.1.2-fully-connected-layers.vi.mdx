@@ -1,0 +1,170 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'fully-connected-layers',
+  locale: 'vi',
+  title: 'Tầng Fully Connected (Linear)',
+  headings: [
+    'Từ 1 Neuron đến Tầng Fully Connected',
+    'Đếm Tham số và Chi phí Tính toán',
+    'Vai trò Hình học và Hạn chế của Fully Connected',
+    'Tổng kết Kiến thức Tầng Fully Connected',
+  ],
+  keywords: [
+    'fully connected',
+    'linear layer',
+    'dense layer',
+    'nn.Linear',
+    'parameter count',
+    'affine transformation',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Từ 1 Neuron đến Tầng Fully Connected
+
+Ở bài trước, một **Perceptron** đơn lẻ chỉ xuất ra một giá trị duy nhất. Khi xếp nhiều neuron thành từng tầng nối tiếp nhau, nếu **mỗi neuron ở tầng trước đều nối tới toàn bộ các neuron ở tầng sau**, ta gọi đó là một tầng **Fully Connected** (kết nối đầy đủ, còn gọi là **Linear Layer** hoặc **Dense Layer**, trong PyTorch là `nn.Linear`):
+
+<FullyConnectedDiagram panel="intuition" />
+
+Xét một ví dụ cụ thể với đầu vào 3 chiều <InlineMath formula="\mathbf{x}^\top = [1.0,\; 0.5,\; -0.2]" /> đi vào tầng gồm 2 neuron đầu ra <InlineMath formula="z_1, z_2" />. Mỗi neuron ở tầng sau sở hữu một cột trọng số riêng và một độ lệch riêng, gom lại thành ma trận trọng số <InlineMath formula="\mathbf{W} \in \mathbb{R}^{3 \times 2}" />:
+
+<FullyConnectedDiagram panel="matrix" />
+
+Thay số vào phép nhân ma trận trên ví dụ <InlineMath formula="3 \to 2" /> đó, cả hai neuron được tính cùng lúc:
+
+<BlockMath formula="\mathbf{z}^\top = \underbrace{\begin{bmatrix} 1.0 & 0.5 & -0.2 \end{bmatrix}}_{\mathbf{x}^\top \in \mathbb{R}^{1 \times 3}} \underbrace{\begin{bmatrix} 0.4 & -0.2 \\ 0.6 & 0.8 \\ -0.5 & 0.5 \end{bmatrix}}_{\mathbf{W} \in \mathbb{R}^{3 \times 2}} + \underbrace{\begin{bmatrix} 0.1 & -0.1 \end{bmatrix}}_{\mathbf{b}^\top \in \mathbb{R}^{1 \times 2}} = \begin{bmatrix} 0.9 & 0.0 \end{bmatrix}" />
+
+Tổng quát hóa cho một batch gồm <InlineMath formula="n" /> mẫu dữ liệu, <InlineMath formula="d" /> chiều đầu vào và <InlineMath formula="m" /> neuron đầu ra, toàn bộ tầng **Fully Connected** được viết gọn thành:
+
+<EquationCallout
+  title="Phép biến đổi Tổng quát của Tầng Fully Connected"
+  badge="Batch Forward"
+  formula="\mathbf{Z} = \underbrace{\mathbf{X}}_{\mathbb{R}^{n \times d}} \underbrace{\mathbf{W}}_{\mathbb{R}^{d \times m}} + \underbrace{\mathbf{b}^\top}_{\mathbb{R}^{1 \times m}}, \qquad \mathbf{A} = \phi(\mathbf{Z}) \in \mathbb{R}^{n \times m}"
+  explanation="b được broadcast cộng vào từng hàng; A là ma trận đầu ra sau hàm kích hoạt φ."
+/>
+
+Trong **PyTorch**, tầng biến đổi tuyến tính này chính là `nn.Linear(in_features=d, out_features=m)`:
+
+```python
+import torch
+import torch.nn as nn
+
+# Tầng Fully Connected: 3 chiều đầu vào -> 2 neuron đầu ra
+fc = nn.Linear(in_features=3, out_features=2)
+
+# Gán đúng trọng số W^T (shape: 2x3) và bias b (shape: 2) như ví dụ trên
+with torch.no_grad():
+    fc.weight.copy_(torch.tensor([[0.4, 0.6, -0.5],
+                                  [-0.2, 0.8, 0.5]]))
+    fc.bias.copy_(torch.tensor([0.1, -0.1]))
+
+x = torch.tensor([[1.0, 0.5, -0.2]])  # shape: (1, 3)
+z = fc(x)
+print(z)  # tensor([[0.9000, 0.0000]], grad_fn=<AddmmBackward0>)
+```
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đếm Tham số và Chi phí Tính toán
+
+Vì mọi đầu vào đều nối tới mọi đầu ra, kích thước bộ tham số cần học của một tầng <InlineMath formula="\text{Linear}(d_{\text{in}}, d_{\text{out}})" /> phụ thuộc trực tiếp vào tích số chiều hai đầu:
+
+<EquationCallout
+  title="Số lượng Tham số của Tầng Fully Connected"
+  badge="Parameters"
+  formula="\text{Params} = \underbrace{d_{\text{in}} \times d_{\text{out}}}_{\text{Trọng số } \mathbf{W}} + \underbrace{d_{\text{out}}}_{\text{Độ lệch } \mathbf{b}}"
+  explanation="Nếu tắt bias (bias=False trong PyTorch), số tham số chỉ còn d_in × d_out."
+/>
+
+Hãy thử thay đổi số chiều đầu vào <InlineMath formula="d_{\text{in}}" />, số neuron đầu ra <InlineMath formula="d_{\text{out}}" /> và tùy chọn `bias` bên dưới để quan sát đồ thị kết nối và tổng số tham số:
+
+<FullyConnectedDiagram panel="params" />
+
+Trong thực tế, phép đếm này giải thích vì sao các mạng thuần **Fully Connected** nhanh chóng bị phình to với dữ liệu ảnh:
+
+- Với ảnh nhỏ **MNIST** (<InlineMath formula="28 \times 28 = 784" /> pixel), chỉ riêng tầng đầu `nn.Linear(784, 256)` đã tiêu tốn <InlineMath formula="784 \times 256 + 256 = 200{,}960" /> tham số.
+- Với ảnh màu **ImageNet** (<InlineMath formula="224 \times 224 \times 3 = 150{,}528" /> pixel), một tầng `nn.Linear(150528, 1024)` sẽ cần tới hơn **154 triệu tham số** chỉ cho riêng một tầng, rất dễ quá khớp (**overfitting**) và tốn bộ nhớ.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vai trò Hình học và Hạn chế của Fully Connected
+
+Về mặt hình học, bước tuyến tính <InlineMath formula="\mathbf{z} = \mathbf{W}^\top \mathbf{x} + \mathbf{b}" /> thực hiện một **biến đổi affine** (xoay, co giãn, chiếu không gian từ <InlineMath formula="\mathbb{R}^{d_{\text{in}}}" /> sang <InlineMath formula="\mathbb{R}^{d_{\text{out}}}" /> rồi tịnh tiến theo <InlineMath formula="\mathbf{b}" />), trước khi hàm kích hoạt phi tuyến <InlineMath formula="\phi" /> bẻ cong không gian biểu diễn.
+
+<FullyConnectedDiagram panel="pros-cons" />
+
+Do mọi đầu vào đều nối tới toàn bộ neuron đầu ra, tầng **Fully Connected** thường được đặt ở phần cuối mô hình để **tổng hợp**, lựa chọn đặc trưng và thực hiện **phân loại**. Trong khi đó, việc học và trích xuất đặc trưng từ dữ liệu thô thường do các kiến trúc chuyên biệt như **CNN** đảm nhận.
+
+<FullyConnectedDiagram panel="cnn-mlp" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tổng kết Kiến thức Tầng Fully Connected
+
+Trước khi chuyển sang các kiến trúc mạng sâu hơn, hãy lần lượt nhìn lại 7 khái niệm cốt lõi của mạng **MLP** và tầng **Fully Connected** trên cùng một sơ đồ chuẩn (<InlineMath formula="3 \to 4 \to 4 \to 2" />):
+
+### 1. Neuron (Nút tính toán)
+
+Mỗi neuron nhận tổng có trọng số từ toàn bộ đầu vào tầng trước, cộng độ lệch rồi tạo ra một giá trị đầu ra.
+
+<BlockMath formula="z_j = \sum_{i=1}^{d} x_i w_{ij} + b_j" />
+
+<FullyConnectedDiagram panel="summary-neuron" />
+
+### 2. Layer & Hidden Layer (Tầng & Tầng ẩn)
+
+Các neuron xếp song song thành từng **layer**; những tầng nằm giữa đầu vào và đầu ra được gọi là **hidden layer** với đầu ra kích hoạt <InlineMath formula="\mathbf{h}^{(l)}" />.
+
+<BlockMath formula="\mathbf{z}^{(l)} = \mathbf{W}^{(l)\top}\mathbf{h}^{(l-1)} + \mathbf{b}^{(l)}, \qquad \mathbf{h}^{(l)} = \phi\!\left(\mathbf{z}^{(l)}\right)" />
+
+<FullyConnectedDiagram panel="summary-layers" />
+
+### 3. Width & Depth (Độ rộng & Độ sâu)
+
+**Width** là số neuron trong một tầng, còn **Depth** là số tầng có trọng số học được của toàn mạng.
+
+<BlockMath formula="\text{Width} = d^{(l)}, \qquad \text{Depth} = L" />
+
+<FullyConnectedDiagram panel="summary-width-depth" />
+
+### 4. Activation Function (Hàm kích hoạt)
+
+Hàm kích hoạt phi tuyến <InlineMath formula="\phi(\cdot)" /> bọc ngoài các node <InlineMath formula="z_j" /> của tầng để biến đổi thành đầu ra <InlineMath formula="h_j" />.
+
+<BlockMath formula="h_j = \phi(z_j), \qquad \mathbf{H} = \phi(\mathbf{Z})" />
+
+<FullyConnectedDiagram panel="summary-activation" />
+
+### 5. Kết nối đầy đủ & Ma trận trọng số (Fully Connected)
+
+Mỗi neuron ở tầng trước nối tới toàn bộ neuron ở tầng sau, được gộp gọn thành một phép nhân ma trận song song.
+
+<BlockMath formula="\mathbf{Z} = \mathbf{X}\mathbf{W} + \mathbf{b}^\top, \qquad \mathbf{H} = \phi(\mathbf{Z})" />
+
+<FullyConnectedDiagram panel="summary-matrix" />
+
+### 6. Số lượng Tham số (Parameters)
+
+Tổng số tham số cần học của một tầng bằng số cạnh kết nối giữa hai tầng cộng thêm số độ lệch ở tầng đích.
+
+<BlockMath formula="\text{Params} = d_{\text{in}} \times d_{\text{out}} + d_{\text{out}}" />
+
+<FullyConnectedDiagram panel="summary-params" />
+
+### 7. Tầng Đầu ra & Phân loại (Classification Head)
+
+Tầng **Fully Connected** cuối cùng tổng hợp toàn bộ đặc trưng từ các tầng trước (như CNN) để đưa ra dự đoán lớp.
+
+<BlockMath formula="\hat{\mathbf{y}} = \text{Softmax}\!\left(\mathbf{W}_{\text{out}}^\top \mathbf{h} + \mathbf{b}_{\text{out}}\right)" />
+
+<FullyConnectedDiagram panel="summary-head" />
+
+</MdxPage>

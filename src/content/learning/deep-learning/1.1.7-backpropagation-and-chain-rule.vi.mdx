@@ -1,0 +1,143 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'backpropagation-and-chain-rule',
+  locale: 'vi',
+  title: 'Backpropagation & Chain Rule',
+  headings: [
+    'Gradient Descent: Vì sao đi ngược chiều Đạo hàm?',
+    'Chain Rule: Chuỗi mắt xích',
+    'Backpropagation là gì? Chu trình 3 Bước',
+    'Ví dụ Số Cụ thể & Minh họa PyTorch',
+  ],
+  keywords: [
+    'gradient descent',
+    'derivative limit',
+    'chain rule',
+    'backpropagation',
+    'loss calculation',
+    'gradient calculation',
+    'weight update',
+    'sgd',
+    'learning rate',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+## Gradient Descent: Vì sao đi ngược chiều Đạo hàm?
+
+Để tìm ra trọng số tối ưu (sao cho **Loss** nhỏ nhất), chúng ta dùng thuật toán **Gradient Descent** để cập nhật trọng số qua từng bước theo công thức:
+
+<BlockMath formula="w_{\text{new}} = w_{\text{old}} - \eta \cdot \frac{\partial \mathcal{L}}{\partial w}" />
+
+Nếu tạm **che đi** thành phần đạo hàm <InlineMath formula="\frac{\partial \mathcal{L}}{\partial w}" />, công thức chỉ còn <InlineMath formula="w_{\text{new}} = w_{\text{old}}" /> — trọng số đứng yên hoàn toàn. Điều đó chứng tỏ **thành phần duy nhất làm thay đổi trọng số chính là đạo hàm**, và tại mỗi bước nó phải là **một con số cụ thể**.
+
+Đã là một con số, <InlineMath formula="\frac{\partial \mathcal{L}}{\partial w}" /> sẽ rơi vào một trong 3 trường hợp: **bằng <InlineMath formula="0" />** (trọng số giữ nguyên tại điểm dừng), **âm (<InlineMath formula="< 0" />)**, hoặc **dương (<InlineMath formula="> 0" />)**. Để hiểu vì sao con số này âm hay dương, ta nhìn vào định nghĩa giới hạn luôn nhích thử một bước nhỏ <InlineMath formula="+\epsilon > 0" /> **về hướng tăng** của <InlineMath formula="w" />:
+
+<BlockMath formula="\mathcal{L}'(w) = \lim_{\epsilon \to 0^+} \frac{\mathcal{L}(w + \epsilon) - \mathcal{L}(w)}{\epsilon}" />
+
+Vì <InlineMath formula="\epsilon > 0" />, dấu của đạo hàm <InlineMath formula="\mathcal{L}'(w)" /> chính là dấu của hiệu <InlineMath formula="\mathcal{L}(w + \epsilon) - \mathcal{L}(w)" /> — cho biết khi **tăng** <InlineMath formula="w" />, Loss giảm hay tăng. Tùy vị trí đứng so với điểm tối ưu <InlineMath formula="w^*" />, ta có hai trường hợp di chuyển:
+
+<GradientDescentDirectionDiagram />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chain Rule: Chuỗi mắt xích
+
+Trong mạng neural, trọng số <InlineMath formula="w" /> không tác động trực tiếp lên Loss <InlineMath formula="\mathcal{L}" />, mà đi qua một chuỗi phép tính lồng nhau:
+
+<BlockMath formula="w \longrightarrow z = w x + b \longrightarrow \hat{y} = \sigma(z) \longrightarrow \mathcal{L}(\hat{y}, y_{\text{true}})" />
+
+Để tính được <InlineMath formula="\frac{\partial \mathcal{L}}{\partial w}" />, ta áp dụng **Chain Rule** (quy tắc chuỗi mắt xích) — nhân các đạo hàm cục bộ nối liền nhau từ Loss ngược về trọng số:
+
+<ChainRuleLinksDiagram />
+
+**Ví dụ đơn giản:** Cho hàm hợp <InlineMath formula="L = (2w + 1)^2" />. Đặt biến trung gian <InlineMath formula="u = 2w + 1" />, khi đó <InlineMath formula="L = u^2" />. Tại <InlineMath formula="w = 1" /> (tức <InlineMath formula="u = 3" />):
+
+- Chặng 1 (<InlineMath formula="w \to u" />): <InlineMath formula="\frac{du}{dw} = 2" /> (tăng <InlineMath formula="w" /> thêm 1 đơn vị thì <InlineMath formula="u" /> tăng 2).
+- Chặng 2 (<InlineMath formula="u \to L" />): <InlineMath formula="\frac{dL}{du} = 2u = 2 \times 3 = 6" /> (tăng <InlineMath formula="u" /> thêm 1 đơn vị thì <InlineMath formula="L" /> tăng 6).
+- Nhân chuỗi mắt xích: <InlineMath formula="\frac{dL}{dw} = \frac{dL}{du} \cdot \frac{du}{dw} = 6 \times 2 = 12" />.
+
+Nhờ **Chain Rule**, mạng nhiều tầng không cần tính trực tiếp một công thức khổng lồ: mỗi tầng chỉ cần tính **đạo hàm cục bộ** tại chỗ rồi nhân truyền ngược về các tầng trước.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Backpropagation là gì? Chu trình 3 Bước
+
+Sau khi **Forward Pass** đưa dữ liệu qua mạng để tạo dự đoán, mô hình đánh giá mức độ sai lệch bằng một hàm mất mát (**Loss Function**). Mục tiêu của quá trình huấn luyện là **cực tiểu hóa giá trị loss** này — và đó chính là lúc **Backpropagation** vào cuộc qua chu trình 3 bước:
+
+<ConceptFlow
+  ariaLabel="Ba bước cốt lõi của Backpropagation"
+  items={[
+    {
+      title: '1. Tính Loss (Loss Calculation)',
+      subtitle: 'Đo độ sai lệch',
+      detail: 'Mạng tính hàm mất mát giữa dự đoán và nhãn thật, ví dụ Mean Squared Error cho hồi quy hoặc Cross-Entropy cho phân loại.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Tính Gradient (Gradient Calculation)',
+      subtitle: 'Chain Rule',
+      detail: 'Áp dụng chuỗi mắt xích để tính đạo hàm của loss theo từng trọng số w và độ lệch b, đo mức đóng góp của mỗi tham số vào sai số.',
+      tone: 'blue',
+    },
+    {
+      title: '3. Cập nhật Trọng số (Weight Update)',
+      subtitle: 'Ngược chiều Gradient',
+      detail: 'Thuật toán tối ưu như SGD chỉnh trọng số theo chiều ngược lại của gradient để giảm loss, với bước nhảy quyết định bởi learning rate.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+<BackpropCycleDiagram />
+
+Để thực hiện được bước truyền ngược này, PyTorch tự động dựng một **Đồ thị Tính toán (Computation Graph)** ngay trong quá trình Forward Pass: mỗi phép tính đi qua các tensor có `requires_grad=True` đều được ghi lại thành một nút nhớ cách tính đạo hàm cục bộ, giúp `loss.backward()` chỉ việc đi ngược đồ thị từ cuối về đầu để tính gradient.
+
+<PyTorchComputationGraphDiagram />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ví dụ Số Cụ thể & Minh họa PyTorch
+
+Xét một neuron đơn giản <InlineMath formula="\hat{y} = w x + b" /> với đầu vào <InlineMath formula="x = 2.0" />, nhãn thật <InlineMath formula="y_{\text{true}} = 2.0" />, và tham số khởi tạo <InlineMath formula="w = 0.5,\ b = 0.0" /> (learning rate <InlineMath formula="\eta = 0.1" />):
+
+1. **Loss Calculation:** Forward Pass cho <InlineMath formula="\hat{y} = 0.5 \times 2.0 + 0.0 = 1.0" />, nên sai số bình phương là:
+   <BlockMath formula="\mathcal{L} = (\hat{y} - y_{\text{true}})^2 = (1.0 - 2.0)^2 = 1.0" />
+2. **Gradient Calculation (Chain Rule):** Đạo hàm của loss theo trọng số <InlineMath formula="w" /> bằng tích hai đạo hàm trung gian:
+   <BlockMath formula="\frac{\partial \mathcal{L}}{\partial w} = \frac{\partial \mathcal{L}}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial w} = 2(\hat{y} - y_{\text{true}}) \cdot x = 2(1.0 - 2.0) \cdot 2.0 = -4.0" />
+3. **Weight Update:** Cập nhật <InlineMath formula="w" /> đi **ngược dấu** với gradient:
+   <BlockMath formula="w_{\text{new}} = w - \eta\,\frac{\partial \mathcal{L}}{\partial w} = 0.5 - 0.1 \times (-4.0) = 0.9" />
+
+Sau một bước cập nhật, dự đoán mới trở thành <InlineMath formula="\hat{y}_{\text{new}} = 0.9 \times 2.0 = 1.8" /> — tiến sát hơn tới mục tiêu <InlineMath formula="2.0" />.
+
+```python
+import torch
+
+x = torch.tensor(2.0)
+y_true = torch.tensor(2.0)
+w = torch.tensor(0.5, requires_grad=True)
+lr = 0.1
+
+# 1. Forward + Loss Calculation
+y_pred = w * x
+loss = (y_pred - y_true) ** 2
+
+# 2. Gradient Calculation (Chain Rule)
+loss.backward()        # w.grad = -4.0
+
+# 3. Weight Update (ngược chiều gradient)
+with torch.no_grad():
+    w -= lr * w.grad   # w mới = 0.9
+```
+
+**Vì sao cần `with torch.no_grad():`?** Khi khai báo `w = torch.tensor(0.5, requires_grad=True)`, PyTorch sẽ bật chế độ theo dõi cho `w`: mọi phép tính đi qua `w` (như `w * x`, tính `loss`) đều được tự động ghi lại thành một đồ thị tính toán để `loss.backward()` lần ngược tính đạo hàm. Tuy nhiên, bước `w -= lr * w.grad` chỉ là cập nhật giá trị trọng số sau khi đã có gradient xong, không cần ghi vào đồ thị nữa — nên ta dùng `with torch.no_grad():` để tạm tắt theo dõi, tránh ghi thừa vào đồ thị và tiết kiệm bộ nhớ.
+
+</MdxPage>

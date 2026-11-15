@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'padding-stride-receptive-field',
+  locale: 'vi',
+  title: 'Padding, Stride & Receptive Field',
+  headings: [
+    'Bài toán Co kích thước Biên và Kỹ thuật Zero Padding',
+    'Bước nhảy Stride và Công thức Kích thước Đầu ra',
+    'Tích chập Đa kênh (RGB), Multi-Kernel và Tích chập 1×1',
+    'Receptive Field và Phân cấp Đặc trưng (Low / Mid / High-level)',
+  ],
+  keywords: [
+    'padding',
+    'stride',
+    'receptive field',
+    'feature map',
+    '1x1 convolution',
+    'pointwise convolution',
+    'multi-channel convolution',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+Ở ví dụ tích chập vừa rồi, khi trượt một bộ lọc <InlineMath formula="3 \times 3" /> trên ảnh đầu vào kích thước <InlineMath formula="5 \times 5" />, ma trận kết quả <InlineMath formula="Y" /> chỉ còn kích thước <InlineMath formula="3 \times 3" />. Hiện tượng này xuất phát từ việc các phần tử nằm sát rìa ảnh không thể làm tâm của cửa sổ <InlineMath formula="3 \times 3" />.
+
+### Bài toán Co kích thước Biên và Kỹ thuật Zero Padding
+
+Nếu thực hiện liên tiếp nhiều lớp tích chập với kích thước bộ lọc <InlineMath formula="k > 1" /> mà không có kỹ thuật bổ trợ, mô hình sẽ gặp hai vấn đề nghiêm trọng:
+
+* **Co rút kích thước nhanh chóng:** Mỗi tầng tích chập <InlineMath formula="k \times k" /> làm chiều cao và chiều rộng giảm đi <InlineMath formula="k - 1" /> đơn vị. Chỉ sau vài tầng, bản đồ đặc trưng sẽ co nhỏ đến mức không thể xếp thêm lớp mạng sâu hơn.
+* **Thiệt thòi thông tin ở viền ảnh:** Một điểm ảnh nằm chính giữa ma trận được nhiều cửa sổ trượt quét qua, trong khi điểm ảnh nằm ở góc ngoài cùng chỉ tham gia vào đúng <InlineMath formula="1" /> phép tính duy nhất.
+
+Để mọi phần tử ở rìa của ma trận <InlineMath formula="X" /> đều có thể trở thành tâm của bộ lọc và giữ nguyên kích thước đầu ra <InlineMath formula="Y" /> bằng với <InlineMath formula="X" />, ta áp dụng kỹ thuật **Zero Padding**.
+
+Với tham số <InlineMath formula="\text{padding} = p" />, ta đệm thêm <InlineMath formula="p" /> hàng và <InlineMath formula="p" /> cột chứa toàn giá trị <InlineMath formula="0" /> vào cả bốn phía (trên, dưới, trái, phải) của ma trận đầu vào. Do mỗi chiều được cộng thêm ở hai đầu nên kích thước hiệu dụng của ma trận sau khi đệm tăng từ <InlineMath formula="N \times N" /> lên <InlineMath formula="(N + 2p) \times (N + 2p)" />.
+
+* **Valid Padding (<InlineMath formula="p = 0" />):** Không thêm viền <InlineMath formula="0" />, kích thước đầu ra luôn nhỏ hơn đầu vào.
+* **Same Padding (<InlineMath formula="p = \frac{k - 1}{2}" /> khi <InlineMath formula="\text{stride} = 1" />):** Giữ nguyên kích thước không gian của đầu ra bằng đúng đầu vào (<InlineMath formula="H_{\text{out}} = H_{\text{in}}" />). Ví dụ với bộ lọc <InlineMath formula="3 \times 3" />, chọn <InlineMath formula="p = 1" />; với bộ lọc <InlineMath formula="5 \times 5" />, chọn <InlineMath formula="p = 2" />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Bên cạnh việc mở rộng viền bằng **Padding**, ta còn có thể điều khiển tốc độ trượt của bộ lọc thông qua tham số bước nhảy **Stride**.
+
+### Bước nhảy Stride và Công thức Kích thước Đầu ra
+
+Khi trượt bộ lọc tuần tự từng ô một từ trái sang phải và từ trên xuống dưới, ta gọi đó là <InlineMath formula="\text{stride} = 1" />. Nếu đặt <InlineMath formula="\text{stride} = s" /> (<InlineMath formula="s > 1" />), sau mỗi phép tích chập, cửa sổ sẽ nhảy cóc <InlineMath formula="s" /> bước theo chiều ngang (hoặc <InlineMath formula="s" /> bước theo chiều dọc khi xuống dòng), chỉ đặt tâm tại các tọa độ <InlineMath formula="x_{1 + i \cdot s,\; 1 + j \cdot s}" />.
+
+Nếu **Padding** thường dùng để giữ hoặc tăng kích thước đầu ra thì **Stride** (<InlineMath formula="s > 1" />) được dùng để chủ động giảm kích thước không gian của bản đồ đặc trưng. Tổng quát cho ảnh đầu vào kích thước <InlineMath formula="H_{\text{in}} \times W_{\text{in}}" />, bộ lọc <InlineMath formula="k \times k" />, độ đệm <InlineMath formula="p" /> và bước nhảy <InlineMath formula="s" />, kích thước của ma trận đầu ra <InlineMath formula="Y" /> được xác định bởi công thức
+
+<BlockMath formula="H_{\text{out}} = \left\lfloor \frac{H_{\text{in}} - k + 2p}{s} \right\rfloor + 1, \qquad W_{\text{out}} = \left\lfloor \frac{W_{\text{in}} - k + 2p}{s} \right\rfloor + 1" />
+
+Cần phân biệt rõ ý nghĩa của số hạng <InlineMath formula="+1" /> trong công thức trên để tránh nhầm lẫn với hệ số độ lệch (**bias**):
+
+* **Số hạng <InlineMath formula="+1" /> trong công thức kích thước không gian:** Tỷ số <InlineMath formula="\frac{H_{\text{in}} - k + 2p}{s}" /> đếm số bước nhảy thực hiện được sau khi đã đặt cửa sổ đầu tiên, còn <InlineMath formula="+1" /> dùng để cộng thêm chính **vị trí cửa sổ đầu tiên** tại gốc tọa độ.
+* **Điều kiện chia chẵn của Stride:** Để cửa sổ cuối cùng vừa khít với mép phải/dưới của ảnh mà không bị thừa ô, hiệu số <InlineMath formula="(N - k + 2p)" /> phải chia hết cho <InlineMath formula="s" />. Chẳng hạn với <InlineMath formula="N = 7, k = 3, p = 0" />, chọn <InlineMath formula="s = 1 \implies \frac{7-3}{1}+1 = 5" />, chọn <InlineMath formula="s = 2 \implies \frac{7-3}{2}+1 = 3" />, nhưng nếu chọn <InlineMath formula="s = 3 \implies \frac{7-3}{3}+1 = 2.33" /> (không khớp biên; khi lập trình trong PyTorch, hàm `nn.Conv2d` sẽ tự lấy phần nguyên dưới <InlineMath formula="\lfloor 2.33 \rfloor = 2" /> và bỏ qua cột dư ngoài rìa).
+
+<PaddingStrideExplorer />
+
+Thử áp dụng nhanh công thức trên với ba cấu hình điển hình:
+
+* Đầu vào <InlineMath formula="32 \times 32 \times 3" />, bộ lọc <InlineMath formula="5 \times 5" />, <InlineMath formula="p = 0, s = 1" /> cho kích thước không gian <InlineMath formula="\frac{32 - 5 + 0}{1} + 1 = 28 \times 28" />.
+* Đầu vào <InlineMath formula="32 \times 32 \times 3" />, bộ lọc <InlineMath formula="5 \times 5" />, <InlineMath formula="p = 3, s = 3" /> cho kích thước không gian <InlineMath formula="\frac{32 - 5 + 2 \times 3}{3} + 1 = 12 \times 12" />.
+* Đầu vào <InlineMath formula="64 \times 64 \times 3" />, bộ lọc <InlineMath formula="3 \times 3" />, <InlineMath formula="p = 2, s = 5" /> cho kích thước không gian <InlineMath formula="\frac{64 - 3 + 2 \times 2}{5} + 1 = 14 \times 14" />.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Trong thực tế, ảnh đầu vào hiếm khi chỉ là một ma trận phẳng đơn lẻ mà là một khối tensor <InlineMath formula="3" /> chiều có độ sâu <InlineMath formula="C_{\text{in}}" /> kênh.
+
+### Tích chập Đa kênh (RGB), Multi-Kernel và Tích chập 1×1
+
+Khi đưa một bức ảnh màu **RGB** kích thước <InlineMath formula="32 \times 32 \times 3" /> vào tầng tích chập, mỗi bộ lọc không còn là ma trận phẳng <InlineMath formula="k \times k" /> nữa mà phải là một khối <InlineMath formula="k \times k \times 3" /> có độ sâu khớp đúng với <InlineMath formula="3" /> kênh màu đầu vào. Khi trượt khối bộ lọc <InlineMath formula="5 \times 5 \times 3" /> này trên ảnh, tích phần tử của cả <InlineMath formula="3" /> kênh (<InlineMath formula="5 \times 5 \times 3 = 75" /> phép nhân) được cộng gộp lại thành một con số duy nhất, sinh ra <InlineMath formula="1" /> bản đồ đặc trưng kích thước <InlineMath formula="28 \times 28 \times 1" />.
+
+Để mạng học được nhiều loại đặc trưng cùng lúc (bộ lọc thứ nhất bắt cạnh dọc, bộ lọc thứ hai bắt cạnh ngang, bộ lọc thứ ba bắt mảng màu), ta sử dụng đồng thời <InlineMath formula="C_{\text{out}}" /> bộ lọc khác nhau (ví dụ <InlineMath formula="6" /> bộ lọc <InlineMath formula="5 \times 5 \times 3" />) rồi xếp chồng <InlineMath formula="6" /> kết quả lại thành khối tensor <InlineMath formula="28 \times 28 \times 6" />.
+
+Một trường hợp đặc biệt nhưng cực kỳ quyền năng là **Tích chập 1×1 (Point-wise Convolution)**:
+
+* Khi chọn kích thước cửa sổ <InlineMath formula="k = 1" />, mỗi bộ lọc có kích thước <InlineMath formula="1 \times 1 \times C_{\text{in}}" />. Nó không nhìn sang các pixel lân cận mà lấy tổ hợp tuyến tính xuyên qua toàn bộ <InlineMath formula="C_{\text{in}}" /> kênh tại từng tọa độ điểm ảnh.
+* Sử dụng <InlineMath formula="C_{\text{out}}" /> bộ lọc <InlineMath formula="1 \times 1" /> cho phép **thay đổi độ sâu (số kênh)** từ <InlineMath formula="C_{\text{in}} \to C_{\text{out}}" /> một cách linh hoạt, giúp nén giảm số kênh để tăng tốc độ tính toán trước khi đưa vào các bộ lọc lớn <InlineMath formula="3 \times 3" /> hay <InlineMath formula="5 \times 5" />.
+
+### Receptive Field và Phân cấp Đặc trưng (Low / Mid / High-level)
+
+**Receptive Field** (trường nhìn cảm thụ) của một neuron tại tầng thứ <InlineMath formula="l" /> là diện tích vùng không gian trên **bức ảnh gốc ban đầu** có ảnh hưởng tới giá trị kích hoạt của neuron đó.
+
+* Ở tầng tích chập <InlineMath formula="3 \times 3" /> đầu tiên (<InlineMath formula="s = 1" />), mỗi ô đầu ra nhìn thấy một vùng <InlineMath formula="3 \times 3" /> trên ảnh gốc.
+* Khi chồng thêm tầng tích chập <InlineMath formula="3 \times 3" /> thứ hai lên trên, mỗi ô ở tầng hai gom thông tin từ <InlineMath formula="3 \times 3" /> ô tầng một, tương đương với việc nhìn bao quát một vùng <InlineMath formula="5 \times 5" /> trên ảnh gốc. Tổng quát, ghép nối tiếp <InlineMath formula="L" /> lớp bộ lọc <InlineMath formula="3 \times 3" /> (<InlineMath formula="s = 1" />) tạo ra trường nhìn rộng bằng <InlineMath formula="(2L + 1) \times (2L + 1)" /> nhưng tiết kiệm tham số hơn nhiều so với dùng một bộ lọc khổng lồ ngay từ đầu.
+
+<LessonImage
+  assetPath="deep-learning/cnn_feature_hierarchy_vgg.png"
+  alt="Trực quan hóa phân cấp đặc trưng từ Low-level, Mid-level đến High-level trên mạng VGG-16 theo Zeiler và Fergus (2013)"
+  caption="Sự tiến hóa của đặc trưng qua chiều sâu mạng CNN (Zeiler & Fergus, 2013): các lớp nông có Receptive Field nhỏ học cạnh và màu sắc cơ bản; các lớp sâu có Receptive Field lớn tổng hợp thành họa tiết và bộ phận đối tượng hoàn chỉnh."
+/>
+
+Khi đi sâu dần qua các lớp tích chập, kích thước không gian <InlineMath formula="(H, W)" /> giảm dần trong khi số kênh <InlineMath formula="C" /> và **Receptive Field** ngày càng mở rộng, hình thành ba cấp độ biểu diễn rõ rệt:
+
+* **Đặc trưng bậc thấp (Low-level features — Tầng nông):** Có độ phân giải không gian cao và trường nhìn hẹp, chuyên bắt các chi tiết hình học cơ bản như đường thẳng ngang, dọc, chéo, góc nhọn và dải chuyển màu.
+* **Đặc trưng bậc trung (Mid-level features — Tầng giữa):** Tổ hợp các cạnh đơn lẻ thành họa tiết lưới, vân bề mặt và các bộ phận cục bộ như bánh xe, mắt hoặc viền lá.
+* **Đặc trưng bậc cao (High-level features — Tầng sâu):** Có độ phân giải thấp nhưng trường nhìn phủ gần trọn bức ảnh, mã hóa ngữ nghĩa toàn cục của đối tượng (khuôn mặt chú chó, biển báo giao thông, thân người) để đưa vào bộ phân loại cuối cùng.
+
+</MdxPage>

@@ -563,6 +563,63 @@ export function LessonImage({
   );
 }
 
+/** Responsive Light Mode YouTube embed card for Learning Lab MDX lessons. */
+export function YouTubeEmbed({
+  videoId,
+  title,
+  caption,
+  maxWidth = '100%',
+}: {
+  videoId: string;
+  title: string;
+  caption?: string;
+  maxWidth?: string;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const safeId = videoId.replace(/[^a-zA-Z0-9_-]/g, '');
+  return (
+    <figure className="mx-auto my-6 grid w-full justify-items-center gap-2" style={{ maxWidth }}>
+      <div
+        className="w-full overflow-hidden rounded-xl border bg-[#EFF3F8] shadow-sm aspect-video"
+        style={{ borderColor: 'rgba(32,80,137,0.12)' }}
+      >
+        <iframe
+          className="h-full w-full border-0"
+          src={`https://www.youtube-nocookie.com/embed/${safeId}`}
+          title={title}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+      {caption && (
+        <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+/** Editorial / journal-style letter block with optional italic date, indented paragraphs, and right-aligned signature. */
+export function JournalLetter({
+  date,
+  signature,
+  children,
+}: {
+  date?: string;
+  signature?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="my-4 grid gap-4 rounded-lg border border-[#B8C8DA]/60 bg-[#EFF3F8]/35 px-6 py-5">
+      {date ? <p className="font-semibold italic text-slate-600">{date}</p> : null}
+      <div className="grid gap-4 pl-6 [&_p]:leading-7">{children}</div>
+      {signature ? <p className="text-right font-semibold text-[#123B68]">{signature}</p> : null}
+    </div>
+  );
+}
+
 type ConceptVisual =
     | 'database'
     | 'two-term-loss'
@@ -1775,7 +1832,13 @@ export function ComparisonMatrix({
   compactRowHeader?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
-  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const border = themeClasses.isLight ? 'border-[#CBD5E1]' : 'border-[#A8B8C8]/18';
+  const innerBorder = themeClasses.isLight ? 'border-[#E2E8F0]' : 'border-white/10';
+  const theadDivider = themeClasses.isLight ? 'divide-[#B8C8DA]' : 'divide-white/10';
+  const theadBg = themeClasses.isLight ? 'bg-[#DCE7F5] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]';
+  const zebraBg = themeClasses.isLight ? 'even:bg-[#F8FAFC] odd:bg-white' : 'even:bg-white/[0.02] odd:bg-transparent';
+  const hoverBg = themeClasses.isLight ? 'hover:bg-[#F0F7FF]' : 'hover:bg-white/5';
+  const headerCellClass = 'px-4 py-3.5 font-black text-xs uppercase tracking-wider';
 
   const keyedColumns = hasKeyedComparisonColumns(columns) ? columns : null;
 
@@ -1798,30 +1861,57 @@ export function ComparisonMatrix({
   });
 
   return (
-    <div className={cx('my-6 overflow-x-auto rounded-xl border', border)}>
-      <table className="!my-0 w-full min-w-[36rem] !border-0 border-collapse text-left text-sm leading-5 [&_td]:!border-b-0 [&_th]:!border-b-0">
+    <div className={cx('my-6 overflow-x-auto rounded-lg border shadow-[0_4px_16px_rgba(15,23,42,0.06)]', border)}>
+      <table
+        data-component="comparison-matrix"
+        className="my-0 w-full min-w-[36rem] border-0 border-collapse text-left text-sm leading-relaxed"
+      >
         <caption className="sr-only">{ariaLabel}</caption>
-        <thead className={themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]'}>
-          <tr>
-            <th scope="col" className={cx('px-4 py-3 font-black', compactRowHeader ? 'w-16 text-center' : 'w-[26%]')}>{headerTitle}</th>
+        <thead className={cx('border-b-2', innerBorder, theadBg)}>
+          <tr className={cx('divide-x', theadDivider)}>
+            <th
+              scope="col"
+              className={cx(
+                headerCellClass,
+                compactRowHeader ? 'w-16 text-center' : 'w-[26%]',
+              )}
+            >
+              {headerTitle}
+            </th>
             {colList.map((colName, idx) => (
-              <th key={`${colName}-${idx}`} scope="col" className="px-4 py-3 font-black">{colName}</th>
+              <th
+                key={`${colName}-${idx}`}
+                scope="col"
+                className={headerCellClass}
+              >
+                {colName}
+              </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className={cx('divide-y', innerBorder)}>
           {normalizedRows.map((row, rowIndex) => (
-            <tr key={`${row.label}-${rowIndex}`} className={cx('border-t align-top', border)}>
-              <th scope="row" className={cx('px-4 py-3 font-black', compactRowHeader && 'text-center tabular-nums', themeClasses.titleText)}>{row.label}</th>
+            <tr key={`${row.label}-${rowIndex}`} className={cx('align-top transition-colors duration-150', zebraBg, hoverBg)}>
+              <th
+                scope="row"
+                className={cx(
+                  'bg-[#F8FAFC] text-[#0F172A] px-4 py-3.5 font-black border-r',
+                  innerBorder,
+                  compactRowHeader && 'text-center tabular-nums',
+                )}
+              >
+                {row.label}
+              </th>
               {colList.map((_, columnIndex) => {
                 const value = row.values[columnIndex];
                 return (
                   <td
                     key={`${row.label}-${columnIndex}`}
                     className={cx(
-                      'px-4 py-3',
+                      'px-4 py-3.5',
+                      columnIndex < colList.length - 1 && cx('border-r', innerBorder),
                       row.highlightedColumn === columnIndex
-                        ? themeClasses.isLight ? 'bg-[#205089]/7 font-semibold text-[#123B68]' : 'bg-[#A8D4FF]/8 font-semibold text-[#D7EAFE]'
+                        ? themeClasses.isLight ? 'bg-emerald-50/90 font-semibold text-emerald-900' : 'bg-emerald-500/15 font-semibold text-emerald-200'
                         : themeClasses.bodyText,
                     )}
                   >
@@ -1829,6 +1919,10 @@ export function ComparisonMatrix({
                       <ul className="grid list-disc gap-1.5 pl-4 marker:text-[#205089]">
                         {value.map((item) => <li key={item}>{item}</li>)}
                       </ul>
+                    ) : value === '✓' ? (
+                      <span className="font-bold text-emerald-700">✓</span>
+                    ) : value === '✗' ? (
+                      <span className="font-bold text-rose-600">✗</span>
                     ) : value ?? '—'}
                   </td>
                 );
@@ -2122,6 +2216,8 @@ const sharedAuthoredMdxComponents = {
   LessonNote,
   TextHighlight,
   LessonImage,
+  YouTubeEmbed,
+  JournalLetter,
   MdxQuiz,
   MdxPage,
   RequirementCard,

@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: 'deep-learning',
+  id: 'mlp-and-deep-architectures',
+  locale: 'vi',
+  title: 'MLP (Phần 2): Neural Net & Độ sâu của Mạng',
+  headings: [
+    'Vì sao Deep Learning gắn liền với Neural Network?',
+    'Bao nhiêu tầng mới gọi là "Deep"?',
+    'Từ Ảnh Chữ số đến Mô hình Hộp đen',
+  ],
+  keywords: [
+    'deep learning',
+    'neural network',
+    'depth',
+    'AlexNet',
+    'VGG19',
+    'GoogLeNet',
+    'ResNet152',
+    'ImageNet',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+## Vì sao Deep Learning gắn liền với Neural Network?
+
+Trong thực tế, hễ nhắc đến **Deep Learning** là người ta nghĩ ngay đến **Neural Network** (từ MLP, CNN, RNN cho đến Transformer). Điều này hoàn toàn có cơ sở: gần như mọi đột phá lớn về thị giác máy tính, xử lý ngôn ngữ tự nhiên hay AI tạo sinh hiện đại đều được xây dựng trên các mạng neural nhiều tầng.
+
+Về mặt khái niệm rộng hơn, vẫn tồn tại một số mô hình phân tầng không phải mạng neural thuần túy có thể xếp vào nhóm "học sâu" — chẳng hạn **Deep Forest (gcForest)** xếp chồng nhiều tầng rừng cây quyết định, hay **Deep Gaussian Processes** xếp chồng các quá trình Gaussian. Tuy vậy, trong thực tế **Neural Network vẫn giữ vị thế thống trị tuyệt đối** nhờ ba lợi thế khó thay thế:
+
+<ConceptFlow
+  ariaLabel="Ba lợi thế giúp Neural Network thống trị Deep Learning"
+  items={[
+    {
+      title: 'Huấn luyện End-to-End',
+      subtitle: 'Backpropagation',
+      detail: 'Toàn bộ các tầng đều khả vi, cho phép lan truyền ngược sai số và tối ưu đồng thời hàng triệu đến hàng tỷ tham số bằng gradient descent.',
+      tone: 'blue',
+    },
+    {
+      title: 'Tối ưu phần cứng',
+      subtitle: 'GPU / TPU',
+      detail: 'Mọi phép tính cốt lõi trong MLP hay Transformer đều quy về nhân ma trận song song, tận dụng triệt để năng lực tính toán của GPU hiện đại.',
+      tone: 'blue',
+    },
+    {
+      title: 'Khả năng mở rộng',
+      subtitle: 'Scaling',
+      detail: 'Khi tăng dữ liệu và độ sâu mô hình, mạng neural tiếp tục cải thiện độ chính xác ổn định trên ảnh, văn bản, âm thanh và dữ liệu đa phương thức.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bao nhiêu tầng mới gọi là "Deep"?
+
+Một câu hỏi rất tự nhiên sau khi học MLP là: **chính xác thì mạng có bao nhiêu tầng mới được gọi là "Deep"?**
+
+Không có một ngưỡng toán học cố định nào. Về mặt lịch sử, một mạng có **từ 2 tầng ẩn trở lên** (tức tổng cộng từ 3 tầng có trọng số) đã được gọi là "sâu" khi đặt cạnh mạng MLP nông chỉ có 1 tầng ẩn. Tuy nhiên, chuẩn mực về "độ sâu" đã tăng vọt theo từng cột mốc trên bài toán phân loại ảnh **ImageNet** (đo bằng chỉ số **Top-5 Error** — tỉ lệ dự đoán sai nằm ngoài 5 nhãn xác suất cao nhất):
+
+### 1. AlexNet (2012) — 8 layers (Top-5 Error: 16.4%)
+
+**AlexNet** gồm 5 tầng tích chập và 3 tầng **Fully Connected**, mở đầu kỷ nguyên Deep Learning hiện đại khi giảm mạnh sai số ImageNet xuống **16.4%** (so với mức ~26% của các phương pháp truyền thống trước đó).
+
+<LessonImage
+  assetPath="deep-learning/dl_arch_alexnet.svg"
+  alt="Sơ đồ kiến trúc AlexNet gồm 5 tầng tích chập và 3 tầng Fully Connected (tổng 8 layers)"
+  caption="AlexNet (8 layers): kết hợp 5 tầng Conv rút trích đặc trưng và 3 tầng Fully Connected ở cuối để phân loại 1.000 lớp ImageNet."
+/>
+
+### 2. VGG-19 (2014) — 19 layers (Top-5 Error: 7.3%)
+
+**VGG-19** chứng minh rằng việc xếp chồng nhiều tầng tích chập nhỏ <InlineMath formula="3 \times 3" /> lên tới **19 tầng** (16 Conv + 3 FC) giúp biểu diễn đặc trưng mịn hơn hẳn, đưa Top-5 Error xuống còn **7.3%**.
+
+<LessonImage
+  assetPath="deep-learning/dl_arch_vgg.png"
+  alt="Sơ đồ kiến trúc họ mạng VGG xếp chồng nhiều khối Conv và Pooling trước các tầng Dense (Fully Connected)"
+  caption="Kiến trúc họ VGG (VGG-16 / VGG-19): tăng chiều sâu đồng nhất bằng các khối Conv 3×3 nối tiếp nhau trước cụm Dense ở cuối."
+/>
+
+### 3. GoogLeNet / Inception-v1 (2014) — 22 layers (Top-5 Error: 6.7%)
+
+**GoogLeNet** đạt độ sâu **22 tầng** với khối **Inception** chạy song song nhiều kích thước bộ lọc (<InlineMath formula="1\times 1, 3\times 3, 5\times 5" />), giúp giảm Top-5 Error xuống **6.7%** trong khi ít tham số hơn VGG rất nhiều.
+
+<LessonImage
+  assetPath="deep-learning/dl_arch_googlenet.svg"
+  alt="Sơ đồ toàn bộ kiến trúc GoogLeNet (Inception-v1) với 22 tầng"
+  caption="GoogLeNet (22 layers): sử dụng các module Inception song song và nhánh phụ trợ để huấn luyện mạng sâu hiệu quả hơn."
+/>
+
+### 4. ResNet-152 (2015) — 152 layers (Top-5 Error: 3.57%)
+
+Trước **ResNet**, việc chồng quá nhiều tầng khiến gradient suy biến và mô hình khó tối ưu hơn (hiện tượng *degradation*). Nhờ **Skip Connection (Residual Block)**, **ResNet-152** đẩy độ sâu lên tới **152 tầng** và đạt **3.57%** Top-5 Error — vượt qua ngưỡng lỗi trung bình của con người (~5.1%) trên ImageNet.
+
+<LessonImage
+  assetPath="deep-learning/dl_arch_resnet.png"
+  alt="Sơ đồ kiến trúc phân tầng theo Stage của họ mạng ResNet (từ Conv đến các Residual Block và FC)"
+  caption="Kiến trúc họ ResNet: ghép nối các Residual Block (Conv Block & ID Block) theo từng Stage, cho phép mở rộng độ sâu lên tới 152 layers (ResNet-152)."
+/>
+
+<ComparisonMatrix
+  leftHeader="Kiến trúc"
+  rightHeader="So sánh Độ sâu & Sai số trên ImageNet"
+  columns={['Năm', 'Số tầng (Depth)', 'ImageNet Top-5 Error', 'Ý tưởng chính']}
+  rows={[
+    {
+      label: 'AlexNet',
+      values: ['2012', '8 layers', '16.4%', 'ReLU, Dropout, chạy song song trên GPU'],
+    },
+    {
+      label: 'VGG-19',
+      values: ['2014', '19 layers', '7.3%', 'Xếp chồng nhiều tầng Conv 3×3 đồng nhất'],
+    },
+    {
+      label: 'GoogLeNet',
+      values: ['2014', '22 layers', '6.7%', 'Module Inception đa tỉ lệ, giảm tham số'],
+    },
+    {
+      label: 'ResNet-152',
+      values: ['2015', '152 layers', '3.57%', 'Skip Connection giải quyết suy biến khi tăng độ sâu'],
+      highlight: 2,
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ Ảnh Chữ số đến Mô hình Hộp đen
+
+Nhìn ở góc độ tổng quát nhất, mọi bài toán học có giám sát đều có thể hình dung như một luồng biến đổi từ dữ liệu thô sang dự đoán đầu ra:
+
+1. **Đầu vào:** Một bức ảnh chữ số viết tay (ví dụ ảnh MNIST kích thước <InlineMath formula="28 \times 28" />).
+2. **Flatten:** Từng giá trị pixel được trải phẳng thành một vector 1 chiều <InlineMath formula="\mathbf{x} \in \mathbb{R}^{784}" />.
+3. **Blackbox:** Vector này được đưa vào một mô hình ánh xạ <InlineMath formula="f(\mathbf{x})" />.
+4. **Đầu ra:** Mô hình xuất ra vector dự đoán <InlineMath formula="\hat{\mathbf{y}} \in \mathbb{R}^{10}" /> tương ứng với xác suất cho 10 chữ số từ <InlineMath formula="0" /> đến <InlineMath formula="9" />.
+
+<HandwrittenDigitBlackboxDiagram />
+
+Điểm quan trọng nhất là: **chúng ta có thể thay thế hộp đen (blackbox) ở giữa bằng một mạng MLP cơ bản, hoặc thay bằng các kiến trúc sâu và phức tạp hơn** (như **CNN**, **ResNet** hay **Transformer**) tùy thuộc vào cấu trúc dữ liệu và độ khó của bài toán.
+
+</MdxPage>
