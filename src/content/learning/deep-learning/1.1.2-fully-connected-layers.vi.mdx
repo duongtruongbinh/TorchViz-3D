@@ -97,7 +97,34 @@ Trong thực tế, phép đếm này giải thích vì sao các mạng thuần *
 
 Về mặt hình học, bước tuyến tính <InlineMath formula="\mathbf{z} = \mathbf{W}^\top \mathbf{x} + \mathbf{b}" /> thực hiện một **biến đổi affine** (xoay, co giãn, chiếu không gian từ <InlineMath formula="\mathbb{R}^{d_{\text{in}}}" /> sang <InlineMath formula="\mathbb{R}^{d_{\text{out}}}" /> rồi tịnh tiến theo <InlineMath formula="\mathbf{b}" />), trước khi hàm kích hoạt phi tuyến <InlineMath formula="\phi" /> bẻ cong không gian biểu diễn.
 
-<FullyConnectedDiagram panel="pros-cons" />
+<ComparisonMatrix
+  leftHeader="Khía cạnh"
+  rightHeader="Ưu điểm và Khuyết điểm của Tầng Fully Connected"
+  columns={['Ưu điểm', 'Khuyết điểm']}
+  rows={[
+    {
+      label: 'Kết nối & Tham số',
+      values: [
+        'Kết nối toàn cục: mọi đặc trưng đầu vào đều tương tác trực tiếp với nhau ở đầu ra.',
+        'Bùng nổ tham số: tăng theo tích d_in × d_out, dễ overfitting và tốn bộ nhớ với ảnh lớn.',
+      ],
+    },
+    {
+      label: 'Không gian biểu diễn',
+      values: [
+        'Đổi chiều linh hoạt: dễ dàng nén hoặc mở rộng không gian biểu diễn (d_in → d_out).',
+        'Mất cấu trúc không gian: phải duỗi phẳng (flatten) ảnh 2D thành vector 1D, làm mất quan hệ lân cận.',
+      ],
+    },
+    {
+      label: 'Ứng dụng & Dịch chuyển',
+      values: [
+        'Đa dụng: phù hợp làm Classification Head cuối mạng CNN hoặc khối FFN trong Transformer.',
+        'Không bất biến dịch chuyển: chỉ cần dịch vật thể sang vị trí khác là phải học lại trọng số tương ứng.',
+      ],
+    },
+  ]}
+/>
 
 Do mọi đầu vào đều nối tới toàn bộ neuron đầu ra, tầng **Fully Connected** thường được đặt ở phần cuối mô hình để **tổng hợp**, lựa chọn đặc trưng và thực hiện **phân loại**. Trong khi đó, việc học và trích xuất đặc trưng từ dữ liệu thô thường do các kiến trúc chuyên biệt như **CNN** đảm nhận.
 

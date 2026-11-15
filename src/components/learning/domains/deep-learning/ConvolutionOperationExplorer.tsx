@@ -15,11 +15,23 @@ const KERNEL_MATRIX = [
   [1, 0, 1],
 ];
 
-const OUTPUT_MATRIX = [
-  [4, 3, 4],
-  [2, 4, 3],
-  [2, 3, 4],
-];
+function computeConv2d(input: number[][], kernel: number[][]): number[][] {
+  const outRows = input.length - kernel.length + 1;
+  const outCols = input[0].length - kernel[0].length + 1;
+  return Array.from({ length: outRows }, (_, r) =>
+    Array.from({ length: outCols }, (__, c) => {
+      let sum = 0;
+      for (let kr = 0; kr < kernel.length; kr++) {
+        for (let kc = 0; kc < kernel[0].length; kc++) {
+          sum += input[r + kr][c + kc] * kernel[kr][kc];
+        }
+      }
+      return sum;
+    }),
+  );
+}
+
+const OUTPUT_MATRIX = computeConv2d(INPUT_MATRIX, KERNEL_MATRIX);
 
 const DIGIT_7_GRID = [
   [0, 0, 0, 0, 0, 0, 0],
@@ -84,22 +96,7 @@ export function ConvolutionOperationExplorer() {
   const centerC = outC + 1;
 
   const activeFilter = FILTERS[selectedFilterIdx];
-
-  // Compute 5x5 response map for DIGIT_7_GRID (7x7) with 3x3 activeFilter
-  const filterResponse: number[][] = [];
-  for (let r = 0; r < 5; r++) {
-    const row: number[] = [];
-    for (let c = 0; c < 5; c++) {
-      let sum = 0;
-      for (let kr = 0; kr < 3; kr++) {
-        for (let kc = 0; kc < 3; kc++) {
-          sum += DIGIT_7_GRID[r + kr][c + kc] * activeFilter.weights[kr][kc];
-        }
-      }
-      row.push(sum);
-    }
-    filterResponse.push(row);
-  }
+  const filterResponse = computeConv2d(DIGIT_7_GRID, activeFilter.weights);
 
   return (
     <DlCardShell

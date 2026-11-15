@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
-import { DL_PALETTE } from './primitives';
+import { DL_PALETTE, SvgBipartiteEdges, SvgMathNode } from './primitives';
 
 const BLUE = DL_PALETTE.primary;
 const RED = DL_PALETTE.rose;
@@ -386,64 +386,55 @@ function MlpPassDiagram({ direction }: { direction: 'forward' | 'backprop' }) {
           </foreignObject>
         ))}
 
-        {/* Edges: Input <-> Layer 1 */}
-        {inY.map((iy) =>
-          hidY.map((hy) => (
-            <line key={`p-in-${iy}-${hy}`} x1="62" y1={iy} x2={h1X - 15} y2={hy} stroke={edgeColor} strokeWidth="1.2" />
-          )),
-        )}
-        {/* Edges: Layer 1 <-> Layer 2 */}
-        {hidY.map((y1) =>
-          hidY.map((y2) => (
-            <line key={`p-mid-${y1}-${y2}`} x1={h1X + 15} y1={y1} x2={h2X - 15} y2={y2} stroke={edgeColor} strokeWidth="1.2" />
-          )),
-        )}
-        {/* Edges: Layer 2 <-> Output */}
-        {hidY.map((hy) => (
-          <line key={`p-out-${hy}`} x1={h2X + 15} y1={hy} x2={outX - 16} y2={outY} stroke={edgeColor} strokeWidth="1.2" />
-        ))}
+        {/* Edges: Input <-> Layer 1 <-> Layer 2 <-> Output */}
+        <SvgBipartiteEdges x1={62} x2={h1X - 15} fromYs={inY} toYs={hidY} stroke={edgeColor} />
+        <SvgBipartiteEdges x1={h1X + 15} x2={h2X - 15} fromYs={hidY} toYs={hidY} stroke={edgeColor} />
+        <SvgBipartiteEdges x1={h2X + 15} x2={outX - 16} fromYs={hidY} toYs={[outY]} stroke={edgeColor} />
 
         {/* Input nodes */}
         {inY.map((iy, idx) => (
-          <g key={`p-in-node-${iy}`}>
-            <circle cx="62" cy={iy} r="15" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.6" />
-            <foreignObject x="48" y={iy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-[11px] text-[#172A43]">
-                <InlineMath formula={`x_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode key={`p-in-node-${iy}`} cx={62} cy={iy} r={15} formula={`x_${idx + 1}`} fontSizeClass="text-[11px]" />
         ))}
 
         {/* Layer 1 & Layer 2 nodes (activations on forward, error signals on backprop) */}
         {hidY.map((hy, idx) => (
-          <g key={`p-h1-${hy}`}>
-            <circle cx={h1X} cy={hy} r="15" fill={nodeFill} stroke={accent} strokeWidth="1.6" />
-            <foreignObject x={h1X - 14} y={hy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-[10px]" style={{ color: accent }}>
-                <InlineMath formula={isBackprop ? `\\delta_${idx + 1}^{(1)}` : `a_${idx + 1}^{(1)}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode
+            key={`p-h1-${hy}`}
+            cx={h1X}
+            cy={hy}
+            r={15}
+            fill={nodeFill}
+            stroke={accent}
+            formula={isBackprop ? `\\delta_${idx + 1}^{(1)}` : `a_${idx + 1}^{(1)}`}
+            textColor={accent}
+            fontSizeClass="text-[10px]"
+          />
         ))}
         {hidY.map((hy, idx) => (
-          <g key={`p-h2-${hy}`}>
-            <circle cx={h2X} cy={hy} r="15" fill={nodeFill} stroke={accent} strokeWidth="1.6" />
-            <foreignObject x={h2X - 14} y={hy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-[10px]" style={{ color: accent }}>
-                <InlineMath formula={isBackprop ? `\\delta_${idx + 1}^{(2)}` : `a_${idx + 1}^{(2)}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode
+            key={`p-h2-${hy}`}
+            cx={h2X}
+            cy={hy}
+            r={15}
+            fill={nodeFill}
+            stroke={accent}
+            formula={isBackprop ? `\\delta_${idx + 1}^{(2)}` : `a_${idx + 1}^{(2)}`}
+            textColor={accent}
+            fontSizeClass="text-[10px]"
+          />
         ))}
 
         {/* Output / Loss node */}
-        <circle cx={outX} cy={outY} r="16" fill={outFill} stroke={accent} strokeWidth="1.8" />
-        <foreignObject x={outX - 14} y={outY - 12} width="28" height="24">
-          <div className="flex h-full items-center justify-center text-xs" style={{ color: accent }}>
-            <InlineMath formula={isBackprop ? '\\mathcal{L}' : '\\hat{y}'} />
-          </div>
-        </foreignObject>
+        <SvgMathNode
+          cx={outX}
+          cy={outY}
+          r={16}
+          fill={outFill}
+          stroke={accent}
+          strokeWidth={1.8}
+          formula={isBackprop ? '\\mathcal{L}' : '\\hat{y}'}
+          textColor={accent}
+        />
 
         {/* Bottom layer labels */}
         <text x="62" y="238" textAnchor="middle" fontSize="11" fontWeight="700" fill="#475569">
@@ -498,27 +489,13 @@ function MlpWidthDepthDiagram() {
           Tăng Width
         </text>
 
-        {/* Edges: Input -> Wide Hidden */}
-        {inY.map((iy) =>
-          wideY.map((hy) => (
-            <line key={`w-in-${iy}-${hy}`} x1="56" y1={iy} x2="171" y2={hy} stroke="#94A3B8" strokeWidth="1.2" />
-          )),
-        )}
-        {/* Edges: Wide Hidden -> Output */}
-        {wideY.map((hy) => (
-          <line key={`w-out-${hy}`} x1="199" y1={hy} x2="314" y2={outY} stroke="#94A3B8" strokeWidth="1.2" />
-        ))}
+        {/* Edges: Input -> Wide Hidden -> Output */}
+        <SvgBipartiteEdges x1={56} x2={171} fromYs={inY} toYs={wideY} />
+        <SvgBipartiteEdges x1={199} x2={314} fromYs={wideY} toYs={[outY]} />
 
         {/* Input nodes */}
         {inY.map((iy, idx) => (
-          <g key={`w-in-node-${iy}`}>
-            <circle cx="56" cy={iy} r="14" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.6" />
-            <foreignObject x="42" y={iy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-[11px] text-[#172A43]">
-                <InlineMath formula={`x_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode key={`w-in-node-${iy}`} cx={56} cy={iy} r={14} formula={`x_${idx + 1}`} fontSizeClass="text-[11px]" />
         ))}
 
         {/* Wide hidden nodes */}
@@ -527,12 +504,7 @@ function MlpWidthDepthDiagram() {
         ))}
 
         {/* Output node */}
-        <circle cx="328" cy={outY} r="15" fill="#EFF6FF" stroke={BLUE} strokeWidth="1.8" />
-        <foreignObject x="314" y={outY - 12} width="28" height="24">
-          <div className="flex h-full items-center justify-center text-xs text-[#205089]">
-            <InlineMath formula="\hat{y}" />
-          </div>
-        </foreignObject>
+        <SvgMathNode cx={328} cy={outY} r={15} fill="#EFF6FF" stroke={BLUE} strokeWidth={1.8} formula="\\hat{y}" textColor={BLUE} />
 
         {/* Layer caption below */}
         <text x="185" y="248" textAnchor="middle" fontSize="11" fontWeight="700" fill="#475569">
@@ -563,43 +535,16 @@ function MlpWidthDepthDiagram() {
           Tăng Depth
         </text>
 
-        {/* Edges: Input -> Layer 1 */}
-        {inY.map((iy) =>
-          depthY.map((hy) => (
-            <line key={`d-in-${iy}-${hy}`} x1="44" y1={iy} x2={depthXs[0]} y2={hy} stroke="#94A3B8" strokeWidth="1.2" />
-          )),
-        )}
-        {/* Edges: Layer 1 -> Layer 2 -> Layer 3 */}
-        {depthXs.slice(0, -1).map((lx, li) =>
-          depthY.map((y1) =>
-            depthY.map((y2) => (
-              <line
-                key={`d-mid-${li}-${y1}-${y2}`}
-                x1={lx}
-                y1={y1}
-                x2={depthXs[li + 1]}
-                y2={y2}
-                stroke="#94A3B8"
-                strokeWidth="1.2"
-              />
-            )),
-          ),
-        )}
-        {/* Edges: Layer 3 -> Output */}
-        {depthY.map((hy) => (
-          <line key={`d-out-${hy}`} x1={depthXs[2]} y1={hy} x2="342" y2={outY} stroke="#94A3B8" strokeWidth="1.2" />
+        {/* Edges: Input -> Layer 1 -> Layer 2 -> Layer 3 -> Output */}
+        <SvgBipartiteEdges x1={44} x2={depthXs[0]} fromYs={inY} toYs={depthY} />
+        {depthXs.slice(0, -1).map((lx, li) => (
+          <SvgBipartiteEdges key={`d-mid-${lx}`} x1={lx} x2={depthXs[li + 1]} fromYs={depthY} toYs={depthY} />
         ))}
+        <SvgBipartiteEdges x1={depthXs[2]} x2={342} fromYs={depthY} toYs={[outY]} />
 
         {/* Input nodes */}
         {inY.map((iy, idx) => (
-          <g key={`d-in-node-${iy}`}>
-            <circle cx="44" cy={iy} r="14" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.6" />
-            <foreignObject x="30" y={iy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-[11px] text-[#172A43]">
-                <InlineMath formula={`x_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode key={`d-in-node-${iy}`} cx={44} cy={iy} r={14} formula={`x_${idx + 1}`} fontSizeClass="text-[11px]" />
         ))}
 
         {/* 3 sequential hidden layers */}
@@ -610,12 +555,7 @@ function MlpWidthDepthDiagram() {
         )}
 
         {/* Output node */}
-        <circle cx="342" cy={outY} r="15" fill="#EFF6FF" stroke={BLUE} strokeWidth="1.8" />
-        <foreignObject x="328" y={outY - 12} width="28" height="24">
-          <div className="flex h-full items-center justify-center text-xs text-[#205089]">
-            <InlineMath formula="\hat{y}" />
-          </div>
-        </foreignObject>
+        <SvgMathNode cx={342} cy={outY} r={15} fill="#EFF6FF" stroke={BLUE} strokeWidth={1.8} formula="\\hat{y}" textColor={BLUE} />
 
         {/* Layer captions below */}
         {depthXs.map((lx, idx) => (

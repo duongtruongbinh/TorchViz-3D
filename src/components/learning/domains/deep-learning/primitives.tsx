@@ -1,4 +1,5 @@
 import { type ReactNode, useRef, useState } from 'react';
+import { InlineMath } from '../../learningMdxComponents';
 
 export const DL_PALETTE = {
   primary: '#205089',
@@ -139,5 +140,83 @@ export function DlStepControl({
         </button>
       </div>
     </div>
+  );
+}
+
+export function SvgBipartiteEdges({
+  x1,
+  x2,
+  fromYs,
+  toYs,
+  stroke = '#94A3B8',
+  strokeWidth = 1.2,
+  opacity = 1,
+}: {
+  x1: number;
+  x2: number;
+  fromYs: readonly number[];
+  toYs: readonly number[];
+  stroke?: string;
+  strokeWidth?: number;
+  opacity?: number;
+}) {
+  return (
+    <>
+      {fromYs.map((y1) =>
+        toYs.map((y2) => (
+          <line
+            key={`edge-${x1}-${y1}-${x2}-${y2}`}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            opacity={opacity}
+          />
+        )),
+      )}
+    </>
+  );
+}
+
+export function SvgMathNode({
+  cx,
+  cy,
+  r = 15,
+  fill = '#FFFFFF',
+  stroke = '#CBD5E1',
+  strokeWidth = 1.6,
+  formula,
+  textColor = '#172A43',
+  fontSizeClass = 'text-xs',
+  opacity = 1,
+}: {
+  cx: number;
+  cy: number;
+  r?: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  formula?: string;
+  textColor?: string;
+  fontSizeClass?: string;
+  opacity?: number;
+}) {
+  const box = Math.round(r * 1.9);
+  return (
+    <g opacity={opacity}>
+      <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+      {formula && (
+        <foreignObject x={cx - box / 2} y={cy - box / 2} width={box} height={box}>
+          <div
+            className={`flex h-full items-center justify-center ${fontSizeClass}`}
+            style={{ color: textColor }}
+          >
+            <InlineMath formula={formula} />
+          </div>
+        </foreignObject>
+      )}
+    </g>
   );
 }

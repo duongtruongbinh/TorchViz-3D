@@ -1,6 +1,11 @@
 import { type ReactNode, useState } from 'react';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
-import { DL_PALETTE, useCodeHighlightPulse } from './primitives';
+import {
+  DL_PALETTE,
+  SvgBipartiteEdges,
+  SvgMathNode,
+  useCodeHighlightPulse,
+} from './primitives';
 
 const BLUE = DL_PALETTE.primary;
 const SLATE = DL_PALETTE.slate;
@@ -10,7 +15,6 @@ const SLATE = DL_PALETTE.slate;
  * - panel="intuition": Shows neurons in one layer connecting to ALL neurons in the next layer.
  * - panel="matrix": Shows how d=3 inputs connect to m=2 output neurons via W in R^(3x2) and b in R^(1x2).
  * - panel="params": Interactive d_in / d_out / bias explorer showing parameter count and bipartite graph.
- * - panel="pros-cons": Two-column pros & cons summary cards for Fully Connected layers.
  * - panel="cnn-mlp": Simple CNN (feature learning) feeding into a highlighted MLP / Fully Connected head.
  * - panel="summary-*": Shared MLP diagram highlighting one concept while dimming the rest.
  */
@@ -21,7 +25,6 @@ export function FullyConnectedDiagram({
     | 'intuition'
     | 'matrix'
     | 'params'
-    | 'pros-cons'
     | 'cnn-mlp'
     | 'summary-neuron'
     | 'summary-layers'
@@ -37,9 +40,6 @@ export function FullyConnectedDiagram({
   if (panel === 'params') {
     return <FullyConnectedParamExplorer />;
   }
-  if (panel === 'pros-cons') {
-    return <FullyConnectedProsConsCards />;
-  }
   if (panel === 'cnn-mlp') {
     return <CnnMlpPipelineDiagram />;
   }
@@ -52,46 +52,6 @@ export function FullyConnectedDiagram({
     );
   }
   return <FullyConnectedMatrixDiagram />;
-}
-
-function FullyConnectedProsConsCards() {
-  return (
-    <div className="my-6 grid gap-4 md:grid-cols-2">
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h4 className="mb-3 text-sm font-extrabold uppercase tracking-wider text-emerald-700">
-          Ưu điểm
-        </h4>
-        <ul className="grid gap-2.5 text-sm leading-6 text-slate-700">
-          <li>
-            <strong className="text-slate-900">Kết nối toàn cục:</strong> Mọi đặc trưng đầu vào đều tương tác trực tiếp với nhau ở đầu ra.
-          </li>
-          <li>
-            <strong className="text-slate-900">Đổi chiều linh hoạt:</strong> Dễ dàng nén hoặc mở rộng không gian biểu diễn (<InlineMath formula="d_{\text{in}} \to d_{\text{out}}" />).
-          </li>
-          <li>
-            <strong className="text-slate-900">Đa dụng:</strong> Phù hợp làm Classification Head cuối mạng CNN hoặc khối FFN trong Transformer.
-          </li>
-        </ul>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h4 className="mb-3 text-sm font-extrabold uppercase tracking-wider text-rose-700">
-          Khuyết điểm
-        </h4>
-        <ul className="grid gap-2.5 text-sm leading-6 text-slate-700">
-          <li>
-            <strong className="text-slate-900">Bùng nổ tham số:</strong> Tăng theo tích <InlineMath formula="d_{\text{in}} \times d_{\text{out}}" />, dễ overfitting và tốn bộ nhớ với ảnh lớn.
-          </li>
-          <li>
-            <strong className="text-slate-900">Mất cấu trúc không gian:</strong> Phải duỗi phẳng (flatten) ảnh 2D thành vector 1D, làm mất quan hệ lân cận.
-          </li>
-          <li>
-            <strong className="text-slate-900">Không bất biến dịch chuyển:</strong> Chỉ cần dịch vật thể sang vị trí khác là phải học lại trọng số tương ứng.
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
 }
 
 function FullyConnectedIntuitionDiagram() {
@@ -115,49 +75,34 @@ function FullyConnectedIntuitionDiagram() {
           TẦNG SAU (4 NEURON)
         </text>
 
-        {/* All-to-all connections, highlighting connections from the first neuron */}
-        {leftY.map((ly, li) =>
-          rightY.map((ry) => (
-            <line
-              key={`int-${ly}-${ry}`}
-              x1={leftX + 16}
-              y1={ly}
-              x2={rightX - 16}
-              y2={ry}
-              stroke={li === 0 ? BLUE : '#CBD5E1'}
-              strokeWidth={li === 0 ? 1.8 : 1.15}
-              opacity={li === 0 ? 0.9 : 0.75}
-            />
-          )),
-        )}
+        <SvgBipartiteEdges x1={leftX + 16} x2={rightX - 16} fromYs={leftY.slice(1)} toYs={rightY} stroke="#CBD5E1" strokeWidth={1.15} opacity={0.75} />
+        <SvgBipartiteEdges x1={leftX + 16} x2={rightX - 16} fromYs={[leftY[0]]} toYs={rightY} stroke={BLUE} strokeWidth={1.8} opacity={0.9} />
 
         {leftY.map((ly, idx) => (
-          <g key={`int-l-${ly}`}>
-            <circle
-              cx={leftX}
-              cy={ly}
-              r="16"
-              fill={idx === 0 ? '#EFF6FF' : '#FFFFFF'}
-              stroke={idx === 0 ? BLUE : '#94A3B8'}
-              strokeWidth={idx === 0 ? 2 : 1.5}
-            />
-            <foreignObject x={leftX - 14} y={ly - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-xs text-[#172A43]">
-                <InlineMath formula={`a_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode
+            key={`int-l-${ly}`}
+            cx={leftX}
+            cy={ly}
+            r={16}
+            fill={idx === 0 ? '#EFF6FF' : '#FFFFFF'}
+            stroke={idx === 0 ? BLUE : '#94A3B8'}
+            strokeWidth={idx === 0 ? 2 : 1.5}
+            formula={`a_${idx + 1}`}
+          />
         ))}
 
         {rightY.map((ry, idx) => (
-          <g key={`int-r-${ry}`}>
-            <circle cx={rightX} cy={ry} r="16" fill="#EFF3F8" stroke={BLUE} strokeWidth="1.7" />
-            <foreignObject x={rightX - 14} y={ry - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-xs text-[#205089]">
-                <InlineMath formula={`z_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode
+            key={`int-r-${ry}`}
+            cx={rightX}
+            cy={ry}
+            r={16}
+            fill="#EFF3F8"
+            stroke={BLUE}
+            strokeWidth={1.7}
+            formula={`z_${idx + 1}`}
+            textColor={BLUE}
+          />
         ))}
       </svg>
     </figure>
@@ -178,53 +123,34 @@ function FullyConnectedMatrixDiagram() {
         role="img"
         aria-label="Minh họa tầng Fully Connected: 3 đầu vào nối đầy đủ tới 2 neuron đầu ra tương ứng ma trận trọng số 3x2"
       >
-        {/* Left: Bipartite FC graph */}
         <text x="152" y="24" textAnchor="middle" fontSize="11" fontWeight="800" fill="#475569">
           KẾT NỐI ĐẦY ĐỦ (3 → 2)
         </text>
 
-        {inY.map((iy) =>
-          outY.map((oy) => (
-            <line
-              key={`fc-${iy}-${oy}`}
-              x1={inX + 16}
-              y1={iy}
-              x2={outX - 16}
-              y2={oy}
-              stroke="#94A3B8"
-              strokeWidth="1.35"
-            />
-          )),
-        )}
+        <SvgBipartiteEdges x1={inX + 16} x2={outX - 16} fromYs={inY} toYs={outY} stroke="#94A3B8" strokeWidth={1.35} />
 
         {inY.map((iy, idx) => (
-          <g key={`fc-in-${iy}`}>
-            <circle cx={inX} cy={iy} r="16" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.6" />
-            <foreignObject x={inX - 14} y={iy - 11} width="28" height="22">
-              <div className="flex h-full items-center justify-center text-xs text-[#172A43]">
-                <InlineMath formula={`x_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode key={`fc-in-${iy}`} cx={inX} cy={iy} r={16} formula={`x_${idx + 1}`} />
         ))}
 
         {outY.map((oy, idx) => (
-          <g key={`fc-out-${oy}`}>
-            <circle cx={outX} cy={oy} r="17" fill="#EFF3F8" stroke={BLUE} strokeWidth="1.8" />
-            <foreignObject x={outX - 15} y={oy - 12} width="30" height="24">
-              <div className="flex h-full items-center justify-center text-xs text-[#205089]">
-                <InlineMath formula={`z_${idx + 1}`} />
-              </div>
-            </foreignObject>
-          </g>
+          <SvgMathNode
+            key={`fc-out-${oy}`}
+            cx={outX}
+            cy={oy}
+            r={17}
+            fill="#EFF3F8"
+            stroke={BLUE}
+            strokeWidth={1.8}
+            formula={`z_${idx + 1}`}
+            textColor={BLUE}
+          />
         ))}
 
-        {/* Divider arrow */}
         <text x="298" y="128" textAnchor="middle" fontSize="18" fontWeight="800" fill={SLATE}>
           ⇔
         </text>
 
-        {/* Right: Matrix packing X * W + b = Z */}
         <text x="526" y="24" textAnchor="middle" fontSize="11" fontWeight="800" fill="#475569">
           DẠNG MA TRẬN (X · W + b = Z)
         </text>
@@ -303,40 +229,31 @@ function FullyConnectedParamExplorer() {
           role="img"
           aria-label={`Đồ thị kết nối đầy đủ từ ${dIn} đầu vào tới ${dOut} neuron đầu ra`}
         >
-          {inYs.map((iy) =>
-            outYs.map((oy) => (
-              <line
-                key={`p-${iy}-${oy}`}
-                x1="76"
-                y1={iy}
-                x2="264"
-                y2={oy}
-                stroke="#94A3B8"
-                strokeWidth="1.15"
-              />
-            )),
-          )}
+          <SvgBipartiteEdges x1={76} x2={264} fromYs={inYs} toYs={outYs} stroke="#94A3B8" strokeWidth={1.15} />
 
           {inYs.map((iy, idx) => (
-            <g key={`pi-${iy}`}>
-              <circle cx="64" cy={iy} r="12.5" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />
-              <foreignObject x="50" y={iy - 10} width="28" height="20">
-                <div className="flex h-full items-center justify-center text-[10px] text-[#172A43]">
-                  <InlineMath formula={dIn > MAX_DRAW && idx === MAX_DRAW - 1 ? `x_{${dIn}}` : `x_{${idx + 1}}`} />
-                </div>
-              </foreignObject>
-            </g>
+            <SvgMathNode
+              key={`pi-${iy}`}
+              cx={64}
+              cy={iy}
+              r={12.5}
+              formula={dIn > MAX_DRAW && idx === MAX_DRAW - 1 ? `x_{${dIn}}` : `x_{${idx + 1}}`}
+              fontSizeClass="text-[10px]"
+            />
           ))}
 
           {outYs.map((oy, idx) => (
-            <g key={`po-${oy}`}>
-              <circle cx="276" cy={oy} r="12.5" fill="#EFF3F8" stroke={BLUE} strokeWidth="1.6" />
-              <foreignObject x="262" y={oy - 10} width="28" height="20">
-                <div className="flex h-full items-center justify-center text-[10px] text-[#205089]">
-                  <InlineMath formula={dOut > MAX_DRAW && idx === MAX_DRAW - 1 ? `z_{${dOut}}` : `z_{${idx + 1}}`} />
-                </div>
-              </foreignObject>
-            </g>
+            <SvgMathNode
+              key={`po-${oy}`}
+              cx={276}
+              cy={oy}
+              r={12.5}
+              fill="#EFF3F8"
+              stroke={BLUE}
+              formula={dOut > MAX_DRAW && idx === MAX_DRAW - 1 ? `z_{${dOut}}` : `z_{${idx + 1}}`}
+              textColor={BLUE}
+              fontSizeClass="text-[10px]"
+            />
           ))}
 
           <foreignObject x="16" y="190" width="96" height="24">
@@ -666,37 +583,9 @@ function CnnMlpPipelineDiagram() {
           MLP / FULLY CONNECTED — TỔNG HỢP &amp; PHÂN LOẠI
         </text>
 
-        {/* Full bipartite connections: Input -> Hidden */}
-        {mlpInY.map((y1) =>
-          mlpHidY.map((y2) => (
-            <line
-              key={`fc1-${y1}-${y2}`}
-              x1="446"
-              y1={y1}
-              x2="540"
-              y2={y2}
-              stroke="#6088B8"
-              strokeWidth="1.3"
-              opacity="0.7"
-            />
-          ))
-        )}
-
-        {/* Full bipartite connections: Hidden -> Output */}
-        {mlpHidY.map((y1) =>
-          mlpOutY.map((y2) => (
-            <line
-              key={`fc2-${y1}-${y2}`}
-              x1="540"
-              y1={y1}
-              x2="634"
-              y2={y2}
-              stroke={BLUE}
-              strokeWidth="1.4"
-              opacity="0.75"
-            />
-          ))
-        )}
+        {/* Full bipartite connections: Input -> Hidden -> Output */}
+        <SvgBipartiteEdges x1={446} x2={540} fromYs={mlpInY} toYs={mlpHidY} stroke="#6088B8" strokeWidth={1.3} opacity={0.7} />
+        <SvgBipartiteEdges x1={540} x2={634} fromYs={mlpHidY} toYs={mlpOutY} stroke={BLUE} strokeWidth={1.4} opacity={0.75} />
 
         {/* MLP Input nodes */}
         {mlpInY.map((y) => (

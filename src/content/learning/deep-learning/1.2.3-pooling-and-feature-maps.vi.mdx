@@ -76,27 +76,53 @@ Tổng hợp lại, ta có bộ bốn quy tắc đếm tham số cho mọi mô h
 
 <MdxPage page={2}>
 
-Hãy cùng áp dụng trực tiếp bộ công thức trên để giải phẫu hai kiến trúc mạng thực tế (bạn có thể đối chiếu trực tiếp với Tab 2 của bảng tương tác ở Trang 1).
+Hãy cùng áp dụng trực tiếp bộ công thức trên để giải phẫu hai kiến trúc mạng thực tế.
 
 ### Thực hành Giải phẫu & Tính tay Bảng Tham số Mô hình CNN
 
 **Bài toán 1 — Mạng CNN 3 khối chuẩn với `padding = 'same'`:**
 Xét đầu vào là ảnh màu kích thước <InlineMath formula="32 \times 32 \times 3" />. Nhớ rằng `padding = 'same'` với <InlineMath formula="\text{stride} = 1" /> luôn giữ nguyên chiều cao và chiều rộng, chỉ làm thay đổi độ sâu theo số lượng bộ lọc <InlineMath formula="C_{\text{out}}" />:
 
-1. **Input (`32×32×3`):** Tốn <InlineMath formula="0" /> tham số.
-2. **Conv2D thứ nhất (`32 filters 3×3`, `pad=same`):** Kích thước đầu ra tăng độ sâu thành <InlineMath formula="32 \times 32 \times 32" />. Số tham số là <InlineMath formula="(3 \times 3 \times 3 + 1_{\text{bias}}) \times 32 = 28 \times 32 = 896" />.
-3. **MaxPool2D thứ nhất (`2×2`):** Tốn <InlineMath formula="0" /> tham số, giảm một nửa chiều cao và chiều rộng về <InlineMath formula="16 \times 16 \times 32" />.
-4. **Conv2D thứ hai (`64 filters 3×3`, `pad=same`):** Đầu ra có kích thước <InlineMath formula="16 \times 16 \times 64" />. Số tham số là <InlineMath formula="(3 \times 3 \times 32 + 1_{\text{bias}}) \times 64 = 289 \times 64 = 18{,}496" />.
-5. **MaxPool2D thứ hai (`2×2`):** Tốn <InlineMath formula="0" /> tham số, giảm kích thước về <InlineMath formula="8 \times 8 \times 64" />.
-6. **Conv2D thứ ba (`128 filters 3×3`, `pad=same`):** Đầu ra có kích thước <InlineMath formula="8 \times 8 \times 128" />. Số tham số là <InlineMath formula="(3 \times 3 \times 64 + 1_{\text{bias}}) \times 128 = 577 \times 128 = 73{,}856" />.
-7. **MaxPool2D thứ ba (`2×2`) & Flatten:** Giảm kích thước về <InlineMath formula="4 \times 4 \times 128" />, sau đó trải phẳng thành vector <InlineMath formula="4 \times 4 \times 128 = 2{,}048" /> chiều (<InlineMath formula="0" /> tham số).
-8. **Hai tầng Dense (`64` rồi `10` neuron):** Tầng Dense đầu tiên tốn <InlineMath formula="(2{,}048 + 1_{\text{bias}}) \times 64 = 131{,}136" /> tham số; tầng phân loại cuối tốn <InlineMath formula="(64 + 1_{\text{bias}}) \times 10 = 650" /> tham số. Cộng toàn bộ mạng ta được đúng **<InlineMath formula="225{,}034" /> tham số** (trong đó riêng tầng Dense đầu tiên đã chiếm gần <InlineMath formula="58\%" /> tổng tham số cả mạng!).
+<ComparisonMatrix
+  leftHeader="Tầng (Layer)"
+  rightHeader="Giải phẫu Bài toán 1: CNN 3 tầng + Same Padding (Tổng: 225,034 params)"
+  columns={['Cấu hình', 'Output Shape', 'Công thức tính Params', 'Params #']}
+  rows={[
+    { label: 'Input Image', values: ['RGB 3 kênh', '32 × 32 × 3', '0 (Không có trọng số)', '0'] },
+    { label: 'Conv2D_1', values: ['32 filters (3×3), pad=same', '32 × 32 × 32', '(3 × 3 × 3 + 1) × 32', '896'] },
+    { label: 'MaxPool2D_1', values: ['Pool 2×2, stride=2', '16 × 16 × 32', '0', '0'] },
+    { label: 'Conv2D_2', values: ['64 filters (3×3), pad=same', '16 × 16 × 64', '(3 × 3 × 32 + 1) × 64', '18,496'] },
+    { label: 'MaxPool2D_2', values: ['Pool 2×2, stride=2', '8 × 8 × 64', '0', '0'] },
+    { label: 'Conv2D_3', values: ['128 filters (3×3), pad=same', '8 × 8 × 128', '(3 × 3 × 64 + 1) × 128', '73,856'] },
+    { label: 'MaxPool2D_3 + Flatten', values: ['Pool 2×2 → duỗi phẳng', '2048', '0', '0'] },
+    { label: 'Dense_1 (FC)', values: ['64 neurons, ReLU', '64', '(2048 + 1) × 64', '131,136'], highlight: 3 },
+    { label: 'Dense_2 (Output)', values: ['10 classes, Softmax', '10', '(64 + 1) × 10', '650'] },
+  ]}
+/>
+
+Cộng toàn bộ mạng ta được đúng **<InlineMath formula="225{,}034" /> tham số** — trong đó riêng tầng `Dense_1` đầu tiên sau `Flatten` đã chiếm gần <InlineMath formula="58\%" /> tổng tham số cả mạng!
 
 **Bài toán 2 — Mạng kết hợp `dilation_rate = 2`, `BatchNorm`, `Dropout` và `Conv 1×1`:**
 Xét đầu vào là ảnh xám <InlineMath formula="28 \times 28 \times 1" /> đi qua tầng tích chập đầu tiên có `32 filters 3×3` với `dilation_rate = 2` (tích chập giãn nở, chèn khoảng trống giữa các phần tử của bộ lọc để mở rộng trường nhìn mà không tăng số trọng số):
 
 * **Ảnh hưởng của `dilation_rate = d` lên kích thước không gian:** Bộ lọc <InlineMath formula="k \times k" /> giãn nở với hệ số <InlineMath formula="d" /> có kích thước phủ hiệu dụng là <InlineMath formula="k_{\text{eff}} = k + (k - 1)(d - 1)" />. Với <InlineMath formula="k = 3, d = 2" />, ta có <InlineMath formula="k_{\text{eff}} = 3 + 2 \times 1 = 5" />. Do đó kích thước đầu ra (khi <InlineMath formula="p = 0, s = 1" />) giảm từ <InlineMath formula="28" /> xuống <InlineMath formula="28 - 5 + 1 = 24 \implies 24 \times 24 \times 32" />, trong khi số tham số vẫn chỉ tính trên <InlineMath formula="3 \times 3" /> phần tử thực của bộ lọc là <InlineMath formula="(3 \times 3 \times 1 + 1_{\text{bias}}) \times 32 = 320" />.
-* **Qua `BatchNorm` (<InlineMath formula="32 \times 4 = 128" />), `Dropout` (<InlineMath formula="0" />) và `MaxPool 2×2` (<InlineMath formula="0" />):** Kích thước còn <InlineMath formula="12 \times 12 \times 32" />.
-* **Qua `Conv 1×1` (`64 filters`), `BatchNorm`, rồi `Conv 3×3` (`32 filters`, `pad=0`) và `Conv 1×1` (`1 filter`):** Tầng `Conv 1×1` đầu tiên tăng độ sâu lên <InlineMath formula="12 \times 12 \times 64" /> với <InlineMath formula="(1 \times 1 \times 32 + 1) \times 64 = 2{,}112" /> tham số; tầng `BatchNorm` tốn <InlineMath formula="64 \times 4 = 256" />; tầng `Conv 3×3` (<InlineMath formula="p=0" />) thu gọn không gian về <InlineMath formula="(12 - 3 + 1) = 10 \times 10 \times 32" /> với <InlineMath formula="(3 \times 3 \times 64 + 1) \times 32 = 18{,}464" /> tham số; tiếp theo tầng `Conv 1×1` chỉ dùng <InlineMath formula="1" /> bộ lọc để ép độ sâu từ <InlineMath formula="32" /> kênh về đúng <InlineMath formula="1" /> kênh (<InlineMath formula="10 \times 10 \times 1" />) với <InlineMath formula="(1 \times 1 \times 32 + 1) \times 1 = 33" /> tham số, giúp tầng `Dense` cuối cùng chỉ tốn <InlineMath formula="(100 + 1) \times 10 = 1{,}010" /> tham số!
+
+<ComparisonMatrix
+  leftHeader="Tầng (Layer)"
+  rightHeader="Giải phẫu Bài toán 2: Dilation=2 + BatchNorm + Conv 1×1 (Tổng: 22,323 params)"
+  columns={['Cấu hình', 'Output Shape', 'Công thức tính Params', 'Params #']}
+  rows={[
+    { label: 'Input Image', values: ['Ảnh xám 1 kênh', '28 × 28 × 1', '0', '0'] },
+    { label: 'Conv2D (d=2)', values: ['32 filters (3×3), k_eff=5, pad=0', '24 × 24 × 32', '(3 × 3 × 1 + 1) × 32', '320'] },
+    { label: 'BatchNorm + Dropout + MaxPool', values: ['BN 32 kênh, Pool 2×2', '12 × 12 × 32', '32 × 4', '128'] },
+    { label: 'Conv2D (1×1)', values: ['64 filters (1×1), pad=0', '12 × 12 × 64', '(1 × 1 × 32 + 1) × 64', '2,112'] },
+    { label: 'BatchNorm + Dropout', values: ['Chuẩn hóa 64 kênh', '12 × 12 × 64', '64 × 4', '256'] },
+    { label: 'Conv2D (3×3)', values: ['32 filters (3×3), pad=0', '10 × 10 × 32', '(3 × 3 × 64 + 1) × 32', '18,464'] },
+    { label: 'Conv2D (1×1 nén kênh)', values: ['1 filter (1×1), nén 32 → 1 kênh', '10 × 10 × 1', '(1 × 1 × 32 + 1) × 1', '33'], highlight: 3 },
+    { label: 'Flatten + Dense(10)', values: ['100 → 10 classes (Softmax)', '10', '(100 + 1) × 10', '1,010'] },
+  ]}
+/>
+
+Nhờ tầng `Conv 1×1` chỉ dùng <InlineMath formula="1" /> bộ lọc để ép độ sâu từ <InlineMath formula="32" /> kênh về đúng <InlineMath formula="1" /> kênh (<InlineMath formula="10 \times 10 \times 1" />) với chỉ <InlineMath formula="33" /> tham số, tầng `Dense` cuối cùng chỉ tốn <InlineMath formula="(100 + 1) \times 10 = 1{,}010" /> tham số!
 
 </MdxPage>
