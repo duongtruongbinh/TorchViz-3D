@@ -1,6 +1,6 @@
 ---
 title: "Learning Lab code review and behavior-preserving reuse"
-status: executing
+status: done
 created: 2026-11-16
 updated: 2026-11-16
 author: Codex
@@ -306,6 +306,15 @@ branch.
   were not changed or visually audited. Behavioral checks used normal intervals.
   Artifacts/harnesses remain under `/tmp/torchviz-domain*` and are not repository
   dependencies. This validates component parity, not all lesson journeys.
+- 2026-11-16 — Full repository lint passed (262 files), catalog-stat drift check
+  passed, and changed wiki frontmatter/documentation links passed. The generated
+  catalog-stat document was left untouched. Final diff confirms no authored MDX,
+  TOCs, core catalog, or reference evidence edits.
+- 2026-11-16 — Committed the continuation as `493922eb`, pushed the same branch,
+  and opened [PR #100](https://github.com/duongtruongbinh/TorchViz-3D/pull/100)
+  against `main`. The GitHub connector lacked create-PR permission (403), so
+  publication used the already-authenticated GitHub CLI. Stopped the temporary
+  review server. PR remains open for review; no merge was performed.
 
 ## Domain coverage
 
