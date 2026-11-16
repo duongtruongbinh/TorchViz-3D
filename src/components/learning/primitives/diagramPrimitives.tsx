@@ -1,3 +1,5 @@
+import { useId, type SVGProps } from 'react';
+
 export type DiagramAnchor = {
   bottom: number;
   centerX: number;
@@ -42,21 +44,40 @@ export type DiagramConnectorPath = {
   strokeWidth?: number;
 };
 
+export function SvgArrowMarker({
+  color,
+  path = 'M 0 1 L 10 5 L 0 9 z',
+  points,
+  ...markerProps
+}: Omit<SVGProps<SVGMarkerElement>, 'children' | 'color'> & {
+  id: string;
+  color: string;
+  path?: string;
+  points?: string;
+}) {
+  return (
+    <marker {...markerProps}>
+      {points ? <polygon points={points} fill={color} /> : <path d={path} fill={color} />}
+    </marker>
+  );
+}
+
 export function DiagramConnectorLayer({
   color = '#6366f1',
-  markerId = 'diagram-arrow',
+  markerId,
   paths,
 }: {
   color?: string;
   markerId?: string;
   paths: DiagramConnectorPath[];
 }) {
+  const instanceId = useId();
+  const resolvedMarkerId = markerId ?? instanceId;
+
   return (
     <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
       <defs>
-        <marker id={markerId} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill={color} />
-        </marker>
+        <SvgArrowMarker id={resolvedMarkerId} color={color} path="M 0 0 L 10 5 L 0 10 z" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse" />
       </defs>
       {paths.map((path, index) => (
         <path
@@ -66,7 +87,7 @@ export function DiagramConnectorLayer({
           stroke={path.stroke ?? color}
           strokeWidth={path.strokeWidth ?? 2}
           strokeDasharray={path.strokeDasharray}
-          markerEnd={path.markerEnd === false ? undefined : `url(#${markerId})`}
+          markerEnd={path.markerEnd === false ? undefined : `url(#${resolvedMarkerId})`}
           className={path.className}
         />
       ))}

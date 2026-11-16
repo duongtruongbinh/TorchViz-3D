@@ -21,9 +21,6 @@ export function ForecastHorizonCalendar({
 }: {
   variant?: 'horizon' | 'target-info';
 }) {
-  // 01/08/2022 was Monday, the first column in this Monday-first calendar.
-  const leadingBlanks = 0;
-
   return (
     <figure
       className="my-6 w-full rounded-2xl border border-[#B8C8DA]/70 bg-gradient-to-b from-[#F8FAFC] to-[#EFF3F8] p-4 sm:p-5 shadow-xs"
@@ -42,11 +39,6 @@ export function ForecastHorizonCalendar({
 
       {/* Days grid */}
       <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-        {/* Empty slots before Aug 1 */}
-        {Array.from({ length: leadingBlanks }).map((_, idx) => (
-          <div key={`blank-${idx}`} className="h-10 sm:h-11 rounded-lg bg-[#E2E8F0]/30 border border-dashed border-[#CBD5E1]/40" />
-        ))}
-
         {/* Actual days 1 to 31 */}
         {AUGUST_DAYS.map((item) => {
           let statusClasses = '';

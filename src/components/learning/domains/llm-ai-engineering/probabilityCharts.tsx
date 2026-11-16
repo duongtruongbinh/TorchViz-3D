@@ -20,9 +20,9 @@ export function ProbabilityCurveChart({
   title: string;
   value: number;
 }) {
-  const axisColor = themeClasses.isLight ? '#8A949E' : '#74859A';
-  const labelColor = themeClasses.isLight ? '#59636E' : '#A8B8C8';
-  const pointColor = themeClasses.isLight ? '#5BAA12' : '#A8DB78';
+  const axisColor = '#8A949E';
+  const labelColor = '#59636E';
+  const pointColor = '#5BAA12';
   const pointX = 12 + probability * 82;
   const pointY = mode === 'log' ? 16 + (value / maxValue) * 72 : 88 - (value / maxValue) * 72;
   const ticks = [0, 1, 2, 3, 4];
@@ -36,7 +36,7 @@ export function ProbabilityCurveChart({
           const tickY = mode === 'log' ? 16 + (tick / maxValue) * 72 : 88 - (tick / maxValue) * 72;
           return <g key={tick}><line x1="10" y1={tickY} x2="12" y2={tickY} stroke={axisColor} strokeWidth="0.8" /><text x="8" y={tickY + 1.7} textAnchor="end" fontSize="4.5" fill={labelColor}>{mode === 'log' && tick !== 0 ? `−${tick}` : tick}</text></g>;
         })}
-        <path d={curvePath} fill="none" stroke={mode === 'log' ? (themeClasses.isLight ? '#8D436F' : '#D58AB5') : (themeClasses.isLight ? '#205089' : '#A8B8C8')} strokeWidth="2" />
+        <path d={curvePath} fill="none" stroke={mode === 'log' ? ('#8D436F') : ('#205089')} strokeWidth="2" />
         <line x1={pointX} y1={mode === 'log' ? '16' : pointY} x2={pointX} y2={mode === 'log' ? pointY : '88'} stroke={pointColor} strokeWidth="1" strokeDasharray="2 2" />
         <circle cx={pointX} cy={pointY} r="2.6" fill={pointColor} />
         <text x="96" y={mode === 'log' ? '13' : '96'} textAnchor="end" fontSize="5" fill={labelColor}>p đúng → 1</text>

@@ -55,21 +55,3 @@ test('MathVisualCard co-locates MathInfoPanel for domain explanatory surfaces', 
   assert.match(source, /export function MathVisualCard/);
   assert.match(source, /export function MathInfoPanel/);
 });
-
-test('Linear Algebra MDX components are modularly lazy loaded with lazyNamed', () => {
-  const source = readFileSync(
-    'src/components/learning/domains/linear-algebra/mdxComponents.tsx',
-    'utf8',
-  );
-
-  assert.match(source, /function lazyNamed/);
-  assert.match(source, /VisualSkeleton/);
-  assert.match(source, /loadOverview = \(\) => import\('\.\/overviewRenderers'\)/);
-  assert.match(source, /loadVector = \(\) => import\('\.\/vectorRenderers'\)/);
-  assert.match(source, /loadSystem = \(\) => import\('\.\/systemRenderers'\)/);
-  assert.match(source, /loadSpace = \(\) => import\('\.\/spaceRenderers'\)/);
-  assert.match(source, /loadOrthogonality = \(\) => import\('\.\/orthogonalityRenderers'\)/);
-  assert.match(source, /loadDeterminant = \(\) => import\('\.\/determinantRenderers'\)/);
-  assert.match(source, /loadEigen = \(\) => import\('\.\/eigenRenderers'\)/);
-  assert.match(source, /loadSvd = \(\) => import\('\.\/svdRenderers'\)/);
-});

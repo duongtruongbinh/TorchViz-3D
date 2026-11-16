@@ -1,8 +1,7 @@
 import type React from 'react';
 import { Mafs, Coordinates } from 'mafs';
 import 'mafs/core.css';
-import { useLearningMdxTheme } from '../../../learningMdxComponents';
-import { getMathVisualTheme } from '../theme';
+import { MATH_VISUAL_THEME } from '../theme';
 
 export interface MathCanvasProps {
   ariaLabel?: string;
@@ -27,8 +26,7 @@ export function MathCanvas({
   showGrid = true,
   className = '',
 }: MathCanvasProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const mafsStyles = {
     '--mafs-bg': theme.bg,

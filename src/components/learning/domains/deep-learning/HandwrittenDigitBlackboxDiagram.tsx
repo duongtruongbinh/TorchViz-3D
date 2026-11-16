@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 import { DL_PALETTE } from './primitives';
 
@@ -48,6 +50,8 @@ const OUTPUT_CLASSES = [
  * -> Flattened Vector -> Blackbox (replaceable by MLP / CNN / ResNet) -> Output y_hat.
  */
 export function HandwrittenDigitBlackboxDiagram() {
+  const markerId = useId();
+
   const cellSize = 16;
   const gridX = 24;
   const gridY = 68;
@@ -66,17 +70,10 @@ export function HandwrittenDigitBlackboxDiagram() {
         aria-label="Minh họa quy trình nhận diện chữ số viết tay: từng pixel 1, 2, 3 đến 784 được flatten tương ứng thành x1, x2, x3 đến x784, đưa qua hộp đen mô hình và cho ra đầu ra y"
       >
         <defs>
-          <marker
-            id="digit-arrow-blue"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={BLUE} />
-          </marker>
+          <SvgArrowMarker
+            id={markerId} color={BLUE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
         </defs>
 
         {/* Stage 1: Handwritten Digit 8x8 Pixel Grid */}
@@ -210,7 +207,7 @@ export function HandwrittenDigitBlackboxDiagram() {
           y2="118"
           stroke={BLUE}
           strokeWidth="2.2"
-          markerEnd="url(#digit-arrow-blue)"
+          markerEnd={`url(#${markerId})`}
         />
 
         {/* Stage 3: Blackbox */}
@@ -273,7 +270,7 @@ export function HandwrittenDigitBlackboxDiagram() {
           y2="118"
           stroke={BLUE}
           strokeWidth="2.2"
-          markerEnd="url(#digit-arrow-blue)"
+          markerEnd={`url(#${markerId})`}
         />
 
         {/* Stage 4: Output y_hat */}

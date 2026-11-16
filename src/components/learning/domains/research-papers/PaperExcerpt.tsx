@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { MathInline } from '../../math';
 
 export interface AuthorItem {
@@ -98,7 +98,7 @@ export function PaperExcerpt({
   const showTitle = !hideTitle && titleLines.length > 0;
 
   return (
-    <div
+    <section
       className="my-7 overflow-hidden rounded-xl border border-[#B8C8DA]/80 bg-[#E8EEF5] p-3 sm:p-6"
       aria-label={ariaLabel}
     >
@@ -240,6 +240,6 @@ export function PaperExcerpt({
         )}
 
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 
 const VIEW_W = 340;
@@ -112,14 +114,16 @@ const CASES = [
 ] as const;
 
 export function GradientDescentDirectionDiagram() {
+  const instanceId = useId();
+
   return (
     <section
       className="my-5 grid grid-cols-1 gap-4 md:grid-cols-2"
       aria-label="Minh họa hai trường hợp đi ngược chiều đạo hàm trong Gradient Descent"
     >
       {CASES.map((item) => {
-        const markerId = `gd-step-${item.key}`;
-        const epsMarkerId = `gd-eps-${item.key}`;
+        const markerId = `${instanceId}-step-${item.key}`;
+        const epsMarkerId = `${instanceId}-eps-${item.key}`;
         const wY = lossCurveY(item.wX);
         const epsY = lossCurveY(item.epsX);
         const slope = lossSlopeSvg(item.wX);
@@ -154,26 +158,14 @@ export function GradientDescentDirectionDiagram() {
                   aria-label={`${item.titleText} (${item.titleMath})`}
                 >
                   <defs>
-                    <marker
-                      id={markerId}
-                      markerWidth="7"
-                      markerHeight="7"
-                      refX="5.5"
-                      refY="3.5"
-                      orient="auto"
-                    >
-                      <path d="M0,1 L6.5,3.5 L0,6 z" fill={item.accentColor} />
-                    </marker>
-                    <marker
-                      id={epsMarkerId}
-                      markerWidth="6"
-                      markerHeight="6"
-                      refX="4.5"
-                      refY="3"
-                      orient="auto"
-                    >
-                      <path d="M0,0.8 L5.5,3 L0,5.2 z" fill="#475569" />
-                    </marker>
+                    <SvgArrowMarker
+                      id={markerId} color={item.accentColor} path="M0,1 L6.5,3.5 L0,6 z"
+                      markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+                    />
+                    <SvgArrowMarker
+                      id={epsMarkerId} color="#475569" path="M0,0.8 L5.5,3 L0,5.2 z"
+                      markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"
+                    />
                   </defs>
 
                   {/* Soft fill under curve */}

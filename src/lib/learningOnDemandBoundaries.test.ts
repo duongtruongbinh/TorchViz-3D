@@ -102,8 +102,15 @@ test('learningMdxRegistry enforces lazy boundaries for references and domain ada
   );
 });
 
-test('linear-algebra mdxComponents enforces module-level lazy boundaries without static renderers', () => {
+test('visual adapters retain module-level lazy boundaries and the shared wrapper imports no domain runtime', () => {
   const adapterSource = readFileSync('src/components/learning/domains/linear-algebra/mdxComponents.tsx', 'utf8');
+  const evolutionAdapterSource = readFileSync('src/components/learning/domains/evolutionary-algorithms/mdxComponents.tsx', 'utf8');
+  const sharedSource = readFileSync('src/components/learning/lazyLearningVisual.tsx', 'utf8');
+
+  // Sharing the wrapper must not introduce a renderer dependency of its own.
+  assert.doesNotMatch(sharedSource, /(?:from\s*|import\s*\(\s*)['"][^'"]*(?:domains\/|mafs|Renderers|Visualizers)/);
+  assert.doesNotMatch(evolutionAdapterSource, /^import .* from '\.\/landscapeVisualizers';/m);
+  assert.match(evolutionAdapterSource, /import\('\.\/landscapeVisualizers'\)/);
 
   // No static eager import of individual renderer modules
   assert.doesNotMatch(adapterSource, /^import .* from '\.\/(vector|matrix|system|space|orthogonality|determinant|eigen|svd|overview)Renderers';/m);

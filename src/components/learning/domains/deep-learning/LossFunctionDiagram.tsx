@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
 import {
   DL_PALETTE,
@@ -22,6 +23,9 @@ export function LossFunctionDiagram({
 }
 
 function ForwardToLossPipeline() {
+  const blueMarkerId = useId();
+  const roseMarkerId = useId();
+
   return (
     <figure className="my-6 bg-white py-2">
       <svg
@@ -31,28 +35,14 @@ function ForwardToLossPipeline() {
         aria-label="Luồng từ Forward Pass tạo dự đoán y_hat, so sánh với nhãn thật y qua Loss Function L để tạo tín hiệu cập nhật trọng số"
       >
         <defs>
-          <marker
-            id="loss-arrow"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={BLUE} />
-          </marker>
-          <marker
-            id="loss-arrow-rose"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={ROSE} />
-          </marker>
+          <SvgArrowMarker
+            id={blueMarkerId} color={BLUE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
+          <SvgArrowMarker
+            id={roseMarkerId} color={ROSE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
         </defs>
 
         {/* Input x */}
@@ -66,7 +56,7 @@ function ForwardToLossPipeline() {
           </div>
         </foreignObject>
 
-        <line x1="130" y1="70" x2="164" y2="70" stroke={BLUE} strokeWidth="2" markerEnd="url(#loss-arrow)" />
+        <line x1="130" y1="70" x2="164" y2="70" stroke={BLUE} strokeWidth="2" markerEnd={`url(#${blueMarkerId})`} />
 
         {/* Model Forward Pass */}
         <rect x="172" y="42" width="154" height="56" rx="10" fill="#EFF3F8" stroke={BLUE} strokeWidth="1.8" />
@@ -79,7 +69,7 @@ function ForwardToLossPipeline() {
           </div>
         </foreignObject>
 
-        <line x1="332" y1="70" x2="366" y2="70" stroke={BLUE} strokeWidth="2" markerEnd="url(#loss-arrow)" />
+        <line x1="332" y1="70" x2="366" y2="70" stroke={BLUE} strokeWidth="2" markerEnd={`url(#${blueMarkerId})`} />
 
         {/* Loss Function */}
         <rect x="374" y="34" width="176" height="72" rx="12" fill="#FFFFFF" stroke={ROSE} strokeWidth="2" />
@@ -92,7 +82,7 @@ function ForwardToLossPipeline() {
           </div>
         </foreignObject>
 
-        <line x1="556" y1="70" x2="590" y2="70" stroke={ROSE} strokeWidth="2" markerEnd="url(#loss-arrow-rose)" />
+        <line x1="556" y1="70" x2="590" y2="70" stroke={ROSE} strokeWidth="2" markerEnd={`url(#${roseMarkerId})`} />
 
         {/* Scalar Signal -> Backprop */}
         <rect x="598" y="42" width="106" height="56" rx="10" fill="#FFF1F2" stroke={ROSE} strokeWidth="1.5" />
@@ -112,7 +102,7 @@ function ForwardToLossPipeline() {
           stroke={ROSE}
           strokeWidth="1.8"
           strokeDasharray="4 3"
-          markerEnd="url(#loss-arrow-rose)"
+          markerEnd={`url(#${roseMarkerId})`}
         />
         <text x="355" y="164" textAnchor="middle" fontSize="10.5" fontWeight="700" fill={ROSE}>
           Backpropagation dùng ∇ℒ để cập nhật trọng số W, b

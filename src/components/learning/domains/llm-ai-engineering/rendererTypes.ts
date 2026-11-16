@@ -10,12 +10,6 @@ export type LlmContentRendererProps<TContent> = {
   themeClasses: LlmRendererTheme;
 };
 
-export type LlmExtraRendererProps<TExtra> = {
-  extra: TExtra;
-  language: Language;
-  themeClasses: LlmRendererTheme;
-};
-
 export type LlmTrainingComponentsContent = {
   body: LearningLocalizedText;
   cards: Array<{ title: LearningLocalizedText; description: LearningLocalizedText }>;

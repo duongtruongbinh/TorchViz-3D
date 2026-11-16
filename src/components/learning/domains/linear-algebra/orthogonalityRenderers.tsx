@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Vector, Line, Text, vec } from 'mafs';
-import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { InlineMath, BlockMath } from '../../learningMdxComponents';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { AngleArc } from './primitives/AngleArc';
@@ -21,8 +21,7 @@ import type {
 export function OrthogonalityExplorer({
   ariaLabel,
 }: OrthogonalityExplorerProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const u: Vector2D = [1, 1];
   const v: Vector2D = [1, -1];
@@ -82,8 +81,7 @@ export function OrthogonalityExplorer({
 export function ProjectionExplorer({
   ariaLabel,
 }: ProjectionExplorerProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const b: Vector2D = [1, 3];
   const a: Vector2D = [2, 1];
@@ -191,8 +189,7 @@ export function GramSchmidtExplorer({
   ariaLabel,
 }: GramSchmidtExplorerProps) {
   const [stepIndex, setStepIndex] = useState(0);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const a1: Vector2D = [1, 1];
   const a2: Vector2D = [1, 0];
@@ -353,8 +350,7 @@ export function GramSchmidtExplorer({
 export function LeastSquaresExplorer({
   ariaLabel,
 }: LeastSquaresExplorerProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const b: Vector2D = [1, 3];
   const a: Vector2D = [2, 1];

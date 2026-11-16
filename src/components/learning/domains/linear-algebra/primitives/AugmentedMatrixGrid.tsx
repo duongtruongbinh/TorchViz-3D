@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
+import { InlineMath } from '../../../learningMdxComponents';
 import { cx } from '../../../theme';
-import { getMathVisualTheme } from '../theme';
+import { MATH_VISUAL_THEME } from '../theme';
 import { MatrixCell, MatrixDivider, MatrixFrame, MatrixNameLabel, getMatrixCellClasses, getMatrixSizeClasses } from './matrixPrimitives';
 
 export interface AugmentedMatrixGridProps {
@@ -35,8 +35,7 @@ export function AugmentedMatrixGrid({
   size = 'md',
   ariaLabel,
 }: AugmentedMatrixGridProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
@@ -110,11 +109,9 @@ export function AugmentedMatrixGrid({
                 } else if (colHighlight) {
                   cellStyle = theme.matrixHighlightCol;
                 } else if (highlightRightBlock && isRightBlockCol) {
-                  cellStyle = themeClasses.isLight
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                    : 'bg-emerald-950/40 border-emerald-700 text-emerald-100';
+                  cellStyle = 'bg-emerald-50 border-emerald-300 text-emerald-900';
                 } else {
-                  cellStyle = getMatrixCellClasses(themeClasses.isLight);
+                  cellStyle = getMatrixCellClasses();
                 }
 
                 return (

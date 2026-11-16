@@ -1,10 +1,8 @@
-import { type ReactNode, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
 
 export const DL_PALETTE = {
   primary: '#205089',
-  border: '#B8C8DA',
-  tint: '#EFF3F8',
   ink: '#172A43',
   rose: '#C2415A',
   teal: '#0F766E',
@@ -15,6 +13,13 @@ export const DL_PALETTE = {
 export function useCodeHighlightPulse(durationMs = 500) {
   const [highlighted, setHighlighted] = useState(false);
   const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const pulse = () => {
     setHighlighted(true);

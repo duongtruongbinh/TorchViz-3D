@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 import { DL_PALETTE, DlCardShell } from './primitives';
 
@@ -171,6 +172,8 @@ function mapLToY(lVal: number): number {
 }
 
 function LearningRateView() {
+  const markerId = useId();
+
   const [presetId, setPresetId] = useState<LrPreset['id']>('good');
   const preset = LR_PRESETS.find((item) => item.id === presetId) ?? LR_PRESETS[1];
 
@@ -231,16 +234,10 @@ function LearningRateView() {
           aria-label={`Quỹ đạo cập nhật trọng số với learning rate ${preset.eta}`}
         >
           <defs>
-            <marker
-              id="lr-step-arrow"
-              markerWidth="6"
-              markerHeight="6"
-              refX="4.5"
-              refY="3"
-              orient="auto"
-            >
-              <path d="M0,0.8 L5.5,3 L0,5.2 z" fill={preset.accent} />
-            </marker>
+            <SvgArrowMarker
+              id={markerId} color={preset.accent} path="M0,0.8 L5.5,3 L0,5.2 z"
+              markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"
+            />
           </defs>
 
           {/* Axes */}
@@ -276,7 +273,7 @@ function LearningRateView() {
                 stroke={preset.accent}
                 strokeWidth="2"
                 strokeDasharray="4 2.5"
-                markerEnd="url(#lr-step-arrow)"
+                markerEnd={`url(#${markerId})`}
               />
             );
           })}
