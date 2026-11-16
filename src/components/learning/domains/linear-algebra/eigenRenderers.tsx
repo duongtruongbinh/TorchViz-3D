@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Vector, Line, Point, Text, vec } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
@@ -159,8 +159,7 @@ export function EigenvectorExplorer({
   interactive = true,
 }: EigenvectorExplorerProps) {
   const [selectedVec, setSelectedVec] = useState<'v1' | 'v2' | 'generic'>('v1');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   // Matrix A = [[2, 1], [0, 3]]
   // Eigenvalue 1 = 2, Eigenvector 1 = [1, 0] => A v1 = [2, 0] = 2 v1
@@ -387,7 +386,7 @@ export function PCAProjectionExplorer({
 }: PCAProjectionExplorerProps) {
   const [projected, setProjected] = useState(false);
   const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   // Exactly centered 2D points (mean = [0, 0])
   const rawPoints: Vector2D[] = [

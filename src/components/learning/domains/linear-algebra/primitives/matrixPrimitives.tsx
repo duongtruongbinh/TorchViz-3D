@@ -87,23 +87,20 @@ export function MatrixDivider({
   cols: number;
   dividerCol: number;
 }) {
-  const themeClasses = useLearningMdxTheme();
   return (
     <div
       className="absolute top-1 bottom-1 w-0.5 pointer-events-none rounded-full"
       style={{
         left: `calc(${((dividerCol + 1) / cols) * 100}% - 0.25px)`,
-        backgroundColor: themeClasses.isLight ? '#0284c7' : '#38bdf8',
+        backgroundColor: '#0284c7',
       }}
       aria-hidden="true"
     />
   );
 }
 
-export function getMatrixCellClasses(isLight: boolean): string {
-  return isLight
-    ? 'bg-white border-slate-200 text-slate-800'
-    : 'bg-slate-800/80 border-slate-700 text-slate-100';
+export function getMatrixCellClasses(): string {
+  return 'bg-white border-slate-200 text-slate-800';
 }
 
 export interface MatrixCellProps {

@@ -41,7 +41,7 @@ export function MathSegmentedControl<T extends string>({
     emerald: 'bg-emerald-600 text-white shadow-xs',
     amber: 'bg-amber-600 text-white shadow-xs',
     rose: 'bg-rose-600 text-white shadow-xs',
-    slate: themeClasses.isLight ? 'bg-slate-800 text-white shadow-xs' : 'bg-slate-200 text-slate-900 shadow-xs',
+    slate: 'bg-slate-800 text-white shadow-xs',
   };
 
   const sizeClasses = {
@@ -84,9 +84,7 @@ export function MathSegmentedControl<T extends string>({
       aria-label={ariaLabel}
       className={cx(
         'inline-flex flex-wrap items-center justify-center p-1 rounded-lg border gap-1 transition-colors',
-        themeClasses.isLight
-          ? 'border-slate-300/80 bg-slate-200/70'
-          : 'border-slate-700 bg-slate-800/80',
+        'border-slate-300/80 bg-slate-200/70',
         className,
       )}
     >
@@ -103,9 +101,7 @@ export function MathSegmentedControl<T extends string>({
               sizeClasses,
               isSelected
                 ? activeColor
-                : themeClasses.isLight
-                  ? 'text-slate-700 hover:text-slate-900 hover:bg-slate-300/60'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/60',
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-300/60',
             )}
           >
             <input

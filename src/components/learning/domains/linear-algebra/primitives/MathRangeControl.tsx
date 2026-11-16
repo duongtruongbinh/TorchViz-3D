@@ -43,10 +43,10 @@ export function MathRangeControl({
   }[colorScheme];
 
   const valueBadgeColorClasses = {
-    blue: themeClasses.isLight ? 'text-blue-600' : 'text-blue-400',
-    purple: themeClasses.isLight ? 'text-purple-600' : 'text-purple-400',
-    emerald: themeClasses.isLight ? 'text-emerald-600' : 'text-emerald-400',
-    amber: themeClasses.isLight ? 'text-amber-600' : 'text-amber-400',
+    blue: 'text-blue-600',
+    purple: 'text-purple-600',
+    emerald: 'text-emerald-600',
+    amber: 'text-amber-600',
   }[colorScheme];
 
   return (
@@ -85,7 +85,7 @@ export function MathRangeControl({
         aria-valuemax={max}
         className={cx(
           'w-full h-2 rounded-lg cursor-pointer transition-colors',
-          themeClasses.isLight ? 'bg-slate-200' : 'bg-slate-700',
+          'bg-slate-200',
           accentClasses,
           themeClasses.focusRing,
         )}

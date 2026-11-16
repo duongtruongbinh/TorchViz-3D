@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Vector, Plot, Text } from 'mafs';
-import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { InlineMath, BlockMath } from '../../learningMdxComponents';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
@@ -21,8 +21,7 @@ export function SVDGeometryExplorer({
   interactive = true,
 }: SVDGeometryExplorerProps) {
   const [stage, setStage] = useState<0 | 1 | 2 | 3>(0);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   // SVD Parameters:
   // V: rotation by 30 deg

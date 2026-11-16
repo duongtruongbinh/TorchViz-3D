@@ -22,7 +22,7 @@ export function MathVisualCard({
   className = '',
 }: MathVisualCardProps) {
   const themeClasses = useLearningMdxTheme();
-  const dividerBorder = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/14';
+  const dividerBorder = 'border-[#205089]/10';
 
   return (
     <figure

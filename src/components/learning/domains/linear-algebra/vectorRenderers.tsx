@@ -12,7 +12,7 @@ import {
   vec,
 } from 'mafs';
 import { InlineMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { MATH_VISUAL_THEME, type MathVisualTheme } from './theme';
 import { MathVisualCard } from './primitives/MathVisualCard';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathRangeControl } from './primitives/MathRangeControl';
@@ -44,8 +44,6 @@ import type {
   Vector2D,
 } from './types';
 
-type MathVisualTheme = ReturnType<typeof getMathVisualTheme>;
-
 const GUIDE_COLOR = 'rgba(148, 163, 184, 0.6)';
 const GUIDE_COLOR_SOFT = 'rgba(148, 163, 184, 0.5)';
 const GEOMETRY_NEUTRAL = '#64748b';
@@ -56,11 +54,6 @@ const NORM_COLORS = {
   l2: '#3b82f6',
   linf: '#f59e0b',
 } as const;
-
-function useVectorVisualTheme() {
-  const themeClasses = useLearningMdxTheme();
-  return getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-}
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -364,7 +357,7 @@ function InteractiveVectorPlaneMovable({
   showComponents: boolean;
   showFooter: boolean;
 }) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const point = useMovablePoint(initial, {
     constrain: halfGridConstraint(-1, 5, -1, 5),
   });
@@ -401,7 +394,7 @@ function StaticVectorPlane({
   showComponents: boolean;
   showFooter: boolean;
 }) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   return (
     <MathVisualCard
@@ -455,7 +448,7 @@ export function CoordinateRepresentationDiagram({
   ariaLabel,
 }: CoordinateRepresentationDiagramProps) {
   const [basisMode, setBasisMode] = useState<'standard' | 'rotated'>('standard');
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const fixedVector: Vector2D = [3, 2];
   const phi = (15 * Math.PI) / 180;
@@ -578,7 +571,7 @@ function InteractiveVectorAdditionMovable({
   showParallelogram: boolean;
 }) {
   const [showP, setShowP] = useState(showParallelogram);
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const pointU = useMovablePoint(u, {
     constrain: halfGridConstraint(-1, 4, -1, 4),
   });
@@ -634,7 +627,7 @@ function StaticVectorAddition({
   showParallelogram: boolean;
 }) {
   const [showP, setShowP] = useState(showParallelogram);
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const sum = vec.add(u, v);
 
   return (
@@ -700,7 +693,7 @@ export function ScalarVectorPlane({
   const resolvedAlpha: number = initialScalar ?? defaultAlpha ?? 1.5;
 
   const [alpha, setAlpha] = useState(resolvedAlpha);
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const currentAlpha = interactive ? alpha : resolvedAlpha;
   const scaled = vec.scale(resolvedVector, currentAlpha);
@@ -776,7 +769,7 @@ export function VectorSubtractionPlane({
   u = [3, 2],
   v = [1, 3],
 }: VectorSubtractionPlaneProps) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const diff = vec.sub(u, v);
 
@@ -825,7 +818,7 @@ export function VectorNormPlane({
   const resolvedV1: Vector2D = vectors?.[0] ?? v1 ?? [2, 1];
   const resolvedV2: Vector2D = vectors?.[1] ?? v2 ?? [4, 2];
 
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const mag1 = vec.mag(resolvedV1);
   const mag2 = vec.mag(resolvedV2);
@@ -887,7 +880,7 @@ export function L2NormTriangle({
 }: L2NormTriangleProps) {
   const resolvedV: Vector2D = vector ?? v ?? [3, 4];
 
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const hypotenuse = vec.mag(resolvedV).toFixed(1);
 
@@ -944,7 +937,7 @@ export function DistancePlane({
   const start: Vector2D = x ?? p1 ?? [1, 1];
   const end: Vector2D = y ?? p2 ?? [4, 5];
 
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const diff = vec.sub(end, start);
   const dist = vec.mag(diff).toFixed(2);
@@ -1052,7 +1045,7 @@ export function NormalizationPlane({
   v = [3, 2],
   vectors,
 }: NormalizationPlaneProps) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const vectorList: Vector2D[] = vectors && vectors.length > 0 ? vectors : [v];
   const primaryVec = vectorList[0];
@@ -1126,7 +1119,7 @@ export function NormalizationPlane({
 
 // 11. UnitVectorPlane
 export function UnitVectorPlane({ ariaLabel }: UnitVectorPlaneProps) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const belowPlot = (
     <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3 sm:items-center sm:text-sm">
@@ -1227,7 +1220,7 @@ function InteractiveDotProductPlaneMovable({
   showFooter: boolean;
   bounds: NonNullable<DotProductPlaneProps['bounds']>;
 }) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const pointB = useMovablePoint(b, {
     constrain: halfGridConstraint(bounds.minX, bounds.maxX, bounds.minY, bounds.maxY),
   });
@@ -1255,7 +1248,7 @@ function StaticDotProductPlane({
   showFooter: boolean;
   bounds: NonNullable<DotProductPlaneProps['bounds']>;
 }) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const labelStep = Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY) > 10 ? 3 : 1;
   const axisLabel = (value: number) => value % labelStep === 0 ? value : null;
 
@@ -1285,7 +1278,7 @@ export function DotProductPlane({
 }
 
 export function DotProductCoordinateDiagram({ ariaLabel }: { ariaLabel: string }) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
   const a: Vector2D = [4, 1];
   const b: Vector2D = [2, 3];
 
@@ -1312,7 +1305,7 @@ export function DotProductAngleExplorer({
   ariaLabel,
 }: DotProductAngleExplorerProps) {
   const [angleDeg, setAngleDeg] = useState(60);
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const lenA = 3;
   const lenB = 2.5;
@@ -1466,7 +1459,7 @@ export function CosineAngleExplorer({
   interactive = true,
 }: CosineAngleExplorerProps) {
   const [angleDeg, setAngleDeg] = useState(45);
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const len = 3;
   const rad = (angleDeg * Math.PI) / 180;
@@ -1540,7 +1533,7 @@ export function CosineAngleExplorer({
 export function EmbeddingCosineDiagram({
   ariaLabel,
 }: EmbeddingCosineDiagramProps) {
-  const theme = useVectorVisualTheme();
+  const theme = MATH_VISUAL_THEME;
 
   const v1: Vector2D = [3.2, 1.2];
   const v2: Vector2D = [3.0, 1.6];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { ArrowRight, Bot, RotateCcw } from 'lucide-react';
 import { InlineMath } from '../../math';
 
@@ -15,6 +15,7 @@ function dfCurve(x: number): number {
 }
 
 export function LocalMinimaTrapExplorer() {
+  const gradientId = useId();
   const [startX, setStartX] = useState<number>(-3.4);
   const [currentX, setCurrentX] = useState<number>(-3.4);
   const [history, setHistory] = useState<number[]>([-3.4]);
@@ -152,9 +153,9 @@ export function LocalMinimaTrapExplorer() {
           <line x1={toSvgX(0)} y1={curveYMin} x2={toSvgX(0)} y2={axisY} stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3 3" />
 
           {/* Area gradient under curve */}
-          <path d={areaD} fill="url(#blueAreaGradient)" opacity="0.15" />
+          <path d={areaD} fill={`url(#${gradientId})`} opacity="0.15" />
           <defs>
-            <linearGradient id="blueAreaGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#205089" />
               <stop offset="100%" stopColor="#FFFFFF" />
             </linearGradient>
@@ -559,6 +560,7 @@ export function GradientFailureModesVisualizer() {
 }
 
 export function ZeroOrderSamplingVisualizer() {
+  const gradientId = useId();
   const [currentBestX, setCurrentBestX] = useState<number>(-3.5);
   const [evalCount, setEvalCount] = useState<number>(0);
   const [candidates, setCandidates] = useState<{ x: number; y: number; isBest: boolean }[]>([]);
@@ -795,9 +797,9 @@ export function ZeroOrderSamplingVisualizer() {
           <line x1={paddingX} y1={toSvgY(0)} x2={svgWidth - paddingX} y2={toSvgY(0)} stroke="#E2E8F0" strokeWidth="1" />
 
           {/* Area under curve */}
-          <path d={areaD} fill="url(#blueZeroGrad)" opacity="0.12" />
+          <path d={areaD} fill={`url(#${gradientId})`} opacity="0.12" />
           <defs>
-            <linearGradient id="blueZeroGrad" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#205089" />
               <stop offset="100%" stopColor="#FFFFFF" />
             </linearGradient>

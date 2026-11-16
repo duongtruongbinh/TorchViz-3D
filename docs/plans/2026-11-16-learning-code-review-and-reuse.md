@@ -1,6 +1,6 @@
 ---
 title: "Learning Lab code review and behavior-preserving reuse"
-status: done
+status: executing
 created: 2026-11-16
 updated: 2026-11-16
 author: Codex
@@ -265,3 +265,72 @@ branch.
   nine domain adapter packages, shared theme/connector ownership, exported
   symbol consumers, and interval cleanup. Stored this approved addendum before
   any continuation runtime edits.
+- 2026-11-16 — Committed the verified first batch as `f8649ae2` on the requested
+  branch. Beginning the approved continuation; remote publication waits until
+  the complete change and PR description are reviewable.
+- 2026-11-16 — Captured 209 component fixtures across remaining adapters at
+  desktop/compact widths before edits. Domain-wide Biome review also found a
+  type-only React import and an unsupported `aria-label` on the Research Papers
+  excerpt wrapper. Use a type import and expose its already-authored label as a
+  region; this intentionally improves accessibility metadata without changing
+  visuals or copy. No other unrelated accessibility redesign is included.
+- 2026-11-16 — Applied light-only domain palettes, removed the 17 context reads
+  used solely for theme selection, and removed redundant theme arguments/props
+  from internal visual helpers. Both exported palette objects were compared
+  against the former factories with light input: all nested values match.
+- 2026-11-16 — Removed the three fixed LLM connector overrides so they use the
+  shared ID default, and scoped both Evolutionary Algorithms area gradients.
+  Removed `matVec`, two unused LLM type aliases, the unused dark token-chip
+  palette entries, and the always-empty August leading-slot renderer. Kept
+  public authored component contracts, example values, and visual coordinates.
+- 2026-11-16 — The final form-name scan also found the Perplexity calculator's
+  fixed `ppl-ground-truth` radio group name. Scope it with `useId` so two mounted
+  calculators do not share browser radio selection. Verify their independence
+  alongside the SVG instance checks; no visible label or calculator math changes.
+- 2026-11-16 — Final continuation verification passed with Node 24.14.1:
+  `npm run verify` (typecheck, 176/176 tests, production build in 22.37 s),
+  Biome over all 64 domain source files (plus the final radio-name edit),
+  `git diff --check`, and existing documentation-link checks.
+- 2026-11-16 — Compared 112 adapter components across eight remaining adapter
+  packages: 112 desktop captures (960 px component width) and 97 compact
+  captures (375 px), totaling 209. Every screenshot is pixel-identical to its
+  baseline. Canonical DOM matches after generated-ID/name normalization except
+  the intentional named `<section>` for `PaperExcerpt`. No page errors.
+- 2026-11-16 — Additional browser checks passed for duplicate LLM connector
+  instances and Evolutionary gradient instances (five cases), independent
+  Perplexity radio groups, Linear Algebra radio keyboard/roving focus, the LLM
+  loss slider, Evolutionary sampling/selection, and the excerpt region label.
+- 2026-11-16 — Visual-capture methodology: fixtures came from published static
+  MDX props; external raster requests were replaced with a deterministic image
+  and auto-play intervals were held during comparison. Authored raster assets
+  were not changed or visually audited. Behavioral checks used normal intervals.
+  Artifacts/harnesses remain under `/tmp/torchviz-domain*` and are not repository
+  dependencies. This validates component parity, not all lesson journeys.
+
+## Domain coverage
+
+| Domain | Review outcome |
+| --- | --- |
+| `programming-foundation` | Placeholder catalog domain; no adapter or published content to refactor. |
+| `linear-algebra` | Central light palette, static controls/grid styles, removal of unused theme reads and `matVec`; retain Mafs and domain matrix primitives. |
+| `fundamentals` | Already reuses Linear Algebra visuals, the shared stepper, generated clip IDs, and one Perceptron exercise engine; no forced local changes. Benefits from the reused math primitives. |
+| `deep-learning` | First-batch shared primitives, instance IDs, timer cleanup, and dead token removal are complete; loading strategy remains unchanged. |
+| `cv` | Light-only adapter delegates to the existing shared Shape/Value/Conv engines; fixtures and entry-point resolution remain canonical. |
+| `nlp` | Placeholder catalog domain; no adapter or published content to refactor. |
+| `llm-ai-engineering` | Central light palette, removal of unreachable dark alternatives/redundant helper props and unused types, instance-safe connector reuse. Existing anchor measurement and observer cleanup retained. |
+| `continual-learning-llm` | Domain-bound continuity map already uses shared semantic tokens; existing reference runtime is lazy. No duplicate local implementation was found. |
+| `llm-unlearning` | Uses shared authored/reference capabilities without a domain adapter; no parallel implementation to remove. |
+| `mlops-llmops-production-systems` | Published content uses shared authored components; no domain adapter to duplicate. |
+| `aiops` | Published content uses shared authored components; no domain adapter to duplicate. |
+| `ai-system-design` | Placeholder catalog domain; no adapter or published content to refactor. |
+| `reinforcement-learning` | Placeholder catalog domain; canonical catalog/routes retained. |
+| `ai-ethics-safety-governance` | Placeholder catalog domain; no adapter or published content to refactor. |
+| `robot-learning` | Placeholder catalog domain; no adapter or published content to refactor. |
+| `evolutionary-algorithms` | Area gradients use instance-scoped IDs; shared lazy wrapper and existing interval cleanup retained. |
+| `research-papers` | Type-only React import and named-section accessibility fix. NCA grid/stepper are semantically distinct from LA matrices; existing timer cleanup retained. |
+| `ai-projects` | Removed the calendar branch that always renders zero slots; preserved its authored August 2022 scenario and all forecast fixtures. |
+
+Coverage means source ownership, exported-symbol/consumer, theme-branch, and
+lifecycle inspection. It does not imply an academic-content or every-lesson
+correctness audit. Authored MDX, TOCs, reference evidence, and catalog data are
+outside the editing scope.

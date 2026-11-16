@@ -32,15 +32,14 @@ function CvExercise({ fixture }: { fixture: CvExerciseFixture }) {
   if (!entryPoint) throw new Error(`CV exercise lesson ${lessonId} is missing its TorchViz entry point.`);
   const node = materializeExerciseNode(lessonId, fixture);
   const labels = getStrings(language).canvas.demo;
-  const theme = themeClasses.isLight ? 'light' : 'dark';
 
   return (
-    <div className={cx('learning-exercise-surface', themeClasses.isLight && 'learning-exercise-surface-light')}>
+    <div className="learning-exercise-surface learning-exercise-surface-light">
       <Suspense fallback={<div className={cx('min-h-40 animate-pulse rounded-lg border', themeClasses.surface.unavailable)} />}>
         {entryPoint.exerciseId === 'shape-output' ? (
-          <ShapeExercise key={lessonId} isOpen exerciseId="shape-output" node={node} t={labels} language={language} theme={theme} displayMode="inline" />
+          <ShapeExercise key={lessonId} isOpen exerciseId="shape-output" node={node} t={labels} language={language} theme="light" displayMode="inline" />
         ) : entryPoint.exerciseId === 'pool-value' ? (
-          <ValueExercise key={lessonId} isOpen exerciseId="pool-value" node={node} t={labels} language={language} theme={theme} displayMode="inline" />
+          <ValueExercise key={lessonId} isOpen exerciseId="pool-value" node={node} t={labels} language={language} theme="light" displayMode="inline" />
         ) : entryPoint.exerciseId === 'conv-value' ? (
           <ConvExercise key={lessonId} isOpen t={labels} displayMode="inline" />
         ) : null}

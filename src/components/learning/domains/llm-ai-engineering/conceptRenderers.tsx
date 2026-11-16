@@ -50,10 +50,10 @@ function TrainingComponentCard({ card, index, language, themeClasses, emphasisCl
       'grid min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border',
       emphasisClass && 'transition-[filter,opacity] duration-200',
       emphasisClass,
-      themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36',
+      'border-[#205089]/12 bg-white',
     )}>
-      <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-        <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
+      <div className={cx('grid place-items-center border-b border-black/5', top)}>
+        <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', icon)}>
           <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
         </div>
       </div>
@@ -136,7 +136,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
         </div>
 
         <fieldset
-          className={cx('relative mt-6 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
+          className={cx('relative mt-6 overflow-hidden rounded-xl', 'bg-[#205089]/[0.055]')}
           aria-label={extra.hierarchy ? text(extra.hierarchy.ariaLabel, language) : text(extra.imageAlt, language)}
         >
           <button
@@ -147,7 +147,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
             onClick={() => setSelectedKeyword((current) => current ? null : 'AI')}
             className={cx(
               'flex min-h-20 w-full items-end justify-between gap-4 px-5 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70',
-              themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]',
+              'bg-[#205089] text-white',
             )}>
             <span key={activeRow?.shortName ?? 'AI'} className="learning-ai-scope-promote flex items-center gap-3 text-[2.75rem] font-black leading-none tracking-[-0.04em]">
               {selectedRow
@@ -176,33 +176,33 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
             </div>
           ) : (
             <div className="p-3 sm:p-4">
-              <div className={cx('mx-auto w-[90%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#7395B6]/16' : 'bg-[#496F98]/18')}>
-              <button type="button" onClick={() => setSelectedKeyword('ML')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#7395B6] text-neutral-100' : 'bg-[#496F98] text-neutral-200')}>
+              <div className={cx('mx-auto w-[90%] overflow-hidden rounded-lg', 'bg-[#7395B6]/16')}>
+              <button type="button" onClick={() => setSelectedKeyword('ML')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', 'bg-[#7395B6] text-neutral-100')}>
                 <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-75" strokeWidth={2.4} aria-hidden="true" />ML</span>
                 <span className="text-xs font-bold opacity-75">Machine Learning</span>
               </button>
 
               <div className="p-2.5 sm:p-3">
-                <div className={cx('mx-auto w-[84%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#9DB3C9]/24' : 'bg-[#344C68]/26')}>
-                  <button type="button" onClick={() => setSelectedKeyword('DL')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#9DB3C9] text-neutral-100' : 'bg-[#344C68] text-neutral-200')}>
+                <div className={cx('mx-auto w-[84%] overflow-hidden rounded-lg', 'bg-[#9DB3C9]/24')}>
+                  <button type="button" onClick={() => setSelectedKeyword('DL')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', 'bg-[#9DB3C9] text-neutral-100')}>
                     <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-75" strokeWidth={2.4} aria-hidden="true" />DL</span>
                     <span className="text-xs font-bold opacity-75">Deep Learning</span>
                   </button>
 
                   <div className="flex gap-2 p-2.5 sm:p-3">
-                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#C8D6E4]/38' : 'bg-[#293C52]/44')}>
-                      <button type="button" onClick={() => setSelectedKeyword('CV')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>
+                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', 'bg-[#C8D6E4]/38')}>
+                      <button type="button" onClick={() => setSelectedKeyword('CV')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', 'bg-[#C8D6E4] text-[#173F5F]')}>
                         <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-70" strokeWidth={2.4} aria-hidden="true" />CV</span>
                       </button>
                     </div>
-                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#C8D6E4]/38' : 'bg-[#293C52]/44')}>
-                      <button type="button" onClick={() => setSelectedKeyword('NLP')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>
+                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', 'bg-[#C8D6E4]/38')}>
+                      <button type="button" onClick={() => setSelectedKeyword('NLP')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', 'bg-[#C8D6E4] text-[#173F5F]')}>
                         <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-70" strokeWidth={2.4} aria-hidden="true" />NLP</span>
                         <span className="hidden text-xs font-bold opacity-70 sm:inline">Language</span>
                       </button>
                       <div className="p-2">
-                        <div className={cx('overflow-hidden rounded-md', themeClasses.isLight ? 'bg-[#D97706]/12' : 'bg-[#F6C453]/12')}>
-                          <button type="button" onClick={() => setSelectedKeyword('LLM')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80', themeClasses.isLight ? 'bg-[#D97706] text-white' : 'bg-[#F6C453] text-[#332006]')}>
+                        <div className={cx('overflow-hidden rounded-md', 'bg-[#D97706]/12')}>
+                          <button type="button" onClick={() => setSelectedKeyword('LLM')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80', 'bg-[#D97706] text-white')}>
                             <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-80" strokeWidth={2.4} aria-hidden="true" />LLM</span>
                             <span className="hidden text-xs font-bold opacity-70 sm:inline">{language === 'vi' ? 'Trọng tâm' : 'Our focus'}</span>
                           </button>
@@ -242,9 +242,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
   const interactionOnlyPrompt = language === 'vi'
     ? 'Chọn từ để điền vào chỗ trống cho phù hợp.'
     : 'Choose words to fill the blank appropriately.';
-  const neutralPlaceholderTone = themeClasses.isLight
-    ? 'border-[#94A3B8]/28 bg-[#F8FAFC] text-[#64748B]'
-    : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/6 text-[#F2F6FA]/48';
+  const neutralPlaceholderTone = 'border-[#94A3B8]/28 bg-[#F8FAFC] text-[#64748B]';
   const selectedWords = sentenceBuilder ? selectedWordIndexes.map((index) => text(sentenceBuilder.choices[index], language)) : [];
   const targetSentences = sentenceBuilder ? sentenceBuilder.targets.map((target) => target.map((word) => text(word, language))) : [];
   const matchingTargets = targetSentences.filter((target) => selectedWords.every((word, index) => word === target[index]));
@@ -287,7 +285,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
       )}
 
       {shouldShowInteractions && (
-        <div className={cx('mt-4 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
+        <div className={cx('mt-4 grid gap-3 rounded-lg border p-3 text-center', 'border-[#205089]/14 bg-white')}>
           <div className="grid justify-items-center gap-2.5">
             {!isInteractionOnly && (
               <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
@@ -305,10 +303,10 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                   'inline-flex min-h-10 min-w-[8rem] items-center justify-center rounded-lg border px-3 text-sm transition-colors',
                   isInteractionOnly && !selectedOption ? 'font-semibold' : 'font-black',
                   selectedOption?.isCorrect
-                    ? themeClasses.isLight ? 'border-[#2FBF71]/42 bg-[#2FBF71]/14 text-[#1F6F48]' : 'border-[#2FBF71]/46 bg-[#2FBF71]/18 text-[#A6E8C1]'
+                    ? 'border-[#2FBF71]/42 bg-[#2FBF71]/14 text-[#1F6F48]'
                     : selectedOption
-                      ? themeClasses.isLight ? 'border-[#C45151]/34 bg-[#C45151]/8 text-[#8C3333]' : 'border-[#F87171]/36 bg-[#F87171]/12 text-[#FCA5A5]'
-                        : isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/24 bg-white/70 text-[#123B68]' : 'border-[#A8B8C8]/24 bg-[#121A24]/48 text-[#F2F6FA]',
+                      ? 'border-[#C45151]/34 bg-[#C45151]/8 text-[#8C3333]'
+                        : isInteractionOnly ? neutralPlaceholderTone : 'border-[#205089]/24 bg-white/70 text-[#123B68]',
                 )}
               >
                 {selectedLabel}
@@ -316,7 +314,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
             </div>
 
             {selectedOption && (
-              <div ref={optionFeedbackRef} className={cx('flex w-full justify-center gap-2 text-center text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+              <div ref={optionFeedbackRef} className={cx('flex w-full justify-center gap-2 text-center text-sm leading-6', selectedOption.isCorrect ? 'text-[#1F6F48]' : 'text-[#8C3333]')}>
                 {selectedOption.isCorrect ? (
                   <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
                 ) : (
@@ -340,10 +338,10 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                   className={cx(
                     'min-h-11 rounded-lg border px-4 py-2 text-left text-sm font-black shadow-sm transition-colors',
                     isSelected && isCorrect
-                      ? themeClasses.isLight ? 'border-[#2FBF71]/50 bg-[#2FBF71]/16 text-[#1F6F48]' : 'border-[#2FBF71]/50 bg-[#2FBF71]/18 text-[#A6E8C1]'
+                      ? 'border-[#2FBF71]/50 bg-[#2FBF71]/16 text-[#1F6F48]'
                       : isSelected
-                        ? themeClasses.isLight ? 'border-[#C45151]/38 bg-[#C45151]/10 text-[#8C3333]' : 'border-[#F87171]/40 bg-[#F87171]/14 text-[#FCA5A5]'
-                          : themeClasses.isLight ? 'border-[#205089]/18 bg-white/78 text-[#123B68] hover:bg-[#DCE6F1]' : 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
+                        ? 'border-[#C45151]/38 bg-[#C45151]/10 text-[#8C3333]'
+                          : 'border-[#205089]/18 bg-white/78 text-[#123B68] hover:bg-[#DCE6F1]',
                   )}
                 >
                   {text(option.label, language)}
@@ -355,7 +353,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
       )}
 
       {shouldShowInteractions && sentenceBuilder && (
-        <div className={cx('mt-3 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
+        <div className={cx('mt-3 grid gap-3 rounded-lg border p-3 text-center', 'border-[#205089]/14 bg-white')}>
           {!isInteractionOnly && (
             <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
               <MousePointer2 className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
@@ -363,7 +361,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
             </div>
           )}
 
-          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#334155]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
+          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', 'bg-transparent text-[#334155]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
               <span>{text(sentenceBuilder.prompt, language)}</span>
               {selectedWords.length ? (
@@ -373,15 +371,15 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                     className={cx(
                       'inline-flex min-h-9 items-center rounded-lg border px-3 text-sm font-black',
                       isSentenceOffTrack && index === selectedWords.findIndex((item, itemIndex) => item !== firstViableTarget[itemIndex])
-                        ? themeClasses.isLight ? 'border-[#C45151]/36 bg-[#C45151]/10 text-[#8C3333]' : 'border-[#F87171]/40 bg-[#F87171]/14 text-[#FCA5A5]'
-                        : themeClasses.isLight ? 'border-[#205089]/18 bg-[#DCE6F1] text-[#123B68]' : 'border-[#A8B8C8]/20 bg-[#A8B8C8]/10 text-[#F2F6FA]',
+                        ? 'border-[#C45151]/36 bg-[#C45151]/10 text-[#8C3333]'
+                        : 'border-[#205089]/18 bg-[#DCE6F1] text-[#123B68]',
                     )}
                   >
                     {word}
                   </span>
                 ))
               ) : (
-                <span role="status" aria-label={text(labels.emptySentence, language)} className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-semibold', isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
+                <span role="status" aria-label={text(labels.emptySentence, language)} className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-semibold', isInteractionOnly ? neutralPlaceholderTone : 'border-[#205089]/28 text-[#123B68]/70')}>
                   {isInteractionOnly ? '_____' : text(labels.emptySentence, language)}
                 </span>
               )}
@@ -391,7 +389,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
               onClick={() => setSelectedWordIndexes((current) => current.slice(0, -1))}
               disabled={!selectedWordIndexes.length}
               aria-label={text(labels.removeLastWord, language)}
-              className={cx('inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30', themeClasses.isLight ? 'text-[#123B68] hover:bg-[#205089]/10' : 'text-[#F2F6FA]/76 hover:bg-[#A8B8C8]/14')}
+              className={cx('inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30', 'text-[#123B68] hover:bg-[#205089]/10')}
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -408,7 +406,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
                   onClick={() => setSelectedWordIndexes((current) => [...current, index])}
                   className={cx(
                     'min-h-10 rounded-lg border px-3 py-2 text-sm font-black shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40',
-                    themeClasses.isLight ? 'border-[#205089]/18 bg-white/80 text-[#123B68] hover:bg-[#DCE6F1]' : 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
+                    'border-[#205089]/18 bg-white/80 text-[#123B68] hover:bg-[#DCE6F1]',
                   )}
                 >
                   {text(choice, language)}
@@ -422,7 +420,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
               type="button"
               onClick={() => setSelectedWordIndexes([])}
               disabled={!selectedWordIndexes.length}
-              className={cx('inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-black transition-colors disabled:cursor-not-allowed disabled:opacity-40', themeClasses.isLight ? 'bg-[#205089]/10 text-[#123B68] hover:bg-[#205089]/14' : 'bg-[#A8B8C8]/10 text-[#F2F6FA]/76 hover:bg-[#A8B8C8]/14')}
+              className={cx('inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-black transition-colors disabled:cursor-not-allowed disabled:opacity-40', 'bg-[#205089]/10 text-[#123B68] hover:bg-[#205089]/14')}
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               {text(labels.reset, language)}
@@ -436,8 +434,8 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
               className={cx(
                 'learning-lab-answer-reveal flex w-full justify-center gap-2 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold leading-6',
                 isSentenceComplete
-                  ? themeClasses.isLight ? 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]' : 'border-[#A6E8C1]/18 bg-[#A6E8C1]/10 text-[#A6E8C1]'
-                  : themeClasses.isLight ? 'border-[#8C3333]/18 bg-[#FBECEC] text-[#8C3333]' : 'border-[#FCA5A5]/18 bg-[#FCA5A5]/10 text-[#FCA5A5]',
+                  ? 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]'
+                  : 'border-[#8C3333]/18 bg-[#FBECEC] text-[#8C3333]',
               )}
               role="status"
             >
@@ -475,7 +473,7 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
         </div>
       </section>
 
-      <section className={getTheoryTileClass(themeClasses)}>
+      <section className={getTheoryTileClass()}>
         <div className={cx('mb-3 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
           {strings.coreIdea}
         </div>
@@ -507,7 +505,7 @@ export function TokenExampleBlock({ example, language, themeClasses, hideTitle =
   const [activeLabel, setActiveLabel] = useState(example.variants[0]?.label.en ?? example.specialCases[0]?.label.en ?? '');
 
   return (
-    <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
+    <section className={cx(getConceptTileClass(), 'gap-4')}>
       {!hideTitle && (
         <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
           {text(example.title, language)}
@@ -593,8 +591,7 @@ function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, 
 }
 
 function getFocusCardPalette(themeClasses: ReturnType<typeof getLearningLabTheme>, toneIndex: number) {
-  const palettes = themeClasses.isLight
-    ? [
+  const palettes = [
         {
           card: 'border-[#2563EB]/14 bg-white',
           top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
@@ -630,56 +627,19 @@ function getFocusCardPalette(themeClasses: ReturnType<typeof getLearningLabTheme
           title: themeClasses.titleText,
           token: 'border-[#EC4899]/14 bg-[#FDF2F8] text-[#BE185D]',
         },
-      ]
-    : [
-        {
-          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
-          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
-          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
-          title: themeClasses.titleText,
-          token: 'border-[#7FB0FF]/20 bg-[#7FB0FF]/12 text-[#DCEAFF]',
-        },
-        {
-          card: 'border-[#C4B5FD]/18 bg-[#121A24]/36',
-          top: 'border-[#C4B5FD]/14 bg-[#C4B5FD]/12',
-          icon: 'border border-[#C4B5FD]/18 bg-[#C4B5FD]/10 text-[#EEE8FF]',
-          title: themeClasses.titleText,
-          token: 'border-[#C4B5FD]/20 bg-[#C4B5FD]/12 text-[#EEE8FF]',
-        },
-        {
-          card: 'border-[#FBBF24]/20 bg-[#121A24]/36',
-          top: 'border-[#FBBF24]/14 bg-[#FBBF24]/12',
-          icon: 'border border-[#FBBF24]/20 bg-[#FBBF24]/10 text-[#FFE7AD]',
-          title: themeClasses.titleText,
-          token: 'border-[#FBBF24]/20 bg-[#FBBF24]/12 text-[#FFE7AD]',
-        },
-        {
-          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
-          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
-          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
-          title: themeClasses.titleText,
-          token: 'border-[#74D99F]/20 bg-[#74D99F]/12 text-[#DDF7E8]',
-        },
-        {
-          card: 'border-[#F9A8D4]/18 bg-[#121A24]/36',
-          top: 'border-[#F9A8D4]/14 bg-[#F9A8D4]/12',
-          icon: 'border border-[#F9A8D4]/18 bg-[#F9A8D4]/10 text-[#FFE3F1]',
-          title: themeClasses.titleText,
-          token: 'border-[#F9A8D4]/20 bg-[#F9A8D4]/12 text-[#FFE3F1]',
-        },
       ];
 
   return palettes[toneIndex % palettes.length]!;
 }
 
-function getConceptTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>) {
-  return cx('grid min-h-[15rem] p-0', themeClasses.isLight ? 'text-[#123B68]' : 'text-[#F2F6FA]');
+function getConceptTileClass() {
+  return cx('grid min-h-[15rem] p-0', 'text-[#123B68]');
 }
 
-function getTheoryTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>) {
+function getTheoryTileClass() {
   return cx(
     'grid min-h-[15rem] rounded-lg border p-4',
-    themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/6',
+    'border-[#205089]/12 bg-[#F8FAFC]',
   );
 }
 export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
@@ -690,8 +650,8 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
   const panelTitle = text(extra.title, language);
   const emphasis = extra.emphasis ? text(extra.emphasis, language) : '';
   const [titleBeforeEmphasis, titleAfterEmphasis] = emphasis ? panelTitle.split(emphasis) : [panelTitle, ''];
-  const outlineGroupTitleText = themeClasses.isLight ? 'text-[#254F70]' : themeClasses.titleText;
-  const outlineItemTitleText = themeClasses.isLight ? 'text-[#385F7A]' : themeClasses.titleText;
+  const outlineGroupTitleText = 'text-[#254F70]';
+  const outlineItemTitleText = 'text-[#385F7A]';
   const [activeOutlineItemKey, setActiveOutlineItemKey] = useState('0-0');
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
@@ -809,17 +769,11 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                   key={text(row.label, language)}
                   className={cx(
                     'grid overflow-hidden rounded-lg md:grid-cols-[7rem_minmax(0,1fr)]',
-                    themeClasses.isLight
-                      ? rowIndex === 0
+                    (rowIndex === 0
                         ? 'bg-[#E8F0F7]'
                         : rowIndex === 1
                           ? 'bg-[#E8F2EF]'
-                          : 'bg-[#FFF1DE]'
-                      : rowIndex === 0
-                        ? 'bg-[#496F98]/18'
-                        : rowIndex === 1
-                          ? 'bg-[#4F7D70]/18'
-                          : 'bg-[#D97706]/16',
+                          : 'bg-[#FFF1DE]'),
                   )}
                 >
                   <div
@@ -843,10 +797,10 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                           key={`${text(row.label, language)}-${cellIndex}`}
                           className={cx(
                             'min-w-0 px-4 py-3',
-                            cellIndex > 0 && (themeClasses.isLight ? 'border-t border-black/8 md:border-l md:border-t-0' : 'border-t border-white/10 md:border-l md:border-t-0'),
+                            cellIndex > 0 && ('border-t border-black/8 md:border-l md:border-t-0'),
                           )}
                         >
-                          <div className={cx('mb-1 text-xs font-black leading-4', themeClasses.isLight ? 'text-[#254F70]' : 'text-[#D7EAFE]')}>
+                          <div className={cx('mb-1 text-xs font-black leading-4', 'text-[#254F70]')}>
                             {text(extra.comparisonTable?.columns[cellIndex + 1] ?? row.label, language)}
                           </div>
                           <ul className={cx('grid list-disc pl-4 text-sm leading-5 marker:text-current/55', themeClasses.bodyText)}>
@@ -869,14 +823,14 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                 key={text(group.title, language)}
                 className={cx(
                   'grid gap-3 border-l-2 pl-4',
-                  themeClasses.isLight ? 'border-[#205089]/18' : 'border-[#A8B8C8]/20',
+                  'border-[#205089]/18',
                 )}
               >
                 <div className="grid gap-3 sm:grid-cols-[3.75rem_minmax(0,1fr)] sm:items-start">
                   <div
                     className={cx(
                       'flex h-11 w-11 items-center justify-center rounded-lg text-lg font-black leading-none tabular-nums',
-                      themeClasses.isLight ? 'bg-[#205089]/10 text-[#123B68]' : 'bg-[#A8B8C8]/12 text-[#F2F6FA]',
+                      'bg-[#205089]/10 text-[#123B68]',
                     )}
                   >
                     {groupIndex + 1}
@@ -900,15 +854,13 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                         className={cx(
                           'learning-lab-focus-panel group grid gap-3 px-3 py-2.5 transition-[box-shadow,filter,opacity,transform] duration-200 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:items-start',
                           themeClasses.radius.button,
-                          itemIndex > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/8' : 'border-t border-[#A8B8C8]/10'),
+                          itemIndex > 0 && ('border-t border-[#205089]/8'),
                         )}
                       >
                         <span
                           className={cx(
                             'inline-flex min-h-8 w-fit items-center rounded-lg px-2 text-[11px] font-black leading-5 tabular-nums transition-colors',
-                            themeClasses.isLight
-                              ? 'bg-[#B8C8DA]/24 text-[#123B68] group-hover:bg-[#205089]/10'
-                              : 'bg-[#A8B8C8]/8 text-[#D7EAFE] group-hover:bg-[#A8B8C8]/12',
+                            'bg-[#B8C8DA]/24 text-[#123B68] group-hover:bg-[#205089]/10',
                           )}
                         >
                           {groupIndex + 1}.{itemIndex + 1}
@@ -1083,19 +1035,19 @@ function TransformerTranslationDiagram({
         decoder: 'Decoder',
         complete: '"披荆斩棘的哥哥"',
       };
-  const connectorTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
+  const connectorTone = 'text-[#7892A8]';
   const isOverviewStep = activeStep === 1;
 
   return (
     <div className="px-0 py-1">
       <div className="mx-auto grid w-full max-w-[52rem] gap-x-4 gap-y-1.5 md:grid-cols-[minmax(0,1fr)_11rem_3rem_minmax(0,1fr)]">
         <DiagramFlowItem>
-          <DiagramBox active={false} visited={activeStep > 1} label={labels.source} kind="text" compactText themeClasses={themeClasses} className="min-h-12 w-full" />
+          <DiagramBox active={false} visited={activeStep > 1} label={labels.source} kind="text" compactText className="min-h-12 w-full" />
         </DiagramFlowItem>
         <div className="hidden md:block" />
         <div className="hidden md:block" />
         <DiagramFlowItem>
-          <DiagramBox active={activeStep === 5} visited={activeStep > 5} label={labels.partial} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+          <DiagramBox active={activeStep === 5} visited={activeStep > 5} label={labels.partial} kind="text" className="min-h-12 w-full" />
         </DiagramFlowItem>
 
         <DiagramConnector active={activeStep === 2} tone={connectorTone} />
@@ -1110,7 +1062,6 @@ function TransformerTranslationDiagram({
             expanded={activeStep === 2}
             title={labels.encoderPrep}
             inputLabel={labels.source}
-            themeClasses={themeClasses}
           />
         </DiagramFlowItem>
         <div className="hidden md:block" />
@@ -1122,7 +1073,6 @@ function TransformerTranslationDiagram({
             expanded={activeStep === 6}
             title={labels.decoderPrep}
             inputLabel={labels.partial}
-            themeClasses={themeClasses}
           />
         </DiagramFlowItem>
 
@@ -1132,17 +1082,17 @@ function TransformerTranslationDiagram({
         <DiagramConnector active={activeStep === 7} tone={connectorTone} />
 
         <DiagramFlowItem>
-          <DiagramBox active={isOverviewStep || activeStep === 3} visited={activeStep > 3} label={labels.encoder} kind="module" tone="encoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+          <DiagramBox active={isOverviewStep || activeStep === 3} visited={activeStep > 3} label={labels.encoder} kind="module" tone="encoder" className="min-h-28 w-full" />
         </DiagramFlowItem>
         <div className="flex min-w-0 items-center justify-center gap-2">
           <ArrowRight className={cx('h-6 w-6 shrink-0 transition-opacity', activeStep === 4 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
-          <DiagramBox active={activeStep === 4} visited={activeStep > 4} label={labels.embeddings} kind="thin" themeClasses={themeClasses} className="min-h-16 w-full" />
+          <DiagramBox active={activeStep === 4} visited={activeStep > 4} label={labels.embeddings} kind="thin" className="min-h-16 w-full" />
         </div>
         <div className="hidden items-center justify-center md:flex">
           <ArrowRight className={cx('h-8 w-8 transition-opacity', activeStep === 4 || activeStep === 7 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 || activeStep === 7 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
         </div>
         <DiagramFlowItem>
-          <DiagramBox active={isOverviewStep || activeStep === 7} visited={activeStep > 7} label={labels.decoder} kind="module" tone="decoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+          <DiagramBox active={isOverviewStep || activeStep === 7} visited={activeStep > 7} label={labels.decoder} kind="module" tone="decoder" className="min-h-28 w-full" />
         </DiagramFlowItem>
 
         <div className="hidden md:block" />
@@ -1153,7 +1103,7 @@ function TransformerTranslationDiagram({
         <div className="hidden md:block" />
         <div className="hidden md:block" />
         <div className="hidden md:block" />
-        <DiagramBox active={activeStep === 8} visited={activeStep > 8} label={labels.complete} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+        <DiagramBox active={activeStep === 8} visited={activeStep > 8} label={labels.complete} kind="text" className="min-h-12 w-full" />
       </div>
     </div>
   );
@@ -1166,7 +1116,6 @@ function DiagramBox({
   kind,
   tone,
   compactText = false,
-  themeClasses,
   className,
 }: {
   active: boolean;
@@ -1175,12 +1124,11 @@ function DiagramBox({
   kind: 'text' | 'thin' | 'module' | 'dark';
   tone?: 'encoder' | 'decoder';
   compactText?: boolean;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
   className?: string;
 }) {
   const base = 'grid whitespace-pre-line place-items-center px-2 text-center transition-[background-color,box-shadow,opacity,transform] duration-200 sm:px-3';
   const muted = active || visited ? 'opacity-100' : 'opacity-[0.42]';
-  const activeRing = active ? (themeClasses.isLight ? 'scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]' : 'scale-[1.015] shadow-[0_0_0_3px_rgba(168,184,200,0.24)]') : '';
+  const activeRing = active ? ('scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]') : '';
   const shapeClass = kind === 'module'
     ? 'rounded-[1.75rem] text-xl font-black leading-7 md:text-3xl'
     : kind === 'text'
@@ -1192,11 +1140,11 @@ function DiagramBox({
         : 'rounded-lg text-xs font-semibold leading-4 md:text-sm md:leading-5';
   const colorClass = kind === 'module'
     ? tone === 'decoder'
-      ? themeClasses.isLight ? 'bg-[#CFE7F7] text-[#153D59]' : 'bg-[#183044] text-[#E7F4FB]'
-      : themeClasses.isLight ? 'bg-[#E5E5E1] text-[#202427]' : 'bg-[#2A3036] text-[#F0F3F5]'
+      ? 'bg-[#CFE7F7] text-[#153D59]'
+      : 'bg-[#E5E5E1] text-[#202427]'
     : kind === 'dark'
-      ? themeClasses.isLight ? 'bg-[#3E4853] text-white' : 'bg-[#D8E2EC]/18 text-[#F6FAFD]'
-      : themeClasses.isLight ? 'bg-[#F8FAFC] text-[#1D2730]' : 'bg-[#0B1118] text-[#F6FAFD]';
+      ? 'bg-[#3E4853] text-white'
+      : 'bg-[#F8FAFC] text-[#1D2730]';
 
   return (
     <div className={cx(base, muted, activeRing, shapeClass, colorClass, className)}>
@@ -1211,14 +1159,12 @@ function DiagramPrepBox({
   expanded,
   title,
   inputLabel,
-  themeClasses,
 }: {
   active: boolean;
   visited: boolean;
   expanded: boolean;
   title: string;
   inputLabel: string;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   if (!expanded) {
     return (
@@ -1227,17 +1173,16 @@ function DiagramPrepBox({
         visited={visited}
         label={title}
         kind="thin"
-        themeClasses={themeClasses}
         className="min-h-12 w-[88%]"
       />
     );
   }
 
   const muted = active || visited ? 'opacity-100' : 'opacity-[0.42]';
-  const activeRing = active ? (themeClasses.isLight ? 'scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]' : 'scale-[1.015] shadow-[0_0_0_3px_rgba(168,184,200,0.24)]') : '';
-  const shellTone = themeClasses.isLight ? 'bg-[#F8FAFC] text-[#1D2730]' : 'bg-[#0B1118] text-[#F6FAFD]';
-  const stepTone = themeClasses.isLight ? 'bg-white/78 text-[#334155]' : 'bg-[#D8E2EC]/8 text-[#E2E8F0]';
-  const arrowTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
+  const activeRing = active ? ('scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]') : '';
+  const shellTone = 'bg-[#F8FAFC] text-[#1D2730]';
+  const stepTone = 'bg-white/78 text-[#334155]';
+  const arrowTone = 'text-[#7892A8]';
   const isDecoderInput = inputLabel.includes('披荆斩棘');
   const tokens = isDecoderInput ? ['披荆斩棘', '的'] : ['Anh', 'trai', 'vượt', 'ngàn', 'chông', 'gai'];
   const ids = isDecoderInput ? ['9301', '102'] : ['211', '842', '1904', '673', '2451', '998'];
@@ -1329,7 +1274,7 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
               key={text(item.shortName, language)}
               className={cx(
                 'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
-                themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
+                (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]'),
               )}
             >
               <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
@@ -1353,19 +1298,19 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
       ))}
 
       <div className="grid items-stretch gap-2 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)]">
-        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#DCE8F4] text-[#173F5F]' : 'bg-[#496F98]/28 text-[#DCE8F4]')}>
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', 'bg-[#DCE8F4] text-[#173F5F]')}>
           <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'DOMAIN DỮ LIỆU' : 'DATA DOMAIN'}</span>
           <strong className="text-xl font-black">CV / NLP</strong>
           <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Hình ảnh · video · ngôn ngữ' : 'Images · video · language'}</span>
         </div>
         <div className={cx('grid h-8 place-items-center self-center text-2xl font-light md:h-auto', themeClasses.mutedText)} aria-hidden="true">+</div>
-        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#E4ECE8] text-[#315F53]' : 'bg-[#4F7D70]/26 text-[#D7EEE7]')}>
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', 'bg-[#E4ECE8] text-[#315F53]')}>
           <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'NHÓM PHƯƠNG PHÁP' : 'METHOD FAMILY'}</span>
           <strong className="text-xl font-black">ML / DL</strong>
           <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Thuật toán · neural networks' : 'Algorithms · neural networks'}</span>
         </div>
         <div className={cx('grid h-8 place-items-center self-center text-2xl font-light md:h-auto', themeClasses.mutedText)} aria-hidden="true">=</div>
-        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3 text-white', themeClasses.isLight ? 'bg-[#205089]' : 'bg-[#496F98]')}>
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3 text-white', 'bg-[#205089]')}>
           <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'CÁCH ĐỌC TRONG KHÓA HỌC' : 'COURSE CONVENTION'}</span>
           <strong className="text-xl font-black">AI application</strong>
           <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Phương pháp AI trong một domain' : 'AI methods within a domain'}</span>
@@ -1445,12 +1390,8 @@ function ScaleComparisonCard({
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const toneClass = tone === 'compact'
-    ? themeClasses.isLight
-      ? 'border-[#2F6B55]/16 bg-[#EEF7F2]'
-      : 'border-[#A6E8C1]/18 bg-[#173528]/52'
-    : themeClasses.isLight
-      ? 'border-[#2F6F9F]/16 bg-[#EEF6FB]'
-      : 'border-[#8FC7EA]/18 bg-[#183044]/52';
+    ? 'border-[#2F6B55]/16 bg-[#EEF7F2]'
+    : 'border-[#2F6F9F]/16 bg-[#EEF6FB]';
 
   return (
     <div className={cx('grid min-h-44 grid-rows-[auto_1fr_auto] gap-4 rounded-lg border p-4', toneClass)}>
@@ -1496,9 +1437,9 @@ export function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
             {index === 0 && stages.length > 1 ? (
               <div className="hidden h-full items-center md:flex" aria-hidden="true">
                 <div className="flex w-full items-center">
-                  <span className={cx('h-2 w-2 shrink-0 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-70' : 'bg-[#F2F6FA] opacity-60')} />
-                  <span className={cx('h-[3px] min-w-8 flex-1 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-55' : 'bg-[#F2F6FA] opacity-45')} />
-                  <span className={cx('h-2 w-2 shrink-0 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-70' : 'bg-[#F2F6FA] opacity-60')} />
+                  <span className={cx('h-2 w-2 shrink-0 rounded-full', 'bg-[#123B68] opacity-70')} />
+                  <span className={cx('h-[3px] min-w-8 flex-1 rounded-full', 'bg-[#123B68] opacity-55')} />
+                  <span className={cx('h-2 w-2 shrink-0 rounded-full', 'bg-[#123B68] opacity-70')} />
                 </div>
               </div>
             ) : null}
@@ -1567,9 +1508,7 @@ function ConceptHighlightRow({
   onActivate: () => void;
 }) {
   const descriptionLines = description.split('\n').filter(Boolean);
-  const rowTone = themeClasses.isLight
-    ? 'border border-[#205089]/10 bg-white hover:bg-white'
-    : 'border border-[#A8B8C8]/14 bg-[#121A24]/42 hover:bg-[#121A24]/56';
+  const rowTone = 'border border-[#205089]/10 bg-white hover:bg-white';
 
   return (
     <div
@@ -1697,7 +1636,7 @@ export function LlmAcademiaIndustryComparison({ content, perspective, language, 
         ] as const).filter(([panelPerspective]) => perspective === 'industry' || panelPerspective === 'academia').map(([panelPerspective, label, statement]) => {
           const isEmphasized = perspective === panelPerspective;
           return (
-            <div key={panelPerspective} className={cx('rounded-lg border px-4 py-3 transition-[filter,opacity] duration-200', panelPerspective === 'academia' ? 'md:col-span-2' : 'md:col-span-3', isEmphasized ? 'opacity-100 saturate-100' : 'opacity-45 saturate-[0.72]', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA]' : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8')}>
+            <div key={panelPerspective} className={cx('rounded-lg border px-4 py-3 transition-[filter,opacity] duration-200', panelPerspective === 'academia' ? 'md:col-span-2' : 'md:col-span-3', isEmphasized ? 'opacity-100 saturate-100' : 'opacity-45 saturate-[0.72]', 'border-[#205089]/14 bg-[#EFF4FA]')}>
               <h2 className={cx('text-base font-black leading-6', isEmphasized ? themeClasses.accentText : themeClasses.titleText)}>{label}</h2>
               <p className={cx('mt-1 text-sm leading-6', themeClasses.bodyText)}>{text(statement, language)}</p>
             </div>

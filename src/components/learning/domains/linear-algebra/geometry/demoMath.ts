@@ -11,15 +11,6 @@ export function apply2x2(M: number[][], v: Vector2D): Vector2D {
 }
 
 /**
- * Multiplies a matrix (m x n) by a column vector (n).
- */
-export function matVec(M: number[][], v: number[]): number[] {
-  return M.map((row) =>
-    row.reduce((sum, val, c) => sum + val * (v[c] ?? 0), 0),
-  );
-}
-
-/**
  * Multiplies two 2x2 matrices: C = A * B.
  */
 export function matMul2x2(A: number[][], B: number[][]): number[][] {

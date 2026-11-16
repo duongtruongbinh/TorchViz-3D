@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Vector, Plot, Text, Polygon, Point, vec } from 'mafs';
-import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { InlineMath, BlockMath } from '../../learningMdxComponents';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
@@ -24,8 +24,7 @@ export function SubspaceClosureExplorer({
   defaultMode = 'subspace',
 }: SubspaceClosureExplorerProps) {
   const [mode, setMode] = useState<'subspace' | 'affine'>(defaultMode);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   // Mode Subspace: y = 2x (passes origin)
   // Mode Affine: y = 2x + 1 (does not pass origin)
@@ -190,8 +189,7 @@ export function ColumnNullSpaceExplorer({
   interactive = true,
 }: ColumnNullSpaceExplorerProps) {
   const [activeSpace, setActiveSpace] = useState<'col' | 'null'>('col');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const matrixA = [
     [1, 2, 3],
@@ -317,8 +315,7 @@ export function BasisIndependenceExplorer({
   interactive = true,
 }: BasisIndependenceExplorerProps) {
   const [mode, setMode] = useState<'independent' | 'dependent'>('independent');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const isIndependent = mode === 'independent';
 
@@ -562,8 +559,7 @@ export function LinearTransformationExplorer({
   interactive = true,
 }: LinearTransformationExplorerProps) {
   const [preset, setPreset] = useState<'scale' | 'shear' | 'rotation' | 'collapse'>('scale');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const matrices = {
     scale: {

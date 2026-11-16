@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Vector, Text, Polygon, vec } from 'mafs';
-import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { InlineMath, BlockMath } from '../../learningMdxComponents';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
@@ -20,8 +20,7 @@ export function DeterminantAreaExplorer({
   interactive = true,
 }: DeterminantAreaExplorerProps) {
   const [preset, setPreset] = useState<'positive' | 'negative' | 'zero'>('positive');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const configs = {
     positive: {

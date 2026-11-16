@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { useLearningMdxTheme } from '../../../learningMdxComponents';
 import { cx } from '../../../theme';
-import { getMathVisualTheme } from '../theme';
+import { MATH_VISUAL_THEME } from '../theme';
 import { MatrixCell, MatrixFrame, MatrixNameLabel, getMatrixCellClasses, getMatrixSizeClasses } from './matrixPrimitives';
 
 export interface MatrixGridProps {
@@ -33,8 +32,7 @@ export function MatrixGrid({
   size = 'md',
   ariaLabel,
 }: MatrixGridProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
@@ -79,11 +77,9 @@ export function MatrixGrid({
               } else if (isColMatch) {
                 cellStyle = theme.matrixHighlightCol;
               } else if (isAllMatch) {
-                cellStyle = themeClasses.isLight
-                  ? 'bg-blue-50 border-blue-300 text-blue-900'
-                  : 'bg-blue-950/50 border-blue-700 text-blue-100';
+                cellStyle = 'bg-blue-50 border-blue-300 text-blue-900';
               } else {
-                cellStyle = getMatrixCellClasses(themeClasses.isLight);
+                cellStyle = getMatrixCellClasses();
               }
 
               if (cellClassName) {

@@ -1,12 +1,12 @@
 import { ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, Info, Route, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { cx, type getLearningLabTheme } from '../../theme';
+import { cx } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from '../../primitives/diagramPrimitives';
 import { CodeBlock } from '../../code/CodeBlock';
 import { LlmCallout, TokenChip, TokenIdBadge } from './rendererPrimitives';
 import { InteractiveStepper } from '../../shell/InteractiveStepper';
-import { getLlmRendererTheme } from './rendererTheme';
+import { LLM_RENDERER_THEME } from './rendererTheme';
 import type {
   LlmContentRendererProps,
   LlmTokenizerBoundaryMismatchContent,
@@ -24,10 +24,10 @@ import type {
   LlmTokenizerVocabularyLookupContent,
 } from './rendererTypes';
 
-function renderTokenizerInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
+function renderTokenizerInlineCode(value: string): ReactNode {
   return value.split(/(`[^`]+`)/g).filter(Boolean).map((part, index) => {
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
+      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', 'bg-[#E8EEF5] text-[#123B68]')}>{part.slice(1, -1)}</code>;
     }
     return <span key={`${index}-${part}`}>{part}</span>;
   });
@@ -40,9 +40,9 @@ const TOKENIZER_MEMORY_ICONS = {
 } satisfies Record<LlmTokenizerMemoryContent['cards'][number]['id'], LucideIcon>;
 
 const TOKEN_CHIP_PALETTES = [
-  ['bg-[#DCE8F4] text-[#205089]', 'bg-[#263B5B] text-[#BFD3F2]'],
-  ['bg-[#DCEEE8] text-[#2E6B5D]', 'bg-[#21483F] text-[#BFE6D7]'],
-  ['bg-[#F4E8C8] text-[#70551A]', 'bg-[#594821] text-[#F4E8C8]'],
+  'bg-[#DCE8F4] text-[#205089]',
+  'bg-[#DCEEE8] text-[#2E6B5D]',
+  'bg-[#F4E8C8] text-[#70551A]',
 ] as const;
 
 export function LlmTokenizerMemory({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerMemoryContent>) {
@@ -52,14 +52,14 @@ export function LlmTokenizerMemory({ content, language, themeClasses }: LlmConte
         const Icon = TOKENIZER_MEMORY_ICONS[card.id];
         const tokens = card.example.split(' · ');
         const [top, icon] = {
-          flexible: themeClasses.isLight ? ['bg-[#DCE8F4]', 'bg-white text-[#205089]'] : ['bg-[#263B5B]', 'bg-[#172A43] text-[#BFD3F2]'],
-          robust: themeClasses.isLight ? ['bg-[#DCEEE8]', 'bg-white text-[#2E6B5D]'] : ['bg-[#21483F]', 'bg-[#122D29] text-[#BFE6D7]'],
-          efficient: themeClasses.isLight ? ['bg-[#F4E8C8]', 'bg-white text-[#70551A]'] : ['bg-[#594821]', 'bg-[#2C2412] text-[#F4E8C8]'],
+          flexible: ['bg-[#DCE8F4]', 'bg-white text-[#205089]'],
+          robust: ['bg-[#DCEEE8]', 'bg-white text-[#2E6B5D]'],
+          efficient: ['bg-[#F4E8C8]', 'bg-white text-[#70551A]'],
         }[card.id];
         return (
           <article key={card.id} className={cx(
             'grid min-h-[24rem] grid-rows-[132px_minmax(0,1fr)] overflow-hidden rounded-lg border',
-            themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36',
+            'border-[#205089]/12 bg-white',
           )}>
             <div className={cx('grid place-items-center border-b border-black/5', top)}>
               <div className={cx('grid h-16 w-16 place-items-center rounded-2xl shadow-[0_10px_24px_rgba(32,80,137,0.10)]', icon)}>
@@ -72,7 +72,7 @@ export function LlmTokenizerMemory({ content, language, themeClasses }: LlmConte
               <div className="flex flex-wrap gap-1.5">
                 {tokens.map((token, index) => {
                   const palette = TOKEN_CHIP_PALETTES[index % TOKEN_CHIP_PALETTES.length] ?? TOKEN_CHIP_PALETTES[0];
-                  return <code key={`${token}-${index}`} className={cx('rounded-md px-2.5 py-1.5 text-sm font-black', themeClasses.isLight ? palette[0] : palette[1])}>{token}</code>;
+                  return <code key={`${token}-${index}`} className={cx('rounded-md px-2.5 py-1.5 text-sm font-black', palette)}>{token}</code>;
                 })}
               </div>
               <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(card.description, language)}</p>
@@ -89,18 +89,14 @@ export function LlmTokenizerCodeStructure({ content, language, themeClasses }: L
     {
       ...content.challenge,
       Icon: CircleAlert,
-      tone: themeClasses.isLight
-        ? 'border-[#E07A5F]/24 bg-[#FFF7F4] text-[#9A3F2B]'
-        : 'border-[#F29A82]/22 bg-[#F29A82]/8 text-[#FFC3B4]',
-      chip: themeClasses.isLight ? 'bg-[#FBE4DD] text-[#8B3524]' : 'bg-[#F29A82]/14 text-[#FFD1C5]',
+      tone: 'border-[#E07A5F]/24 bg-[#FFF7F4] text-[#9A3F2B]',
+      chip: 'bg-[#FBE4DD] text-[#8B3524]',
     },
     {
       ...content.improvement,
       Icon: CheckCircle2,
-      tone: themeClasses.isLight
-        ? 'border-[#2F9D68]/22 bg-[#F1FBF6] text-[#176B45]'
-        : 'border-[#74D99F]/22 bg-[#74D99F]/8 text-[#BCECCF]',
-      chip: themeClasses.isLight ? 'bg-[#DDF4E8] text-[#176B45]' : 'bg-[#74D99F]/14 text-[#D2F5DF]',
+      tone: 'border-[#2F9D68]/22 bg-[#F1FBF6] text-[#176B45]',
+      chip: 'bg-[#DDF4E8] text-[#176B45]',
     },
   ];
 
@@ -140,7 +136,7 @@ export function LlmTokenizerCodeStructure({ content, language, themeClasses }: L
 
       <div className={cx(
         'flex gap-3 rounded-lg border px-4 py-3.5',
-        themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF6FC]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/8',
+        'border-[#205089]/14 bg-[#EFF6FC]',
       )}>
         <Sparkles className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
@@ -159,11 +155,11 @@ export function LlmTokenizerBoundaryMismatch({ content, language, themeClasses }
           return (
             <article key={example.id} className={cx(
               'overflow-hidden rounded-lg border',
-              themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36',
+              'border-[#205089]/14 bg-white',
             )}>
               <div className={cx(
                 'flex items-center justify-between gap-3 border-b px-4 py-3',
-                themeClasses.isLight ? 'border-[#205089]/10 bg-[#EFF4FA]' : 'border-[#A8B8C8]/12 bg-[#263B5B]/55',
+                'border-[#205089]/10 bg-[#EFF4FA]',
               )}>
                 <span className="flex items-center gap-2">
                   <Icon className={cx('h-4 w-4', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
@@ -173,7 +169,7 @@ export function LlmTokenizerBoundaryMismatch({ content, language, themeClasses }
               </div>
 
               <div className="grid gap-0 sm:grid-cols-2">
-                <div className={cx('grid content-start gap-3 p-4 sm:border-r', themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12')}>
+                <div className={cx('grid content-start gap-3 p-4 sm:border-r', 'border-[#205089]/10')}>
                   <span className={cx('text-xs font-black uppercase tracking-[0.08em]', themeClasses.accentText)}>{text(example.humanLabel, language)}</span>
                   <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(example.humanMeaning, language)}</p>
                 </div>
@@ -184,7 +180,7 @@ export function LlmTokenizerBoundaryMismatch({ content, language, themeClasses }
                       <div key={`${example.id}-${rowIndex}`} className="flex flex-wrap items-center gap-1">
                         {tokens.map((token, tokenIndex) => {
                           const palette = TOKEN_CHIP_PALETTES[tokenIndex % TOKEN_CHIP_PALETTES.length] ?? TOKEN_CHIP_PALETTES[0];
-                          return <code key={`${token}-${tokenIndex}`} className={cx('rounded px-2 py-1 text-xs font-black', themeClasses.isLight ? palette[0] : palette[1])}>{token}</code>;
+                          return <code key={`${token}-${tokenIndex}`} className={cx('rounded px-2 py-1 text-xs font-black', palette)}>{token}</code>;
                         })}
                       </div>
                     ))}
@@ -199,9 +195,9 @@ export function LlmTokenizerBoundaryMismatch({ content, language, themeClasses }
 
       <div className={cx(
         'flex items-start gap-3 rounded-lg border px-4 py-3.5',
-        themeClasses.isLight ? 'border-[#D29A22]/24 bg-[#FFF8E8]' : 'border-[#E3B64B]/20 bg-[#594821]/20',
+        'border-[#D29A22]/24 bg-[#FFF8E8]',
       )}>
-        <CircleAlert className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.isLight ? 'text-[#8A5A00]' : 'text-[#F4D98A]')} strokeWidth={1.8} aria-hidden="true" />
+        <CircleAlert className={cx('mt-0.5 h-5 w-5 shrink-0', 'text-[#8A5A00]')} strokeWidth={1.8} aria-hidden="true" />
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
       </div>
     </section>
@@ -214,17 +210,13 @@ export function LlmTokenizerFreeDirection({ content, language, themeClasses }: L
       ...content.subword,
       Icon: Database,
       eyebrow: language === 'vi' ? 'Hiện tại phổ biến' : 'Common today',
-      palette: themeClasses.isLight
-        ? 'border-[#205089]/16 bg-[#F7FAFD] text-[#205089]'
-        : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/7 text-[#CFE2F7]',
+      palette: 'border-[#205089]/16 bg-[#F7FAFD] text-[#205089]',
     },
     {
       ...content.direct,
       Icon: Cpu,
       eyebrow: language === 'vi' ? 'Hướng nghiên cứu' : 'Research direction',
-      palette: themeClasses.isLight
-        ? 'border-[#2F9D68]/18 bg-[#F3FBF7] text-[#176B45]'
-        : 'border-[#74D99F]/20 bg-[#74D99F]/7 text-[#C8F0D8]',
+      palette: 'border-[#2F9D68]/18 bg-[#F3FBF7] text-[#176B45]',
     },
   ];
 
@@ -251,7 +243,7 @@ export function LlmTokenizerFreeDirection({ content, language, themeClasses }: L
                 {sequence.map((unit, unitIndex) => (
                   <code key={`${unit}-${unitIndex}`} className={cx(
                     'rounded-md px-2 py-1.5 text-xs font-black',
-                    themeClasses.isLight ? 'bg-white/90 shadow-[inset_0_0_0_1px_rgba(32,80,137,0.10)]' : 'bg-[#0B1724]/55',
+                    'bg-white/90 shadow-[inset_0_0_0_1px_rgba(32,80,137,0.10)]',
                   )}>{unit}</code>
                 ))}
               </div>
@@ -266,7 +258,7 @@ export function LlmTokenizerFreeDirection({ content, language, themeClasses }: L
 
       <div className={cx(
         'flex items-start gap-3 rounded-lg border px-4 py-3.5',
-        themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF6FC]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/8',
+        'border-[#205089]/14 bg-[#EFF6FC]',
       )}>
         <Sparkles className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
@@ -282,7 +274,7 @@ export function LlmTokenizerVocabularyLookup({ content, language, themeClasses }
         <strong className={cx('font-black', themeClasses.titleText)}>{language === 'vi' ? 'Vocabulary là bảng ánh xạ. ' : 'Vocabulary is a lookup table. '}</strong>
         {text(content.lead, language)}
       </p>
-      <div className={cx('mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border p-4 sm:p-6', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F7FAFD]' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className={cx('mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border p-4 sm:p-6', 'border-[#205089]/14 bg-[#F7FAFD]')}>
         <div className="mb-4 flex items-center justify-center gap-2">
           <Database className={cx('h-5 w-5', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
           <span className={cx('text-xs font-black uppercase tracking-[0.12em]', themeClasses.mutedText)}>Vocabulary</span>
@@ -290,11 +282,11 @@ export function LlmTokenizerVocabularyLookup({ content, language, themeClasses }
         <div className="grid gap-2.5">
           {content.entries.map((entry) => (
             <div key={`${entry.token}-${entry.id}`} className="grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] items-center gap-2">
-              <TokenChip className="justify-self-end rounded-lg px-3 py-2 text-sm font-black sm:min-w-28 sm:text-center" themeClasses={themeClasses}>{entry.token}</TokenChip>
+              <TokenChip className="justify-self-end rounded-lg px-3 py-2 text-sm font-black sm:min-w-28 sm:text-center">{entry.token}</TokenChip>
               <div className={cx('flex items-center justify-center', themeClasses.accentText)} aria-hidden="true">
                 <ArrowLeftRight className="h-5 w-5" strokeWidth={1.8} />
               </div>
-              <TokenIdBadge className={cx('grid h-10 min-w-20 justify-self-start place-items-center rounded-lg px-3 text-sm font-black tabular-nums', themeClasses.isLight ? 'ring-1 ring-[#C68A2E]/35' : 'ring-1 ring-[#FFE5B4]/20')} themeClasses={themeClasses}>{entry.id}</TokenIdBadge>
+              <TokenIdBadge className={cx('grid h-10 min-w-20 justify-self-start place-items-center rounded-lg px-3 text-sm font-black tabular-nums', 'ring-1 ring-[#C68A2E]/35')}>{entry.id}</TokenIdBadge>
             </div>
           ))}
         </div>
@@ -307,27 +299,27 @@ export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }
   return (
     <section className="grid gap-5">
       <p className={cx('w-full text-center text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className={cx('relative mx-auto grid w-full max-w-4xl gap-5 overflow-hidden rounded-2xl border p-5 sm:p-7', themeClasses.isLight ? 'border-[#E07A5F]/20 bg-[#FFF9F6]' : 'border-[#F29A82]/18 bg-[#F29A82]/6')}>
+      <div className={cx('relative mx-auto grid w-full max-w-4xl gap-5 overflow-hidden rounded-2xl border p-5 sm:p-7', 'border-[#E07A5F]/20 bg-[#FFF9F6]')}>
         <div className="flex flex-wrap items-start justify-center gap-3 sm:gap-5">
           {content.entries.map((entry, index) => (
             <div key={`${entry.token}-${entry.id}`} className="grid justify-items-center gap-2">
               <div className="flex items-center gap-2">
                 {index > 0 ? <span className={cx('text-xl font-black', themeClasses.mutedText)}>&lt;</span> : null}
-                <span className={cx('grid h-14 min-w-20 place-items-center rounded-xl px-3 text-lg font-black tabular-nums', themeClasses.isLight ? 'bg-[#FFF0CF] text-[#674518] ring-1 ring-[#C68A2E]/35' : 'bg-[#8B6734]/40 text-[#FFE5B4] ring-1 ring-[#FFE5B4]/20')}>{entry.id}</span>
+                <span className={cx('grid h-14 min-w-20 place-items-center rounded-xl px-3 text-lg font-black tabular-nums', 'bg-[#FFF0CF] text-[#674518] ring-1 ring-[#C68A2E]/35')}>{entry.id}</span>
               </div>
-              <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{entry.token}</code>
+              <code className={cx('rounded-md px-2 py-1 text-xs font-black', 'bg-white text-[#205089]')}>{entry.token}</code>
             </div>
           ))}
         </div>
         <div className="flex items-center justify-center gap-3" aria-hidden="true">
-          <div className={cx('h-px w-24', themeClasses.isLight ? 'bg-[#B5523A]/35' : 'bg-[#F6A995]/35')} />
-          <X className={cx('h-7 w-7', themeClasses.isLight ? 'text-[#B5523A]' : 'text-[#F6A995]')} strokeWidth={2.2} />
-          <div className={cx('h-px w-24', themeClasses.isLight ? 'bg-[#B5523A]/35' : 'bg-[#F6A995]/35')} />
+          <div className={cx('h-px w-24', 'bg-[#B5523A]/35')} />
+          <X className={cx('h-7 w-7', 'text-[#B5523A]')} strokeWidth={2.2} />
+          <div className={cx('h-px w-24', 'bg-[#B5523A]/35')} />
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.nonMeanings.map((item) => (
-            <div key={text(item, language)} className={cx('grid min-h-20 place-items-center rounded-xl border px-3 py-3 text-center', themeClasses.isLight ? 'border-[#E07A5F]/18 bg-white/80' : 'border-[#F29A82]/16 bg-[#121A24]/30')}>
-              <X className={cx('mb-1 h-4 w-4', themeClasses.isLight ? 'text-[#B5523A]' : 'text-[#F6A995]')} strokeWidth={2} aria-hidden="true" />
+            <div key={text(item, language)} className={cx('grid min-h-20 place-items-center rounded-xl border px-3 py-3 text-center', 'border-[#E07A5F]/18 bg-white/80')}>
+              <X className={cx('mb-1 h-4 w-4', 'text-[#B5523A]')} strokeWidth={2} aria-hidden="true" />
               <span className={cx('text-xs font-bold leading-5', themeClasses.bodyText)}>{text(item, language)}</span>
             </div>
           ))}
@@ -397,7 +389,7 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
     if (stage.id === 'load') {
       return (
         <div className="grid justify-items-center gap-3 text-center">
-          <div className={cx('grid h-16 w-16 place-items-center rounded-2xl', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#8D436F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+          <div className={cx('grid h-16 w-16 place-items-center rounded-2xl', 'bg-[#EBD9E8] text-[#8D436F]')}>
             <Database className="h-8 w-8" strokeWidth={1.7} aria-hidden="true" />
           </div>
           <div className="grid gap-1">
@@ -412,7 +404,7 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
       return (
         <div className="grid justify-items-center gap-3">
           <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.1em]', themeClasses.mutedText)}>Raw text</span>
-          <code className={cx('rounded-xl px-5 py-3 text-lg font-black', themeClasses.isLight ? 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.rawText}</code>
+          <code className={cx('rounded-xl px-5 py-3 text-lg font-black', 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10')}>{content.rawText}</code>
         </div>
       );
     }
@@ -420,14 +412,14 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
     if (stage.id === 'encode') {
       return (
         <div className="grid w-full gap-3">
-          <code className={cx('mx-auto rounded-lg px-4 py-2 text-sm font-black', themeClasses.isLight ? 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.rawText}</code>
+          <code className={cx('mx-auto rounded-lg px-4 py-2 text-sm font-black', 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10')}>{content.rawText}</code>
           <ArrowDown className={cx('mx-auto h-5 w-5', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
           <div className="flex flex-wrap justify-center gap-2">
             {content.entries.map((entry) => (
               <div key={`${entry.token}-${entry.id}`} className="grid justify-items-center gap-1.5">
-                <TokenChip className="rounded-md px-2.5 py-1.5 text-xs font-black" themeClasses={themeClasses}>{entry.token}</TokenChip>
+                <TokenChip className="rounded-md px-2.5 py-1.5 text-xs font-black">{entry.token}</TokenChip>
                 <ArrowDown className={cx('h-3.5 w-3.5', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
-                <TokenIdBadge className="grid min-w-12 place-items-center rounded-md px-2 py-1.5 text-xs font-black tabular-nums" themeClasses={themeClasses}>{entry.id}</TokenIdBadge>
+                <TokenIdBadge className="grid min-w-12 place-items-center rounded-md px-2 py-1.5 text-xs font-black tabular-nums">{entry.id}</TokenIdBadge>
               </div>
             ))}
           </div>
@@ -437,13 +429,13 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
 
     return (
       <div className="grid w-full gap-3">
-        <div className={cx('rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/12 bg-[#121A24]/35')}>
+        <div className={cx('rounded-lg border px-3 py-3', 'border-[#205089]/10 bg-white')}>
           <span className={cx('mb-2 block text-[0.65rem] font-black uppercase tracking-[0.1em]', themeClasses.mutedText)}>Tokens</span>
-          <div className="flex flex-wrap gap-1.5">{content.entries.map((entry) => <TokenChip key={entry.token} className="rounded px-2 py-1 text-xs font-black" themeClasses={themeClasses}>{entry.token}</TokenChip>)}</div>
+          <div className="flex flex-wrap gap-1.5">{content.entries.map((entry) => <TokenChip key={entry.token} className="rounded px-2 py-1 text-xs font-black">{entry.token}</TokenChip>)}</div>
         </div>
-        <div className={cx('rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#C68A2E]/16 bg-[#FFF9ED]' : 'border-[#FFE5B4]/14 bg-[#8B6734]/15')}>
+        <div className={cx('rounded-lg border px-3 py-3', 'border-[#C68A2E]/16 bg-[#FFF9ED]')}>
           <span className={cx('mb-2 block text-[0.65rem] font-black uppercase tracking-[0.1em]', themeClasses.mutedText)}>Token IDs</span>
-          <div className="flex flex-wrap gap-1.5">{content.entries.map((entry) => <TokenIdBadge key={entry.id} className="rounded px-2 py-1 text-xs font-black tabular-nums" themeClasses={themeClasses}>{entry.id}</TokenIdBadge>)}</div>
+          <div className="flex flex-wrap gap-1.5">{content.entries.map((entry) => <TokenIdBadge key={entry.id} className="rounded px-2 py-1 text-xs font-black tabular-nums">{entry.id}</TokenIdBadge>)}</div>
         </div>
       </div>
     );
@@ -451,26 +443,26 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
 
   return (
     <section className="grid gap-5">
-      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language), themeClasses)}</p>
+      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language))}</p>
       {content.note ? (
         <blockquote className={cx(
           'flex items-start gap-3 rounded-lg border-l-4 px-4 py-3.5',
-          themeClasses.isLight ? 'border-[#C68A2E] bg-[#FFF9ED]' : 'border-[#E1B866] bg-[#8B6734]/15',
+          'border-[#C68A2E] bg-[#FFF9ED]',
         )}>
           <Info className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
-          <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.note, language), themeClasses)}</p>
+          <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.note, language))}</p>
         </blockquote>
       ) : null}
       <div className="grid gap-3">
         {content.stages.map((stage, index) => (
           <Fragment key={stage.id}>
             {index > 0 ? <ArrowDown className={cx('mx-auto h-5 w-5', themeClasses.mutedText)} strokeWidth={1.7} aria-hidden="true" /> : null}
-            <article className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F7FAFD]' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
-              <div className={cx('border-b px-4 py-2.5', themeClasses.isLight ? 'border-[#205089]/10 bg-[#EFF4FA]' : 'border-[#A8B8C8]/12 bg-[#263B5B]/45')}>
+            <article className={cx('overflow-hidden rounded-xl border', 'border-[#205089]/14 bg-[#F7FAFD]')}>
+              <div className={cx('border-b px-4 py-2.5', 'border-[#205089]/10 bg-[#EFF4FA]')}>
                 <h3 className={cx('text-xs font-black uppercase tracking-[0.08em]', themeClasses.titleText)}>{text(stage.title, language)}</h3>
               </div>
               <div className="grid lg:grid-cols-2">
-                <div className={cx('grid min-h-40 place-items-center p-5 lg:border-r', themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12')}>
+                <div className={cx('grid min-h-40 place-items-center p-5 lg:border-r', 'border-[#205089]/10')}>
                   {renderVisual(stage)}
                 </div>
                 <div className="grid min-w-0 content-center gap-3 p-4 lg:p-5">
@@ -500,9 +492,9 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
           </Fragment>
         ))}
       </div>
-      <div className={cx('flex items-start gap-3 rounded-lg border px-4 py-3.5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF6FC]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/8')}>
+      <div className={cx('flex items-start gap-3 rounded-lg border px-4 py-3.5', 'border-[#205089]/14 bg-[#EFF6FC]')}>
         <Database className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
+        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language))}</p>
       </div>
     </section>
   );
@@ -511,10 +503,10 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
 export function LlmTokenizerOutputComparison({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerOutputComparisonContent>) {
   return (
     <section className="grid gap-5">
-      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language), themeClasses)}</p>
+      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language))}</p>
       <div className="grid justify-items-center gap-2">
         <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.1em]', themeClasses.mutedText)}>Raw text</span>
-        <code className={cx('rounded-xl px-5 py-3 text-lg font-black', themeClasses.isLight ? 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.rawText}</code>
+        <code className={cx('rounded-xl px-5 py-3 text-lg font-black', 'bg-white text-[#263B5B] ring-1 ring-[#205089]/10')}>{content.rawText}</code>
       </div>
       <ArrowDown className={cx('mx-auto h-5 w-5', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
       <div className="grid items-stretch gap-4 lg:grid-cols-2">
@@ -524,8 +516,8 @@ export function LlmTokenizerOutputComparison({ content, language, themeClasses }
             <article key={example.id} className={cx(
               'grid content-start gap-4 rounded-xl border p-4 sm:p-5',
               isVietnamese
-                ? (themeClasses.isLight ? 'border-[#2F9D68]/20 bg-[#F3FBF7]' : 'border-[#74D99F]/20 bg-[#74D99F]/7')
-                : (themeClasses.isLight ? 'border-[#205089]/14 bg-[#F7FAFD]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/7'),
+                ? ('border-[#2F9D68]/20 bg-[#F3FBF7]')
+                : ('border-[#205089]/14 bg-[#F7FAFD]'),
             )}>
               <div className="flex items-start justify-between gap-3">
                 <div className="grid gap-1">
@@ -535,15 +527,15 @@ export function LlmTokenizerOutputComparison({ content, language, themeClasses }
                 <span className={cx(
                   'shrink-0 rounded-full px-3 py-1.5 text-xs font-black tabular-nums',
                   isVietnamese
-                    ? (themeClasses.isLight ? 'bg-[#D8F3E4] text-[#176B45]' : 'bg-[#74D99F]/18 text-[#C8F0D8]')
-                    : (themeClasses.isLight ? 'bg-[#DCE8F4] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]'),
+                    ? ('bg-[#D8F3E4] text-[#176B45]')
+                    : ('bg-[#DCE8F4] text-[#205089]'),
                 )}>{example.tokens.length} tokens</span>
               </div>
               <div className="flex flex-wrap content-start gap-2">
                 {example.tokens.map((token, index) => (
-                  <div key={`${token}-${index}`} className={cx('grid overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-black/8 bg-white' : 'border-white/10 bg-[#121A24]/35')}>
-                    <code className={cx('px-2.5 py-1.5 text-center text-xs font-black', themeClasses.isLight ? 'text-[#205089]' : 'text-[#DCE8F4]')}>{token}</code>
-                    <span className={cx('border-t px-2.5 py-1 text-center text-[0.65rem] font-black tabular-nums', themeClasses.isLight ? 'border-black/6 bg-[#FFF0CF] text-[#674518]' : 'border-white/8 bg-[#8B6734]/35 text-[#FFE5B4]')}>{example.ids[index]}</span>
+                  <div key={`${token}-${index}`} className={cx('grid overflow-hidden rounded-lg border', 'border-black/8 bg-white')}>
+                    <code className={cx('px-2.5 py-1.5 text-center text-xs font-black', 'text-[#205089]')}>{token}</code>
+                    <span className={cx('border-t px-2.5 py-1 text-center text-[0.65rem] font-black tabular-nums', 'border-black/6 bg-[#FFF0CF] text-[#674518]')}>{example.ids[index]}</span>
                   </div>
                 ))}
               </div>
@@ -552,9 +544,9 @@ export function LlmTokenizerOutputComparison({ content, language, themeClasses }
         })}
       </div>
       <LlmCallout icon={Info} themeClasses={themeClasses} tone="accent">
-        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.markerNote, language), themeClasses)}</p>
+        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.markerNote, language))}</p>
       </LlmCallout>
-      <div className={cx('flex items-start gap-3 rounded-lg border px-4 py-3.5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF6FC]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/8')}>
+      <div className={cx('flex items-start gap-3 rounded-lg border px-4 py-3.5', 'border-[#205089]/14 bg-[#EFF6FC]')}>
         <Database className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
       </div>
@@ -563,7 +555,7 @@ export function LlmTokenizerOutputComparison({ content, language, themeClasses }
 }
 
 export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerIdRoundTripContent>) {
-  const llmTheme = getLlmRendererTheme(themeClasses);
+  const llmTheme = LLM_RENDERER_THEME;
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const inputTextRef = useRef<HTMLDivElement | null>(null);
   const tokenizerRef = useRef<HTMLDivElement | null>(null);
@@ -617,53 +609,52 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: Llm
     <section className="grid gap-4">
       <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className="overflow-x-auto pb-2">
-        <div ref={canvasRef} className={cx('relative h-[30rem] w-full min-w-[66rem] overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-gradient-to-br from-[#FBFDFE] to-[#205089]/[0.035]' : 'border-[#A8B8C8]/16 bg-gradient-to-br from-[#121A24]/45 to-[#205089]/[0.08]')}>
+        <div ref={canvasRef} className={cx('relative h-[30rem] w-full min-w-[66rem] overflow-hidden rounded-xl border', 'border-[#205089]/14 bg-gradient-to-br from-[#FBFDFE] to-[#205089]/[0.035]')}>
           <DiagramConnectorLayer
             color={llmTheme.connector}
-            markerId="token-round-trip-arrow"
             paths={[
               ...connectorPaths.flow.map((d) => ({ d })),
-              ...connectorPaths.vocabulary.map((d) => ({ d, markerEnd: false, stroke: themeClasses.isLight ? '#8D436F' : '#D58AB5', strokeDasharray: '6 5', strokeWidth: 1.75 })),
+              ...connectorPaths.vocabulary.map((d) => ({ d, markerEnd: false, stroke: '#8D436F', strokeDasharray: '6 5', strokeWidth: 1.75 })),
             ]}
           />
 
           <div ref={inputTextRef} className="absolute left-6 top-6 grid w-52 justify-items-center gap-2">
             <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Input text</span>
-            <code className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.sourceText}</code>
+            <code className={cx('rounded-lg px-4 py-2 text-base font-black', 'bg-[#F3F6F9] text-[#263B5B]')}>{content.sourceText}</code>
           </div>
 
-          <div ref={tokenizerRef} className={cx('absolute left-6 top-[9.125rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+          <div ref={tokenizerRef} className={cx('absolute left-6 top-[9.125rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', 'bg-[#EBD9E8] text-[#56314F]')}>
             <span className="text-base font-black">Tokenizer</span>
             <div className="flex flex-wrap justify-center gap-1">{content.tokens.map((token, index) => <code key={`${token}-${index}`} className="rounded bg-white/45 px-1.5 py-0.5 text-xs font-black">{token}</code>)}</div>
           </div>
 
           <div className="absolute left-[18rem] top-[6.2rem] grid w-20 justify-items-center gap-2">
             <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Token IDs</span>
-            <div ref={inputIdsRef} className={cx('grid min-h-36 w-12 content-evenly justify-items-center rounded-lg py-2', themeClasses.isLight ? 'bg-[#F4E5EF]' : 'bg-[#6C4B66]/55')}>
-              {content.ids.map((id) => <span key={id} className={cx('grid h-8 w-8 place-items-center rounded-full text-[0.65rem] font-black tabular-nums', themeClasses.isLight ? 'bg-[#F6CFE4] text-[#713255] ring-1 ring-[#8D436F]' : 'bg-[#D58AB5] text-[#2E1728] ring-1 ring-[#F4C8E1]/60')}>{id}</span>)}
+            <div ref={inputIdsRef} className={cx('grid min-h-36 w-12 content-evenly justify-items-center rounded-lg py-2', 'bg-[#F4E5EF]')}>
+              {content.ids.map((id) => <span key={id} className={cx('grid h-8 w-8 place-items-center rounded-full text-[0.65rem] font-black tabular-nums', 'bg-[#F6CFE4] text-[#713255] ring-1 ring-[#8D436F]')}>{id}</span>)}
             </div>
           </div>
 
-          <div ref={modelRef} className={cx('absolute left-[42%] top-[7rem] grid h-40 w-36 place-items-center rounded-xl px-4 text-center', themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/60 text-[#E1F5D1]')}>
+          <div ref={modelRef} className={cx('absolute left-[42%] top-[7rem] grid h-40 w-36 place-items-center rounded-xl px-4 text-center', 'bg-[#DDF2C7] text-[#29471E]')}>
             <div className="grid justify-items-center gap-2"><Cpu className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" /><span className="text-base font-black">{text(content.modelLabel, language)}</span><span className="text-xs font-semibold">Forward</span></div>
           </div>
 
           <div className="absolute right-[18rem] top-[7.0rem] grid w-20 justify-items-center gap-2">
             <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>{language === 'vi' ? 'ID được chọn' : 'Selected ID'}</span>
-            <div ref={outputIdRef} className={cx('grid h-20 w-12 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#FFF0CF]' : 'bg-[#8B6734]/40')}><span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#F4D8A4] text-[#674518] ring-1 ring-[#C68A2E]' : 'bg-[#C49250] text-[#21170A] ring-1 ring-[#FFE5B4]/60')}>{content.sampledTokenId}</span></div>
+            <div ref={outputIdRef} className={cx('grid h-20 w-12 place-items-center rounded-lg', 'bg-[#FFF0CF]')}><span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', 'bg-[#F4D8A4] text-[#674518] ring-1 ring-[#C68A2E]')}>{content.sampledTokenId}</span></div>
           </div>
 
-          <div ref={detokenizerRef} className={cx('absolute right-6 top-[8.875rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+          <div ref={detokenizerRef} className={cx('absolute right-6 top-[8.875rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', 'bg-[#EBD9E8] text-[#56314F]')}>
             <span className="text-base font-black">Detokenizer</span>
             <code className="rounded bg-white/45 px-2 py-1 text-sm font-black">{content.sampledToken}</code>
           </div>
 
           <div ref={outputTextRef} className="absolute bottom-6 right-6 grid w-52 justify-items-center gap-2">
-            <code className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.outputText}</code>
+            <code className={cx('rounded-lg px-4 py-2 text-base font-black', 'bg-[#F3F6F9] text-[#263B5B]')}>{content.outputText}</code>
             <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Output text</span>
           </div>
 
-          <div ref={vocabularyRef} className={cx('absolute top-[18.25rem] left-1/2 grid w-60 -translate-x-1/2 justify-items-center gap-1 rounded-xl border px-4 py-3 text-center', themeClasses.isLight ? 'border-[#8D436F]/24 bg-[#FAEFF6] text-[#56314F]' : 'border-[#D58AB5]/24 bg-[#6C4B66]/30 text-[#F7DDF1]')}>
+          <div ref={vocabularyRef} className={cx('absolute top-[18.25rem] left-1/2 grid w-60 -translate-x-1/2 justify-items-center gap-1 rounded-xl border px-4 py-3 text-center', 'border-[#8D436F]/24 bg-[#FAEFF6] text-[#56314F]')}>
             <Database className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-sm font-black">Shared Vocabulary</span>
             <span className="text-xs font-semibold">token ↔ token ID</span>
@@ -684,7 +675,7 @@ export function LlmTokenizerSequenceLength({ content, language, themeClasses }: 
           'rounded-md font-black',
           compact ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm',
           isSpace ? 'w-7' : undefined,
-          themeClasses.isLight ? palette[0] : palette[1],
+          palette,
         )}>{isSpace ? <span className="sr-only">{language === 'vi' ? 'Khoảng trắng' : 'Space'}</span> : token}</code>;
       })}
     </div>
@@ -693,12 +684,12 @@ export function LlmTokenizerSequenceLength({ content, language, themeClasses }: 
   return (
     <section className="grid gap-3">
       <div className="grid gap-3 md:grid-cols-2">
-        <article className={cx('grid gap-4 rounded-lg border p-4', themeClasses.isLight ? 'border-[#B57B1C]/20 bg-[#FFF9ED]' : 'border-[#E3B64B]/20 bg-[#594821]/20')}>
+        <article className={cx('grid gap-4 rounded-lg border p-4', 'border-[#B57B1C]/20 bg-[#FFF9ED]')}>
           <div className="flex items-center justify-between gap-3"><h2 className={cx('text-base font-black', themeClasses.titleText)}>Character-level</h2><span className="rounded-full bg-[#F4E8C8] px-3 py-1 text-xs font-black text-[#70551A]">{content.characterCount}</span></div>
           {tokenRow(content.characterTokens, true)}
           <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{language === 'vi' ? 'Mỗi ký tự trở thành một token, nên dãy nhanh chóng kéo dài.' : 'Each character becomes a token, so the sequence grows quickly.'}</p>
         </article>
-        <article className={cx('grid gap-4 rounded-lg border p-4', themeClasses.isLight ? 'border-[#205089]/20 bg-[#EFF4FA]' : 'border-[#BFD3F2]/20 bg-[#263B5B]/45')}>
+        <article className={cx('grid gap-4 rounded-lg border p-4', 'border-[#205089]/20 bg-[#EFF4FA]')}>
           <div className="flex items-center justify-between gap-3"><h2 className={cx('text-base font-black', themeClasses.titleText)}>Subword</h2><span className="rounded-full bg-[#DCE8F4] px-3 py-1 text-xs font-black text-[#205089]">{content.subwordCount}</span></div>
           {tokenRow(content.subwordTokens)}
           <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{language === 'vi' ? 'Nhóm chuỗi con phổ biến để giữ dãy ngắn hơn.' : 'Groups common substrings to keep the sequence shorter.'}</p>
@@ -713,15 +704,15 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
   const punctuationTokens = new Set([',', '.', ':', ';', '?', '!', '"', '(', ')', '--']);
   return (
     <section className="grid gap-5">
-      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language), themeClasses)}</p>
+      <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language))}</p>
       {content.diagram ? (
         <div className="overflow-x-auto pb-1">
-          <div className={cx('grid min-w-[54rem] justify-items-center gap-3 rounded-xl border px-6 py-5', themeClasses.isLight ? 'border-[#205089]/12 bg-gradient-to-b from-white to-[#F6FAFD]' : 'border-[#A8B8C8]/14 bg-gradient-to-b from-[#121A24]/46 to-[#0B1724]/28')}>
+          <div className={cx('grid min-w-[54rem] justify-items-center gap-3 rounded-xl border px-6 py-5', 'border-[#205089]/12 bg-gradient-to-b from-white to-[#F6FAFD]')}>
             <div className="grid justify-items-center gap-2">
               <span className={cx('text-xs font-black', themeClasses.mutedText)}>{language === 'vi' ? 'Văn bản đầu vào' : 'Input text'}</span>
-              <code className={cx('w-fit rounded-lg border px-4 py-2.5 text-sm font-bold shadow-sm', themeClasses.isLight ? 'border-[#205089]/18 bg-white text-[#172A43]' : 'border-[#A8B8C8]/20 bg-[#0B1724]/62 text-[#E5EEF8]')}>{content.diagram.inputText}</code>
+              <code className={cx('w-fit rounded-lg border px-4 py-2.5 text-sm font-bold shadow-sm', 'border-[#205089]/18 bg-white text-[#172A43]')}>{content.diagram.inputText}</code>
             </div>
-            <div className={cx('grid h-9 w-9 place-items-center rounded-full', themeClasses.isLight ? 'bg-[#E6F0F8] text-[#205089]' : 'bg-[#263B5B] text-[#CFE2F7]')} aria-hidden="true">
+            <div className={cx('grid h-9 w-9 place-items-center rounded-full', 'bg-[#E6F0F8] text-[#205089]')} aria-hidden="true">
               <ArrowDown className="h-5 w-5" strokeWidth={2} />
             </div>
             <div className="grid justify-items-center gap-2">
@@ -734,12 +725,12 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
                   return <code key={`${token}-${index}`} className={cx(
                     'grid min-h-9 min-w-9 place-items-center rounded-md border px-2.5 py-1 text-sm font-bold shadow-sm',
                     isWhitespace
-                      ? (themeClasses.isLight ? 'border-[#6B7F91]/20 bg-[#F1F4F6] text-[#607283]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/8 text-[#A8B8C8]')
+                      ? ('border-[#6B7F91]/20 bg-[#F1F4F6] text-[#607283]')
                       : isEmpty
-                      ? (themeClasses.isLight ? 'border-[#B5523A]/22 bg-[#FFF1ED] text-[#9A3F2B]' : 'border-[#F29A82]/20 bg-[#F29A82]/10 text-[#FFC3B4]')
+                      ? ('border-[#B5523A]/22 bg-[#FFF1ED] text-[#9A3F2B]')
                       : isPunctuation
-                      ? (themeClasses.isLight ? 'border-[#C68A2E]/28 bg-[#FFF4DD] text-[#674518]' : 'border-[#F4D8A4]/22 bg-[#8B6734]/34 text-[#FFE5B4]')
-                      : (themeClasses.isLight ? 'border-[#205089]/16 bg-[#EDF5FB] text-[#173F69]' : 'border-[#7FB0FF]/18 bg-[#263B5B]/70 text-[#DCE8F4]'),
+                      ? ('border-[#C68A2E]/28 bg-[#FFF4DD] text-[#674518]')
+                      : ('border-[#205089]/16 bg-[#EDF5FB] text-[#173F69]'),
                   )}>{isWhitespace ? '␠' : isEmpty ? "''" : token}</code>;
                 })}
               </div>
@@ -752,7 +743,7 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
         <CodeBlock variant="output" code={content.output.join('\n')} copyable={false} themeClasses={themeClasses} />
       </div>
       <LlmCallout icon={Info} themeClasses={themeClasses}>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
+        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language))}</p>
       </LlmCallout>
     </section>
   );
@@ -802,10 +793,8 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
           <code className={cx(
             'inline-block rounded-md py-2 text-2xl font-black',
             isSpace ? 'w-10 px-0' : 'px-4',
-            themeClasses.isLight ? palette[0] : palette[1],
-            isHighlighted && (themeClasses.isLight
-              ? 'learning-bpe-merged-token ring-2 ring-[#D29A22] ring-offset-2 ring-offset-white'
-              : 'learning-bpe-merged-token ring-2 ring-[#E3B64B] ring-offset-2 ring-offset-[#121A24]'),
+            palette,
+            isHighlighted && ('learning-bpe-merged-token ring-2 ring-[#D29A22] ring-offset-2 ring-offset-white'),
           )}>{isSpace ? <span className="sr-only">{language === 'vi' ? 'Khoảng trắng' : 'Space'}</span> : token.token}</code>
           {endsFirstLine && <span className="basis-full" aria-hidden="true" />}
         </Fragment>;
@@ -815,7 +804,7 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
 
   return (
     <section className="grid gap-4">
-      <code className={cx('w-fit rounded-md px-3 py-2 text-sm font-black', themeClasses.isLight ? 'bg-[#EFF4FA] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>
+      <code className={cx('w-fit rounded-md px-3 py-2 text-sm font-black', 'bg-[#EFF4FA] text-[#205089]')}>
         {content.example}
       </code>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -833,10 +822,10 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
           ariaLabel="BPE merge step controls"
         />
       </div>
-      <article className={cx('learning-lab-focus-panel min-h-72 rounded-lg border p-5', themeClasses.isLight ? 'border-[#205089]/20 bg-white' : 'border-[#A8B8C8]/24 bg-[#121A24]/48')}>
+      <article className={cx('learning-lab-focus-panel min-h-72 rounded-lg border p-5', 'border-[#205089]/20 bg-white')}>
         <div key={`tokens-${completedMerges}`}>{tokenChips(currentTokens, activeMerge ? 'source' : undefined)}</div>
       </article>
-      <p className={cx('rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.isLight ? 'bg-[#EFF4FA] text-[#205089]' : 'bg-[#263B5B]/55 text-[#DCE8F4]')}>
+      <p className={cx('rounded-lg px-4 py-3 text-sm font-semibold leading-6', 'bg-[#EFF4FA] text-[#205089]')}>
         {text(content.result, language)}
       </p>
       <a href={content.playgroundUrl} target="_blank" rel="noreferrer" className={cx('w-fit text-sm font-black underline underline-offset-4', themeClasses.focusRing, themeClasses.accentText)}>

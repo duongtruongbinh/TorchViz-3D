@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Vector, Point, Plot, Text, vec } from 'mafs';
 import { Check } from 'lucide-react';
-import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
-import { getMathVisualTheme } from './theme';
+import { InlineMath, BlockMath } from '../../learningMdxComponents';
+import { MATH_VISUAL_THEME } from './theme';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathRangeControl } from './primitives/MathRangeControl';
@@ -34,8 +34,7 @@ export function ColumnCombinationExplorer({
 }: ColumnCombinationExplorerProps) {
   const [c1, setC1] = useState(initialCoefficients[0]);
   const [c2, setC2] = useState(initialCoefficients[1]);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const col1: Vector2D = columns[0];
   const col2: Vector2D = columns[1];
@@ -186,8 +185,7 @@ export function LinearSystemCasesExplorer({
   ariaLabel,
 }: LinearSystemCasesExplorerProps) {
   const [selectedCase, setSelectedCase] = useState<'unique' | 'none' | 'infinite'>('unique');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = MATH_VISUAL_THEME;
 
   const belowPlot = (
     <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 text-xs sm:text-sm">

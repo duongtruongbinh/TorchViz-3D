@@ -3,6 +3,17 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-11-16 — Remaining-domain review and Light Mode cleanup.** Audited all
+  18 catalog domains and nine adapter packages. Replaced unreachable domain
+  theme branches with the existing light values, centralized Linear Algebra
+  and LLM palettes, reused instance-safe LLM connector IDs, and scoped
+  Evolutionary Algorithms gradients per instance. Removed confirmed unused
+  helpers/types and AI Projects' always-empty calendar slots; fixed the Research
+  Papers excerpt's accessible section semantics. Existing mathematical/NCA
+  grids, exercise engines, content, and domain loading boundaries retain their
+  ownership. Details and coverage are in the existing
+  [review/refactor plan](../docs/plans/2026-11-16-learning-code-review-and-reuse.md).
+
 - **2026-11-16 — Shared visual helpers and Deep Learning cleanup.** Consolidated
   Linear Algebra/Evolutionary Algorithms lazy wrappers, extracted reusable SVG
   marker markup with instance-scoped Deep Learning IDs, and added highlight
