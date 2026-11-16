@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 import { DL_PALETTE } from './primitives';
 
@@ -10,6 +12,10 @@ const EMERALD = DL_PALETTE.emerald;
  * 1. Loss Calculation -> 2. Gradient Calculation (Chain Rule) -> 3. Weight Update (SGD).
  */
 export function BackpropCycleDiagram() {
+  const blueMarkerId = useId();
+  const roseMarkerId = useId();
+  const emeraldMarkerId = useId();
+
   return (
     <figure className="my-6 bg-white py-2">
       <svg
@@ -19,39 +25,18 @@ export function BackpropCycleDiagram() {
         aria-label="Chu trình Backpropagation gồm 3 bước: Tính Loss, Tính Gradient bằng Chain Rule và Cập nhật Trọng số ngược chiều Gradient"
       >
         <defs>
-          <marker
-            id="bp-arrow-blue"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={BLUE} />
-          </marker>
-          <marker
-            id="bp-arrow-rose"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={ROSE} />
-          </marker>
-          <marker
-            id="bp-arrow-emerald"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={EMERALD} />
-          </marker>
+          <SvgArrowMarker
+            id={blueMarkerId} color={BLUE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
+          <SvgArrowMarker
+            id={roseMarkerId} color={ROSE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
+          <SvgArrowMarker
+            id={emeraldMarkerId} color={EMERALD}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
         </defs>
 
         {/* Top row: Forward Pass -> Loss Calculation */}
@@ -65,7 +50,7 @@ export function BackpropCycleDiagram() {
           </div>
         </foreignObject>
 
-        <line x1="154" y1="47" x2="210" y2="47" stroke={BLUE} strokeWidth="2" markerEnd="url(#bp-arrow-blue)" />
+        <line x1="154" y1="47" x2="210" y2="47" stroke={BLUE} strokeWidth="2" markerEnd={`url(#${blueMarkerId})`} />
 
         <rect x="218" y="20" width="196" height="54" rx="10" fill="#EFF3F8" stroke={BLUE} strokeWidth="1.8" />
         <text x="316" y="42" textAnchor="middle" fontSize="10.5" fontWeight="800" fill={BLUE}>
@@ -77,7 +62,7 @@ export function BackpropCycleDiagram() {
           </div>
         </foreignObject>
 
-        <line x1="420" y1="47" x2="476" y2="47" stroke={BLUE} strokeWidth="2" markerEnd="url(#bp-arrow-blue)" />
+        <line x1="420" y1="47" x2="476" y2="47" stroke={BLUE} strokeWidth="2" markerEnd={`url(#${blueMarkerId})`} />
 
         {/* Step 1: Loss Calculation */}
         <rect x="484" y="20" width="212" height="54" rx="10" fill="#FFF1F2" stroke={ROSE} strokeWidth="1.8" />
@@ -91,7 +76,7 @@ export function BackpropCycleDiagram() {
         </foreignObject>
 
         {/* Arrow down from Loss to Gradient */}
-        <line x1="590" y1="78" x2="590" y2="120" stroke={ROSE} strokeWidth="2" markerEnd="url(#bp-arrow-rose)" />
+        <line x1="590" y1="78" x2="590" y2="120" stroke={ROSE} strokeWidth="2" markerEnd={`url(#${roseMarkerId})`} />
 
         {/* Step 2: Gradient Calculation */}
         <rect x="404" y="128" width="292" height="62" rx="10" fill="#FFFFFF" stroke={ROSE} strokeWidth="1.8" />
@@ -105,7 +90,7 @@ export function BackpropCycleDiagram() {
         </foreignObject>
 
         {/* Arrow left from Gradient to Weight Update */}
-        <line x1="398" y1="159" x2="344" y2="159" stroke={EMERALD} strokeWidth="2" markerEnd="url(#bp-arrow-emerald)" />
+        <line x1="398" y1="159" x2="344" y2="159" stroke={EMERALD} strokeWidth="2" markerEnd={`url(#${emeraldMarkerId})`} />
 
         {/* Step 3: Weight Update */}
         <rect x="24" y="128" width="312" height="62" rx="10" fill="#ECFDF5" stroke={EMERALD} strokeWidth="1.8" />
@@ -125,7 +110,7 @@ export function BackpropCycleDiagram() {
           stroke={EMERALD}
           strokeWidth="1.8"
           strokeDasharray="4 3"
-          markerEnd="url(#bp-arrow-emerald)"
+          markerEnd={`url(#${emeraldMarkerId})`}
         />
       </svg>
     </figure>

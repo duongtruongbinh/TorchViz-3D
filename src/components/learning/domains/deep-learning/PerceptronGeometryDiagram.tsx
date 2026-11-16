@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 import { DL_PALETTE, SvgBipartiteEdges, SvgMathNode } from './primitives';
 
@@ -307,7 +308,7 @@ function MlpPassDiagram({ direction }: { direction: 'forward' | 'backprop' }) {
   const edgeColor = isBackprop ? '#FDA4AF' : '#94A3B8';
   const nodeFill = isBackprop ? '#FFF1F2' : '#EFF3F8';
   const outFill = isBackprop ? '#FFE4E6' : '#EFF6FF';
-  const markerId = isBackprop ? 'bwd-arrow' : 'fwd-arrow';
+  const markerId = useId();
 
   const inY = [116, 174];
   const hidY = [90, 145, 200];
@@ -341,16 +342,10 @@ function MlpPassDiagram({ direction }: { direction: 'forward' | 'backprop' }) {
         }
       >
         <defs>
-          <marker
-            id={markerId}
-            markerWidth="7"
-            markerHeight="7"
-            refX="5.5"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0.5, 6 3.5, 0 6.5" fill={accent} />
-          </marker>
+          <SvgArrowMarker
+            id={markerId} color={accent} points="0 0.5, 6 3.5, 0 6.5"
+            markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+          />
         </defs>
 
         {/* Top direction arrow */}
@@ -577,6 +572,8 @@ function MlpWidthDepthDiagram() {
 }
 
 function PerceptronNeuronDiagram() {
+  const markerId = useId();
+
   const inputs = [
     { y: 56, label: 'x_1', w: 'w_1', wy: 74 },
     { y: 120, label: 'x_2', w: 'w_2', wy: 112 },
@@ -599,16 +596,10 @@ function PerceptronNeuronDiagram() {
         aria-label="Sơ đồ tổng quan một neuron nhân tạo: các node đầu vào và bias đi qua node tổng tuyến tính, node kích hoạt phi(z) ra node đầu ra"
       >
         <defs>
-          <marker
-            id="neuron-arrow"
-            markerWidth="7"
-            markerHeight="7"
-            refX="5.5"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0.5, 6 3.5, 0 6.5" fill="#64748B" />
-          </marker>
+          <SvgArrowMarker
+            id={markerId} color="#64748B" points="0 0.5, 6 3.5, 0 6.5"
+            markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+          />
         </defs>
 
         {/* Grouping border for 1 Neuron (Sum + Bias + Activation) */}
@@ -652,7 +643,7 @@ function PerceptronNeuronDiagram() {
               y2={sumY}
               stroke="#64748B"
               strokeWidth="1.6"
-              markerEnd="url(#neuron-arrow)"
+              markerEnd={`url(#${markerId})`}
             />
             <foreignObject x="166" y={inp.wy - 14} width="38" height="24">
               <div className="text-center text-xs text-[#205089]">
@@ -670,7 +661,7 @@ function PerceptronNeuronDiagram() {
           y2={sumY + 32}
           stroke="#64748B"
           strokeWidth="1.6"
-          markerEnd="url(#neuron-arrow)"
+          markerEnd={`url(#${markerId})`}
         />
         <circle cx={sumX} cy={216} r="20" fill="#EFF3F8" stroke="#B8C8DA" strokeWidth="1.5" />
         <foreignObject x={sumX - 18} y={200} width="36" height="32">
@@ -687,7 +678,7 @@ function PerceptronNeuronDiagram() {
           y2={actY}
           stroke="#64748B"
           strokeWidth="1.8"
-          markerEnd="url(#neuron-arrow)"
+          markerEnd={`url(#${markerId})`}
         />
         <foreignObject x="332" y={sumY - 26} width="54" height="24">
           <div className="text-center text-xs text-[#475569]">
@@ -702,7 +693,7 @@ function PerceptronNeuronDiagram() {
           y2={outY}
           stroke="#64748B"
           strokeWidth="1.8"
-          markerEnd="url(#neuron-arrow)"
+          markerEnd={`url(#${markerId})`}
         />
 
         {/* Input circular nodes */}
@@ -749,6 +740,8 @@ function PerceptronNeuronDiagram() {
 }
 
 function PerceptronStepDiagram() {
+  const markerId = useId();
+
   return (
     <figure className="my-6 bg-white py-2">
       <svg
@@ -758,16 +751,10 @@ function PerceptronStepDiagram() {
         aria-label="Luồng tính Perceptron: Ma trận đầu vào X gồm các hàng x1, x2, x3, nhân vector trọng số w, cộng bias b để ra vector z, qua hàm bước nhảy phi(z) ra vector đầu ra +1 hoặc -1"
       >
         <defs>
-          <marker
-            id="pipe-arrow"
-            markerWidth="7"
-            markerHeight="7"
-            refX="5.5"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0.5, 6 3.5, 0 6.5" fill="#64748B" />
-          </marker>
+          <SvgArrowMarker
+            id={markerId} color="#64748B" points="0 0.5, 6 3.5, 0 6.5"
+            markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+          />
         </defs>
 
         {/* Stage headers with consistent KaTeX math symbols */}
@@ -849,7 +836,7 @@ function PerceptronStepDiagram() {
           </div>
         </foreignObject>
 
-        <line x1="506" y1="112" x2="528" y2="112" stroke="#64748B" strokeWidth="1.8" markerEnd="url(#pipe-arrow)" />
+        <line x1="506" y1="112" x2="528" y2="112" stroke="#64748B" strokeWidth="1.8" markerEnd={`url(#${markerId})`} />
 
         {/* 5. Activation phi(z) */}
         <rect x="532" y="59" width="140" height="106" rx="12" fill="#FFFFFF" stroke={BLUE} strokeWidth="1.75" />
@@ -859,7 +846,7 @@ function PerceptronStepDiagram() {
           </div>
         </foreignObject>
 
-        <line x1="674" y1="112" x2="698" y2="112" stroke="#64748B" strokeWidth="1.8" markerEnd="url(#pipe-arrow)" />
+        <line x1="674" y1="112" x2="698" y2="112" stroke="#64748B" strokeWidth="1.8" markerEnd={`url(#${markerId})`} />
 
         {/* 6. Output vector (+1 / -1 in KaTeX) */}
         <rect x="702" y="48" width="104" height="128" rx="10" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />

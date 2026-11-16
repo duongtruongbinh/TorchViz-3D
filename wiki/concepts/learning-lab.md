@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-10-16
+updated: 2026-11-16
 ---
 
 # Learning Lab
@@ -739,13 +739,14 @@ elements are rejected. Do not recreate this design under another name. Use plain
 prose or numbered steps for a sequence; retain `ConceptFlow` for the separately
 approved concept-card presentation when requested.
 
-To maintain architectural clarity and prevent component sprawl, Learning Lab defines four distinct UI layers:
+To maintain architectural clarity and prevent component sprawl, Learning Lab defines the following ownership layers:
 
 | Layer | Files & Directories | Scope & Ownership | Reuse Rules |
 | :--- | :--- | :--- | :--- |
 | **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `shell/InteractiveStepper.tsx`, `code/CodeLabStep.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
 | **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
-| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`fundamentals`, `linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`SvmThresholdMotivation`, `StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Visual Loading & SVG Helpers** | `src/components/learning/lazyLearningVisual.tsx`, `src/components/learning/primitives/diagramPrimitives.tsx` | Shared lazy visual wrapper/skeleton, SVG arrow markers, and measured diagram connectors. | Keep renderer imports in domain adapters. Call `createLazyLearningVisual(loadingLabel)` at module scope; retain the domain's existing accessible loading label. Use `SvgArrowMarker` with instance-scoped IDs and the original geometry. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`fundamentals`, `deep-learning`, `linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `evolutionary-algorithms`, `ai-projects`, `research-papers`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`SvmThresholdMotivation`, `StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
 | **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
 
 #### Component Reuse Guidelines for Coding Agents
@@ -759,7 +760,49 @@ To maintain architectural clarity and prevent component sprawl, Learning Lab def
 7. **Matrix Component Deduplication:** All matrix displays must keep separate public APIs (`MatrixGrid`, `AugmentedMatrixGrid`) while sharing internal frame, divider, cell, and default class logic via `matrixPrimitives.tsx` (`getMatrixCellClasses`).
 8. **Accessible One-of-N Controls:** `MathSegmentedControl` enforces WAI-ARIA `radiogroup` / `radio` roving focus (`ArrowLeft`/`Right`/`Up`/`Down`, `Home`, `End`, synchronized `tabIndex`, option-level `colorScheme`).
 9. **Co-located Domain Explanatory Panels:** Explanatory info boxes in Linear Algebra reuse `MathInfoPanel` co-located inside `MathVisualCard.tsx` rather than creating separate files or global card abstractions.
-10. **Modular Lazy Loading:** Linear Algebra renderer modules are loaded on demand via `lazyNamed` wrappers in `linear-algebra/mdxComponents.tsx`. Authored MDX files may only use components declared in `getAllowedLearningMdxComponentNames(domainId)`.
+10. **Modular Lazy Loading:** Linear Algebra and Evolutionary Algorithms adapters use `createLazyLearningVisual` from `lazyLearningVisual.tsx` for their `lazyNamed` wrappers and shared loading skeleton. Module factories remain dynamic imports in each adapter; the helper must not import domain renderers. Deep Learning retains its domain-level adapter loading boundary. Authored MDX files may only use components declared in `getAllowedLearningMdxComponentNames(domainId)`.
+
+#### Diagram Helpers
+
+`SvgArrowMarker` owns repeated marker markup, while each diagram supplies its
+ID, color, marker dimensions, reference point, orientation, and optional
+`viewBox`. Its default path is `M 0 1 L 10 5 L 0 9 z`; use `path` for a different
+outline or `points` for an existing polygon. Reuse must preserve the original
+shape and dimensions rather than restyle diagrams to one default.
+
+Create IDs with React `useId` in a component body, outside loops and conditions.
+When mapping several presets, derive their IDs from one instance prefix and
+the stable preset key. Use the same ID in the marker definition and its
+`markerStart`/`markerEnd` references. `DiagramConnectorLayer` generates a unique
+ID when `markerId` is omitted; explicit IDs remain supported and callers are
+responsible for making them unique when mounting repeated diagrams.
+
+Deep Learning's `SvgBipartiteEdges`, `SvgMathNode`, palette, card/control shells,
+and `useCodeHighlightPulse` stay in `domains/deep-learning/primitives.tsx`.
+The highlight hook restarts its 500 ms pulse on another change and clears any
+pending timer on unmount. Linear Algebra mathematical primitives retain their
+own domain ownership; an editable numeric input is not interchangeable with
+a display-only step control.
+
+#### Reviewing Content PRs
+
+- Inspect the changed lessons, their adapter, and existing shared owners before
+  extracting a helper. Share code when its meaning and behavior match; preserve
+  useful domain boundaries and avoid a configurable framework for one caller.
+- Confirm dead-code candidates against imports, re-exports, MDX allowlists,
+  registry keys, and dynamic loaders before deletion. Unused-local checks do not
+  establish that an exported renderer is unused.
+- Remove duplicated sources of truth and fixed instance identifiers. Keep
+  intentional example values, datasets, formulas, SVG coordinates, and algorithm
+  constants; a literal is not by itself a refactoring defect.
+- Preserve public component props, authored content, canonical routes, control
+  limits, state transitions, and module loading boundaries. Compare rendered
+  diagrams and loading states when extracting visual markup; do not normalize
+  different cards or controls solely because their JSX looks similar.
+- Run `npm run verify` with the Node version required by `package.json`; use
+  focused browser checks for repeated SVG instances and timer cleanup when
+  those lifecycles change. Record findings, actual verification, and remaining
+  limitations in the owning plan, then update this ownership map when needed.
 
 ## Invariants
 

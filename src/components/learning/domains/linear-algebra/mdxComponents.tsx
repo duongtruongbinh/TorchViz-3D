@@ -1,38 +1,8 @@
-import { lazy, Suspense, type ComponentProps, type ComponentType } from 'react';
 import type { LINEAR_ALGEBRA_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
-import { useLearningMdxTheme, type LearningMdxComponent } from '../../learningMdxComponents';
-import { cx } from '../../theme';
+import { createLazyLearningVisual } from '../../lazyLearningVisual';
+import type { LearningMdxComponent } from '../../learningMdxComponents';
 
-function VisualSkeleton() {
-  const themeClasses = useLearningMdxTheme();
-  return (
-    <div
-      role="status"
-      aria-busy="true"
-      aria-label="Đang tải trực quan hóa toán học..."
-      className={cx(
-        'my-6 h-64 w-full animate-pulse rounded-xl border motion-reduce:animate-none transition-colors',
-        themeClasses.semantic.neutral.border,
-        themeClasses.semantic.neutral.surface,
-      )}
-    />
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function lazyNamed<T extends Record<string, ComponentType<any>>, K extends keyof T>(
-  factory: () => Promise<T>,
-  name: K,
-): ComponentType<ComponentProps<T[K]>> {
-  const LazyComponent = lazy(() => factory().then((module) => ({ default: module[name] })));
-  return function WrappedLazyNamed(props: ComponentProps<T[K]>) {
-    return (
-      <Suspense fallback={<VisualSkeleton />}>
-        <LazyComponent {...props} />
-      </Suspense>
-    );
-  };
-}
+const lazyNamed = createLazyLearningVisual('Đang tải trực quan hóa toán học...');
 
 const loadOverview = () => import('./overviewRenderers');
 const loadVector = () => import('./vectorRenderers');

@@ -1,6 +1,11 @@
+import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 
 export function ChainRuleLinksDiagram() {
+  const tealMarkerId = useId();
+  const roseMarkerId = useId();
+
   return (
     <section
       className="my-5 rounded-xl bg-white p-4"
@@ -39,16 +44,10 @@ export function ChainRuleLinksDiagram() {
           <div className="flex flex-col items-center">
             <svg viewBox="0 0 46 80" className="h-20 w-11" aria-hidden="true">
               <defs>
-                <marker
-                  id="link-teal"
-                  markerWidth="6"
-                  markerHeight="6"
-                  refX="4.5"
-                  refY="3"
-                  orient="auto"
-                >
-                  <path d="M0,0.8 L5.5,3 L0,5.2 z" fill="#0F766E" />
-                </marker>
+                <SvgArrowMarker
+                  id={tealMarkerId} color="#0F766E" path="M0,0.8 L5.5,3 L0,5.2 z"
+                  markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"
+                />
               </defs>
               <path
                 d="M 2 60 C 22 60, 24 18, 42 18"
@@ -56,7 +55,7 @@ export function ChainRuleLinksDiagram() {
                 stroke="#0F766E"
                 strokeWidth="2.2"
                 strokeDasharray="4 2.5"
-                markerEnd="url(#link-teal)"
+                markerEnd={`url(#${tealMarkerId})`}
               />
               <circle cx="23" cy="39" r="3.5" fill="#FFFFFF" stroke="#0F766E" strokeWidth="2" />
               <text
@@ -87,16 +86,10 @@ export function ChainRuleLinksDiagram() {
           <div className="flex flex-col items-center">
             <svg viewBox="0 0 46 80" className="h-20 w-11" aria-hidden="true">
               <defs>
-                <marker
-                  id="link-rose"
-                  markerWidth="6"
-                  markerHeight="6"
-                  refX="4.5"
-                  refY="3"
-                  orient="auto"
-                >
-                  <path d="M0,0.8 L5.5,3 L0,5.2 z" fill="#C2415A" />
-                </marker>
+                <SvgArrowMarker
+                  id={roseMarkerId} color="#C2415A" path="M0,0.8 L5.5,3 L0,5.2 z"
+                  markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"
+                />
               </defs>
               <path
                 d="M 2 60 C 22 60, 24 18, 42 18"
@@ -104,7 +97,7 @@ export function ChainRuleLinksDiagram() {
                 stroke="#C2415A"
                 strokeWidth="2.2"
                 strokeDasharray="4 2.5"
-                markerEnd="url(#link-rose)"
+                markerEnd={`url(#${roseMarkerId})`}
               />
               <circle cx="23" cy="39" r="3.5" fill="#FFFFFF" stroke="#C2415A" strokeWidth="2" />
               <text

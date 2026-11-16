@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath } from '../../learningMdxComponents';
 import { DlCardShell } from './primitives';
 
@@ -5,6 +7,9 @@ const VIEW_W = 700;
 const VIEW_H = 216;
 
 export function PyTorchComputationGraphDiagram() {
+  const forwardMarkerId = useId();
+  const backwardMarkerId = useId();
+
   return (
     <DlCardShell
       ariaLabel="Minh họa đồ thị tính toán (Computation Graph) trong PyTorch"
@@ -35,26 +40,14 @@ export function PyTorchComputationGraphDiagram() {
             aria-label="Sơ đồ đồ thị tính toán từ x và w tới loss và truyền ngược gradient về w.grad"
           >
             <defs>
-              <marker
-                id="cg-fwd"
-                markerWidth="7"
-                markerHeight="7"
-                refX="5.5"
-                refY="3.5"
-                orient="auto"
-              >
-                <path d="M0,1 L6.5,3.5 L0,6 z" fill="#205089" />
-              </marker>
-              <marker
-                id="cg-bwd"
-                markerWidth="7"
-                markerHeight="7"
-                refX="5.5"
-                refY="3.5"
-                orient="auto"
-              >
-                <path d="M0,1 L6.5,3.5 L0,6 z" fill="#C2415A" />
-              </marker>
+              <SvgArrowMarker
+                id={forwardMarkerId} color="#205089" path="M0,1 L6.5,3.5 L0,6 z"
+                markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+              />
+              <SvgArrowMarker
+                id={backwardMarkerId} color="#C2415A" path="M0,1 L6.5,3.5 L0,6 z"
+                markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto"
+              />
             </defs>
 
             {/* Forward arrows (left -> right) */}
@@ -63,35 +56,35 @@ export function PyTorchComputationGraphDiagram() {
               fill="none"
               stroke="#205089"
               strokeWidth="1.9"
-              markerEnd="url(#cg-fwd)"
+              markerEnd={`url(#${forwardMarkerId})`}
             />
             <path
               d="M 144 104 L 210 82"
               fill="none"
               stroke="#205089"
               strokeWidth="1.9"
-              markerEnd="url(#cg-fwd)"
+              markerEnd={`url(#${forwardMarkerId})`}
             />
             <path
               d="M 350 74 L 412 104"
               fill="none"
               stroke="#205089"
               strokeWidth="1.9"
-              markerEnd="url(#cg-fwd)"
+              markerEnd={`url(#${forwardMarkerId})`}
             />
             <path
               d="M 350 168 L 412 128"
               fill="none"
               stroke="#205089"
               strokeWidth="1.9"
-              markerEnd="url(#cg-fwd)"
+              markerEnd={`url(#${forwardMarkerId})`}
             />
             <path
               d="M 540 110 L 582 110"
               fill="none"
               stroke="#205089"
               strokeWidth="1.9"
-              markerEnd="url(#cg-fwd)"
+              markerEnd={`url(#${forwardMarkerId})`}
             />
 
             {/* Backward arrows (right -> left) */}
@@ -101,7 +94,7 @@ export function PyTorchComputationGraphDiagram() {
               stroke="#C2415A"
               strokeWidth="1.9"
               strokeDasharray="4 3"
-              markerEnd="url(#cg-bwd)"
+              markerEnd={`url(#${backwardMarkerId})`}
             />
             <path
               d="M 412 118 L 352 90"
@@ -109,7 +102,7 @@ export function PyTorchComputationGraphDiagram() {
               stroke="#C2415A"
               strokeWidth="1.9"
               strokeDasharray="4 3"
-              markerEnd="url(#cg-bwd)"
+              markerEnd={`url(#${backwardMarkerId})`}
             />
             <path
               d="M 210 92 L 146 116"
@@ -117,7 +110,7 @@ export function PyTorchComputationGraphDiagram() {
               stroke="#C2415A"
               strokeWidth="1.9"
               strokeDasharray="4 3"
-              markerEnd="url(#cg-bwd)"
+              markerEnd={`url(#${backwardMarkerId})`}
             />
 
             {/* Col 1 Top: x = 2.0 */}
@@ -151,7 +144,7 @@ export function PyTorchComputationGraphDiagram() {
               stroke="#C2415A"
               strokeWidth="1.5"
               strokeDasharray="3 2.5"
-              markerEnd="url(#cg-bwd)"
+              markerEnd={`url(#${backwardMarkerId})`}
             />
             <rect
               x="12"

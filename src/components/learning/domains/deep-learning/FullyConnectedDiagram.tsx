@@ -1,4 +1,5 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
+import { SvgArrowMarker } from '../../primitives/diagramPrimitives';
 import { InlineMath, MdxPre } from '../../learningMdxComponents';
 import {
   DL_PALETTE,
@@ -384,6 +385,9 @@ function NumberStepper({
 }
 
 function CnnMlpPipelineDiagram() {
+  const markerId = useId();
+  const blueMarkerId = useId();
+
   const mlpInY = [84, 110, 136, 162];
   const mlpHidY = [96, 123, 150];
   const mlpOutY = [106, 140];
@@ -400,28 +404,14 @@ function CnnMlpPipelineDiagram() {
         aria-label="Minh họa kiến trúc CNN kết hợp MLP: CNN học đặc trưng từ ảnh gốc qua biên cạnh đến bộ phận vật thể, còn MLP (Fully Connected) tổng hợp và phân loại ở cuối"
       >
         <defs>
-          <marker
-            id="cnn-mlp-arrow"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748B" />
-          </marker>
-          <marker
-            id="cnn-mlp-arrow-blue"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={BLUE} />
-          </marker>
+          <SvgArrowMarker
+            id={markerId} color="#64748B"
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
+          <SvgArrowMarker
+            id={blueMarkerId} color={BLUE}
+            viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"
+          />
         </defs>
 
         {/* Left: Simple CNN (white background, muted slate border) */}
@@ -449,7 +439,7 @@ function CnnMlpPipelineDiagram() {
           Ảnh
         </text>
 
-        <line x1="86" y1="89" x2="108" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd="url(#cnn-mlp-arrow)" />
+        <line x1="86" y1="89" x2="108" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd={`url(#${markerId})`} />
 
         {/* Conv + Pool stage 1 */}
         {cnnStage1.map((idx) => (
@@ -469,7 +459,7 @@ function CnnMlpPipelineDiagram() {
           Conv + Pool
         </text>
 
-        <line x1="172" y1="89" x2="194" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd="url(#cnn-mlp-arrow)" />
+        <line x1="172" y1="89" x2="194" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd={`url(#${markerId})`} />
 
         {/* Conv + Pool stage 2 */}
         {cnnStage2.map((idx) => (
@@ -489,7 +479,7 @@ function CnnMlpPipelineDiagram() {
           Conv + Pool
         </text>
 
-        <line x1="254" y1="89" x2="278" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd="url(#cnn-mlp-arrow)" />
+        <line x1="254" y1="89" x2="278" y2="89" stroke={SLATE} strokeWidth="1.5" markerEnd={`url(#${markerId})`} />
 
         {/* Flatten 1D vector */}
         <rect x="288" y="54" width="16" height="70" rx="4" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1.5" />
@@ -564,7 +554,7 @@ function CnnMlpPipelineDiagram() {
           y2="129"
           stroke={BLUE}
           strokeWidth="2.2"
-          markerEnd="url(#cnn-mlp-arrow-blue)"
+          markerEnd={`url(#${blueMarkerId})`}
         />
 
         {/* Right: Highlighted MLP / Fully Connected (white background, bold blue highlight border & badge) */}
@@ -645,6 +635,8 @@ type SummaryMode =
   | 'head';
 
 function SharedMlpHighlightSvg({ mode }: { mode: SummaryMode }) {
+  const markerId = useId();
+
   const inY = [54, 92, 130];
   const h1Y = [38, 74, 110, 146];
   const h2Y = [38, 74, 110, 146];
@@ -676,17 +668,10 @@ function SharedMlpHighlightSvg({ mode }: { mode: SummaryMode }) {
       aria-label={`Minh họa MLP chung (3 → 4 → 4 → 2) làm nổi bật khái niệm: ${mode}`}
     >
       <defs>
-        <marker
-          id="summary-arrow"
-          viewBox="0 0 10 10"
-          refX="8"
-          refY="5"
-          markerWidth="5"
-          markerHeight="5"
-          orient="auto-start-reverse"
-        >
-          <path d="M 0 1 L 10 5 L 0 9 z" fill={BLUE} />
-        </marker>
+        <SvgArrowMarker
+          id={markerId} color={BLUE}
+          viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"
+        />
       </defs>
 
       {/* Activation wrappers around Hidden Layer 1 & 2, with h^(l) = phi(z^(l)) on top */}
@@ -834,8 +819,8 @@ function SharedMlpHighlightSvg({ mode }: { mode: SummaryMode }) {
             y2="146"
             stroke={BLUE}
             strokeWidth="1.5"
-            markerStart="url(#summary-arrow)"
-            markerEnd="url(#summary-arrow)"
+            markerStart={`url(#${markerId})`}
+            markerEnd={`url(#${markerId})`}
           />
           <text x={h1X - 30} y="95" textAnchor="end" fontSize="9.5" fontWeight="800" fill={BLUE}>
             Width = 4
@@ -848,8 +833,8 @@ function SharedMlpHighlightSvg({ mode }: { mode: SummaryMode }) {
             y2="170"
             stroke={BLUE}
             strokeWidth="1.5"
-            markerStart="url(#summary-arrow)"
-            markerEnd="url(#summary-arrow)"
+            markerStart={`url(#${markerId})`}
+            markerEnd={`url(#${markerId})`}
           />
           <text x={(h1X + outX) / 2} y="182" textAnchor="middle" fontSize="9.5" fontWeight="800" fill={BLUE}>
             Depth = 3 (số tầng có trọng số)
